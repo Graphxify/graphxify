@@ -1,6 +1,8 @@
+import type { Metadata } from "next";
 import { HomeSections } from "@/components/marketing/home-sections";
 import { getPublishedWorks } from "@/db/queries/works";
 import { demoWorks } from "@/lib/demo-content";
+import { buildMetadata } from "@/lib/seo";
 
 type WorkPreview = {
   id: string;
@@ -12,6 +14,13 @@ type WorkPreview = {
   role?: string;
   services?: string[];
 };
+
+export const metadata: Metadata = buildMetadata({
+  title: "Graphxify — Premium Brand Systems & High-Performance Websites",
+  description:
+    "Graphxify is a premium branding + web design + development studio. We design cohesive brand systems, craft clean UX/UI, and ship fast, accessible websites with structured CMS implementations.",
+  path: "/"
+});
 
 function toWorkPreview(item: Partial<WorkPreview>): WorkPreview | null {
   if (!item.id || !item.title || !item.slug || !item.excerpt) {

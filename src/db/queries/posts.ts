@@ -6,7 +6,7 @@ export async function getPublishedPosts() {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("posts")
-    .select("id,title,slug,excerpt,cover_image_url,created_at")
+    .select("id,title,slug,excerpt,content,cover_image_url,created_at,updated_at")
     .eq("status", "published")
     .order("created_at", { ascending: false });
 

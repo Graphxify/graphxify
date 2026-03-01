@@ -41,18 +41,18 @@ export function DashboardNav({ items }: { items: NavItem[] }): JSX.Element {
             className={cn(
               "relative flex items-center gap-2 rounded-xl border px-3 py-2.5 text-sm transition-all",
               active
-                ? "border-accentA/45 bg-accentA/12 text-fg"
-                : "border-border/16 bg-card/45 text-fg/72 hover:border-border/30 hover:bg-card/70 hover:text-fg"
+                ? "border-border/40 bg-fg text-bg"
+                : "border-border/18 bg-card/45 text-fg/72 hover:border-border/32 hover:bg-card/70 hover:text-fg"
             )}
           >
             {active ? (
               <motion.span
                 layoutId="dashboard-nav-active"
-                className="absolute inset-0 -z-10 rounded-xl bg-accent-gradient opacity-20"
+                className="absolute inset-0 -z-10 rounded-xl bg-fg"
                 transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
               />
             ) : null}
-            <span className="text-fg/72">{iconByLabel[item.label] ?? <LayoutDashboard className="h-4 w-4" />}</span>
+            <span className={cn("text-fg/72", active && "text-bg")}>{iconByLabel[item.label] ?? <LayoutDashboard className="h-4 w-4" />}</span>
             <span>{item.label}</span>
           </Link>
         );

@@ -18,7 +18,7 @@ export function ScrollProgress(): JSX.Element | null {
   return (
     <motion.div
       aria-hidden
-      className="pointer-events-none fixed inset-x-0 top-0 z-[70] h-px origin-left bg-accent-gradient"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[70] h-px origin-left bg-fg/42"
       style={{ scaleX }}
     />
   );

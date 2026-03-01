@@ -8,11 +8,10 @@ export function buildMetadata(input: {
   image?: string;
 }): Metadata {
   const canonical = new URL(input.path, siteConfig.url).toString();
-  const image = input.image || "/assets/og-default.svg";
-  const title = `${input.title} | ${siteConfig.name}`;
+  const image = input.image || "/opengraph-image";
 
   return {
-    title,
+    title: input.title,
     description: input.description,
     metadataBase: new URL(siteConfig.url),
     alternates: {
@@ -20,7 +19,7 @@ export function buildMetadata(input: {
     },
     openGraph: {
       type: "website",
-      title,
+      title: input.title,
       description: input.description,
       url: canonical,
       siteName: siteConfig.name,
@@ -28,7 +27,7 @@ export function buildMetadata(input: {
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: input.title,
       description: input.description,
       images: [image]
     }
@@ -41,8 +40,8 @@ export function organizationJsonLd() {
     "@type": "Organization",
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: `${siteConfig.url}/assets/logo-mark.svg`,
-    description: siteConfig.description
+    description: siteConfig.description,
+    sameAs: []
   };
 }
 
@@ -53,6 +52,26 @@ export function websiteJsonLd() {
     name: siteConfig.name,
     url: siteConfig.url,
     description: siteConfig.description
+  };
+}
+
+export function serviceJsonLd(input: {
+  name: string;
+  description: string;
+  path: string;
+}): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    name: input.name,
+    description: input.description,
+    provider: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      url: siteConfig.url
+    },
+    areaServed: "Global",
+    url: `${siteConfig.url}${input.path}`
   };
 }
 
@@ -88,6 +107,10 @@ export function creativeWorkJsonLd(input: {
     name: input.title,
     description: input.description,
     datePublished: input.datePublished,
-    url: `${siteConfig.url}${input.path}`
+    url: `${siteConfig.url}${input.path}`,
+    creator: {
+      "@type": "Organization",
+      name: siteConfig.name
+    }
   };
 }

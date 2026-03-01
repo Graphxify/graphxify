@@ -20,6 +20,37 @@ export const leadSchema = z.object({
   message: z.string().min(8).max(2000)
 });
 
+export const inquiryServiceValues = [
+  "Brand Systems",
+  "Web Design (UX/UI)",
+  "Web Development",
+  "CMS Architecture"
+] as const;
+
+export const inquiryTimelineValues = ["ASAP", "2-4 weeks", "1-2 months", "3+ months"] as const;
+
+export const inquiryBudgetValues = ["$5k-$10k", "$10k-$25k", "$25k-$50k", "$50k+"] as const;
+
+export const inquirySchema = z.object({
+  name: z.string().min(2).max(120),
+  email: z.string().email().max(180),
+  company: z.string().min(2).max(180),
+  website: z.string().trim().optional().or(z.literal("")).refine((value) => {
+    if (!value) return true;
+    try {
+      const parsed = new URL(value);
+      return parsed.protocol === "http:" || parsed.protocol === "https:";
+    } catch {
+      return false;
+    }
+  }, "Website URL must be a valid http(s) URL."),
+  services: z.array(z.enum(inquiryServiceValues)).min(1),
+  timeline: z.enum(inquiryTimelineValues),
+  budget: z.enum(inquiryBudgetValues),
+  details: z.string().min(80).max(5000),
+  source: z.enum(["homepage", "contact"])
+});
+
 export const postSchema = z.object({
   title: z.string().min(3).max(180),
   slug: z

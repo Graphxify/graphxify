@@ -7,50 +7,92 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { getPublishedWorkBySlug } from "@/db/queries/works";
 import { demoWorks } from "@/lib/demo-content";
 import { buildMetadata, creativeWorkJsonLd } from "@/lib/seo";
+import { findCaseStudy } from "@/lib/marketing-content";
+import { Button } from "@/components/ui/button";
 
 type Params = { slug: string };
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  let work = demoWorks.find((item) => item.slug === params.slug) ?? null;
-  try {
-    const dbWork = await getPublishedWorkBySlug(params.slug);
-    if (dbWork) work = dbWork;
-  } catch {
-    // fallback
+  const study = findCaseStudy(params.slug);
+  if (study) {
+    return buildMetadata({
+      title: `${study.title} - Graphxify`,
+      description: study.intro,
+      path: `/works/${study.slug}`
+    });
   }
 
-  if (!work) return buildMetadata({ title: "Work Not Found", description: "Work item not found.", path: `/works/${params.slug}` });
+  try {
+    const dbWork = await getPublishedWorkBySlug(params.slug);
+    if (dbWork) {
+      return buildMetadata({
+        title: `${dbWork.title} - Graphxify`,
+        description: dbWork.excerpt,
+        path: `/works/${dbWork.slug}`,
+        image: dbWork.cover_image_url || "/opengraph-image"
+      });
+    }
+  } catch {
+    // degraded mode
+  }
 
   return buildMetadata({
-    title: work.title,
-    description: work.excerpt,
-    path: `/works/${work.slug}`,
-    image: work.cover_image_url || "/assets/og-default.svg"
+    title: "Work Not Found - Graphxify",
+    description: "Work item not found.",
+    path: `/works/${params.slug}`
   });
 }
 
 export default async function WorkDetailPage({ params }: { params: Params }) {
-  let work = demoWorks.find((item) => item.slug === params.slug) ?? null;
+  const study = findCaseStudy(params.slug);
+
+  let dbWork = null as
+    | {
+        slug: string;
+        title: string;
+        excerpt: string;
+        content: string;
+        cover_image_url: string | null;
+        created_at?: string;
+      }
+    | null;
+
   try {
-    const dbWork = await getPublishedWorkBySlug(params.slug);
-    if (dbWork) work = dbWork;
+    const row = await getPublishedWorkBySlug(params.slug);
+    if (row) {
+      dbWork = {
+        slug: row.slug,
+        title: row.title,
+        excerpt: row.excerpt,
+        content: row.content,
+        cover_image_url: row.cover_image_url,
+        created_at: row.created_at
+      };
+    }
   } catch {
-    // fallback
+    // degraded mode
   }
 
-  if (!work) {
+  const fallbackWork = demoWorks.find((item) => item.slug === params.slug) ?? null;
+
+  if (!study && !dbWork && !fallbackWork) {
     notFound();
   }
+
+  const title = study?.title || dbWork?.title || fallbackWork?.title || "Work";
+  const description = study?.intro || dbWork?.excerpt || fallbackWork?.excerpt || "";
+  const image = dbWork?.cover_image_url || fallbackWork?.cover_image_url || "/assets/work-fallback.svg";
+  const publishedAt = dbWork?.created_at || fallbackWork?.created_at || new Date().toISOString();
 
   return (
     <article className="container py-16">
       <JsonLd
         data={
           creativeWorkJsonLd({
-            title: work.title,
-            description: work.excerpt,
-            path: `/works/${work.slug}`,
-            datePublished: ("created_at" in work && typeof work.created_at === "string" ? work.created_at : undefined) || new Date().toISOString()
+            title,
+            description,
+            path: `/works/${params.slug}`,
+            datePublished: publishedAt
           }) as Record<string, unknown>
         }
       />
@@ -60,40 +102,102 @@ export default async function WorkDetailPage({ params }: { params: Params }) {
           <Link href="/works" className="link-sweep text-sm text-fg/68">
             Back to works
           </Link>
-          <h1 className="text-4xl font-semibold md:text-5xl">{work.title}</h1>
-          <p className="max-w-3xl text-fg/68">{work.excerpt}</p>
+          <h1 className="text-4xl font-semibold md:text-5xl">{title}</h1>
+          <p className="max-w-3xl text-fg/72">{description}</p>
         </RevealItem>
 
         <RevealItem>
-          <div className="relative h-[28rem] overflow-hidden rounded-2xl border border-border/18">
-            <Image
-              src={work.cover_image_url || "/assets/work-fallback.svg"}
-              alt={work.title}
-              fill
-              className="object-cover transition-transform duration-700 hover:scale-[1.03]"
-              sizes="100vw"
-              priority
-            />
+          <div className="relative h-[26rem] overflow-hidden rounded-2xl border border-border/18">
+            <Image src={image} alt={title} fill className="object-cover" sizes="100vw" priority />
           </div>
         </RevealItem>
 
-        <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr]">
-          <RevealItem>
-            <div className="section-shell border-border/18 bg-card/72 p-5">
-              <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Project Snapshot</p>
-              <ul className="mt-4 space-y-3 text-sm text-fg/72">
-                <li>Year: {work.year || "Recent"}</li>
-                <li>Role: {work.role || "Delivery Partner"}</li>
-                <li>Services: {(work.services || []).join(", ") || "Strategy, Design, Engineering"}</li>
-              </ul>
+        {study ? (
+          <>
+            <div className="grid gap-5 md:grid-cols-2">
+              <RevealItem>
+                <article className="section-shell p-6">
+                  <h2 className="text-2xl font-semibold">Context</h2>
+                  <p className="mt-3 text-sm text-fg/76">{study.context}</p>
+                </article>
+              </RevealItem>
+              <RevealItem>
+                <article className="section-shell p-6">
+                  <h2 className="text-2xl font-semibold">Challenge</h2>
+                  <ul className="mt-3 space-y-2 text-sm text-fg/76">
+                    {study.challenge.map((item) => (
+                      <li key={item}>- {item}</li>
+                    ))}
+                  </ul>
+                </article>
+              </RevealItem>
             </div>
-          </RevealItem>
-          <RevealItem>
-            <div className="section-shell border-border/18 bg-card/72 p-6 text-fg/78">
-              <p>{work.content}</p>
+
+            <RevealItem>
+              <article className="section-shell p-6">
+                <h2 className="text-2xl font-semibold">What we did</h2>
+                <ul className="mt-3 space-y-2 text-sm text-fg/76">
+                  {study.whatWeDid.map((item) => (
+                    <li key={item}>- {item}</li>
+                  ))}
+                </ul>
+              </article>
+            </RevealItem>
+
+            <div className="grid gap-5 md:grid-cols-2">
+              <RevealItem>
+                <article className="section-shell p-6">
+                  <h2 className="text-2xl font-semibold">CMS architecture</h2>
+                  <ul className="mt-3 space-y-2 text-sm text-fg/76">
+                    {study.cmsArchitecture.map((item) => (
+                      <li key={item}>- {item}</li>
+                    ))}
+                  </ul>
+                </article>
+              </RevealItem>
+              <RevealItem>
+                <article className="section-shell p-6">
+                  <h2 className="text-2xl font-semibold">Technical notes</h2>
+                  <ul className="mt-3 space-y-2 text-sm text-fg/76">
+                    {study.technicalNotes.map((item) => (
+                      <li key={item}>- {item}</li>
+                    ))}
+                  </ul>
+                </article>
+              </RevealItem>
             </div>
+
+            <RevealItem>
+              <article className="section-shell p-6">
+                <h2 className="text-2xl font-semibold">Outcome</h2>
+                <ul className="mt-3 space-y-2 text-sm text-fg/76">
+                  {study.outcome.map((item) => (
+                    <li key={item}>- {item}</li>
+                  ))}
+                </ul>
+                <p className="mt-4 text-sm text-fg/74">
+                  <span className="font-semibold">Stack:</span> {study.stack}
+                </p>
+              </article>
+            </RevealItem>
+
+            <RevealItem>
+              <article className="section-shell p-6 md:p-8">
+                <p className="text-sm text-fg/70">{study.ctaPrompt}</p>
+                <Button asChild className="mt-4">
+                  <Link href="/contact#inquiry">Start a project inquiry</Link>
+                </Button>
+              </article>
+            </RevealItem>
+          </>
+        ) : (
+          <RevealItem>
+            <article className="section-shell p-6 text-fg/76">
+              <h2 className="text-2xl font-semibold">Project summary</h2>
+              <p className="mt-3">{dbWork?.content || fallbackWork?.content}</p>
+            </article>
           </RevealItem>
-        </div>
+        )}
       </RevealStagger>
     </article>
   );

@@ -3,7 +3,7 @@ import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Terms of Service",
+  title: "Terms of Service - Graphxify",
   description: "Graphxify service terms and delivery boundaries.",
   path: "/terms"
 });

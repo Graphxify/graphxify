@@ -3,7 +3,7 @@ import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Privacy Policy",
+  title: "Privacy Policy - Graphxify",
   description: "Graphxify privacy policy and data handling commitments.",
   path: "/privacy"
 });

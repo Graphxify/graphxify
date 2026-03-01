@@ -5,37 +5,86 @@ import { notFound } from "next/navigation";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getPublishedPostBySlug } from "@/db/queries/posts";
-import { demoPosts } from "@/lib/demo-content";
 import { blogPostingJsonLd, buildMetadata } from "@/lib/seo";
+import { findJournalPost } from "@/lib/journal-content";
 
 type Params = { slug: string };
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  let post = demoPosts.find((item) => item.slug === params.slug) ?? null;
+const MIN_JOURNAL_LENGTH = 600;
+
+type PostData = {
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  cover_image_url: string | null;
+  created_at: string;
+};
+
+async function resolvePost(slug: string): Promise<PostData | null> {
+  const local = findJournalPost(slug);
+
   try {
-    const dbPost = await getPublishedPostBySlug(params.slug);
-    if (dbPost) post = dbPost;
+    const dbPost = await getPublishedPostBySlug(slug);
+
+    if (local) {
+      return {
+        title: local.title,
+        slug: local.slug,
+        excerpt: local.excerpt,
+        content: local.content,
+        cover_image_url: dbPost?.cover_image_url || local.cover_image_url,
+        created_at: dbPost?.created_at || local.created_at
+      };
+    }
+
+    if (dbPost && String(dbPost.content || "").trim().length >= MIN_JOURNAL_LENGTH) {
+      return {
+        title: dbPost.title,
+        slug: dbPost.slug,
+        excerpt: dbPost.excerpt,
+        content: dbPost.content,
+        cover_image_url: dbPost.cover_image_url,
+        created_at: dbPost.created_at
+      };
+    }
   } catch {
-    // fallback
+    if (local) {
+      return {
+        title: local.title,
+        slug: local.slug,
+        excerpt: local.excerpt,
+        content: local.content,
+        cover_image_url: local.cover_image_url,
+        created_at: local.created_at
+      };
+    }
   }
-  if (!post) return buildMetadata({ title: "Post Not Found", description: "Post item not found.", path: `/blog/${params.slug}` });
+
+  return null;
+}
+
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
+  const post = await resolvePost(params.slug);
+
+  if (!post) {
+    return buildMetadata({
+      title: "Journal Post Not Found - Graphxify",
+      description: "Journal post not found.",
+      path: `/blog/${params.slug}`
+    });
+  }
 
   return buildMetadata({
-    title: post.title,
+    title: `${post.title} - Graphxify`,
     description: post.excerpt,
     path: `/blog/${post.slug}`,
-    image: post.cover_image_url || "/assets/og-default.svg"
+    image: post.cover_image_url || "/opengraph-image"
   });
 }
 
 export default async function BlogPostPage({ params }: { params: Params }) {
-  let post = demoPosts.find((item) => item.slug === params.slug) ?? null;
-  try {
-    const dbPost = await getPublishedPostBySlug(params.slug);
-    if (dbPost) post = dbPost;
-  } catch {
-    // fallback
-  }
+  const post = await resolvePost(params.slug);
 
   if (!post) {
     notFound();
@@ -49,7 +98,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
             title: post.title,
             description: post.excerpt,
             path: `/blog/${post.slug}`,
-            datePublished: ("created_at" in post && typeof post.created_at === "string" ? post.created_at : undefined) || new Date().toISOString()
+            datePublished: post.created_at || new Date().toISOString()
           }) as Record<string, unknown>
         }
       />
@@ -57,25 +106,35 @@ export default async function BlogPostPage({ params }: { params: Params }) {
       <RevealStagger className="space-y-10">
         <RevealItem className="space-y-4">
           <Link href="/blog" className="link-sweep text-sm text-fg/68">
-            Back to blog
+            Back to journal
           </Link>
           <h1 className="text-4xl font-semibold md:text-5xl">{post.title}</h1>
-          <p className="max-w-3xl text-fg/68">{post.excerpt}</p>
+          <p className="max-w-3xl text-fg/72">{post.excerpt}</p>
         </RevealItem>
+
         <RevealItem>
           <div className="relative h-[28rem] overflow-hidden rounded-2xl border border-border/18">
             <Image
               src={post.cover_image_url || "/assets/post-fallback.svg"}
               alt={post.title}
               fill
-              className="object-cover transition-transform duration-700 hover:scale-[1.03]"
+              className="object-cover"
               priority
             />
           </div>
         </RevealItem>
+
         <RevealItem>
-          <div className="section-shell border-border/18 bg-card/72 p-6 text-fg/78">
-            <p>{post.content}</p>
+          <div className="section-shell p-6 text-fg/80">
+            <div className="space-y-4">
+              {post.content
+                .split("\n\n")
+                .map((paragraph) => paragraph.trim())
+                .filter(Boolean)
+                .map((paragraph) => (
+                  <p key={paragraph.slice(0, 36)}>{paragraph}</p>
+                ))}
+            </div>
           </div>
         </RevealItem>
       </RevealStagger>
