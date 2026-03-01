@@ -7,8 +7,40 @@ import { rateLimit } from "@/lib/rate-limit";
 import { logAuditEvent } from "@/lib/audit";
 import { logger } from "@/lib/logger";
 
-function redirectLoginError(code: "rate_limited" | "invalid_credentials" | "auth_unavailable" | "unknown"): never {
+type LoginErrorCode = "rate_limited" | "invalid_credentials" | "auth_unavailable" | "email_not_confirmed" | "unknown";
+
+function redirectLoginError(code: LoginErrorCode): never {
   redirect(`/login?error=${code}`);
+}
+
+function classifyAuthError(input: { message?: string; status?: number | null; code?: string | null }): LoginErrorCode {
+  const message = (input.message ?? "").toLowerCase();
+  const status = typeof input.status === "number" ? input.status : undefined;
+  const code = (input.code ?? "").toLowerCase();
+
+  if (status === 429 || message.includes("too many")) {
+    return "rate_limited";
+  }
+  if (code === "email_not_confirmed" || message.includes("email not confirmed")) {
+    return "email_not_confirmed";
+  }
+  if (
+    code === "invalid_credentials" ||
+    message.includes("invalid") ||
+    message.includes("credentials") ||
+    message.includes("password") ||
+    message.includes("not found") ||
+    status === 400 ||
+    status === 401 ||
+    status === 403 ||
+    status === 422
+  ) {
+    return "invalid_credentials";
+  }
+  if (status !== undefined && status >= 500) {
+    return "auth_unavailable";
+  }
+  return "unknown";
 }
 
 export async function loginAction(formData: FormData): Promise<void> {
@@ -41,21 +73,29 @@ export async function loginAction(formData: FormData): Promise<void> {
     const result = await supabase.auth.signInWithPassword({ email, password });
     data = result.data;
     if (result.error) {
-      const msg = result.error.message.toLowerCase();
-      if (msg.includes("invalid") || msg.includes("credentials") || msg.includes("password")) {
-        redirectLoginError("invalid_credentials");
-      }
-      if (msg.includes("too many")) {
-        redirectLoginError("rate_limited");
-      }
-      redirectLoginError("auth_unavailable");
+      const code = classifyAuthError({
+        message: result.error.message,
+        status: (result.error as { status?: number }).status ?? null,
+        code: (result.error as { code?: string }).code ?? null
+      });
+      logger.warn("Login rejected", {
+        email,
+        code,
+        status: (result.error as { status?: number }).status ?? null,
+        providerCode: (result.error as { code?: string }).code ?? null,
+        message: result.error.message
+      });
+      redirectLoginError(code);
     }
   } catch (error) {
+    const message = error instanceof Error ? error.message : "unknown";
+    const code = classifyAuthError({ message });
     logger.error("Login sign-in failed", {
       email,
-      error: error instanceof Error ? error.message : "unknown"
+      error: message,
+      code
     });
-    redirectLoginError("auth_unavailable");
+    redirectLoginError(code === "unknown" ? "auth_unavailable" : code);
   }
 
   if (!data?.user) {

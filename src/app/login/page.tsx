@@ -16,6 +16,7 @@ export const metadata: Metadata = buildMetadata({
 export default function LoginPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
   const errorMessages: Record<string, string> = {
     invalid_credentials: "Invalid email or password.",
+    email_not_confirmed: "Email is not confirmed. Confirm your inbox first, then try again.",
     rate_limited: "Too many attempts. Please wait and try again.",
     auth_unavailable: "Authentication service is temporarily unavailable.",
     unknown: "Unable to sign in. Please try again."
