@@ -14,8 +14,9 @@ type SupabaseCookieOptions = {
 
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({ request: { headers: request.headers } });
+  const publicKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  const supabase = createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, env.NEXT_PUBLIC_SUPABASE_ANON_KEY, {
+  const supabase = createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, publicKey, {
     cookies: {
       get(name: string) {
         return request.cookies.get(name)?.value;

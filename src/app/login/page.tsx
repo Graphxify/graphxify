@@ -16,7 +16,9 @@ export const metadata: Metadata = buildMetadata({
 export default function LoginPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
   const errorMessages: Record<string, string> = {
     invalid_credentials: "Invalid email or password.",
+    account_not_found: "No account exists for this email in Supabase Auth.",
     email_not_confirmed: "Email is not confirmed. Confirm your inbox first, then try again.",
+    password_auth_disabled: "Email/password login is disabled in Supabase Auth providers.",
     rate_limited: "Too many attempts. Please wait and try again.",
     auth_unavailable: "Authentication service is temporarily unavailable.",
     unknown: "Unable to sign in. Please try again."
@@ -70,6 +72,9 @@ function LoginView({
             </Button>
           </form>
           {errorText ? <p className="mt-4 text-sm text-fg/74">{errorText}</p> : null}
+          {process.env.NODE_ENV !== "production" && errorCode ? (
+            <p className="mt-2 text-xs uppercase tracking-[0.1em] text-fg/52">Error code: {errorCode}</p>
+          ) : null}
         </CardContent>
       </Card>
     </div>

@@ -3,11 +3,19 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit } from "@/lib/rate-limit";
 import { logAuditEvent } from "@/lib/audit";
 import { logger } from "@/lib/logger";
 
-type LoginErrorCode = "rate_limited" | "invalid_credentials" | "auth_unavailable" | "email_not_confirmed" | "unknown";
+type LoginErrorCode =
+  | "rate_limited"
+  | "invalid_credentials"
+  | "auth_unavailable"
+  | "password_auth_disabled"
+  | "email_not_confirmed"
+  | "account_not_found"
+  | "unknown";
 
 function redirectLoginError(code: LoginErrorCode): never {
   redirect(`/login?error=${code}`);
@@ -21,21 +29,41 @@ function classifyAuthError(input: { message?: string; status?: number | null; co
   if (status === 429 || message.includes("too many")) {
     return "rate_limited";
   }
+  if (
+    message.includes("email login is disabled") ||
+    message.includes("email logins are disabled") ||
+    message.includes("email provider is disabled")
+  ) {
+    return "password_auth_disabled";
+  }
+  if (
+    message.includes("api key") ||
+    message.includes("jwt") ||
+    message.includes("project not found") ||
+    message.includes("network") ||
+    message.includes("fetch failed") ||
+    message.includes("service unavailable") ||
+    message.includes("unauthorized")
+  ) {
+    return "auth_unavailable";
+  }
   if (code === "email_not_confirmed" || message.includes("email not confirmed")) {
     return "email_not_confirmed";
   }
   if (
     code === "invalid_credentials" ||
+    code === "invalid_login_credentials" ||
     message.includes("invalid") ||
     message.includes("credentials") ||
-    message.includes("password") ||
-    message.includes("not found") ||
-    status === 400 ||
-    status === 401 ||
-    status === 403 ||
+    message.includes("incorrect password") ||
+    message.includes("email or password") ||
+    (status === 400 && message.includes("password")) ||
     status === 422
   ) {
     return "invalid_credentials";
+  }
+  if (status === 401 || status === 403) {
+    return "auth_unavailable";
   }
   if (status !== undefined && status >= 500) {
     return "auth_unavailable";
@@ -43,9 +71,45 @@ function classifyAuthError(input: { message?: string; status?: number | null; co
   return "unknown";
 }
 
+async function inspectAuthUserState(email: string): Promise<"email_not_confirmed" | "account_not_found" | null> {
+  const admin = createAdminClient();
+  if (!admin) {
+    return null;
+  }
+
+  try {
+    let page = 1;
+    while (page <= 3) {
+      const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
+      if (error) {
+        logger.warn("Auth user inspection failed", { error: error.message });
+        return null;
+      }
+      const user = data.users.find((item) => (item.email ?? "").toLowerCase() === email.toLowerCase());
+      if (user) {
+        if (!user.email_confirmed_at) {
+          return "email_not_confirmed";
+        }
+        return null;
+      }
+      if (data.users.length < 200) {
+        break;
+      }
+      page += 1;
+    }
+
+    return "account_not_found";
+  } catch (error) {
+    logger.warn("Auth user inspection threw", {
+      error: error instanceof Error ? error.message : "unknown"
+    });
+    return null;
+  }
+}
+
 export async function loginAction(formData: FormData): Promise<void> {
   const email = String(formData.get("email") || "").trim();
-  const password = String(formData.get("password") || "").trim();
+  const password = String(formData.get("password") || "");
 
   if (!email || !password) {
     redirectLoginError("invalid_credentials");
@@ -92,7 +156,13 @@ export async function loginAction(formData: FormData): Promise<void> {
   }
 
   if (signInError) {
-    const code = classifyAuthError(signInError);
+    let code = classifyAuthError(signInError);
+    if (code === "invalid_credentials" || code === "unknown") {
+      const inspected = await inspectAuthUserState(email);
+      if (inspected) {
+        code = inspected;
+      }
+    }
     logger.warn("Login rejected", {
       email,
       code,
@@ -108,9 +178,34 @@ export async function loginAction(formData: FormData): Promise<void> {
   }
 
   try {
-    await supabase.from("profiles").upsert({ id: data.user.id, email: data.user.email ?? email, role: "mod" });
+    const { data: existingProfile, error: existingError } = await supabase
+      .from("profiles")
+      .select("id,role")
+      .eq("id", data.user.id)
+      .maybeSingle();
+
+    if (existingError) {
+      throw existingError;
+    }
+
+    if (existingProfile) {
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ email: data.user.email ?? email })
+        .eq("id", data.user.id);
+      if (updateError) {
+        throw updateError;
+      }
+    } else {
+      const { error: insertError } = await supabase
+        .from("profiles")
+        .insert({ id: data.user.id, email: data.user.email ?? email, role: "mod" });
+      if (insertError) {
+        throw insertError;
+      }
+    }
   } catch (error) {
-    logger.warn("Profile upsert failed during login", {
+    logger.warn("Profile sync failed during login", {
       userId: data.user.id,
       error: error instanceof Error ? error.message : "unknown"
     });
