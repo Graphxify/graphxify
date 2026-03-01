@@ -54,46 +54,51 @@ export async function loginAction(formData: FormData): Promise<void> {
   const headerStore = headers();
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? headerStore.get("x-real-ip") ?? "unknown";
 
+  let limited = { allowed: true, remaining: 0, retryAfter: 0 };
   try {
-    const limited = await rateLimit({ key: ip, route: "auth-login", limit: 8, windowSec: 60 });
-    if (!limited.allowed) {
-      redirectLoginError("rate_limited");
-    }
+    limited = await rateLimit({ key: ip, route: "auth-login", limit: 8, windowSec: 60 });
   } catch (error) {
     logger.error("Login rate-limit check failed", {
       error: error instanceof Error ? error.message : "unknown"
     });
     // Fail-open to avoid blocking auth if limiter backend is unstable.
   }
+  if (!limited.allowed) {
+    redirectLoginError("rate_limited");
+  }
 
   const supabase = createClient();
-  let data: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>["data"];
+  let data: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>["data"] | null = null;
+  let signInError: { message?: string; status?: number | null; code?: string | null } | null = null;
 
   try {
     const result = await supabase.auth.signInWithPassword({ email, password });
     data = result.data;
     if (result.error) {
-      const code = classifyAuthError({
+      signInError = {
         message: result.error.message,
         status: (result.error as { status?: number }).status ?? null,
         code: (result.error as { code?: string }).code ?? null
-      });
-      logger.warn("Login rejected", {
-        email,
-        code,
-        status: (result.error as { status?: number }).status ?? null,
-        providerCode: (result.error as { code?: string }).code ?? null,
-        message: result.error.message
-      });
-      redirectLoginError(code);
+      };
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : "unknown";
-    const code = classifyAuthError({ message });
+    signInError = { message };
     logger.error("Login sign-in failed", {
       email,
       error: message,
-      code
+      code: classifyAuthError({ message })
+    });
+  }
+
+  if (signInError) {
+    const code = classifyAuthError(signInError);
+    logger.warn("Login rejected", {
+      email,
+      code,
+      status: signInError.status ?? null,
+      providerCode: signInError.code ?? null,
+      message: signInError.message ?? ""
     });
     redirectLoginError(code === "unknown" ? "auth_unavailable" : code);
   }
