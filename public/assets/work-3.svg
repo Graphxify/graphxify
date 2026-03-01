@@ -1,0 +1,12 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="800" fill="#0d0d0f"/>
+  <rect x="90" y="90" width="1020" height="620" rx="28" stroke="#f2f0eb" stroke-opacity="0.2"/>
+  <rect x="140" y="160" width="420" height="420" rx="16" fill="#f2f0eb" fill-opacity="0.08"/>
+  <rect x="178" y="198" width="344" height="12" rx="6" fill="url(#g)"/>
+  <rect x="178" y="238" width="280" height="12" rx="6" fill="#f2f0eb" fill-opacity="0.72"/>
+  <rect x="620" y="190" width="420" height="18" rx="9" fill="#f2f0eb" fill-opacity="0.85"/>
+  <rect x="620" y="230" width="280" height="14" rx="7" fill="#f2f0eb" fill-opacity="0.62"/>
+  <rect x="620" y="320" width="400" height="14" rx="7" fill="#f2f0eb" fill-opacity="0.74"/>
+  <rect x="620" y="350" width="360" height="14" rx="7" fill="#f2f0eb" fill-opacity="0.55"/>
+  <defs><linearGradient id="g" x1="178" y1="204" x2="522" y2="204" gradientUnits="userSpaceOnUse"><stop stop-color="#00a3ff"/><stop offset="1" stop-color="#0052cc"/></linearGradient></defs>
+</svg>
