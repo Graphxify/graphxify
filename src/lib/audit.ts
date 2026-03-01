@@ -15,6 +15,7 @@ export type AuditAction =
   | "work.publish"
   | "lead.create"
   | "auth.login"
+  | "auth.signup"
   | "user.role_change"
   | "post.restore"
   | "work.restore";

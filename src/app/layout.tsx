@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { Providers } from "@/app/providers";
 import { buildMetadata } from "@/lib/seo";
 
 const poppins = Poppins({
@@ -19,8 +20,10 @@ export const metadata: Metadata = buildMetadata({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={poppins.variable}>
-      <body className="page-bg min-h-screen font-sans text-ivory antialiased">{children}</body>
+    <html lang="en" className={`${poppins.variable} light`} suppressHydrationWarning>
+      <body className="app-shell min-h-screen bg-bg text-fg antialiased">
+        <Providers>{children}</Providers>
+      </body>
     </html>
   );
 }

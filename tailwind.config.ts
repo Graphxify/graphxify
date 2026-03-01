@@ -9,31 +9,37 @@ const config: Config = {
     "./src/services/**/*.{ts,tsx}"
   ],
   theme: {
+    container: {
+      center: true,
+      padding: "1rem",
+      screens: {
+        "2xl": "1280px"
+      }
+    },
     extend: {
       colors: {
         graphite: "#0d0d0f",
         ivory: "#f2f0eb",
         accentA: "#00a3ff",
-        accentB: "#0052cc"
+        accentB: "#0052cc",
+        bg: "rgb(var(--bg) / <alpha-value>)",
+        fg: "rgb(var(--fg) / <alpha-value>)",
+        muted: "rgb(var(--muted) / <alpha-value>)",
+        border: "rgb(var(--border) / <alpha-value>)",
+        card: "rgb(var(--card) / <alpha-value>)"
       },
       backgroundImage: {
         "accent-gradient": "linear-gradient(90deg, #00a3ff 0%, #0052cc 100%)"
       },
-      container: {
-        center: true,
-        padding: "1rem",
-        screens: {
-          "2xl": "1280px"
-        }
-      },
       borderRadius: {
         xl: "1rem",
-        lg: "0.75rem",
-        md: "0.5rem"
+        lg: "0.8rem",
+        md: "0.55rem"
       },
       boxShadow: {
-        card: "0 16px 32px rgba(0, 163, 255, 0.08)",
-        glow: "0 0 24px rgba(0, 163, 255, 0.22)"
+        card: "0 18px 40px rgba(0, 0, 0, 0.18)",
+        glow: "0 0 28px rgba(0, 163, 255, 0.2)",
+        float: "0 22px 48px rgba(0, 0, 0, 0.24)"
       },
       keyframes: {
         "accordion-down": {
@@ -43,15 +49,16 @@ const config: Config = {
         "accordion-up": {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" }
+        },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" }
         }
       },
       animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out"
-      },
-      transitionDuration: {
-        250: "250ms",
-        450: "450ms"
+        "accordion-down": "accordion-down 0.22s ease-out",
+        "accordion-up": "accordion-up 0.22s ease-out",
+        marquee: "marquee 20s linear infinite"
       }
     }
   },

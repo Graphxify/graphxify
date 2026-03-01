@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { emitCmsContentChanged } from "@/lib/client/cms-sync";
 
 type ContentFormProps = {
   type: "post" | "work";
@@ -18,36 +19,50 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
   const [saving, setSaving] = useState(false);
   const [cover, setCover] = useState(String(item?.cover_image_url ?? ""));
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
     setError("");
+    setNotice("");
 
     const formData = new FormData(event.currentTarget);
     formData.set("coverImageUrl", cover);
 
     const endpoint = type === "post" ? "/api/dashboard/posts" : "/api/dashboard/works";
     const method = item?.id ? "PUT" : "POST";
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000);
 
-    const response = await fetch(endpoint, {
-      method,
-      body: formData
-    });
+    try {
+      const response = await fetch(endpoint, {
+        method,
+        body: formData,
+        credentials: "include",
+        cache: "no-store",
+        signal: controller.signal
+      });
 
-    const payload = (await response.json()) as { id?: string; message?: string };
-    if (!response.ok || !payload.id) {
-      setError(payload.message || "Save failed");
+      const payload = (await response.json()) as { id?: string; message?: string };
+      if (!response.ok || !payload.id) {
+        setError(payload.message || "Save failed");
+        return;
+      }
+
+      emitCmsContentChanged(`${type}.saved`);
+      setNotice("Saved successfully.");
+      router.push(`/dashboard/${type}s/${payload.id}`);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : "Request failed");
+    } finally {
+      clearTimeout(timeout);
       setSaving(false);
-      return;
     }
-
-    router.push(`/dashboard/${type}s/${payload.id}`);
-    router.refresh();
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-4" aria-label={`${type} editor`}>
+    <form onSubmit={onSubmit} className="space-y-5" aria-label={`${type} editor`}>
       <input type="hidden" name="id" defaultValue={String(item?.id ?? "")} />
       <div className="space-y-2">
         <Label htmlFor="title">Title</Label>
@@ -59,13 +74,15 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
       </div>
       {type === "work" ? (
         <>
-          <div className="space-y-2">
-            <Label htmlFor="year">Year</Label>
-            <Input id="year" name="year" type="number" required defaultValue={String(item?.year ?? "2026")} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <Input id="role" name="role" required defaultValue={String(item?.role ?? "")} />
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="year">Year</Label>
+              <Input id="year" name="year" type="number" required defaultValue={String(item?.year ?? "2026")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="role">Role</Label>
+              <Input id="role" name="role" required defaultValue={String(item?.role ?? "")} />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="services">Services (comma separated)</Label>
@@ -91,7 +108,7 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
         <select
           id="status"
           name="status"
-          className="h-10 w-full rounded-lg border border-[rgba(242,240,235,0.18)] bg-[rgba(13,13,15,0.9)] px-3"
+          className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm"
           defaultValue={String(item?.status ?? "draft")}
         >
           <option value="draft">Draft</option>
@@ -104,7 +121,8 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
         <UploadMedia onUploaded={setCover} />
         <Input name="coverImageUrl" value={cover} onChange={(e) => setCover(e.target.value)} placeholder="Image URL" />
       </div>
-      {error ? <p className="text-sm text-[rgba(242,240,235,0.8)]">{error}</p> : null}
+      {error ? <p className="text-sm text-fg/76">{error}</p> : null}
+      {notice ? <p className="text-sm text-fg/76">{notice}</p> : null}
       <Button type="submit" disabled={saving}>
         {saving ? "Saving..." : "Save"}
       </Button>

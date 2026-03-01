@@ -15,14 +15,19 @@ export function TorontoClock(): JSX.Element {
     []
   );
 
-  const [time, setTime] = useState(() => formatter.format(new Date()));
+  const [time, setTime] = useState<string | null>(null);
 
   useEffect(() => {
+    setTime(formatter.format(new Date()));
     const id = setInterval(() => {
       setTime(formatter.format(new Date()));
     }, 1000);
     return () => clearInterval(id);
   }, [formatter]);
 
-  return <span aria-label="Toronto live time">Toronto {time}</span>;
+  return (
+    <span aria-label="Toronto live time" suppressHydrationWarning>
+      Toronto {time ?? "--:--:--"}
+    </span>
+  );
 }

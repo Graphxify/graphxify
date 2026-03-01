@@ -1,11 +1,27 @@
 export const tokens = {
   colors: {
-    background: "#0d0d0f",
-    text: "#f2f0eb",
+    graphite: "#0d0d0f",
+    ivory: "#f2f0eb",
     accentA: "#00a3ff",
     accentB: "#0052cc"
   },
   gradient: "linear-gradient(90deg, #00a3ff 0%, #0052cc 100%)",
+  semantic: {
+    dark: {
+      bg: "13 13 15",
+      fg: "242 240 235",
+      muted: "242 240 235",
+      card: "18 18 22",
+      border: "242 240 235"
+    },
+    light: {
+      bg: "242 240 235",
+      fg: "13 13 15",
+      muted: "13 13 15",
+      card: "242 240 235",
+      border: "13 13 15"
+    }
+  },
   spacing: {
     xs: "0.25rem",
     sm: "0.5rem",
@@ -26,8 +42,9 @@ export const tokens = {
     pill: "999px"
   },
   shadows: {
-    soft: "0 8px 24px rgba(0, 163, 255, 0.12)",
-    glow: "0 0 24px rgba(0, 163, 255, 0.22)"
+    soft: "0 8px 24px rgba(0, 0, 0, 0.16)",
+    glow: "0 0 24px rgba(0, 163, 255, 0.22)",
+    float: "0 18px 40px rgba(0, 0, 0, 0.2)"
   },
   borderOpacity: {
     low: 0.1,
@@ -35,9 +52,15 @@ export const tokens = {
     high: 0.25
   },
   animationDurations: {
-    fast: "200ms",
-    normal: "350ms",
-    slow: "600ms"
+    fast: "180ms",
+    normal: "320ms",
+    slow: "520ms"
+  },
+  motion: {
+    revealDuration: 0.45,
+    revealEase: [0.16, 1, 0.3, 1] as [number, number, number, number],
+    revealY: 18,
+    stagger: 0.08
   }
 } as const;
 

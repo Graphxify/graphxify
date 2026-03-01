@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -10,12 +11,18 @@ export const metadata: Metadata = buildMetadata({
 export default function TermsPage() {
   return (
     <section className="container py-16">
-      <h1 className="text-4xl font-semibold">Terms of Service</h1>
-      <div className="mt-6 max-w-3xl space-y-4 text-sm text-[rgba(242,240,235,0.8)]">
-        <p>Project scopes, delivery milestones, and communication SLAs are documented in signed agreements.</p>
-        <p>All materials delivered by Graphxify are licensed per client contract terms after final payment.</p>
-        <p>Graphxify reserves the right to pause delivery for breaches of payment or abuse policies.</p>
-      </div>
+      <RevealStagger className="space-y-8">
+        <RevealItem>
+          <h1 className="text-4xl font-semibold md:text-5xl">Terms of Service</h1>
+        </RevealItem>
+        <RevealItem>
+          <div className="section-shell max-w-3xl border-border/18 bg-card/72 p-6 text-sm text-fg/74">
+            <p>Project scopes, delivery milestones, and communication SLAs are documented in signed agreements.</p>
+            <p className="mt-4">All materials delivered by Graphxify are licensed per client contract terms after final payment.</p>
+            <p className="mt-4">Graphxify reserves the right to pause delivery for breaches of payment or abuse policies.</p>
+          </div>
+        </RevealItem>
+      </RevealStagger>
     </section>
   );
 }

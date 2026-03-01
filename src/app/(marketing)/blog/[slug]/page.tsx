@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getPublishedPostBySlug } from "@/db/queries/posts";
 import { demoPosts } from "@/lib/demo-content";
@@ -47,18 +49,36 @@ export default async function BlogPostPage({ params }: { params: Params }) {
             title: post.title,
             description: post.excerpt,
             path: `/blog/${post.slug}`,
-            datePublished: post.created_at || new Date().toISOString()
+            datePublished: ("created_at" in post && typeof post.created_at === "string" ? post.created_at : undefined) || new Date().toISOString()
           }) as Record<string, unknown>
         }
       />
-      <h1 className="text-4xl font-semibold">{post.title}</h1>
-      <p className="mt-3 max-w-3xl text-[rgba(242,240,235,0.75)]">{post.excerpt}</p>
-      <div className="relative mt-8 h-80 overflow-hidden rounded-xl border border-[rgba(242,240,235,0.18)]">
-        <Image src={post.cover_image_url || "/assets/post-fallback.svg"} alt={post.title} fill className="object-cover" priority />
-      </div>
-      <div className="mt-8 max-w-3xl space-y-4 text-[rgba(242,240,235,0.85)]">
-        <p>{post.content}</p>
-      </div>
+
+      <RevealStagger className="space-y-10">
+        <RevealItem className="space-y-4">
+          <Link href="/blog" className="link-sweep text-sm text-fg/68">
+            Back to blog
+          </Link>
+          <h1 className="text-4xl font-semibold md:text-5xl">{post.title}</h1>
+          <p className="max-w-3xl text-fg/68">{post.excerpt}</p>
+        </RevealItem>
+        <RevealItem>
+          <div className="relative h-[28rem] overflow-hidden rounded-2xl border border-border/18">
+            <Image
+              src={post.cover_image_url || "/assets/post-fallback.svg"}
+              alt={post.title}
+              fill
+              className="object-cover transition-transform duration-700 hover:scale-[1.03]"
+              priority
+            />
+          </div>
+        </RevealItem>
+        <RevealItem>
+          <div className="section-shell border-border/18 bg-card/72 p-6 text-fg/78">
+            <p>{post.content}</p>
+          </div>
+        </RevealItem>
+      </RevealStagger>
     </article>
   );
 }

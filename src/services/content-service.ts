@@ -2,6 +2,7 @@ import "server-only";
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile } from "@/lib/auth/requireRole";
 import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/provider";
@@ -9,8 +10,9 @@ import { publishNotificationTemplate } from "@/lib/email/templates";
 import { env } from "@/lib/env";
 import { postSchema, workSchema } from "@/lib/validation/schemas";
 
-async function nextPostVersion(postId: string): Promise<number> {
-  const supabase = createClient();
+type ContentClient = ReturnType<typeof createClient> | NonNullable<ReturnType<typeof createAdminClient>>;
+
+async function nextPostVersion(postId: string, supabase: ContentClient): Promise<number> {
   const { data } = await supabase
     .from("post_versions")
     .select("version")
@@ -21,8 +23,7 @@ async function nextPostVersion(postId: string): Promise<number> {
   return (data?.version ?? 0) + 1;
 }
 
-async function nextWorkVersion(workId: string): Promise<number> {
-  const supabase = createClient();
+async function nextWorkVersion(workId: string, supabase: ContentClient): Promise<number> {
   const { data } = await supabase
     .from("work_versions")
     .select("version")
@@ -31,6 +32,10 @@ async function nextWorkVersion(workId: string): Promise<number> {
     .limit(1)
     .maybeSingle();
   return (data?.version ?? 0) + 1;
+}
+
+function getWriteClient(): ContentClient {
+  return createAdminClient() ?? createClient();
 }
 
 function parseServicesInput(raw: FormDataEntryValue | null): string[] {
@@ -56,7 +61,7 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
     status: params.formData.get("status")
   });
 
-  const supabase = createClient();
+  const supabase = getWriteClient();
   const id = params.id;
 
   if (!id) {
@@ -107,10 +112,11 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
     .from("posts")
     .select("id,author_id,status,title,slug")
     .eq("id", id)
-    .single();
+    .maybeSingle();
   if (existingError) throw existingError;
+  if (!existing) throw new Error("Post not found");
 
-  if (profile.role === "mod" && existing.author_id !== profile.id) {
+  if (profile.role === "mod" && existing.author_id && existing.author_id !== profile.id) {
     throw new Error("Forbidden");
   }
 
@@ -123,6 +129,7 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
       content: parsed.content,
       cover_image_url: parsed.coverImageUrl || null,
       status: parsed.status,
+      author_id: existing.author_id ?? profile.id,
       updated_at: new Date().toISOString()
     })
     .eq("id", id);
@@ -131,7 +138,7 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
 
   await supabase.from("post_versions").insert({
     post_id: id,
-    version: await nextPostVersion(id),
+    version: await nextPostVersion(id, supabase),
     title: parsed.title,
     slug: parsed.slug,
     excerpt: parsed.excerpt,
@@ -162,7 +169,7 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
       slug: parsed.slug,
       publishedAt: new Date().toISOString()
     });
-    await sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+    void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
   }
 
   revalidatePath("/blog");
@@ -189,7 +196,7 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     status: params.formData.get("status")
   });
 
-  const supabase = createClient();
+  const supabase = getWriteClient();
   const id = params.id;
 
   if (!id) {
@@ -246,10 +253,11 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     .from("works")
     .select("id,author_id,status,title,slug")
     .eq("id", id)
-    .single();
+    .maybeSingle();
   if (existingError) throw existingError;
+  if (!existing) throw new Error("Work not found");
 
-  if (profile.role === "mod" && existing.author_id !== profile.id) {
+  if (profile.role === "mod" && existing.author_id && existing.author_id !== profile.id) {
     throw new Error("Forbidden");
   }
 
@@ -265,6 +273,7 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
       content: parsed.content,
       cover_image_url: parsed.coverImageUrl || null,
       status: parsed.status,
+      author_id: existing.author_id ?? profile.id,
       updated_at: new Date().toISOString()
     })
     .eq("id", id);
@@ -273,7 +282,7 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
 
   await supabase.from("work_versions").insert({
     work_id: id,
-    version: await nextWorkVersion(id),
+    version: await nextWorkVersion(id, supabase),
     title: parsed.title,
     slug: parsed.slug,
     year: parsed.year,
@@ -307,7 +316,7 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
       slug: parsed.slug,
       publishedAt: new Date().toISOString()
     });
-    await sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+    void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
   }
 
   revalidatePath("/works");
@@ -320,7 +329,14 @@ export async function restorePostVersion(postId: string, versionId: string): Pro
   const profile = await getCurrentProfile();
   if (!profile) throw new Error("Unauthorized");
 
-  const supabase = createClient();
+  const supabase = getWriteClient();
+
+  const { data: postMeta, error: postMetaError } = await supabase.from("posts").select("author_id").eq("id", postId).maybeSingle();
+  if (postMetaError) throw postMetaError;
+  if (!postMeta) throw new Error("Post not found");
+  if (profile.role === "mod" && postMeta.author_id && postMeta.author_id !== profile.id) {
+    throw new Error("Forbidden");
+  }
 
   const { data: version, error: versionError } = await supabase
     .from("post_versions")
@@ -340,6 +356,7 @@ export async function restorePostVersion(postId: string, versionId: string): Pro
       content: version.content,
       cover_image_url: version.cover_image_url,
       status: version.status,
+      author_id: postMeta.author_id ?? profile.id,
       updated_at: new Date().toISOString()
     })
     .eq("id", postId);
@@ -348,7 +365,7 @@ export async function restorePostVersion(postId: string, versionId: string): Pro
 
   await supabase.from("post_versions").insert({
     post_id: postId,
-    version: await nextPostVersion(postId),
+    version: await nextPostVersion(postId, supabase),
     title: version.title,
     slug: version.slug,
     excerpt: version.excerpt,
@@ -376,7 +393,14 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
   const profile = await getCurrentProfile();
   if (!profile) throw new Error("Unauthorized");
 
-  const supabase = createClient();
+  const supabase = getWriteClient();
+
+  const { data: workMeta, error: workMetaError } = await supabase.from("works").select("author_id").eq("id", workId).maybeSingle();
+  if (workMetaError) throw workMetaError;
+  if (!workMeta) throw new Error("Work not found");
+  if (profile.role === "mod" && workMeta.author_id && workMeta.author_id !== profile.id) {
+    throw new Error("Forbidden");
+  }
 
   const { data: version, error: versionError } = await supabase
     .from("work_versions")
@@ -399,6 +423,7 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
       content: version.content,
       cover_image_url: version.cover_image_url,
       status: version.status,
+      author_id: workMeta.author_id ?? profile.id,
       updated_at: new Date().toISOString()
     })
     .eq("id", workId);
@@ -407,7 +432,7 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
 
   await supabase.from("work_versions").insert({
     work_id: workId,
-    version: await nextWorkVersion(workId),
+    version: await nextWorkVersion(workId, supabase),
     title: version.title,
     slug: version.slug,
     year: version.year,
@@ -436,11 +461,11 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
 
 export async function deletePost(postId: string): Promise<void> {
   const profile = await getCurrentProfile();
-  if (!profile || profile.role !== "admin") {
+  if (!profile || (profile.role !== "admin" && profile.role !== "mod")) {
     throw new Error("Forbidden");
   }
 
-  const supabase = createClient();
+  const supabase = getWriteClient();
   const { error } = await supabase.from("posts").delete().eq("id", postId);
   if (error) throw error;
 
@@ -460,11 +485,11 @@ export async function deletePost(postId: string): Promise<void> {
 
 export async function deleteWork(workId: string): Promise<void> {
   const profile = await getCurrentProfile();
-  if (!profile || profile.role !== "admin") {
+  if (!profile || (profile.role !== "admin" && profile.role !== "mod")) {
     throw new Error("Forbidden");
   }
 
-  const supabase = createClient();
+  const supabase = getWriteClient();
   const { error } = await supabase.from("works").delete().eq("id", workId);
   if (error) throw error;
 

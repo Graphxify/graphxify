@@ -1,5 +1,6 @@
-import Link from "next/link";
 import { logoutAction } from "@/app/login/actions";
+import { DashboardNav } from "@/app/dashboard/(components)/dashboard-nav";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 type SidebarProps = {
@@ -15,36 +16,28 @@ const commonLinks = [
   { href: "/dashboard/activity", label: "Activity" }
 ];
 
+const adminLinks = [
+  { href: "/dashboard/settings", label: "Settings" },
+  { href: "/dashboard/users", label: "Users" },
+  { href: "/dashboard/webhooks", label: "Webhooks" }
+];
+
 export function DashboardSidebar({ role }: SidebarProps): JSX.Element {
   return (
-    <aside className="w-full border-b border-[rgba(242,240,235,0.12)] p-4 md:w-64 md:border-b-0 md:border-r">
-      <p className="text-sm tracking-[0.14em]">GRAPHXIFY CMS</p>
-      <p className="mt-2 text-xs text-[rgba(242,240,235,0.7)]">Role: {role.toUpperCase()}</p>
-      <nav className="mt-6 flex flex-wrap gap-2 md:flex-col">
-        {commonLinks.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className="rounded-md border border-[rgba(242,240,235,0.14)] px-3 py-2 text-sm hover:border-[rgba(242,240,235,0.22)]"
-          >
-            {item.label}
-          </Link>
-        ))}
-        {role === "admin" ? (
-          <>
-            <Link href="/dashboard/settings" className="rounded-md border border-[rgba(242,240,235,0.14)] px-3 py-2 text-sm hover:border-[rgba(242,240,235,0.22)]">
-              Settings
-            </Link>
-            <Link href="/dashboard/users" className="rounded-md border border-[rgba(242,240,235,0.14)] px-3 py-2 text-sm hover:border-[rgba(242,240,235,0.22)]">
-              Users
-            </Link>
-            <Link href="/dashboard/webhooks" className="rounded-md border border-[rgba(242,240,235,0.14)] px-3 py-2 text-sm hover:border-[rgba(242,240,235,0.22)]">
-              Webhooks
-            </Link>
-          </>
-        ) : null}
-      </nav>
-      <form action={logoutAction} className="mt-6">
+    <aside className="w-full border-b border-border/14 bg-card/72 p-4 backdrop-blur md:sticky md:top-0 md:h-screen md:w-80 md:border-b-0 md:border-r md:p-6">
+      <div className="section-shell border-border/18 bg-bg/58 p-4">
+        <p className="text-xs uppercase tracking-[0.22em] text-fg/62">Graphxify CMS</p>
+        <p className="mt-2 text-sm text-fg/72">Role: {role.toUpperCase()}</p>
+      </div>
+
+      <div className="mt-4">
+        <ThemeToggle className="w-full" />
+      </div>
+
+      <DashboardNav items={commonLinks} />
+      {role === "admin" ? <DashboardNav items={adminLinks} /> : null}
+
+      <form action={logoutAction} className="mt-8">
         <Button type="submit" variant="secondary" className="w-full">
           Logout
         </Button>

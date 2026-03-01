@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { getPublishedPosts } from "@/db/queries/posts";
 import { demoPosts } from "@/lib/demo-content";
 import { buildMetadata } from "@/lib/seo";
+
+export const dynamic = "force-dynamic";
 
 type PostPreview = {
   id: string;
@@ -53,28 +56,37 @@ export default async function BlogPage() {
 
   return (
     <section className="container py-16">
-      <h1 className="text-4xl font-semibold">Blog</h1>
-      <p className="mt-3 max-w-2xl text-[rgba(242,240,235,0.75)]">Tactical guides and system-level practices from Graphxify.</p>
-      <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
-          <article key={post.id} className="rounded-xl border border-[rgba(242,240,235,0.18)] p-4 transition-transform hover:-translate-y-1">
-            <div className="relative h-48 overflow-hidden rounded-lg">
-              <Image
-                src={post.cover_image_url || "/assets/post-fallback.svg"}
-                alt={post.title}
-                fill
-                className="object-cover"
-                sizes="(max-width: 1024px) 50vw, 33vw"
-              />
-            </div>
-            <h2 className="mt-4 text-lg font-semibold">{post.title}</h2>
-            <p className="mt-2 text-sm text-[rgba(242,240,235,0.76)]">{post.excerpt}</p>
-            <Link href={`/blog/${post.slug}`} className="mt-3 inline-block text-sm text-accentA">
-              Read article
-            </Link>
-          </article>
-        ))}
-      </div>
+      <RevealStagger className="space-y-10">
+        <RevealItem className="space-y-3">
+          <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Insights</p>
+          <h1 className="text-4xl font-semibold md:text-5xl">Graphxify Journal</h1>
+          <p className="max-w-2xl text-fg/68">Practical notes on UX quality, CMS operations, and premium interaction design.</p>
+        </RevealItem>
+
+        <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {posts.map((post) => (
+            <RevealItem key={post.id}>
+              <article className="section-shell lift-hover overflow-hidden border-border/18 bg-card/72 p-4">
+                <div className="relative h-48 overflow-hidden rounded-lg border border-border/14">
+                  <Image
+                    src={post.cover_image_url || "/assets/post-fallback.svg"}
+                    alt={post.title}
+                    fill
+                    className="object-cover transition-transform duration-500 hover:scale-105"
+                    sizes="(max-width: 1024px) 50vw, 33vw"
+                  />
+                </div>
+                <p className="mt-4 text-xs uppercase tracking-[0.16em] text-fg/56">{post.created_at || "Latest"}</p>
+                <h2 className="mt-1 text-xl font-semibold">{post.title}</h2>
+                <p className="mt-2 text-sm text-fg/68">{post.excerpt}</p>
+                <Link href={`/blog/${post.slug}`} className="link-sweep mt-4 inline-flex text-sm text-fg">
+                  Read article
+                </Link>
+              </article>
+            </RevealItem>
+          ))}
+        </div>
+      </RevealStagger>
     </section>
   );
 }

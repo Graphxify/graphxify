@@ -1,6 +1,6 @@
 import { HomeSections } from "@/components/marketing/home-sections";
-import { demoWorks } from "@/lib/demo-content";
 import { getPublishedWorks } from "@/db/queries/works";
+import { demoWorks } from "@/lib/demo-content";
 
 type WorkPreview = {
   id: string;

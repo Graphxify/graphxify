@@ -4,15 +4,16 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-250 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-accent-gradient text-ivory shadow-glow hover:translate-y-[-1px]",
+        default: "bg-accent-gradient text-ivory shadow-glow hover:-translate-y-0.5 hover:shadow-float",
         secondary:
-          "border border-[rgba(242,240,235,0.18)] bg-transparent text-ivory hover:border-[rgba(242,240,235,0.25)] hover:translate-y-[-1px]",
-        ghost: "text-ivory hover:bg-[rgba(242,240,235,0.08)]",
-        destructive: "border border-[rgba(242,240,235,0.2)] bg-transparent text-ivory hover:bg-[rgba(0,82,204,0.35)]"
+          "border border-border/20 bg-card/65 text-fg hover:-translate-y-0.5 hover:border-border/35 hover:bg-card/88",
+        ghost: "text-fg hover:bg-fg/6",
+        link: "rounded-none p-0 text-fg/92 underline-offset-4 hover:text-fg",
+        destructive: "border border-border/20 bg-card/55 text-fg hover:bg-accentB/18"
       },
       size: {
         default: "h-10 px-4 py-2",
