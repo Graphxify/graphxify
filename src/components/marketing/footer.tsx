@@ -14,7 +14,7 @@ export function MarketingFooter(): JSX.Element {
     <footer className="relative mt-24 border-t border-border/14 bg-bg/78 backdrop-blur noise-overlay">
       <div className="container relative z-10 grid gap-10 py-14 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <div className="space-y-4">
-          <p className="text-sm tracking-[0.24em]">GRAPHXIFYy</p>
+          <p className="text-sm tracking-[0.24em]">GRAPHXIFY</p>
           <p className="max-w-md text-sm text-fg/68">
             Premium agency platform blending brand systems, high-comfort UX, and operational CMS governance.
           </p>
