@@ -2,6 +2,7 @@ import "server-only";
 
 import { Redis } from "@upstash/redis";
 import { env } from "@/lib/env";
+import { logger } from "@/lib/logger";
 
 type LimitOptions = {
   key: string;
@@ -33,20 +34,28 @@ export async function rateLimit({ key, route, limit = 10, windowSec = 60 }: Limi
   const fullKey = `${route}:${key}`;
 
   if (redis) {
-    const redisKey = `rl:${fullKey}`;
-    await redis.zremrangebyscore(redisKey, 0, windowStart);
-    const total = await redis.zcard(redisKey);
+    try {
+      const redisKey = `rl:${fullKey}`;
+      await redis.zremrangebyscore(redisKey, 0, windowStart);
+      const total = await redis.zcard(redisKey);
 
-    if (total >= limit) {
-      const oldest = (await redis.zrange(redisKey, 0, 0, { withScores: true })) as ScoredEntry[];
-      const oldestTimestamp = oldest[0] ? Number(oldest[0].score) : now;
-      const retryAfter = Math.max(1, Math.ceil((oldestTimestamp + windowSec * 1000 - now) / 1000));
-      return { allowed: false, remaining: 0, retryAfter };
+      if (total >= limit) {
+        const oldest = (await redis.zrange(redisKey, 0, 0, { withScores: true })) as ScoredEntry[];
+        const oldestTimestamp = oldest[0] ? Number(oldest[0].score) : now;
+        const retryAfter = Math.max(1, Math.ceil((oldestTimestamp + windowSec * 1000 - now) / 1000));
+        return { allowed: false, remaining: 0, retryAfter };
+      }
+
+      await redis.zadd(redisKey, { score: now, member: `${now}-${Math.random().toString(36).slice(2)}` });
+      await redis.expire(redisKey, windowSec);
+      return { allowed: true, remaining: limit - (total + 1), retryAfter: 0 };
+    } catch (error) {
+      logger.warn("Redis rate-limit failed, falling back to memory store", {
+        route,
+        key,
+        error: error instanceof Error ? error.message : "unknown"
+      });
     }
-
-    await redis.zadd(redisKey, { score: now, member: `${now}-${Math.random().toString(36).slice(2)}` });
-    await redis.expire(redisKey, windowSec);
-    return { allowed: true, remaining: limit - (total + 1), retryAfter: 0 };
   }
 
   const points = memoryStore.get(fullKey) ?? [];

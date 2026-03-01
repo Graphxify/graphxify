@@ -13,7 +13,29 @@ export const metadata: Metadata = buildMetadata({
   path: "/login"
 });
 
-export default function LoginPage() {
+export default function LoginPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
+  const errorMessages: Record<string, string> = {
+    invalid_credentials: "Invalid email or password.",
+    rate_limited: "Too many attempts. Please wait and try again.",
+    auth_unavailable: "Authentication service is temporarily unavailable.",
+    unknown: "Unable to sign in. Please try again."
+  };
+
+  return (
+    <LoginView errorMessages={errorMessages} searchParams={searchParams} />
+  );
+}
+
+function LoginView({
+  errorMessages,
+  searchParams
+}: {
+  errorMessages: Record<string, string>;
+  searchParams?: Record<string, string | string[] | undefined>;
+}) {
+  const errorCode = typeof searchParams?.error === "string" ? searchParams.error : "";
+  const errorText = errorMessages[errorCode] ?? "";
+
   return (
     <div className="container grid min-h-[84vh] items-center gap-10 py-16 lg:grid-cols-[1fr_0.8fr]">
       <div className="space-y-4">
@@ -46,6 +68,7 @@ export default function LoginPage() {
               Continue
             </Button>
           </form>
+          {errorText ? <p className="mt-4 text-sm text-fg/74">{errorText}</p> : null}
         </CardContent>
       </Card>
     </div>
