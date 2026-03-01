@@ -5,6 +5,30 @@ import { getPublishedPosts } from "@/db/queries/posts";
 import { demoPosts } from "@/lib/demo-content";
 import { buildMetadata } from "@/lib/seo";
 
+type PostPreview = {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  cover_image_url: string | null;
+  created_at?: string;
+};
+
+function toPostPreview(item: Partial<PostPreview>): PostPreview | null {
+  if (!item.id || !item.title || !item.slug || !item.excerpt) {
+    return null;
+  }
+
+  return {
+    id: item.id,
+    title: item.title,
+    slug: item.slug,
+    excerpt: item.excerpt,
+    cover_image_url: item.cover_image_url ?? null,
+    created_at: item.created_at
+  };
+}
+
 export const metadata: Metadata = buildMetadata({
   title: "Blog",
   description: "Insights on enterprise websites, governance, analytics, and content operations.",
@@ -12,10 +36,17 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default async function BlogPage() {
-  let posts = demoPosts;
+  let posts: PostPreview[] = demoPosts
+    .map((item) => toPostPreview(item))
+    .filter((item): item is PostPreview => item !== null);
+
   try {
     const dbPosts = await getPublishedPosts();
-    if (dbPosts.length > 0) posts = dbPosts as typeof demoPosts;
+    if (dbPosts.length > 0) {
+      posts = dbPosts
+        .map((item) => toPostPreview(item as Partial<PostPreview>))
+        .filter((item): item is PostPreview => item !== null);
+    }
   } catch {
     // fallback
   }
