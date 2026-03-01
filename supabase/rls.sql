@@ -13,6 +13,8 @@ create or replace function public.is_admin()
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select exists (
     select 1 from public.profiles p
@@ -24,6 +26,8 @@ create or replace function public.is_mod()
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select exists (
     select 1 from public.profiles p
@@ -35,6 +39,8 @@ create or replace function public.is_admin_or_mod()
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select public.is_admin() or public.is_mod();
 $$;
@@ -43,6 +49,8 @@ create or replace function public.can_edit_post(post_author_id uuid)
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select public.is_admin() or (public.is_mod() and auth.uid() = post_author_id);
 $$;
@@ -51,9 +59,17 @@ create or replace function public.can_edit_work(work_author_id uuid)
 returns boolean
 language sql
 stable
+security definer
+set search_path = public
 as $$
   select public.is_admin() or (public.is_mod() and auth.uid() = work_author_id);
 $$;
+
+grant execute on function public.is_admin() to anon, authenticated, service_role;
+grant execute on function public.is_mod() to anon, authenticated, service_role;
+grant execute on function public.is_admin_or_mod() to anon, authenticated, service_role;
+grant execute on function public.can_edit_post(uuid) to anon, authenticated, service_role;
+grant execute on function public.can_edit_work(uuid) to anon, authenticated, service_role;
 
 -- Profiles policies
 create policy "profiles_select_own_or_admin"
@@ -210,7 +226,15 @@ for select
 using (public.is_admin_or_mod());
 
 -- Storage policies for media bucket
-alter table storage.objects enable row level security;
+-- NOTE:
+-- `storage.objects` is managed by Supabase internals, and some SQL editor roles
+-- are not table owners. Do not run `alter table storage.objects ...` here.
+-- RLS is already enabled by Supabase for storage tables.
+
+drop policy if exists "media_public_read" on storage.objects;
+drop policy if exists "media_staff_insert" on storage.objects;
+drop policy if exists "media_staff_update" on storage.objects;
+drop policy if exists "media_staff_delete" on storage.objects;
 
 create policy "media_public_read"
 on storage.objects
