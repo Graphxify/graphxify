@@ -8,7 +8,8 @@ export const demoWorks = [
     services: ["Research", "UX", "Engineering"],
     excerpt: "Unified marketing and CMS stack with measurable conversion lift.",
     content: "Enterprise replatform case study with measurable improvements in velocity and performance.",
-    cover_image_url: "/assets/work-1.svg"
+    cover_image_url: "/assets/work-1.svg",
+    created_at: "2026-01-25"
   },
   {
     id: "w2",
@@ -19,7 +20,8 @@ export const demoWorks = [
     services: ["Brand", "Design System"],
     excerpt: "Brand governance toolkit for multi-team campaign delivery.",
     content: "Cross-functional design and engineering operations case study.",
-    cover_image_url: "/assets/work-2.svg"
+    cover_image_url: "/assets/work-2.svg",
+    created_at: "2025-12-18"
   },
   {
     id: "w3",
@@ -30,7 +32,8 @@ export const demoWorks = [
     services: ["Web", "CMS", "Analytics"],
     excerpt: "Performance-first website and publishing model for growth teams.",
     content: "Content operations platform built with governance and measurement.",
-    cover_image_url: "/assets/work-3.svg"
+    cover_image_url: "/assets/work-3.svg",
+    created_at: "2025-11-03"
   }
 ];
 
