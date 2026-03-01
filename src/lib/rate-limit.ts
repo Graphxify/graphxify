@@ -16,6 +16,11 @@ type RateLimitResult = {
   retryAfter: number;
 };
 
+type ScoredEntry = {
+  member: string;
+  score: number | string;
+};
+
 const memoryStore = new Map<string, number[]>();
 
 const redis = env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN
@@ -33,8 +38,8 @@ export async function rateLimit({ key, route, limit = 10, windowSec = 60 }: Limi
     const total = await redis.zcard(redisKey);
 
     if (total >= limit) {
-      const oldest = await redis.zrange(redisKey, 0, 0, { withScores: true });
-      const oldestTimestamp = Array.isArray(oldest) && oldest[0] ? Number(oldest[0].score) : now;
+      const oldest = (await redis.zrange(redisKey, 0, 0, { withScores: true })) as ScoredEntry[];
+      const oldestTimestamp = oldest[0] ? Number(oldest[0].score) : now;
       const retryAfter = Math.max(1, Math.ceil((oldestTimestamp + windowSec * 1000 - now) / 1000));
       return { allowed: false, remaining: 0, retryAfter };
     }
