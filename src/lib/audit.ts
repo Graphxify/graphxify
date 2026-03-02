@@ -13,6 +13,10 @@ export type AuditAction =
   | "work.update"
   | "work.delete"
   | "work.publish"
+  | "testimonial.create"
+  | "testimonial.update"
+  | "testimonial.delete"
+  | "testimonial.publish"
   | "lead.create"
   | "auth.login"
   | "auth.signup"
@@ -20,7 +24,7 @@ export type AuditAction =
   | "post.restore"
   | "work.restore";
 
-export type AuditEntity = "post" | "work" | "lead" | "profile" | "system";
+export type AuditEntity = "post" | "work" | "testimonial" | "lead" | "profile" | "system";
 
 export async function logAuditEvent(params: {
   actorId?: string | null;

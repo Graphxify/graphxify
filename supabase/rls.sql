@@ -2,6 +2,8 @@
 alter table public.profiles enable row level security;
 alter table public.posts enable row level security;
 alter table public.works enable row level security;
+alter table public.testimonials enable row level security;
+alter table public.testimonial_metrics enable row level security;
 alter table public.leads enable row level security;
 alter table public.audit_logs enable row level security;
 alter table public.post_versions enable row level security;
@@ -65,11 +67,22 @@ as $$
   select public.is_admin() or (public.is_mod() and auth.uid() = work_author_id);
 $$;
 
+create or replace function public.can_edit_testimonial(testimonial_author_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.is_admin() or (public.is_mod() and auth.uid() = testimonial_author_id);
+$$;
+
 grant execute on function public.is_admin() to anon, authenticated, service_role;
 grant execute on function public.is_mod() to anon, authenticated, service_role;
 grant execute on function public.is_admin_or_mod() to anon, authenticated, service_role;
 grant execute on function public.can_edit_post(uuid) to anon, authenticated, service_role;
 grant execute on function public.can_edit_work(uuid) to anon, authenticated, service_role;
+grant execute on function public.can_edit_testimonial(uuid) to anon, authenticated, service_role;
 
 -- Profiles policies
 create policy "profiles_select_own_or_admin"
@@ -141,6 +154,72 @@ create policy "works_delete_admin"
 on public.works
 for delete
 using (public.is_admin());
+
+-- Testimonials policies
+drop policy if exists "testimonials_public_read_published" on public.testimonials;
+drop policy if exists "testimonials_staff_read_all" on public.testimonials;
+drop policy if exists "testimonials_insert_staff" on public.testimonials;
+drop policy if exists "testimonials_update_staff_owned" on public.testimonials;
+drop policy if exists "testimonials_delete_staff_owned" on public.testimonials;
+
+create policy "testimonials_public_read_published"
+on public.testimonials
+for select
+using (status = 'published');
+
+create policy "testimonials_staff_read_all"
+on public.testimonials
+for select
+using (public.is_admin_or_mod());
+
+create policy "testimonials_insert_staff"
+on public.testimonials
+for insert
+with check (public.is_admin_or_mod());
+
+create policy "testimonials_update_staff_owned"
+on public.testimonials
+for update
+using (public.can_edit_testimonial(author_id))
+with check (public.can_edit_testimonial(author_id));
+
+create policy "testimonials_delete_staff_owned"
+on public.testimonials
+for delete
+using (public.can_edit_testimonial(author_id));
+
+-- Testimonial metrics policies
+drop policy if exists "testimonial_metrics_public_read" on public.testimonial_metrics;
+drop policy if exists "testimonial_metrics_staff_select" on public.testimonial_metrics;
+drop policy if exists "testimonial_metrics_staff_insert" on public.testimonial_metrics;
+drop policy if exists "testimonial_metrics_staff_update" on public.testimonial_metrics;
+drop policy if exists "testimonial_metrics_staff_delete" on public.testimonial_metrics;
+
+create policy "testimonial_metrics_public_read"
+on public.testimonial_metrics
+for select
+using (true);
+
+create policy "testimonial_metrics_staff_select"
+on public.testimonial_metrics
+for select
+using (public.is_admin_or_mod());
+
+create policy "testimonial_metrics_staff_insert"
+on public.testimonial_metrics
+for insert
+with check (public.is_admin_or_mod());
+
+create policy "testimonial_metrics_staff_update"
+on public.testimonial_metrics
+for update
+using (public.is_admin_or_mod())
+with check (public.is_admin_or_mod());
+
+create policy "testimonial_metrics_staff_delete"
+on public.testimonial_metrics
+for delete
+using (public.is_admin_or_mod());
 
 -- Versions policies
 create policy "post_versions_select_staff"

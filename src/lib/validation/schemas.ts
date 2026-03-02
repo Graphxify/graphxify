@@ -84,3 +84,34 @@ export const workSchema = z.object({
     });
   }
 });
+
+export const testimonialSchema = z.object({
+  name: z.string().min(2).max(120),
+  role: z.string().min(2).max(160),
+  quote: z.string().min(1).max(600),
+  imageUrl: imageUrlSchema.optional().or(z.literal("")),
+  status: z.enum(["draft", "published"]),
+  sortOrder: z.coerce.number().int().min(0).max(9999)
+}).superRefine((value, ctx) => {
+  if (value.status !== "published") {
+    return;
+  }
+  if (value.quote.trim().length < 20) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["quote"],
+      message: "Quote must contain at least 20 characters to publish."
+    });
+  }
+});
+
+export const testimonialMetricItemSchema = z.object({
+  id: z.string().trim().min(1).max(120).optional(),
+  value: z.string().trim().min(1).max(40),
+  label: z.string().trim().min(2).max(120),
+  sort_order: z.coerce.number().int().min(0).max(9999)
+});
+
+export const testimonialMetricsSchema = z.object({
+  metrics: z.array(testimonialMetricItemSchema).min(1).max(6)
+});

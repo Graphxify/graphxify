@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/providers";
+import { SmoothScrollDriver } from "@/components/motion/smooth-scroll-driver";
 import { buildMetadata } from "@/lib/seo";
 
 const poppins = Poppins({
@@ -22,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${poppins.variable} light`} suppressHydrationWarning>
       <body className="app-shell min-h-screen bg-bg text-fg antialiased">
+        <SmoothScrollDriver />
         <Providers>{children}</Providers>
       </body>
     </html>

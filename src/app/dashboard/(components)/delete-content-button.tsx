@@ -14,7 +14,7 @@ import {
 import { emitCmsContentChanged } from "@/lib/client/cms-sync";
 
 type DeleteContentButtonProps = {
-  type: "post" | "work";
+  type: "post" | "work" | "testimonial";
   id: string;
 };
 

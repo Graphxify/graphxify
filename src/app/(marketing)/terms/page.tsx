@@ -11,11 +11,11 @@ export const metadata: Metadata = buildMetadata({
 export default function TermsPage() {
   return (
     <section className="container py-16">
-      <RevealStagger className="space-y-8">
-        <RevealItem>
+      <RevealStagger className="space-y-8" effect="up">
+        <RevealItem effect="left">
           <h1 className="text-4xl font-semibold md:text-5xl">Terms of Service</h1>
         </RevealItem>
-        <RevealItem>
+        <RevealItem effect="right">
           <div className="section-shell max-w-3xl border-border/18 bg-card/72 p-6 text-sm text-fg/74">
             <p>Project scopes, delivery milestones, and communication SLAs are documented in signed agreements.</p>
             <p className="mt-4">All materials delivered by Graphxify are licensed per client contract terms after final payment.</p>

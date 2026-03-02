@@ -12,6 +12,7 @@ type ThemeToggleProps = {
 export function ThemeToggle({ className }: ThemeToggleProps): JSX.Element {
   const { theme, setTheme } = useGraphxifyTheme();
   const isLight = theme === "light";
+  const thumbTravel = 32;
 
   return (
     <button
@@ -25,11 +26,14 @@ export function ThemeToggle({ className }: ThemeToggleProps): JSX.Element {
     >
       <motion.span
         className="absolute left-1.5 top-1.5 h-7 w-7 rounded-full bg-accent-gradient shadow-glow"
-        animate={{ x: isLight ? 32 : 0 }}
+        animate={{ x: isLight ? 0 : thumbTravel }}
         transition={{ type: "spring", stiffness: 400, damping: 28 }}
       />
-      <span className="relative z-10 flex w-full items-center justify-between px-1 text-fg/85">
+
+      <span className="pointer-events-none absolute left-1.5 top-1.5 z-10 grid h-7 w-7 place-items-center text-fg/85">
         <Sun className="h-3.5 w-3.5" />
+      </span>
+      <span className="pointer-events-none absolute right-1.5 top-1.5 z-10 grid h-7 w-7 place-items-center text-fg/85">
         <Moon className="h-3.5 w-3.5" />
       </span>
     </button>

@@ -14,46 +14,34 @@ export const marketingNav = [
   { href: "/contact", label: "Contact" }
 ];
 
-export const pricingPlans = [
-  {
-    name: "Launch",
-    price: "$4,500",
-    description: "High-conversion marketing website with strategic messaging and delivery workflow.",
-    features: ["UX architecture", "Performance baseline", "SEO setup", "2-week delivery"]
-  },
-  {
-    name: "Scale",
-    price: "$9,800",
-    description: "Website + CMS operating model for teams publishing content at speed.",
-    features: ["Custom CMS", "Role permissions", "Analytics layer", "4-week delivery"]
-  },
-  {
-    name: "Enterprise",
-    price: "Custom",
-    description: "Cross-team platform design with governance and lifecycle optimization.",
-    features: ["System architecture", "Audit + compliance", "SLAs + onboarding", "Continuous optimization"]
-  }
-] as const;
-
 export const testimonials = [
   {
     id: "01",
-    quote: "Graphxify gave us an operating platform, not just a site. Our content team now ships weekly.",
-    name: "Avery Chen",
-    role: "VP Marketing, Vertex Capital"
+    quote: "Graphxify turned our ideas into a sharp, clean brand. Fast, easy, and right on point.",
+    name: "Ethan Moore",
+    role: "Co-founder, NovaTech",
+    image_url: "/assets/work-1.svg"
   },
   {
     id: "02",
-    quote: "The brand consistency and performance gains were immediate. Lighthouse moved from 62 to 95.",
+    quote: "The design and build loop was seamless. We launched with clarity, speed, and a system our team can manage.",
     name: "Leah Mendez",
-    role: "Head of Digital, Northline"
+    role: "Head of Digital, Northline",
+    image_url: "/assets/work-2.svg"
   },
   {
     id: "03",
-    quote: "Their CMS governance solved our approval bottlenecks while keeping quality uncompromised.",
+    quote: "Our site feels premium now, and the CMS structure means we can publish confidently without design drift.",
     name: "Omar Rahim",
-    role: "Operations Director, Axis Group"
+    role: "Operations Director, Axis Group",
+    image_url: "/assets/work-3.svg"
   }
+] as const;
+
+export const testimonialMetricsDefault = [
+  { id: "metric-01", value: "26+", label: "Finalized Projects", sort_order: 0 },
+  { id: "metric-02", value: "98%", label: "Client satisfaction rate", sort_order: 1 },
+  { id: "metric-03", value: "10M", label: "Gross Revenue", sort_order: 2 }
 ] as const;
 
 export const faqs = [
@@ -88,9 +76,3 @@ export const services = [
     body: "Scalable full-stack architecture with role governance and analytics-ready instrumentation."
   }
 ] as const;
-
-export const founder = {
-  name: "Daniel",
-  title: "Founder, Graphxify",
-  bio: "Daniel leads Graphxify with a systems-first approach to premium digital products, combining brand discipline with enterprise delivery standards."
-};

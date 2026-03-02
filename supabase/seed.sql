@@ -82,6 +82,53 @@ on conflict (slug) do nothing;
 with seed_author as (
   select id from public.profiles order by created_at asc limit 1
 )
+insert into public.testimonials (id, quote, name, role, image_url, status, sort_order, author_id)
+values
+  (
+    '00000000-0000-0000-0000-000000000101',
+    'Graphxify turned our ideas into a sharp, clean brand. Fast, easy, and right on point.',
+    'Ethan Moore',
+    'Co-founder, NovaTech',
+    '/assets/work-1.svg',
+    'published',
+    0,
+    (select id from seed_author)
+  ),
+  (
+    '00000000-0000-0000-0000-000000000102',
+    'The design and build loop was seamless. We launched with clarity, speed, and a system our team can manage.',
+    'Leah Mendez',
+    'Head of Digital, Northline',
+    '/assets/work-2.svg',
+    'published',
+    1,
+    (select id from seed_author)
+  ),
+  (
+    '00000000-0000-0000-0000-000000000103',
+    'Our site feels premium now, and the CMS structure means we can publish confidently without design drift.',
+    'Omar Rahim',
+    'Operations Director, Axis Group',
+    '/assets/work-3.svg',
+    'published',
+    2,
+    (select id from seed_author)
+  )
+on conflict (id) do nothing;
+
+with seed_author as (
+  select id from public.profiles order by created_at asc limit 1
+)
+insert into public.testimonial_metrics (id, value, label, sort_order, author_id)
+values
+  ('00000000-0000-0000-0000-000000000201', '26+', 'Finalized Projects', 0, (select id from seed_author)),
+  ('00000000-0000-0000-0000-000000000202', '98%', 'Client satisfaction rate', 1, (select id from seed_author)),
+  ('00000000-0000-0000-0000-000000000203', '10M', 'Gross Revenue', 2, (select id from seed_author))
+on conflict (id) do nothing;
+
+with seed_author as (
+  select id from public.profiles order by created_at asc limit 1
+)
 insert into public.posts (title, slug, excerpt, content, cover_image_url, status, author_id)
 values
   (

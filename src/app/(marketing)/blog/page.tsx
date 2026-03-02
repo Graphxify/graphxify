@@ -55,17 +55,17 @@ export default async function BlogPage() {
   }
 
   return (
-    <section className="container py-16">
-      <RevealStagger className="space-y-10">
-        <RevealItem className="space-y-3">
+    <section className="container py-14 md:py-16">
+      <RevealStagger className="space-y-10" effect="up">
+        <RevealItem className="space-y-3" effect="left">
           <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Insights</p>
-          <h1 className="text-4xl font-semibold md:text-5xl">Graphxify Journal</h1>
+          <h1 className="text-3xl font-semibold md:text-4xl">Graphxify Journal</h1>
           <p className="max-w-2xl text-fg/68">Practical notes on UX quality, CMS operations, and premium interaction design.</p>
         </RevealItem>
 
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <RevealItem key={post.id}>
+          {posts.map((post, index) => (
+            <RevealItem key={post.id} effect={index % 3 === 0 ? "left" : index % 3 === 1 ? "zoom" : "right"}>
               <article className="section-shell lift-hover overflow-hidden border-border/18 bg-card/72 p-4">
                 <div className="relative h-48 overflow-hidden rounded-lg border border-border/14">
                   <Image
