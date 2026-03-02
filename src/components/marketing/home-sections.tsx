@@ -314,7 +314,7 @@ export function HomeSections({
                       aria-expanded={open}
                       aria-controls={`${item.id}-content`}
                     >
-                      <h3 className="text-xl font-medium md:text-[1.85rem]">{item.q}</h3>
+                      <h3 className="text-lg font-medium md:text-[1.32rem]">{item.q}</h3>
                       <span
                         className={cn(
                           "grid h-11 w-11 place-items-center rounded-full border p-[0.45rem] shadow-[0_8px_18px_rgba(13,13,15,0.08)] transition-all duration-300",
@@ -338,7 +338,7 @@ export function HomeSections({
                           transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
                           className="overflow-hidden"
                         >
-                          <p className="pt-4 text-base text-fg/68 md:text-[1.25rem]">{item.a}</p>
+                          <p className="pt-4 text-sm leading-relaxed text-fg/68 md:text-base">{item.a}</p>
                         </motion.div>
                       ) : null}
                     </AnimatePresence>
