@@ -44,6 +44,29 @@ export type Lead = {
   created_at: string;
 };
 
+export type Testimonial = {
+  id: string;
+  quote: string;
+  name: string;
+  role: string;
+  image_url: string | null;
+  status: "draft" | "published";
+  sort_order: number;
+  author_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type TestimonialMetric = {
+  id: string;
+  value: string;
+  label: string;
+  sort_order: number;
+  author_id: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type AuditLog = {
   id: string;
   actor_id: string | null;

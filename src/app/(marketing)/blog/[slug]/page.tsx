@@ -54,15 +54,15 @@ export default async function BlogPostPage({ params }: { params: Params }) {
         }
       />
 
-      <RevealStagger className="space-y-10">
-        <RevealItem className="space-y-4">
+      <RevealStagger className="space-y-10" effect="up">
+        <RevealItem className="space-y-4" effect="left">
           <Link href="/blog" className="link-sweep text-sm text-fg/68">
             Back to blog
           </Link>
           <h1 className="text-4xl font-semibold md:text-5xl">{post.title}</h1>
           <p className="max-w-3xl text-fg/68">{post.excerpt}</p>
         </RevealItem>
-        <RevealItem>
+        <RevealItem effect="zoom">
           <div className="relative h-[28rem] overflow-hidden rounded-2xl border border-border/18">
             <Image
               src={post.cover_image_url || "/assets/post-fallback.svg"}
@@ -73,7 +73,7 @@ export default async function BlogPostPage({ params }: { params: Params }) {
             />
           </div>
         </RevealItem>
-        <RevealItem>
+        <RevealItem effect="right">
           <div className="section-shell border-border/18 bg-card/72 p-6 text-fg/78">
             <p>{post.content}</p>
           </div>

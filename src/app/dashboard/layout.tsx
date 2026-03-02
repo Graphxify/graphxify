@@ -11,7 +11,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="relative min-h-screen md:flex noise-overlay">
       <ScrollProgress />
-      <ContentRefreshListener pathPrefixes={["/dashboard/posts", "/dashboard/works"]} />
+      <ContentRefreshListener pathPrefixes={["/dashboard/posts", "/dashboard/works", "/dashboard/testimonials"]} />
       <DashboardSidebar role={profile.role} />
 
       <div className="flex-1 px-4 py-6 md:px-8 md:py-8">
@@ -30,6 +30,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
               </Link>
               <Link href="/dashboard/works/new" className="link-sweep">
                 New Work
+              </Link>
+              <Link href="/dashboard/testimonials/new" className="link-sweep">
+                New Testimonial
+              </Link>
+              <Link href="/dashboard/testimonials/metrics" className="link-sweep">
+                Testimonial Metrics
               </Link>
             </div>
           </div>

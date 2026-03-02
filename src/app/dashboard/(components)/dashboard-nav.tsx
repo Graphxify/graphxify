@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, BarChart3, FileText, LayoutDashboard, Settings, Shield, Users, Workflow } from "lucide-react";
+import { Activity, BarChart3, FileText, LayoutDashboard, MessageSquareQuote, Settings, Shield, Users, Workflow } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ const iconByLabel: Record<string, JSX.Element> = {
   Analytics: <BarChart3 className="h-4 w-4" />,
   Posts: <FileText className="h-4 w-4" />,
   Works: <Workflow className="h-4 w-4" />,
+  Testimonials: <MessageSquareQuote className="h-4 w-4" />,
   Leads: <Users className="h-4 w-4" />,
   Activity: <Activity className="h-4 w-4" />,
   Settings: <Settings className="h-4 w-4" />,

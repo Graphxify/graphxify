@@ -3,40 +3,64 @@
 import { motion, useReducedMotion, type Variants } from "framer-motion";
 import type { ReactNode } from "react";
 
-const containerVariants: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.45,
-      ease: [0.16, 1, 0.3, 1],
-      staggerChildren: 0.08,
-      delayChildren: 0.06
-    }
-  }
-};
+const revealEase: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.45,
-      ease: [0.16, 1, 0.3, 1]
+export type RevealEffect = "up" | "down" | "left" | "right" | "zoom";
+
+function getRevealFrom(effect: RevealEffect, distance = 18): { x?: number; y?: number; scale?: number; filter?: string } {
+  if (effect === "left") return { x: -distance, filter: "blur(4px)" };
+  if (effect === "right") return { x: distance, filter: "blur(4px)" };
+  if (effect === "down") return { y: -distance, filter: "blur(4px)" };
+  if (effect === "zoom") return { scale: 0.96, y: 10, filter: "blur(4px)" };
+  return { y: distance, filter: "blur(4px)" };
+}
+
+function createContainerVariants(effect: RevealEffect): Variants {
+  return {
+    hidden: { opacity: 0, ...getRevealFrom(effect, 20) },
+    visible: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: {
+        duration: 0.74,
+        ease: revealEase,
+        staggerChildren: 0.13,
+        delayChildren: 0.14
+      }
     }
-  }
-};
+  };
+}
+
+function createItemVariants(effect: RevealEffect): Variants {
+  return {
+    hidden: { opacity: 0, ...getRevealFrom(effect, 14) },
+    visible: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: {
+        duration: 0.68,
+        ease: revealEase
+      }
+    }
+  };
+}
 
 export function RevealStagger({
   children,
   className = "",
-  once = true
+  once = true,
+  effect = "up"
 }: {
   children: ReactNode;
   className?: string;
   once?: boolean;
+  effect?: RevealEffect;
 }): JSX.Element {
   const reducedMotion = useReducedMotion();
 
@@ -47,7 +71,7 @@ export function RevealStagger({
   return (
     <motion.div
       className={className}
-      variants={containerVariants}
+      variants={createContainerVariants(effect)}
       initial="hidden"
       whileInView="visible"
       viewport={{ once, margin: "-80px" }}
@@ -57,7 +81,15 @@ export function RevealStagger({
   );
 }
 
-export function RevealItem({ children, className = "" }: { children: ReactNode; className?: string }): JSX.Element {
+export function RevealItem({
+  children,
+  className = "",
+  effect = "up"
+}: {
+  children: ReactNode;
+  className?: string;
+  effect?: RevealEffect;
+}): JSX.Element {
   const reducedMotion = useReducedMotion();
 
   if (reducedMotion) {
@@ -65,7 +97,7 @@ export function RevealItem({ children, className = "" }: { children: ReactNode; 
   }
 
   return (
-    <motion.div className={className} variants={itemVariants}>
+    <motion.div className={className} variants={createItemVariants(effect)}>
       {children}
     </motion.div>
   );

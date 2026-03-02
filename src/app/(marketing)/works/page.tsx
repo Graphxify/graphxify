@@ -59,19 +59,19 @@ export default async function WorksPage() {
   }
 
   return (
-    <section className="container py-16">
-      <RevealStagger className="space-y-10">
-        <RevealItem className="space-y-3">
+    <section className="container py-14 md:py-16">
+      <RevealStagger className="space-y-10" effect="up">
+        <RevealItem className="space-y-3" effect="left">
           <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Portfolio</p>
-          <h1 className="text-4xl font-semibold md:text-5xl">Selected Works</h1>
+          <h1 className="text-3xl font-semibold md:text-4xl">Selected Works</h1>
           <p className="max-w-2xl text-fg/68">
             A curated set of systems-focused projects built for clarity, performance, and publishing velocity.
           </p>
         </RevealItem>
 
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {works.map((work) => (
-            <RevealItem key={work.id}>
+          {works.map((work, index) => (
+            <RevealItem key={work.id} effect={index % 3 === 0 ? "left" : index % 3 === 1 ? "zoom" : "right"}>
               <article className="section-shell lift-hover overflow-hidden border-border/18 bg-card/72 p-4">
                 <div className="relative h-52 overflow-hidden rounded-lg border border-border/14">
                   <Image

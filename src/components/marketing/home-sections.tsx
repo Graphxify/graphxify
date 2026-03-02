@@ -2,30 +2,33 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, motion, PanInfo, useReducedMotion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
-import { useMemo, useState } from "react";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { Code2, Compass, LayoutTemplate, Minus, Plus, Rocket, Sparkles, type LucideIcon } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
 import { LeadForm } from "@/components/marketing/lead-form";
 import { SectionReveal } from "@/components/marketing/section-reveal";
+import { TestimonialsSection } from "@/components/marketing/testimonials-section";
 import { Magnetic } from "@/components/motion/magnetic";
-import { faqs, founder, pricingPlans, services, testimonials } from "@/lib/constants";
+import { faqs, services } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
-type WorkCard = {
+type TestimonialCard = {
   id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  cover_image_url: string | null;
-  year?: number;
-  role?: string;
-  services?: string[];
+  quote: string;
+  name: string;
+  role: string;
+  image_url?: string | null;
 };
 
-const capabilities = ["Branding", "Logo", "Website", "Motion", "CMS", "Analytics", "SEO", "Content Ops"];
+type TestimonialMetricCard = {
+  id: string;
+  value: string;
+  label: string;
+  sort_order: number;
+};
+
 const stripBrands = ["NOVA SYSTEMS", "ALTO", "NORTHLINE", "ORBIT", "HELIX", "KINETIC"];
 const fallbackService = {
   key: "strategy",
@@ -33,146 +36,179 @@ const fallbackService = {
   body: "Service details will appear once configured."
 };
 
-function toCounter(value: number, total: number): string {
-  return `${String(value).padStart(2, "0")} / ${String(Math.max(total, 1)).padStart(2, "0")}`;
+type WorkPhase = {
+  id: string;
+  title: string;
+  body: string;
+  icon: LucideIcon;
+};
+
+const workPhases: WorkPhase[] = [
+  {
+    id: "01",
+    title: "Discovery + Scope",
+    body: "We audit your current state, define goals, map requirements, and lock a clear scope with priorities.",
+    icon: Compass
+  },
+  {
+    id: "02",
+    title: "System Design",
+    body: "We shape IA, UI components, and content structure so design and CMS stay aligned from day one.",
+    icon: LayoutTemplate
+  },
+  {
+    id: "03",
+    title: "Build + QA",
+    body: "We implement the experience, tune performance, and run quality checks across devices, accessibility, and SEO.",
+    icon: Code2
+  },
+  {
+    id: "04",
+    title: "Launch + Handover",
+    body: "We launch with confidence, document the system, and hand over a clean foundation your team can scale.",
+    icon: Rocket
+  }
+];
+
+type HomeFaq = {
+  id: string;
+  q: string;
+  a: string;
+};
+
+const homeFaqs: HomeFaq[] = [
+  ...faqs.map((item, index) => ({ id: `faq-${index + 1}`, q: item.q, a: item.a })),
+  {
+    id: "faq-4",
+    q: "How long does a full project usually take?",
+    a: "Most projects run between 4 and 8 weeks depending on scope, review speed, and content readiness."
+  },
+  {
+    id: "faq-5",
+    q: "Can we keep iterating after launch?",
+    a: "Yes. We can continue with optimization sprints for new pages, content modules, and UI refinements."
+  },
+  {
+    id: "faq-6",
+    q: "Will our team be able to manage content easily?",
+    a: "Absolutely. We structure the CMS with clear fields and reusable blocks, then provide handover guidance."
+  }
+];
+
+function HeroChip({
+  src,
+  alt,
+  tint
+}: {
+  src: string;
+  alt: string;
+  tint: "accent" | "muted";
+}): JSX.Element {
+  return (
+    <span
+      className={cn(
+        "mx-2 inline-flex h-[0.95em] w-[0.95em] translate-y-[0.08em] items-center justify-center overflow-hidden rounded-full border align-baseline shadow-[0_6px_14px_rgba(13,13,15,0.18)]",
+        tint === "accent" ? "border-accentA/45 bg-accentA/18" : "border-border/24 bg-fg/10"
+      )}
+    >
+      <Image src={src} alt={alt} width={84} height={84} className="h-full w-full object-cover" />
+    </span>
+  );
 }
 
-function getDragDirection(info: PanInfo): "next" | "prev" | null {
-  if (info.offset.x <= -80 || info.velocity.x <= -240) return "next";
-  if (info.offset.x >= 80 || info.velocity.x >= 240) return "prev";
-  return null;
+function SectionHeading({
+  eyebrow,
+  title,
+  right
+}: {
+  eyebrow: string;
+  title: string;
+  right?: string;
+}): JSX.Element {
+  return (
+    <div className="mb-6 flex items-end justify-between">
+      <div>
+        <p className="text-xs uppercase tracking-[0.2em] text-fg/58">{eyebrow}</p>
+        <h2 className="mt-1 text-2xl font-semibold md:text-3xl">{title}</h2>
+      </div>
+      {right ? <p className="text-sm text-fg/62">{right}</p> : null}
+    </div>
+  );
 }
 
-export function HomeSections({ works }: { works: WorkCard[] }): JSX.Element {
+export function HomeSections({
+  testimonials,
+  testimonialMetrics
+}: {
+  testimonials: TestimonialCard[];
+  testimonialMetrics: TestimonialMetricCard[];
+}): JSX.Element {
   const reducedMotion = useReducedMotion();
-
-  const testimonialItems = useMemo(() => testimonials.slice(0, 3), []);
-  const workItems = useMemo(() => works.slice(0, 3), [works]);
-
-  const [testimonialIndex, setTestimonialIndex] = useState(0);
-  const [workIndex, setWorkIndex] = useState(0);
   const [activeService, setActiveService] = useState<string>(services[0]?.key ?? fallbackService.key);
-
+  const [openFaqId, setOpenFaqId] = useState<string>(homeFaqs[0]?.id ?? "");
   const activeServiceData = services.find((item) => item.key === activeService) ?? services[0] ?? fallbackService;
-
-  const canSlideTestimonials = testimonialItems.length > 1;
-  const canSlideWorks = workItems.length > 1;
-
-  const nextTestimonial = () => {
-    if (!canSlideTestimonials) return;
-    setTestimonialIndex((current) => (current + 1) % testimonialItems.length);
-  };
-
-  const prevTestimonial = () => {
-    if (!canSlideTestimonials) return;
-    setTestimonialIndex((current) => (current - 1 + testimonialItems.length) % testimonialItems.length);
-  };
-
-  const nextWork = () => {
-    if (!canSlideWorks) return;
-    setWorkIndex((current) => (current + 1) % workItems.length);
-  };
-
-  const prevWork = () => {
-    if (!canSlideWorks) return;
-    setWorkIndex((current) => (current - 1 + workItems.length) % workItems.length);
-  };
+  const testimonialCount = String(Math.max(testimonials.length, 1)).padStart(2, "0");
+  const faqColumns = [homeFaqs.filter((_, index) => index % 2 === 0), homeFaqs.filter((_, index) => index % 2 !== 0)];
 
   return (
-    <div className="space-y-28 pb-24 pt-8 md:pt-12">
-      <SectionReveal className="container">
-        <div className="relative overflow-hidden rounded-[2rem] border border-border/18 bg-card/78 px-6 py-10 shadow-card md:px-12 md:py-14">
-          <div className="pointer-events-none absolute -left-10 -top-20 h-52 w-52 rounded-full bg-accentA/25 blur-3xl" />
-          <div className="pointer-events-none absolute -right-10 top-16 h-52 w-52 rounded-full bg-accentB/20 blur-3xl" />
-
-          <div className="relative z-10 grid gap-10 lg:grid-cols-[1.25fr_0.75fr] lg:items-end">
-            <div>
-              <Badge className="border-border/24 bg-bg/55">Available for new projects</Badge>
-
-              <h1 className="mt-6 space-y-2 text-[clamp(2.1rem,6vw,5.8rem)] font-semibold leading-[0.96]">
-                <motion.span
-                  className="hero-spaced block text-[0.72rem] text-fg/56 md:text-[0.86rem]"
-                  initial={reducedMotion ? false : { opacity: 0, y: 10 }}
-                  whileInView={reducedMotion ? {} : { opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  viewport={{ once: true, margin: "-20px" }}
-                >
-                  Designed to ship
-                </motion.span>
-                <motion.span
-                  className="hero-spaced block"
-                  initial={reducedMotion ? false : { opacity: 0, y: 12, filter: "blur(5px)" }}
-                  whileInView={reducedMotion ? {} : { opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ duration: 0.42, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-                  viewport={{ once: true, margin: "-20px" }}
-                >
-                  ELEVATED
-                </motion.span>
-                <motion.span
-                  className="hero-spaced block"
-                  initial={reducedMotion ? false : { opacity: 0, y: 12, filter: "blur(5px)" }}
-                  whileInView={reducedMotion ? {} : { opacity: 1, y: 0, filter: "blur(0px)" }}
-                  transition={{ duration: 0.42, delay: 0.16, ease: [0.16, 1, 0.3, 1] }}
-                  viewport={{ once: true, margin: "-20px" }}
-                >
-                  COMFORT
-                </motion.span>
-                <span className="block text-[0.88em]">for teams and users.</span>
-              </h1>
-
-              <p className="mt-6 max-w-2xl text-base text-fg/72 md:text-lg">
-                Graphxify designs premium marketing experiences and connected CMS operations with tight visual rhythm,
-                clean motion, and enterprise-grade governance.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Magnetic>
-                  <Button asChild size="lg">
-                    <Link href="/contact">Start your project</Link>
-                  </Button>
-                </Magnetic>
-                <Magnetic>
-                  <Button asChild variant="secondary" size="lg">
-                    <Link href="/works">View case studies</Link>
-                  </Button>
-                </Magnetic>
-              </div>
+    <div className="space-y-24 pb-20 pt-6 md:pt-10">
+      <SectionReveal className="container pt-2 md:pt-4" effect="zoom">
+        <div className="mx-auto max-w-[980px]">
+          <div className="mx-auto inline-flex w-fit items-center gap-3 rounded-full border border-border/18 bg-card/72 px-4 py-2 shadow-[0_8px_22px_rgba(13,13,15,0.08)]">
+            <div className="flex -space-x-2">
+              <span className="inline-flex h-7 w-7 overflow-hidden rounded-full border border-bg bg-fg/8">
+                <Image src="/assets/work-1.svg" alt="Founder profile" width={28} height={28} className="h-full w-full object-cover" />
+              </span>
+              <span className="inline-flex h-7 w-7 overflow-hidden rounded-full border border-bg bg-fg/8">
+                <Image src="/assets/work-2.svg" alt="Founder profile" width={28} height={28} className="h-full w-full object-cover" />
+              </span>
+              <span className="inline-flex h-7 w-7 overflow-hidden rounded-full border border-bg bg-fg/8">
+                <Image src="/assets/work-3.svg" alt="Founder profile" width={28} height={28} className="h-full w-full object-cover" />
+              </span>
             </div>
+            <p className="text-base text-fg/66">Trusted by founders.</p>
+          </div>
 
-            <div className="space-y-4">
-              <div className="section-shell border-border/18 bg-bg/62 p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-fg/60">Delivery pulse</p>
-                <div className="mt-4 space-y-3 text-sm text-fg/74">
-                  <p className="flex items-center justify-between border-b border-border/12 pb-2">
-                    <span>Current availability</span>
-                    <span className="font-medium">2 slots</span>
-                  </p>
-                  <p className="flex items-center justify-between border-b border-border/12 pb-2">
-                    <span>Average launch cycle</span>
-                    <span className="font-medium">4-8 weeks</span>
-                  </p>
-                  <p className="flex items-center justify-between">
-                    <span>Primary stack</span>
-                    <span className="font-medium">Next.js + Supabase</span>
-                  </p>
-                </div>
-              </div>
-              <div className="section-shell border-border/18 bg-bg/62 p-5">
-                <p className="text-xs uppercase tracking-[0.2em] text-fg/60">Capabilities</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {capabilities.map((capability) => (
-                    <span key={capability} className="rounded-full border border-border/18 bg-card/72 px-3 py-1 text-xs text-fg/72">
-                      {capability}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <h1 className="mx-auto mt-9 max-w-[980px] text-center text-[clamp(2.25rem,6.4vw,5.9rem)] font-semibold leading-[0.94] tracking-tight">
+            <span className="block text-fg">
+              Effortless
+              <HeroChip src="/assets/work-1.svg" alt="Design token" tint="accent" />
+              <span className="text-accentA">Design</span>
+            </span>
+            <span className="block text-fg/66">
+              for
+              <HeroChip src="/assets/work-2.svg" alt="Workflow token" tint="muted" />
+              Brand Teams
+            </span>
+            <span className="block text-fg/72">
+              built in Toronto,
+              <HeroChip src="/assets/work-3.svg" alt="Location token" tint="muted" />
+              Canada
+            </span>
+          </h1>
+
+          <p className="mx-auto mt-7 max-w-3xl text-center text-[1.08rem] text-fg/60 md:text-[1.28rem]">
+            We make it easy for teams to launch, grow, and scale with clean brand systems, calm UX, and fast websites without noise.
+          </p>
+
+          <div className="mt-8 flex items-center justify-center gap-6">
+            <Magnetic>
+              <Button
+                asChild
+                size="lg"
+                className="rounded-full border border-border/26 px-8 !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92"
+              >
+                <Link href="/contact">Start a project inquiry</Link>
+              </Button>
+            </Magnetic>
+            <Link href="/works" className="link-sweep text-lg text-fg/72">
+              View selected work
+            </Link>
           </div>
         </div>
 
-        <div className="mt-6 overflow-hidden rounded-full border border-border/16 bg-card/70 py-3">
-          <div className="animate-marquee flex min-w-max items-center gap-10 px-8">
+        <div className="mt-10 overflow-hidden rounded-full border border-border/16 bg-card/70 py-2.5">
+          <div className="animate-marquee flex min-w-max items-center gap-8 px-8">
             {[...stripBrands, ...stripBrands].map((brand, index) => (
               <div key={`${brand}-${index}`} className="flex items-center gap-2 text-[0.78rem] tracking-[0.18em] text-fg/60">
                 <Sparkles className="h-3.5 w-3.5 text-accentA" />
@@ -183,151 +219,13 @@ export function HomeSections({ works }: { works: WorkCard[] }): JSX.Element {
         </div>
       </SectionReveal>
 
-      <SectionReveal className="container">
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-fg/58">Client feedback</p>
-            <h2 className="mt-1 text-2xl font-semibold md:text-3xl">Testimonials</h2>
-          </div>
-          <span className="text-sm text-fg/64">{toCounter(testimonialIndex + 1, testimonialItems.length)}</span>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-[0.42fr_1fr]">
-          <div className="section-shell border-border/18 bg-card/72 p-5">
-            <p className="text-sm text-fg/68">Drag horizontally or use controls to navigate stories.</p>
-            <div className="mt-5 flex gap-2">
-              <Magnetic>
-                <Button variant="secondary" size="icon" aria-label="Previous testimonial" onClick={prevTestimonial}>
-                  <ArrowLeft className="h-4 w-4" />
-                </Button>
-              </Magnetic>
-              <Magnetic>
-                <Button variant="secondary" size="icon" aria-label="Next testimonial" onClick={nextTestimonial}>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Magnetic>
-            </div>
-          </div>
-
-          <motion.div
-            className="section-shell border-border/18 bg-card/74 p-6 md:p-8"
-            drag={reducedMotion ? false : "x"}
-            dragConstraints={{ left: 0, right: 0 }}
-            onDragEnd={(_, info) => {
-              const direction = getDragDirection(info);
-              if (direction === "next") nextTestimonial();
-              if (direction === "prev") prevTestimonial();
-            }}
-          >
-            {testimonialItems.length === 0 ? (
-              <p className="text-sm text-fg/68">Testimonials will appear here once added.</p>
-            ) : (
-              <AnimatePresence mode="wait">
-                <motion.article
-                  key={testimonialItems[testimonialIndex].id}
-                  initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={reducedMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
-                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="space-y-5"
-                >
-                  <p className="text-xl leading-relaxed md:text-3xl">“{testimonialItems[testimonialIndex].quote}”</p>
-                  <p className="text-sm text-fg/62">
-                    {testimonialItems[testimonialIndex].name} / {testimonialItems[testimonialIndex].role}
-                  </p>
-                </motion.article>
-              </AnimatePresence>
-            )}
-          </motion.div>
-        </div>
+      <SectionReveal className="container" effect="left">
+        <SectionHeading eyebrow="About" title="The Founder" right="Direct collaboration" />
+        <FounderIntroSection showIntroLabel={false} animateFounderCopy />
       </SectionReveal>
 
-      <SectionReveal className="container">
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-fg/58">Portfolio</p>
-            <h2 className="mt-1 text-2xl font-semibold md:text-3xl">Works Carousel</h2>
-          </div>
-          <span className="text-sm text-fg/64">{toCounter(workIndex + 1, workItems.length)}</span>
-        </div>
-
-        <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
-          {workItems.length === 0 ? (
-            <p className="text-sm text-fg/68">No featured works published yet.</p>
-          ) : (
-            <motion.div
-              drag={reducedMotion ? false : "x"}
-              dragConstraints={{ left: 0, right: 0 }}
-              onDragEnd={(_, info) => {
-                const direction = getDragDirection(info);
-                if (direction === "next") nextWork();
-                if (direction === "prev") prevWork();
-              }}
-            >
-              <AnimatePresence mode="wait">
-                <motion.article
-                  key={workItems[workIndex].id}
-                  initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={reducedMotion ? { opacity: 1 } : { opacity: 0, y: -10 }}
-                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                  className="grid gap-5 lg:grid-cols-[1fr_0.95fr]"
-                >
-                  <div className="relative h-[18rem] overflow-hidden rounded-xl border border-border/18 md:h-[24rem]">
-                    <Image
-                      src={workItems[workIndex].cover_image_url || "/assets/work-fallback.svg"}
-                      alt={workItems[workIndex].title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 1200px) 100vw, 60vw"
-                    />
-                  </div>
-                  <div className="space-y-4">
-                    <p className="text-xs uppercase tracking-[0.2em] text-fg/58">Case study</p>
-                    <h3 className="text-3xl font-semibold">{workItems[workIndex].title}</h3>
-                    <p className="text-fg/68">{workItems[workIndex].excerpt}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {(workItems[workIndex].services || []).slice(0, 4).map((service) => (
-                        <span key={service} className="rounded-full border border-border/18 px-3 py-1 text-xs text-fg/68">
-                          {service}
-                        </span>
-                      ))}
-                    </div>
-                    <Magnetic>
-                      <Button asChild variant="secondary">
-                        <Link href={`/works/${workItems[workIndex].slug}`}>Open project</Link>
-                      </Button>
-                    </Magnetic>
-                  </div>
-                </motion.article>
-              </AnimatePresence>
-            </motion.div>
-          )}
-
-          <div className="mt-6 flex items-center gap-2">
-            <Magnetic>
-              <Button variant="secondary" size="icon" aria-label="Previous work" onClick={prevWork}>
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Magnetic>
-            <Magnetic>
-              <Button variant="secondary" size="icon" aria-label="Next work" onClick={nextWork}>
-                <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Magnetic>
-          </div>
-        </div>
-      </SectionReveal>
-
-      <SectionReveal className="container">
-        <div className="mb-6 flex items-end justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-fg/58">Service matrix</p>
-            <h2 className="mt-1 text-2xl font-semibold md:text-3xl">Services</h2>
-          </div>
-          <p className="text-sm text-fg/62">Strategy, design, engineering</p>
-        </div>
-
+      <SectionReveal className="container" effect="right">
+        <SectionHeading eyebrow="Services" title="Service Matrix" right="Strategy, design, development" />
         <div className="section-shell border-border/18 bg-card/72 p-4 md:p-6">
           <div className="relative flex flex-wrap gap-2 border-b border-border/14 pb-4">
             {services.map((service) => {
@@ -344,7 +242,7 @@ export function HomeSections({ works }: { works: WorkCard[] }): JSX.Element {
                     <motion.span
                       layoutId="service-tab"
                       className="absolute inset-0 rounded-full border border-accentA/40 bg-accent-gradient opacity-20"
-                      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.44, ease: [0.16, 1, 0.3, 1] }}
                     />
                   ) : null}
                   <span className="relative z-10">{service.title}</span>
@@ -359,7 +257,7 @@ export function HomeSections({ works }: { works: WorkCard[] }): JSX.Element {
               initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={reducedMotion ? { opacity: 1 } : { opacity: 0, y: -8 }}
-              transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.52, ease: [0.16, 1, 0.3, 1], delay: 0.06 }}
               className="pt-6"
             >
               <h3 className="text-2xl font-semibold">{activeServiceData.title}</h3>
@@ -369,84 +267,101 @@ export function HomeSections({ works }: { works: WorkCard[] }): JSX.Element {
         </div>
       </SectionReveal>
 
-      <SectionReveal className="container">
-        <div className="grid gap-7 rounded-[1.5rem] border border-border/18 bg-card/74 p-6 md:grid-cols-[0.6fr_1.4fr] md:p-9">
-          <div className="space-y-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-fg/58">Meet Daniel</p>
-            <div className="relative h-52 w-52 overflow-hidden rounded-2xl border border-border/18 bg-bg/58">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_24%_20%,rgba(0,163,255,0.3),transparent_58%)]" />
-              <div className="absolute inset-0 grid place-items-center text-xs tracking-[0.18em] text-fg/60">FOUNDER</div>
-            </div>
-            <p className="text-sm text-fg/66">{founder.title}</p>
-          </div>
-
-          <div className="space-y-5">
-            <h2 className="text-3xl font-semibold">{founder.name} leads every project with system-level clarity.</h2>
-            <p className="max-w-2xl text-fg/68">{founder.bio}</p>
-            <div className="grid gap-3 text-sm text-fg/72 md:grid-cols-3">
-              <p className="rounded-xl border border-border/16 bg-bg/52 p-4">2018 - Graphxify founded as a strategic design partner.</p>
-              <p className="rounded-xl border border-border/16 bg-bg/52 p-4">2022 - Expanded into full-stack CMS and analytics tooling.</p>
-              <p className="rounded-xl border border-border/16 bg-bg/52 p-4">2026 - Premium motion-first platform delivery model.</p>
-            </div>
+      <SectionReveal className="container" effect="zoom">
+        <SectionHeading eyebrow="Process" title="Work Phases" right="01 / 04" />
+        <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
+          <div className="grid gap-4 md:grid-cols-2">
+            {workPhases.map((phase) => {
+              const Icon = phase.icon;
+              return (
+                <motion.article
+                  key={phase.id}
+                  whileHover={reducedMotion ? undefined : { y: -6, scale: 1.012 }}
+                  transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+                  className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/42 p-5 shadow-[0_8px_20px_rgba(13,13,15,0.08)]"
+                >
+                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(132deg,rgba(0,163,255,0.12)_0%,rgba(0,82,204,0.08)_42%,transparent_76%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                  <div className="relative z-10">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Phase {phase.id}</p>
+                      <span className="grid h-10 w-10 place-items-center rounded-full border border-border/20 bg-card/72 text-fg/74 transition-transform duration-300 group-hover:scale-105">
+                        <Icon className="h-[18px] w-[18px]" />
+                      </span>
+                    </div>
+                    <h3 className="mt-3 text-xl font-semibold">{phase.title}</h3>
+                    <p className="mt-2 text-sm text-fg/68 md:text-base">{phase.body}</p>
+                  </div>
+                </motion.article>
+              );
+            })}
           </div>
         </div>
       </SectionReveal>
 
-      <SectionReveal className="container">
-        <div className="mb-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-fg/58">Plans</p>
-          <h2 className="mt-1 text-2xl font-semibold md:text-3xl">Pricing</h2>
-        </div>
+      <SectionReveal className="container" effect="left">
+        <SectionHeading eyebrow="Support" title="FAQ" right="Common questions" />
+        <div className="grid gap-4 md:grid-cols-2">
+          {faqColumns.map((column, colIdx) => (
+            <div key={`faq-col-${colIdx}`} className="space-y-4">
+              {column.map((item) => {
+                const open = openFaqId === item.id;
+                return (
+                  <article key={item.id} className="rounded-[1.9rem] border border-border/16 bg-card/78 px-6 py-5 md:px-7">
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqId((prev) => (prev === item.id ? "" : item.id))}
+                      className="group flex w-full items-center justify-between gap-4 text-left"
+                      aria-expanded={open}
+                      aria-controls={`${item.id}-content`}
+                    >
+                      <h3 className="text-xl font-medium md:text-[1.85rem]">{item.q}</h3>
+                      <span
+                        className={cn(
+                          "grid h-11 w-11 place-items-center rounded-full border p-[0.45rem] shadow-[0_8px_18px_rgba(13,13,15,0.08)] transition-all duration-300",
+                          open
+                            ? "border-accentA/40 bg-accent-gradient text-ivory"
+                            : "border-border/22 bg-bg/76 text-fg/72 group-hover:border-border/34 group-hover:bg-card/92 group-hover:text-fg"
+                        )}
+                      >
+                        {open ? <Minus className="h-[1.06rem] w-[1.06rem] stroke-[2.6]" /> : <Plus className="h-[1.06rem] w-[1.06rem] stroke-[2.6]" />}
+                      </span>
+                    </button>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {pricingPlans.map((plan, idx) => (
-            <Card key={plan.name} className={`h-full ${idx === 1 ? "border-accentA/46" : "border-border/18"}`}>
-              <CardContent className="space-y-4 p-6">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold">{plan.name}</h3>
-                  <span className="text-xs text-fg/60">0{idx + 1}</span>
-                </div>
-                <p className="text-3xl font-semibold">{plan.price}</p>
-                <p className="text-sm text-fg/68">{plan.description}</p>
-                <ul className="space-y-2 text-sm text-fg/72">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="rounded-lg border border-border/16 bg-bg/50 px-3 py-2">
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
+                    <AnimatePresence initial={false}>
+                      {open ? (
+                        <motion.div
+                          id={`${item.id}-content`}
+                          key={`${item.id}-open`}
+                          initial={reducedMotion ? { opacity: 1 } : { opacity: 0, height: 0, y: -4 }}
+                          animate={{ opacity: 1, height: "auto", y: 0 }}
+                          exit={reducedMotion ? { opacity: 0 } : { opacity: 0, height: 0, y: -4 }}
+                          transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <p className="pt-4 text-base text-fg/68 md:text-[1.25rem]">{item.a}</p>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  </article>
+                );
+              })}
+            </div>
           ))}
         </div>
       </SectionReveal>
 
-      <SectionReveal className="container">
-        <div className="mb-5">
-          <p className="text-xs uppercase tracking-[0.2em] text-fg/58">Support</p>
-          <h2 className="mt-1 text-2xl font-semibold md:text-3xl">FAQ</h2>
-        </div>
-        <div className="section-shell border-border/18 bg-card/74 px-6 py-2 md:px-8">
-          <Accordion type="single" collapsible>
-            {faqs.map((item) => (
-              <AccordionItem key={item.q} value={item.q}>
-                <AccordionTrigger>{item.q}</AccordionTrigger>
-                <AccordionContent>{item.a}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
+      <SectionReveal className="container mt-6 md:mt-8 lg:mt-10" effect="right">
+        <SectionHeading eyebrow="Testimonials" title="Client Stories" right={`01 / ${testimonialCount}`} />
+        <TestimonialsSection items={testimonials} metrics={testimonialMetrics} showLeadText={false} />
       </SectionReveal>
 
-      <SectionReveal className="container">
+      <SectionReveal className="container" effect="zoom">
+        <SectionHeading eyebrow="Contact" title="Start a Project Inquiry" right="1 business day response" />
         <div className="relative overflow-hidden rounded-[1.6rem] border border-border/18 bg-card/78 p-7 md:p-10">
           <div className="pointer-events-none absolute -bottom-10 right-8 h-44 w-44 rounded-full bg-accentB/20 blur-3xl" />
           <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_0.9fr]">
             <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-fg/58">Contact</p>
-              <h2 className="mt-3 max-w-xl text-3xl font-semibold leading-tight md:text-4xl">
-                Let’s build a cleaner, sharper, more memorable digital experience.
-              </h2>
+              <h3 className="max-w-xl text-2xl font-semibold leading-tight md:text-3xl">Let’s build a cleaner, sharper, more memorable digital experience.</h3>
               <p className="mt-4 max-w-lg text-fg/68">
                 Share the scope and timeline. We’ll respond with a delivery roadmap tailored to your team and brand.
               </p>

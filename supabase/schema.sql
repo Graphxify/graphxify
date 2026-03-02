@@ -37,6 +37,29 @@ create table if not exists public.works (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.testimonials (
+  id uuid primary key default gen_random_uuid(),
+  quote text not null,
+  name text not null,
+  role text not null,
+  image_url text,
+  status text not null default 'draft' check (status in ('draft', 'published')),
+  sort_order int not null default 0,
+  author_id uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.testimonial_metrics (
+  id uuid primary key default gen_random_uuid(),
+  value text not null,
+  label text not null,
+  sort_order int not null default 0,
+  author_id uuid references public.profiles(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.leads (
   id uuid primary key default gen_random_uuid(),
   name text not null,
@@ -51,7 +74,7 @@ create table if not exists public.audit_logs (
   actor_email text,
   actor_role text,
   action text not null,
-  entity_type text not null check (entity_type in ('post', 'work', 'lead', 'profile', 'system')),
+  entity_type text not null check (entity_type in ('post', 'work', 'testimonial', 'lead', 'profile', 'system')),
   entity_id uuid,
   metadata jsonb not null default '{}'::jsonb,
   ip text,
@@ -119,6 +142,21 @@ drop trigger if exists set_works_updated_at on public.works;
 create trigger set_works_updated_at
 before update on public.works
 for each row execute function public.set_updated_at();
+
+drop trigger if exists set_testimonials_updated_at on public.testimonials;
+create trigger set_testimonials_updated_at
+before update on public.testimonials
+for each row execute function public.set_updated_at();
+
+drop trigger if exists set_testimonial_metrics_updated_at on public.testimonial_metrics;
+create trigger set_testimonial_metrics_updated_at
+before update on public.testimonial_metrics
+for each row execute function public.set_updated_at();
+
+alter table public.audit_logs drop constraint if exists audit_logs_entity_type_check;
+alter table public.audit_logs
+  add constraint audit_logs_entity_type_check
+  check (entity_type in ('post', 'work', 'testimonial', 'lead', 'profile', 'system'));
 
 create or replace function public.handle_new_user()
 returns trigger

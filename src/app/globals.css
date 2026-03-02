@@ -12,6 +12,9 @@
   --accent-b: 0 82 204;
   --radius: 1rem;
   --surface-alpha: 0.04;
+  --layout-max: 1160px;
+  --layout-gutter: 1.125rem;
+  --font-scale: 0.985;
 }
 
 .dark {
@@ -33,12 +36,26 @@ body {
   scroll-behavior: smooth;
 }
 
+html {
+  font-size: calc(16px * var(--font-scale));
+}
+
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--fg));
   font-family: var(--font-poppins), sans-serif;
   overflow-x: hidden;
-  transition: background-color 240ms ease, color 240ms ease;
+  transition: background-color 360ms ease, color 360ms ease;
+}
+
+html.cursor-fx,
+html.cursor-fx body,
+html.cursor-fx a,
+html.cursor-fx button,
+html.cursor-fx [role="button"],
+html.cursor-fx input[type="submit"],
+html.cursor-fx input[type="button"] {
+  cursor: none !important;
 }
 
 ::selection {
@@ -51,7 +68,7 @@ button,
 input,
 textarea,
 select {
-  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  transition: background-color 280ms ease, color 280ms ease, border-color 280ms ease, box-shadow 320ms ease, transform 320ms ease;
 }
 
 a:focus-visible,
@@ -63,13 +80,27 @@ select:focus-visible {
   outline-offset: 2px;
 }
 
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: rgb(13 13 15 / 0.62) !important;
+  opacity: 1;
+}
+
 .app-shell {
   position: relative;
   isolation: isolate;
   background:
-    radial-gradient(circle at 16% 8%, rgb(var(--accent-a) / 0.1), transparent 34%),
-    radial-gradient(circle at 88% 4%, rgb(var(--accent-b) / 0.1), transparent 32%),
+    radial-gradient(circle at 16% 8%, rgb(var(--accent-a) / 0.07), transparent 34%),
+    radial-gradient(circle at 88% 4%, rgb(var(--accent-b) / 0.07), transparent 32%),
     rgb(var(--bg));
+}
+
+@layer components {
+  .container {
+    max-width: var(--layout-max) !important;
+    padding-left: var(--layout-gutter) !important;
+    padding-right: var(--layout-gutter) !important;
+  }
 }
 
 .noise-overlay::before {
@@ -85,10 +116,11 @@ select:focus-visible {
 
 .section-shell {
   position: relative;
-  border: 1px solid rgb(var(--border) / 0.16);
+  border: 1px solid rgb(var(--border) / 0.14);
   border-radius: 1.25rem;
-  background-color: rgb(var(--card) / 0.7);
-  backdrop-filter: blur(10px);
+  background-color: rgb(var(--card) / 0.76);
+  backdrop-filter: blur(14px) saturate(130%);
+  box-shadow: 0 14px 34px rgb(13 13 15 / 0.07);
   overflow: hidden;
 }
 
@@ -99,7 +131,7 @@ select:focus-visible {
   pointer-events: none;
   background: linear-gradient(115deg, rgb(var(--accent-a) / 0.08), transparent 30%, transparent 70%, rgb(var(--accent-b) / 0.08));
   opacity: 0;
-  transition: opacity 260ms ease;
+  transition: opacity 420ms ease;
 }
 
 .section-shell:hover::after {
@@ -121,7 +153,7 @@ select:focus-visible {
   transform: scaleX(0);
   transform-origin: left;
   background: linear-gradient(90deg, #00a3ff 0%, #0052cc 100%);
-  transition: transform 220ms ease;
+  transition: transform 320ms ease;
 }
 
 .link-sweep:hover::after,
@@ -140,7 +172,7 @@ select:focus-visible {
 }
 
 .lift-hover {
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  transition: transform 320ms ease, box-shadow 320ms ease, border-color 320ms ease;
 }
 
 .glow-accent {
@@ -160,6 +192,22 @@ select:focus-visible {
 
 .dark .noise-overlay::before {
   opacity: 0.18;
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --layout-max: 1120px;
+    --layout-gutter: 1.25rem;
+    --font-scale: 0.96;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --layout-max: 1080px;
+    --layout-gutter: 1.35rem;
+    --font-scale: 0.93;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

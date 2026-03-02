@@ -55,8 +55,8 @@ export default async function WorkDetailPage({ params }: { params: Params }) {
         }
       />
 
-      <RevealStagger className="space-y-10">
-        <RevealItem className="space-y-4">
+      <RevealStagger className="space-y-10" effect="up">
+        <RevealItem className="space-y-4" effect="left">
           <Link href="/works" className="link-sweep text-sm text-fg/68">
             Back to works
           </Link>
@@ -64,7 +64,7 @@ export default async function WorkDetailPage({ params }: { params: Params }) {
           <p className="max-w-3xl text-fg/68">{work.excerpt}</p>
         </RevealItem>
 
-        <RevealItem>
+        <RevealItem effect="zoom">
           <div className="relative h-[28rem] overflow-hidden rounded-2xl border border-border/18">
             <Image
               src={work.cover_image_url || "/assets/work-fallback.svg"}
@@ -78,7 +78,7 @@ export default async function WorkDetailPage({ params }: { params: Params }) {
         </RevealItem>
 
         <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr]">
-          <RevealItem>
+          <RevealItem effect="left">
             <div className="section-shell border-border/18 bg-card/72 p-5">
               <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Project Snapshot</p>
               <ul className="mt-4 space-y-3 text-sm text-fg/72">
@@ -88,7 +88,7 @@ export default async function WorkDetailPage({ params }: { params: Params }) {
               </ul>
             </div>
           </RevealItem>
-          <RevealItem>
+          <RevealItem effect="right">
             <div className="section-shell border-border/18 bg-card/72 p-6 text-fg/78">
               <p>{work.content}</p>
             </div>

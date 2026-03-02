@@ -12,6 +12,7 @@ const commonLinks = [
   { href: "/dashboard/analytics", label: "Analytics" },
   { href: "/dashboard/posts", label: "Posts" },
   { href: "/dashboard/works", label: "Works" },
+  { href: "/dashboard/testimonials", label: "Testimonials" },
   { href: "/dashboard/leads", label: "Leads" },
   { href: "/dashboard/activity", label: "Activity" }
 ];
