@@ -61,7 +61,7 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
                 width={246}
                 height={68}
                 priority
-                className="h-auto w-[10.8rem] dark:hidden md:w-[11.8rem]"
+                className="h-auto w-[8.9rem] dark:hidden md:w-[9.8rem]"
               />
               <Image
                 src="/assets/Graphxify-Logo-white.webp"
@@ -69,7 +69,7 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
                 width={246}
                 height={68}
                 priority
-                className="hidden h-auto w-[10.8rem] dark:block md:w-[11.8rem]"
+                className="hidden h-auto w-[8.9rem] dark:block md:w-[9.8rem]"
               />
             </Link>
           </div>
