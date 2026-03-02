@@ -29,17 +29,69 @@ type TestimonialMetricCard = {
   sort_order: number;
 };
 
-const stripLogos = [
-  "NOVA SYSTEMS",
-  "ALTO",
-  "NORTHLINE",
-  "ORBIT",
-  "HELIX",
-  "KINETIC",
-  "BAYFIELD",
-  "LUMEN",
-  "MIRRA"
-] as const;
+type StripLogo = {
+  key: string;
+  alt: string;
+  lightSrc: string;
+  darkSrc?: string;
+  width: number;
+  height: number;
+  className: string;
+};
+
+const stripLogos: StripLogo[] = [
+  {
+    key: "wordmark-1",
+    alt: "Graphxify wordmark",
+    lightSrc: "/assets/Graphxify-Logo-Black.webp",
+    darkSrc: "/assets/Graphxify-Logo-white.webp",
+    width: 246,
+    height: 68,
+    className: "w-[7.8rem] md:w-[8.8rem]"
+  },
+  {
+    key: "mark-1",
+    alt: "Graphxify logo mark",
+    lightSrc: "/assets/logo-mark.svg",
+    width: 128,
+    height: 32,
+    className: "w-[6.4rem] md:w-[7.1rem]"
+  },
+  {
+    key: "wordmark-2",
+    alt: "Graphxify wordmark",
+    lightSrc: "/assets/Graphxify-Logo-Black.webp",
+    darkSrc: "/assets/Graphxify-Logo-white.webp",
+    width: 246,
+    height: 68,
+    className: "w-[7.8rem] md:w-[8.8rem]"
+  },
+  {
+    key: "mark-2",
+    alt: "Graphxify logo mark",
+    lightSrc: "/assets/logo-mark.svg",
+    width: 128,
+    height: 32,
+    className: "w-[6.4rem] md:w-[7.1rem]"
+  },
+  {
+    key: "wordmark-3",
+    alt: "Graphxify wordmark",
+    lightSrc: "/assets/Graphxify-Logo-Black.webp",
+    darkSrc: "/assets/Graphxify-Logo-white.webp",
+    width: 246,
+    height: 68,
+    className: "w-[7.8rem] md:w-[8.8rem]"
+  },
+  {
+    key: "mark-3",
+    alt: "Graphxify logo mark",
+    lightSrc: "/assets/logo-mark.svg",
+    width: 128,
+    height: 32,
+    className: "w-[6.4rem] md:w-[7.1rem]"
+  }
+];
 const fallbackService = {
   key: "brand-systems",
   title: "Brand Systems",
@@ -135,20 +187,15 @@ function HeroChip({
 
 function SectionHeading({
   eyebrow,
-  title,
-  right
+  title
 }: {
   eyebrow: string;
   title: string;
-  right?: string;
 }): JSX.Element {
   return (
-    <div className="mb-6 flex items-end justify-between">
-      <div>
-        <p className="text-xs uppercase tracking-[0.2em] text-fg/58">{eyebrow}</p>
-        <h2 className="mt-1 text-2xl font-semibold md:text-3xl">{title}</h2>
-      </div>
-      {right ? <p className="text-sm text-fg/62">{right}</p> : null}
+    <div className="mb-6">
+      <p className="text-xs uppercase tracking-[0.2em] text-fg/58">{eyebrow}</p>
+      <h2 className="mt-1 text-2xl font-semibold md:text-3xl">{title}</h2>
     </div>
   );
 }
@@ -164,29 +211,17 @@ export function HomeSections({
   const [activeService, setActiveService] = useState<string>(services[0]?.key ?? fallbackService.key);
   const [openFaqId, setOpenFaqId] = useState<string>(homeFaqs[0]?.id ?? "");
   const activeServiceData = services.find((item) => item.key === activeService) ?? services[0] ?? fallbackService;
-  const testimonialCount = String(Math.max(testimonials.length, 1)).padStart(2, "0");
   const faqColumns = [homeFaqs.filter((_, index) => index % 2 === 0), homeFaqs.filter((_, index) => index % 2 !== 0)];
 
   return (
     <div className="space-y-24 pb-20 pt-6 md:pt-10">
-      <SectionReveal className="container pt-2 md:pt-4" effect="zoom">
-        <div className="mx-auto max-w-[980px]">
-          <div className="mx-auto inline-flex w-fit items-center gap-3 rounded-full border border-border/18 bg-card/72 px-4 py-2 shadow-[0_8px_22px_rgba(13,13,15,0.08)]">
-            <div className="flex -space-x-2">
-              <span className="inline-flex h-7 w-7 overflow-hidden rounded-full border border-bg bg-fg/8">
-                <Image src="/assets/work-1.svg" alt="Founder profile" width={28} height={28} className="h-full w-full object-cover" />
-              </span>
-              <span className="inline-flex h-7 w-7 overflow-hidden rounded-full border border-bg bg-fg/8">
-                <Image src="/assets/work-2.svg" alt="Founder profile" width={28} height={28} className="h-full w-full object-cover" />
-              </span>
-              <span className="inline-flex h-7 w-7 overflow-hidden rounded-full border border-bg bg-fg/8">
-                <Image src="/assets/work-3.svg" alt="Founder profile" width={28} height={28} className="h-full w-full object-cover" />
-              </span>
-            </div>
-            <p className="text-base text-fg/66">Trusted by founders.</p>
+      <SectionReveal className="container pt-0 md:pt-2" effect="zoom">
+        <div className="mx-auto max-w-[940px]">
+          <div className="mx-auto flex w-fit items-center justify-center rounded-full border border-border/18 bg-card/72 px-3.5 py-1.5 text-center shadow-[0_8px_22px_rgba(13,13,15,0.08)]">
+            <p className="text-sm text-fg/66">Trusted by founders</p>
           </div>
 
-          <h1 className="mx-auto mt-9 max-w-[980px] text-center text-[clamp(2.25rem,6.4vw,5.9rem)] font-semibold leading-[0.94] tracking-tight">
+          <h1 className="mx-auto mt-6 max-w-[940px] text-center text-[clamp(1.95rem,5.6vw,5.1rem)] font-semibold leading-[0.96] tracking-tight">
             <span className="block text-fg">
               Effortless
               <HeroChip src="/assets/work-1.svg" alt="Design token" tint="accent" />
@@ -198,33 +233,33 @@ export function HomeSections({
               Brand Teams
             </span>
             <span className="block text-fg/72">
-              built in Toronto,
+              <span className="text-accentA">built</span> in Toronto,
               <HeroChip src="/assets/work-3.svg" alt="Location token" tint="muted" />
               Canada
             </span>
           </h1>
 
-          <p className="mx-auto mt-7 max-w-3xl text-center text-[1.08rem] text-fg/60 md:text-[1.28rem]">
+          <p className="mx-auto mt-5 max-w-3xl text-center text-[1rem] text-fg/60 md:text-[1.14rem]">
             We make it easy for teams to launch, grow, and scale with clean brand systems, calm UX, and fast websites without noise.
           </p>
 
-          <div className="mt-8 flex items-center justify-center gap-6">
+          <div className="mt-6 flex items-center justify-center gap-4">
             <Magnetic>
               <Button
                 asChild
                 size="lg"
-                className="rounded-full border border-border/26 px-8 !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92"
+                className="rounded-full border border-border/26 px-6 !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92"
               >
                 <Link href="/contact">Start a project inquiry</Link>
               </Button>
             </Magnetic>
-            <Link href="/works" className="link-sweep text-lg text-fg/72">
+            <Link href="/works" className="link-sweep text-base text-fg/72">
               View selected work
             </Link>
           </div>
         </div>
 
-        <div className="group relative mt-10 overflow-hidden rounded-2xl bg-card/70 py-3">
+        <div className="group relative mt-12 overflow-hidden rounded-2xl bg-card/70 py-2.5 md:mt-14">
           <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card via-card/90 to-transparent md:w-24" />
           <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-card via-card/90 to-transparent md:w-24" />
           <div className="flex w-max animate-marquee items-center [animation-duration:30s] [animation-play-state:running] motion-reduce:animate-none group-hover:[animation-play-state:paused] will-change-transform">
@@ -234,12 +269,29 @@ export function HomeSections({
                 aria-hidden={loopIndex === 1}
                 className="flex shrink-0 items-center gap-8 pr-8 md:gap-12 md:pr-12"
               >
-                {stripLogos.map((brand) => (
+                {stripLogos.map((logo) => (
                   <li
-                    key={`${loopIndex}-${brand}`}
-                    className="inline-flex h-9 items-center whitespace-nowrap text-[0.73rem] font-medium uppercase tracking-[0.2em] text-fg/42 transition duration-300 hover:text-fg/72"
+                    key={`${loopIndex}-${logo.key}`}
+                    className="inline-flex h-9 items-center justify-center opacity-56 transition duration-300 hover:opacity-92"
                   >
-                    {brand}
+                    <span className={cn("relative inline-flex items-center justify-center", logo.className)}>
+                      <Image
+                        src={logo.lightSrc}
+                        alt={logo.alt}
+                        width={logo.width}
+                        height={logo.height}
+                        className={cn("h-auto w-full object-contain", logo.darkSrc ? "dark:hidden" : "")}
+                      />
+                      {logo.darkSrc ? (
+                        <Image
+                          src={logo.darkSrc}
+                          alt={logo.alt}
+                          width={logo.width}
+                          height={logo.height}
+                          className="hidden h-auto w-full object-contain dark:block"
+                        />
+                      ) : null}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -249,12 +301,12 @@ export function HomeSections({
       </SectionReveal>
 
       <SectionReveal className="container" effect="left">
-        <SectionHeading eyebrow="About" title="The Founder" right="Direct collaboration" />
+        <SectionHeading eyebrow="About" title="The Founder" />
         <FounderIntroSection showIntroLabel={false} />
       </SectionReveal>
 
       <SectionReveal className="container" effect="right">
-        <SectionHeading eyebrow="Services" title="Everything you need to build a strong digital foundation." right="From brand clarity to scalable websites and structured CMS systems - Graphxify builds digital experiences that look sharp and work flawlessly." />
+        <SectionHeading eyebrow="Services" title="Everything you need to build a strong digital foundation." />
         <div className="section-shell border-border/18 bg-card/72 p-4 md:p-6">
           <div className="relative flex flex-wrap gap-2 border-b border-border/14 pb-4">
             {services.map((service) => {
@@ -265,17 +317,29 @@ export function HomeSections({
                   key={service.key}
                   type="button"
                   onClick={() => setActiveService(service.key)}
-                  className="relative rounded-full px-4 py-2 text-sm text-fg/72"
+                  className={cn(
+                    "group relative rounded-full px-4 py-2 text-sm transition-colors duration-300",
+                    active ? "text-ivory" : "text-fg/72 hover:text-ivory"
+                  )}
                   aria-label={`Select ${service.title}`}
                 >
+                  {!active ? (
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 rounded-full bg-accent-gradient opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                    />
+                  ) : null}
                   {active ? (
                     <motion.span
                       layoutId="service-tab"
-                      className="absolute inset-0 rounded-full border border-accentA/40 bg-accent-gradient opacity-20"
+                      className="absolute inset-0 rounded-full border border-accentA/45 bg-accent-gradient"
                       transition={{ duration: 0.44, ease: [0.16, 1, 0.3, 1] }}
                     />
                   ) : null}
-                  <span className="relative z-10 inline-flex items-center gap-2"><ServiceIcon className="h-3.5 w-3.5 text-accentA/85" /><span>{service.title}</span></span>
+                  <span className="relative z-10 inline-flex items-center gap-2">
+                    <ServiceIcon className={cn("h-3.5 w-3.5 transition-colors duration-300", active ? "text-ivory" : "text-accentA group-hover:text-ivory")} />
+                    <span>{service.title}</span>
+                  </span>
                 </button>
               );
             })}
@@ -298,7 +362,7 @@ export function HomeSections({
       </SectionReveal>
 
       <SectionReveal className="container" effect="zoom">
-        <SectionHeading eyebrow="Process" title="Work Phases" right="01 / 04" />
+        <SectionHeading eyebrow="Process" title="Work Phases" />
         <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
           <div className="grid gap-4 md:grid-cols-2">
             {workPhases.map((phase) => {
@@ -328,7 +392,7 @@ export function HomeSections({
       </SectionReveal>
 
       <SectionReveal className="container" effect="left">
-        <SectionHeading eyebrow="Support" title="FAQ" right="Common questions" />
+        <SectionHeading eyebrow="Support" title="FAQ" />
         <div className="grid gap-4 md:grid-cols-2">
           {faqColumns.map((column, colIdx) => (
             <div key={`faq-col-${colIdx}`} className="space-y-4">
@@ -380,12 +444,12 @@ export function HomeSections({
       </SectionReveal>
 
       <SectionReveal className="container mt-6 md:mt-8 lg:mt-10" effect="right">
-        <SectionHeading eyebrow="Testimonials" title="Client Stories" right={`01 / ${testimonialCount}`} />
+        <SectionHeading eyebrow="Testimonials" title="Client Stories" />
         <TestimonialsSection items={testimonials} metrics={testimonialMetrics} showLeadText={false} />
       </SectionReveal>
 
       <SectionReveal className="container" effect="zoom">
-        <SectionHeading eyebrow="Contact" title="Start a Project Inquiry" right="1 business day response" />
+        <SectionHeading eyebrow="Contact" title="Start a Project Inquiry" />
         <div className="relative overflow-hidden rounded-[1.6rem] border border-border/18 bg-card/78 p-7 md:p-10">
           <div className="pointer-events-none absolute -bottom-10 right-8 h-44 w-44 rounded-full bg-accentB/20 blur-3xl" />
           <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_0.9fr]">
