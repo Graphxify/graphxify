@@ -19,7 +19,7 @@ export default function AboutPage() {
         </RevealItem>
 
         <RevealItem effect="up">
-          <FounderIntroSection showIntroLabel={false} animateFounderCopy />
+          <FounderIntroSection showIntroLabel={false} />
         </RevealItem>
       </RevealStagger>
     </section>

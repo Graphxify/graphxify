@@ -61,18 +61,23 @@ export const faqs = [
 
 export const services = [
   {
-    key: "strategy",
-    title: "Brand Strategy",
-    body: "Positioning workshops, message architecture, and audience-aligned funnel planning."
+    key: "brand-systems",
+    title: "Brand Systems",
+    body: "We define your positioning, messaging, and visual identity into a structured brand system that stays consistent across every platform."
   },
   {
-    key: "experience",
-    title: "Experience Design",
-    body: "Intentional interface systems that preserve brand precision across every view."
+    key: "web-design",
+    title: "Web Design",
+    body: "We design modern, high-end websites with clear hierarchy, strong UX, and layouts built to guide users toward action."
   },
   {
-    key: "platform",
-    title: "Platform Engineering",
-    body: "Scalable full-stack architecture with role governance and analytics-ready instrumentation."
+    key: "web-development",
+    title: "Web Development",
+    body: "We develop fast, scalable websites using modern frameworks - engineered for performance, accessibility, and long-term growth."
+  },
+  {
+    key: "cms-architecture",
+    title: "CMS Architecture",
+    body: "We implement structured CMS systems so your team can publish, update, and scale content without breaking the design or workflow."
   }
 ] as const;

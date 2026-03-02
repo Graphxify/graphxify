@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import { AnimatePresence, motion, type PanInfo, useReducedMotion, type Variants } from "framer-motion";
+import { motion, type PanInfo, useAnimationControls, useReducedMotion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { testimonialMetricsDefault, testimonials } from "@/lib/constants";
 
 type Direction = 1 | -1;
@@ -59,22 +59,7 @@ export function TestimonialsSection({
   showLeadText?: boolean;
 }): JSX.Element {
   const reducedMotion = useReducedMotion();
-
-  const slideVariants: Variants = {
-    enter: (dir: Direction) => {
-      if (reducedMotion) {
-        return { x: "0%" };
-      }
-      return { x: dir === 1 ? "100%" : "-100%" };
-    },
-    center: { x: "0%" },
-    exit: (dir: Direction) => {
-      if (reducedMotion) {
-        return { x: "0%" };
-      }
-      return { x: dir === 1 ? "-100%" : "100%" };
-    }
-  };
+  const controls = useAnimationControls();
 
   const slides = useMemo<TestimonialSlide[]>(() => {
     const source = Array.isArray(items) && items.length > 0 ? items : testimonials;
@@ -101,27 +86,13 @@ export function TestimonialsSection({
   }, [metrics]);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [direction, setDirection] = useState<Direction>(1);
   const [paused, setPaused] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const [slideWidth, setSlideWidth] = useState(0);
   const lockRef = useRef(false);
-  const lockTimerRef = useRef<number | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
 
   const total = Math.max(slides.length, 1);
-  const transitionMs = reducedMotion ? 40 : 620;
-
-  const lockForTransition = () => {
-    lockRef.current = true;
-    setAnimating(true);
-    if (lockTimerRef.current) {
-      window.clearTimeout(lockTimerRef.current);
-    }
-    lockTimerRef.current = window.setTimeout(() => {
-      lockRef.current = false;
-      setAnimating(false);
-      lockTimerRef.current = null;
-    }, transitionMs);
-  };
 
   useEffect(() => {
     if (activeIndex < slides.length) {
@@ -131,24 +102,88 @@ export function TestimonialsSection({
   }, [activeIndex, slides.length]);
 
   useEffect(() => {
-    if (paused || animating || slides.length <= 1) {
+    const updateWidth = () => {
+      const nextWidth = viewportRef.current?.offsetWidth ?? 0;
+      setSlideWidth(nextWidth);
+      controls.set({ x: nextWidth > 0 ? -nextWidth : 0 });
+    };
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => {
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, [controls]);
+
+  useEffect(() => {
+    if (slideWidth <= 0) {
+      return;
+    }
+    controls.set({ x: -slideWidth });
+  }, [activeIndex, controls, slideWidth]);
+
+  const paginate = useCallback(
+    async (nextDirection: Direction) => {
+      if (lockRef.current || slides.length <= 1 || slideWidth <= 0) {
+        return;
+      }
+
+      lockRef.current = true;
+      setAnimating(true);
+      const targetX = nextDirection === 1 ? -slideWidth * 2 : 0;
+
+      try {
+        if (reducedMotion) {
+          controls.set({ x: targetX });
+        } else {
+          await controls.start({
+            x: targetX,
+            transition: { duration: 0.46, ease: [0.22, 0.75, 0.2, 1] }
+          });
+        }
+
+        setActiveIndex((current) => {
+          if (nextDirection === 1) {
+            return (current + 1) % slides.length;
+          }
+          return (current - 1 + slides.length) % slides.length;
+        });
+
+        controls.set({ x: -slideWidth });
+      } finally {
+        lockRef.current = false;
+        setAnimating(false);
+      }
+    },
+    [controls, reducedMotion, slideWidth, slides.length]
+  );
+
+  const resetToCenter = useCallback(async () => {
+    if (slideWidth <= 0) {
+      return;
+    }
+    if (reducedMotion) {
+      controls.set({ x: -slideWidth });
+      return;
+    }
+    await controls.start({
+      x: -slideWidth,
+      transition: { duration: 0.34, ease: [0.22, 0.75, 0.2, 1] }
+    });
+  }, [controls, reducedMotion, slideWidth]);
+
+  useEffect(() => {
+    if (paused || animating || slides.length <= 1 || slideWidth <= 0) {
       return;
     }
 
     const id = window.setInterval(() => {
-      setDirection(1);
-      setActiveIndex((current) => (current + 1) % slides.length);
-      lockForTransition();
+      void paginate(1);
     }, 5600);
 
     return () => {
       window.clearInterval(id);
-      if (lockTimerRef.current) {
-        window.clearTimeout(lockTimerRef.current);
-        lockTimerRef.current = null;
-      }
     };
-  }, [animating, paused, slides.length, transitionMs]);
+  }, [animating, paginate, paused, slideWidth, slides.length]);
 
   if (slides.length === 0) {
     return (
@@ -160,20 +195,14 @@ export function TestimonialsSection({
   }
 
   const activeSlide = slides[activeIndex];
+  const prevIndex = (activeIndex - 1 + slides.length) % slides.length;
+  const nextIndex = (activeIndex + 1) % slides.length;
 
-  const paginate = (nextDirection: Direction) => {
-    if (lockRef.current || slides.length <= 1) {
-      return;
-    }
-    lockForTransition();
-    setDirection(nextDirection);
-    setActiveIndex((current) => {
-      if (nextDirection === 1) {
-        return (current + 1) % slides.length;
-      }
-      return (current - 1 + slides.length) % slides.length;
-    });
-  };
+  const visibleSlides = [
+    { slot: "prev", slide: slides[prevIndex], index: prevIndex },
+    { slot: "active", slide: activeSlide, index: activeIndex },
+    { slot: "next", slide: slides[nextIndex], index: nextIndex }
+  ] as const;
 
   return (
     <section className={showLeadText ? "relative pt-5 md:pt-6 lg:pt-7" : "relative pt-2 md:pt-3"}>
@@ -208,87 +237,91 @@ export function TestimonialsSection({
           onFocusCapture={() => setPaused(true)}
           onBlurCapture={() => setPaused(false)}
         >
-          <AnimatePresence mode="wait" initial={false} custom={direction}>
+          <div ref={viewportRef} className="absolute inset-0 overflow-hidden">
             <motion.div
-              key={activeSlide.id}
-              custom={direction}
-              variants={slideVariants}
-              className="absolute inset-0 will-change-transform"
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: reducedMotion ? 0.01 : 0.62, ease: [0.22, 0.75, 0.2, 1] }}
-              drag={reducedMotion ? false : "x"}
-              dragElastic={0.08}
-              dragMomentum={!reducedMotion}
-              dragConstraints={{ left: 0, right: 0 }}
-              onDragStart={() => setPaused(true)}
+              className="absolute inset-y-0 left-0 flex h-full w-[300%] will-change-transform touch-pan-y"
+              initial={false}
+              animate={controls}
+              drag={reducedMotion || slides.length <= 1 ? false : "x"}
+              dragElastic={0}
+              dragMomentum={false}
+              dragConstraints={
+                slideWidth > 0
+                  ? { left: -slideWidth * 2, right: 0 }
+                  : { left: 0, right: 0 }
+              }
+              onDragStart={() => {
+                setPaused(true);
+                controls.stop();
+              }}
               onDragEnd={(_, info) => {
                 const nextDirection = dragToDirection(info);
                 if (nextDirection) {
-                  paginate(nextDirection);
+                  void paginate(nextDirection).finally(() => setPaused(false));
+                  return;
                 }
-                setPaused(false);
+                void resetToCenter().finally(() => setPaused(false));
               }}
             >
-              <motion.div
-                className="absolute inset-0"
-                initial={reducedMotion ? { scale: 1 } : { scale: 1.06 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1] }}
-              >
-                <Image
-                  src={activeSlide.image || "/assets/work-fallback.svg"}
-                  alt={`${activeSlide.name} testimonial background`}
-                  fill
-                  className="object-cover"
-                  sizes="65vw"
-                  priority
-                />
-              </motion.div>
+              {visibleSlides.map(({ slot, slide, index }) => {
+                const isActiveSlide = slot === "active";
+                return (
+                  <div key={`${slot}-${slide.id}`} className="relative h-full w-1/3 shrink-0">
+                    <div className="absolute inset-0">
+                      <Image
+                        src={slide.image || "/assets/work-fallback.svg"}
+                        alt={`${slide.name} testimonial background`}
+                        fill
+                        className="object-cover"
+                        sizes="65vw"
+                        priority={isActiveSlide}
+                      />
+                    </div>
 
-              <div className="absolute inset-0 bg-black/20" />
-              <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(186,127,33,0.38)_0%,rgba(116,73,18,0.16)_44%,rgba(0,0,0,0.42)_100%)] mix-blend-multiply" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/58 via-black/24 to-black/20" />
+                    <div className="absolute inset-0 bg-black/20" />
+                    <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(186,127,33,0.38)_0%,rgba(116,73,18,0.16)_44%,rgba(0,0,0,0.42)_100%)] mix-blend-multiply" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/58 via-black/24 to-black/20" />
 
-              <div className="relative z-10 flex h-full flex-col justify-between p-6 text-ivory md:p-7">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 text-2xl tracking-tight text-ivory/92 md:text-[1.8rem]">
-                    <span>{sliderCounter(activeIndex, total)}</span>
-                    <span className="h-px w-16 bg-ivory/45" />
+                    <div className="relative z-10 flex h-full flex-col justify-between p-6 text-ivory md:p-7">
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-4 text-2xl tracking-tight text-ivory/92 md:text-[1.8rem]">
+                          <span>{sliderCounter(index, total)}</span>
+                          <span className="h-px w-16 bg-ivory/45" />
+                        </div>
+                        <div className="h-1.5 w-36 overflow-hidden rounded-full bg-ivory/22">
+                          {isActiveSlide ? (
+                            <motion.div
+                              key={`progress-${slide.id}`}
+                              className="h-full bg-ivory/86"
+                              initial={{ width: "0%" }}
+                              animate={{ width: "100%" }}
+                              transition={{ duration: paused ? 0 : 5.4, ease: "linear" }}
+                            />
+                          ) : (
+                            <div className="h-full w-0 bg-ivory/86" />
+                          )}
+                        </div>
+                      </div>
+
+                      <blockquote className="max-w-4xl">
+                        <p className="text-3xl font-semibold leading-tight md:text-[2.35rem]">"{slide.quote}"</p>
+                        <footer className="mt-6">
+                          <p className="text-2xl text-ivory/96 md:text-[1.45rem]">{slide.name}</p>
+                          <p className="text-xl text-ivory/72 md:text-[1.12rem]">{slide.role}</p>
+                        </footer>
+                      </blockquote>
+                    </div>
                   </div>
-                  <div className="h-1.5 w-36 overflow-hidden rounded-full bg-ivory/22">
-                    <motion.div
-                      key={`progress-${activeSlide.id}`}
-                      className="h-full bg-ivory/86"
-                      initial={{ width: "0%" }}
-                      animate={{ width: "100%" }}
-                      transition={{ duration: paused ? 0 : 5.4, ease: "linear" }}
-                    />
-                  </div>
-                </div>
-
-                <motion.blockquote
-                  initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.46, delay: 0.08, ease: [0.16, 1, 0.3, 1] }}
-                  className="max-w-4xl"
-                >
-                  <p className="text-3xl font-semibold leading-tight md:text-[2.35rem]">"{activeSlide.quote}"</p>
-                  <footer className="mt-6">
-                    <p className="text-2xl text-ivory/96 md:text-[1.45rem]">{activeSlide.name}</p>
-                    <p className="text-xl text-ivory/72 md:text-[1.12rem]">{activeSlide.role}</p>
-                  </footer>
-                </motion.blockquote>
-              </div>
+                );
+              })}
             </motion.div>
-          </AnimatePresence>
+          </div>
 
           <div className="absolute bottom-5 right-5 z-20 flex items-center gap-2">
             <button
               type="button"
               aria-label="Previous testimonial"
-              onClick={() => paginate(-1)}
+              onClick={() => void paginate(-1)}
               disabled={animating}
               className="grid h-11 w-11 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48"
             >
@@ -297,7 +330,7 @@ export function TestimonialsSection({
             <button
               type="button"
               aria-label="Next testimonial"
-              onClick={() => paginate(1)}
+              onClick={() => void paginate(1)}
               disabled={animating}
               className="grid h-11 w-11 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48"
             >

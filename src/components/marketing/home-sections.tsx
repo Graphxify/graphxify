@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Code2, Compass, LayoutTemplate, Minus, Plus, Rocket, Sparkles, type LucideIcon } from "lucide-react";
+import { Code2, Compass, Database, LayoutTemplate, Minus, Palette, Plus, Rocket, Sparkles, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
@@ -29,11 +29,28 @@ type TestimonialMetricCard = {
   sort_order: number;
 };
 
-const stripBrands = ["NOVA SYSTEMS", "ALTO", "NORTHLINE", "ORBIT", "HELIX", "KINETIC"];
+const stripLogos = [
+  "NOVA SYSTEMS",
+  "ALTO",
+  "NORTHLINE",
+  "ORBIT",
+  "HELIX",
+  "KINETIC",
+  "BAYFIELD",
+  "LUMEN",
+  "MIRRA"
+] as const;
 const fallbackService = {
-  key: "strategy",
-  title: "Strategic Delivery",
-  body: "Service details will appear once configured."
+  key: "brand-systems",
+  title: "Brand Systems",
+  body: "We define your positioning, messaging, and visual identity into a structured brand system that stays consistent across every platform."
+};
+
+const serviceIcons: Record<string, LucideIcon> = {
+  "brand-systems": Compass,
+  "web-design": Palette,
+  "web-development": Code2,
+  "cms-architecture": Database
 };
 
 type WorkPhase = {
@@ -207,13 +224,25 @@ export function HomeSections({
           </div>
         </div>
 
-        <div className="mt-10 overflow-hidden rounded-full border border-border/16 bg-card/70 py-2.5">
-          <div className="animate-marquee flex min-w-max items-center gap-8 px-8">
-            {[...stripBrands, ...stripBrands].map((brand, index) => (
-              <div key={`${brand}-${index}`} className="flex items-center gap-2 text-[0.78rem] tracking-[0.18em] text-fg/60">
-                <Sparkles className="h-3.5 w-3.5 text-accentA" />
-                <span>{brand}</span>
-              </div>
+        <div className="group relative mt-10 overflow-hidden rounded-2xl bg-card/70 py-3">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card via-card/90 to-transparent md:w-24" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-card via-card/90 to-transparent md:w-24" />
+          <div className="flex w-max animate-marquee items-center [animation-duration:30s] [animation-play-state:running] motion-reduce:animate-none group-hover:[animation-play-state:paused] will-change-transform">
+            {[0, 1].map((loopIndex) => (
+              <ul
+                key={`logo-loop-${loopIndex}`}
+                aria-hidden={loopIndex === 1}
+                className="flex shrink-0 items-center gap-8 pr-8 md:gap-12 md:pr-12"
+              >
+                {stripLogos.map((brand) => (
+                  <li
+                    key={`${loopIndex}-${brand}`}
+                    className="inline-flex h-9 items-center whitespace-nowrap text-[0.73rem] font-medium uppercase tracking-[0.2em] text-fg/42 transition duration-300 hover:text-fg/72"
+                  >
+                    {brand}
+                  </li>
+                ))}
+              </ul>
             ))}
           </div>
         </div>
@@ -221,15 +250,16 @@ export function HomeSections({
 
       <SectionReveal className="container" effect="left">
         <SectionHeading eyebrow="About" title="The Founder" right="Direct collaboration" />
-        <FounderIntroSection showIntroLabel={false} animateFounderCopy />
+        <FounderIntroSection showIntroLabel={false} />
       </SectionReveal>
 
       <SectionReveal className="container" effect="right">
-        <SectionHeading eyebrow="Services" title="Service Matrix" right="Strategy, design, development" />
+        <SectionHeading eyebrow="Services" title="Everything you need to build a strong digital foundation." right="From brand clarity to scalable websites and structured CMS systems - Graphxify builds digital experiences that look sharp and work flawlessly." />
         <div className="section-shell border-border/18 bg-card/72 p-4 md:p-6">
           <div className="relative flex flex-wrap gap-2 border-b border-border/14 pb-4">
             {services.map((service) => {
               const active = service.key === activeService;
+              const ServiceIcon = serviceIcons[service.key] ?? Sparkles;
               return (
                 <button
                   key={service.key}
@@ -245,7 +275,7 @@ export function HomeSections({
                       transition={{ duration: 0.44, ease: [0.16, 1, 0.3, 1] }}
                     />
                   ) : null}
-                  <span className="relative z-10">{service.title}</span>
+                  <span className="relative z-10 inline-flex items-center gap-2"><ServiceIcon className="h-3.5 w-3.5 text-accentA/85" /><span>{service.title}</span></span>
                 </button>
               );
             })}
@@ -280,11 +310,10 @@ export function HomeSections({
                   transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
                   className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/42 p-5 shadow-[0_8px_20px_rgba(13,13,15,0.08)]"
                 >
-                  <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(132deg,rgba(0,163,255,0.12)_0%,rgba(0,82,204,0.08)_42%,transparent_76%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <div className="relative z-10">
                     <div className="flex items-center justify-between">
                       <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Phase {phase.id}</p>
-                      <span className="grid h-10 w-10 place-items-center rounded-full border border-border/20 bg-card/72 text-fg/74 transition-transform duration-300 group-hover:scale-105">
+                      <span className="grid h-10 w-10 place-items-center rounded-full border border-border/20 bg-card/72 text-accentA transition-transform duration-300 group-hover:scale-105">
                         <Icon className="h-[18px] w-[18px]" />
                       </span>
                     </div>
