@@ -1,17 +1,13 @@
 "use client";
 
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export function CursorGlow(): JSX.Element | null {
   const reducedMotion = useReducedMotion();
   const [enabled, setEnabled] = useState(false);
-  const [interactive, setInteractive] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [cursorLabel, setCursorLabel] = useState("OPEN");
-  const interactiveRef = useRef(false);
-  const labelRef = useRef("OPEN");
   const x = useMotionValue(-200);
   const y = useMotionValue(-200);
   const shellX = useSpring(x, { stiffness: 300, damping: 32, mass: 0.36 });
@@ -52,30 +48,6 @@ export function CursorGlow(): JSX.Element | null {
       x.set(event.clientX);
       y.set(event.clientY);
       setVisible(true);
-
-      const target = event.target as HTMLElement | null;
-      const interactiveElement = target?.closest("a, button, [role='button'], input[type='submit'], input[type='button'], .cursor-hit") as HTMLElement | null;
-      const nextInteractive = Boolean(interactiveElement);
-
-      if (nextInteractive !== interactiveRef.current) {
-        interactiveRef.current = nextInteractive;
-        setInteractive(nextInteractive);
-      }
-
-      if (interactiveElement) {
-        const dataLabel = interactiveElement.getAttribute("data-cursor-label")?.trim().toUpperCase();
-        const nextLabel =
-          dataLabel && dataLabel.length > 0
-            ? dataLabel
-            : interactiveElement.tagName === "A"
-              ? "OPEN"
-              : "TAP";
-
-        if (nextLabel !== labelRef.current) {
-          labelRef.current = nextLabel;
-          setCursorLabel(nextLabel);
-        }
-      }
     };
     const onPointerDown = () => setPressed(true);
     const onPointerUp = () => setPressed(false);
@@ -107,27 +79,18 @@ export function CursorGlow(): JSX.Element | null {
         style={{ x: shellX, y: shellY, translateX: "-50%", translateY: "-50%" }}
         animate={{
           opacity: visible ? 1 : 0,
-          width: interactive ? 92 : 46,
-          height: interactive ? 46 : 46,
-          borderRadius: interactive ? 999 : 999,
-          scale: pressed ? 0.94 : interactive ? 1.04 : 1
+          width: 46,
+          height: 46,
+          borderRadius: 999,
+          scale: pressed ? 0.94 : 1
         }}
         transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <motion.span
-          aria-hidden
-          animate={{ opacity: interactive ? 1 : 0, y: interactive ? 0 : 3, scale: interactive ? 1 : 0.94 }}
-          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="select-none"
-        >
-          {cursorLabel}
-        </motion.span>
-      </motion.div>
+      />
       <motion.div
         aria-hidden
         className="pointer-events-none fixed z-[65] h-[8px] w-[8px] rounded-full bg-fg dark:bg-ivory"
         style={{ x: coreX, y: coreY, translateX: "-50%", translateY: "-50%" }}
-        animate={{ opacity: visible ? (interactive ? 0 : 1) : 0, scale: pressed ? 0.64 : 1 }}
+        animate={{ opacity: visible ? 1 : 0, scale: pressed ? 0.64 : 1 }}
         transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
       />
       <motion.div
@@ -135,8 +98,8 @@ export function CursorGlow(): JSX.Element | null {
         className="pointer-events-none fixed z-[63] h-[180px] w-[180px] rounded-full bg-[radial-gradient(circle,rgba(0,163,255,0.18)_0%,rgba(0,82,204,0.1)_38%,transparent_72%)] blur-[22px]"
         style={{ x: glowX, y: glowY, translateX: "-50%", translateY: "-50%" }}
         animate={{
-          opacity: visible ? (interactive ? 0.72 : 0.45) : 0,
-          scale: interactive ? 1.2 : 1
+          opacity: visible ? 0.45 : 0,
+          scale: 1
         }}
         transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
       />

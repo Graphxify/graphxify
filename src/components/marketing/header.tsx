@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
@@ -52,9 +53,16 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(242,240,235,0.2)_0%,rgba(242,240,235,0.04)_38%,rgba(242,240,235,0.12)_100%)] dark:bg-[linear-gradient(115deg,rgba(242,240,235,0.12)_0%,rgba(242,240,235,0.02)_44%,rgba(242,240,235,0.08)_100%)]" />
           <div className="pointer-events-none absolute inset-0 rounded-[1.25rem] ring-1 ring-white/20 dark:ring-white/10" />
 
-          <div className="w-48 shrink-0">
-            <Link href="/" className="text-[1.72rem] font-semibold leading-none text-fg md:text-[1.86rem]">
-              GRAPHXIFY
+          <div className="w-48 shrink-0 md:w-[13.5rem]">
+            <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
+              <Image
+                src="/assets/graphxify-logo-uploaded.svg"
+                alt="Graphxify"
+                width={246}
+                height={68}
+                priority
+                className="h-auto w-[10.8rem] md:w-[11.8rem]"
+              />
             </Link>
           </div>
 
