@@ -3,7 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
+import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Magnetic } from "@/components/motion/magnetic";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -18,7 +19,17 @@ type MarketingHeaderProps = {
 export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const centerNav = marketingNav.filter((item) => item.href !== "/contact");
+  const isRouteActive = (href: string): boolean =>
+    href === "/" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+  const cmsActive = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
+  const contactActive = isRouteActive("/contact");
+  const mobileNavItemClass = (active: boolean): string =>
+    cn(
+      "rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300",
+      active ? "bg-accent-gradient text-ivory shadow-[0_10px_20px_rgba(0,128,255,0.2)]" : "text-fg/78 hover:bg-card/82 hover:text-fg"
+    );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -27,16 +38,33 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileOpen) {
+      return;
+    }
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [mobileOpen]);
+
   return (
     <header className="sticky top-0 z-50">
       <div
         className={cn(
-          "relative bg-bg/22 transition-all duration-300 supports-[backdrop-filter]:backdrop-blur-lg",
+          "relative bg-bg/22 transition-all duration-300",
+          mobileOpen ? "supports-[backdrop-filter]:backdrop-blur-none" : "supports-[backdrop-filter]:backdrop-blur-lg",
           scrolled ? "pb-2 pt-1.5" : "pb-3 pt-2"
         )}
       >
-        <div className="pointer-events-none absolute left-1/2 -top-[1px] hidden -translate-x-1/2 md:block">
-          <div className="pointer-events-auto rounded-b-[2rem] border border-border/25 border-t-0 bg-graphite px-8 py-2.5 text-sm tracking-[0.02em] text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.24)] dark:bg-ivory dark:text-graphite">
+        <div className="pointer-events-none absolute left-1/2 -top-[1px] z-20 max-w-[calc(100%-1.5rem)] -translate-x-1/2">
+          <div className="pointer-events-auto whitespace-nowrap rounded-b-[1.45rem] border border-border/25 border-t-0 bg-graphite px-4 py-1.5 text-[0.7rem] tracking-[0.02em] text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.24)] sm:rounded-b-[1.75rem] sm:px-6 sm:py-2 sm:text-xs lg:rounded-b-[2rem] lg:px-8 lg:py-2.5 lg:text-sm dark:bg-ivory dark:text-graphite">
             <span className="mr-2 inline-block h-2 w-2 rounded-full bg-accentA" />
             Available for New Projects
           </div>
@@ -44,7 +72,7 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
 
         <div
           className={cn(
-            "container relative mt-10 flex h-[74px] items-center gap-4 overflow-hidden rounded-[1.25rem] border border-border/22 bg-bg/55 px-4 backdrop-blur-[24px] transition-all duration-300 supports-[backdrop-filter]:bg-bg/42 md:mt-12 md:h-[80px] md:px-6",
+            "container relative mt-8 flex min-h-[68px] items-center gap-3 overflow-hidden rounded-[1.1rem] border border-border/22 bg-bg/55 px-3 backdrop-blur-[24px] transition-all duration-300 supports-[backdrop-filter]:bg-bg/42 sm:mt-8 sm:min-h-[72px] sm:px-4 lg:mt-12 lg:h-[80px] lg:px-6",
             scrolled
               ? "shadow-[0_18px_38px_rgba(13,13,15,0.16)]"
               : "shadow-[0_8px_24px_rgba(13,13,15,0.1)]"
@@ -53,7 +81,7 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(242,240,235,0.2)_0%,rgba(242,240,235,0.04)_38%,rgba(242,240,235,0.12)_100%)] dark:bg-[linear-gradient(115deg,rgba(242,240,235,0.12)_0%,rgba(242,240,235,0.02)_44%,rgba(242,240,235,0.08)_100%)]" />
           <div className="pointer-events-none absolute inset-0 rounded-[1.25rem] ring-1 ring-white/20 dark:ring-white/10" />
 
-          <div className="w-48 shrink-0 md:w-[13.5rem]">
+          <div className="w-40 shrink-0 sm:w-48 lg:w-[13.5rem]">
             <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
               <Image
                 src="/assets/Graphxify-Logo-Black.webp"
@@ -61,7 +89,7 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
                 width={246}
                 height={68}
                 priority
-                className="h-auto w-[8.9rem] dark:hidden md:w-[9.8rem]"
+                className="h-auto w-[8rem] dark:hidden sm:w-[8.9rem] lg:w-[9.8rem]"
               />
               <Image
                 src="/assets/Graphxify-Logo-white.webp"
@@ -69,14 +97,14 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
                 width={246}
                 height={68}
                 priority
-                className="hidden h-auto w-[8.9rem] dark:block md:w-[9.8rem]"
+                className="hidden h-auto w-[8rem] dark:block sm:w-[8.9rem] lg:w-[9.8rem]"
               />
             </Link>
           </div>
 
-          <nav className="hidden flex-1 items-center justify-center gap-1 md:flex">
+          <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
             {centerNav.map((item) => {
-              const active = item.href === "/" ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
+              const active = isRouteActive(item.href);
               return (
                 <Link
                   key={item.href}
@@ -102,47 +130,117 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
             })}
           </nav>
 
-          <div className="ml-auto flex items-center gap-2.5">
-            <ThemeToggle className="hidden md:inline-flex" />
+          <div className="ml-auto hidden items-center gap-2.5 lg:flex">
+            <ThemeToggle className="hidden lg:inline-flex" />
             {showCms ? (
-              <Button asChild variant="secondary" size="sm" className="hidden rounded-full border-border/24 bg-card/86 px-5 md:inline-flex">
+              <Button
+                asChild
+                variant="secondary"
+                size="sm"
+                className={cn(
+                  "hidden rounded-full px-5 lg:inline-flex",
+                  cmsActive
+                    ? "border-accentA/45 bg-accent-gradient text-ivory shadow-[0_10px_22px_rgba(0,128,255,0.2)] hover:text-ivory"
+                    : "border-border/24 bg-card/86"
+                )}
+              >
                 <Link href="/dashboard">CMS</Link>
               </Button>
             ) : null}
-            <Magnetic className="hidden md:block">
-              <Button asChild size="sm" className="rounded-full border border-border/24 bg-accent-gradient px-7 text-sm text-ivory shadow-[0_10px_22px_rgba(13,13,15,0.18)]">
+            <Magnetic className="hidden lg:block">
+              <Button
+                asChild
+                size="sm"
+                className={cn(
+                  "rounded-full border px-7 text-sm text-ivory",
+                  contactActive
+                    ? "border-accentA/55 bg-accent-gradient shadow-[0_12px_26px_rgba(0,128,255,0.22)]"
+                    : "border-border/24 bg-accent-gradient shadow-[0_10px_22px_rgba(13,13,15,0.18)]"
+                )}
+              >
                 <Link href="/contact">Contact</Link>
               </Button>
             </Magnetic>
           </div>
+
+          <div className="ml-auto flex items-center gap-2 lg:hidden">
+            <ThemeToggle />
+            <button
+              type="button"
+              onClick={() => setMobileOpen((prev) => !prev)}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-marketing-nav"
+              aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
+              className={cn(
+                "inline-flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300",
+                mobileOpen
+                  ? "border-accentA/45 bg-accent-gradient text-ivory shadow-[0_12px_22px_rgba(0,128,255,0.24)]"
+                  : "border-border/24 bg-card/82 text-fg/82 hover:bg-card"
+              )}
+            >
+              <motion.span
+                key={mobileOpen ? "close" : "menu"}
+                initial={{ rotate: mobileOpen ? -35 : 35, opacity: 0, scale: 0.9 }}
+                animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                exit={{ rotate: mobileOpen ? 35 : -35, opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="inline-flex"
+              >
+                {mobileOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
+              </motion.span>
+            </button>
+          </div>
         </div>
 
-        <div className="scrollbar-none mt-3 flex gap-3 overflow-x-auto border-t border-border/14 px-4 py-3 md:hidden">
-          {centerNav.map((item) => {
-            const active = item.href === "/" ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition",
-                  active ? "bg-card/88 text-fg" : "text-fg/72"
-                )}
+        <AnimatePresence initial={false}>
+          {mobileOpen ? (
+            <>
+              <motion.button
+                type="button"
+                aria-label="Close navigation menu"
+                onClick={() => setMobileOpen(false)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                className="fixed inset-0 z-40 bg-transparent lg:hidden"
+              />
+              <motion.div
+                id="mobile-marketing-nav"
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute left-4 right-4 top-full z-[60] mt-3 overflow-hidden rounded-2xl border border-border/20 bg-bg p-3 shadow-[0_18px_36px_rgba(13,13,15,0.2)] lg:hidden"
               >
-                {item.label}
-              </Link>
-            );
-          })}
-          {showCms ? (
-            <Link href="/dashboard" className="whitespace-nowrap rounded-full bg-card/88 px-3 py-1.5 text-sm text-fg">
-              CMS
-            </Link>
+                <nav className="grid gap-1.5">
+                  {centerNav.map((item) => {
+                    const active = isRouteActive(item.href);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={mobileNavItemClass(active)}
+                      >
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+
+                  <Link href="/contact" className={mobileNavItemClass(contactActive)}>
+                    Contact
+                  </Link>
+
+                  {showCms ? (
+                    <Link href="/dashboard" className={mobileNavItemClass(cmsActive)}>
+                      CMS
+                    </Link>
+                  ) : null}
+                </nav>
+              </motion.div>
+            </>
           ) : null}
-          <ThemeToggle />
-          <Link href="/contact" className="whitespace-nowrap rounded-full bg-accent-gradient px-3 py-1.5 text-sm text-ivory">
-            Contact
-          </Link>
-        </div>
+        </AnimatePresence>
       </div>
     </header>
   );

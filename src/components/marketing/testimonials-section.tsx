@@ -208,8 +208,8 @@ export function TestimonialsSection({
     <section className={showLeadText ? "relative pt-5 md:pt-6 lg:pt-7" : "relative pt-2 md:pt-3"}>
       {showLeadText ? <p className="relative z-20 mb-4 text-center text-sm text-fg/62">(Why clients love Graphxify)</p> : null}
 
-      <div className="relative z-10 mx-auto grid w-full max-w-[1070px] gap-4 px-1 md:px-2 lg:grid-cols-[0.32fr_0.68fr]">
-        <article className="relative min-h-[24rem] overflow-hidden rounded-[2rem] border border-border/20 bg-[#050507] md:min-h-[26rem]">
+      <div className="relative z-10 mx-auto grid w-full max-w-[1070px] gap-4 px-0 sm:px-1 md:px-2 lg:grid-cols-[0.32fr_0.68fr]">
+        <article className="relative min-h-[22rem] overflow-hidden rounded-[1.6rem] border border-border/20 bg-[#050507] sm:min-h-[24rem] sm:rounded-[2rem] md:min-h-[26rem]">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_18%,rgba(242,240,235,0.06),transparent_42%),radial-gradient(circle_at_86%_72%,rgba(242,240,235,0.05),transparent_44%)]" />
           <motion.div
             aria-hidden
@@ -218,12 +218,12 @@ export function TestimonialsSection({
             transition={reducedMotion ? { duration: 0 } : { duration: 4.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
           />
 
-          <div className="relative z-10 flex h-full flex-col justify-between p-6 text-ivory md:p-7">
-            <div className="space-y-7">
+          <div className="relative z-10 flex h-full flex-col justify-between p-5 text-ivory sm:p-6 md:p-7">
+            <div className="space-y-6 sm:space-y-7">
               {metricItems.map((metric) => (
                 <div key={metric.id}>
-                  <p className="text-5xl font-semibold leading-none md:text-6xl">{metric.value}</p>
-                  <p className="mt-2 text-xl tracking-tight text-ivory/88 md:text-[1.45rem]">{metric.label}</p>
+                  <p className="text-4xl font-semibold leading-none sm:text-5xl md:text-6xl">{metric.value}</p>
+                  <p className="mt-2 text-lg tracking-tight text-ivory/88 sm:text-xl md:text-[1.45rem]">{metric.label}</p>
                 </div>
               ))}
             </div>
@@ -231,7 +231,7 @@ export function TestimonialsSection({
         </article>
 
         <article
-          className="relative min-h-[24rem] overflow-hidden rounded-[2rem] border border-border/20 md:min-h-[26rem]"
+          className="relative min-h-[22rem] overflow-hidden rounded-[1.6rem] border border-border/20 sm:min-h-[24rem] sm:rounded-[2rem] md:min-h-[26rem]"
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
           onFocusCapture={() => setPaused(true)}
@@ -282,13 +282,13 @@ export function TestimonialsSection({
                     <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(186,127,33,0.38)_0%,rgba(116,73,18,0.16)_44%,rgba(0,0,0,0.42)_100%)] mix-blend-multiply" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/58 via-black/24 to-black/20" />
 
-                    <div className="relative z-10 flex h-full flex-col justify-between p-6 text-ivory md:p-7">
+                    <div className="relative z-10 flex h-full flex-col justify-between p-5 text-ivory sm:p-6 md:p-7">
                       <div className="space-y-4">
-                        <div className="flex items-center gap-4 text-2xl tracking-tight text-ivory/92 md:text-[1.8rem]">
+                        <div className="flex items-center gap-3 text-xl tracking-tight text-ivory/92 sm:gap-4 sm:text-2xl md:text-[1.8rem]">
                           <span>{sliderCounter(index, total)}</span>
-                          <span className="h-px w-16 bg-ivory/45" />
+                          <span className="h-px w-10 bg-ivory/45 sm:w-16" />
                         </div>
-                        <div className="h-1.5 w-36 overflow-hidden rounded-full bg-ivory/22">
+                        <div className="h-1.5 w-28 overflow-hidden rounded-full bg-ivory/22 sm:w-36">
                           {isActiveSlide ? (
                             <motion.div
                               key={`progress-${slide.id}`}
@@ -304,10 +304,10 @@ export function TestimonialsSection({
                       </div>
 
                       <blockquote className="max-w-4xl">
-                        <p className="text-3xl font-semibold leading-tight md:text-[2.35rem]">"{slide.quote}"</p>
-                        <footer className="mt-6">
-                          <p className="text-2xl text-ivory/96 md:text-[1.45rem]">{slide.name}</p>
-                          <p className="text-xl text-ivory/72 md:text-[1.12rem]">{slide.role}</p>
+                        <p className="text-[1.55rem] font-semibold leading-tight sm:text-3xl md:text-[2.35rem]">"{slide.quote}"</p>
+                        <footer className="mt-5 sm:mt-6">
+                          <p className="text-xl text-ivory/96 sm:text-2xl md:text-[1.45rem]">{slide.name}</p>
+                          <p className="text-base text-ivory/72 sm:text-xl md:text-[1.12rem]">{slide.role}</p>
                         </footer>
                       </blockquote>
                     </div>
@@ -317,24 +317,24 @@ export function TestimonialsSection({
             </motion.div>
           </div>
 
-          <div className="absolute bottom-5 right-5 z-20 flex items-center gap-2">
+          <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2 sm:bottom-5 sm:right-5">
             <button
               type="button"
               aria-label="Previous testimonial"
               onClick={() => void paginate(-1)}
               disabled={animating}
-              className="grid h-11 w-11 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48"
+              className="grid h-10 w-10 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48 sm:h-11 sm:w-11"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </button>
             <button
               type="button"
               aria-label="Next testimonial"
               onClick={() => void paginate(1)}
               disabled={animating}
-              className="grid h-11 w-11 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48"
+              className="grid h-10 w-10 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48 sm:h-11 sm:w-11"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </button>
           </div>
         </article>

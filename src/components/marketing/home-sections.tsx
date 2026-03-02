@@ -47,7 +47,7 @@ const stripLogos: StripLogo[] = [
     darkSrc: "/assets/Graphxify-Logo-white.webp",
     width: 246,
     height: 68,
-    className: "w-[7.8rem] md:w-[8.8rem]"
+    className: "w-[6.2rem] sm:w-[7rem] md:w-[8.8rem]"
   },
   {
     key: "mark-1",
@@ -55,7 +55,7 @@ const stripLogos: StripLogo[] = [
     lightSrc: "/assets/logo-mark.svg",
     width: 128,
     height: 32,
-    className: "w-[6.4rem] md:w-[7.1rem]"
+    className: "w-[4.8rem] sm:w-[5.6rem] md:w-[7.1rem]"
   },
   {
     key: "wordmark-2",
@@ -64,7 +64,7 @@ const stripLogos: StripLogo[] = [
     darkSrc: "/assets/Graphxify-Logo-white.webp",
     width: 246,
     height: 68,
-    className: "w-[7.8rem] md:w-[8.8rem]"
+    className: "w-[6.2rem] sm:w-[7rem] md:w-[8.8rem]"
   },
   {
     key: "mark-2",
@@ -72,7 +72,7 @@ const stripLogos: StripLogo[] = [
     lightSrc: "/assets/logo-mark.svg",
     width: 128,
     height: 32,
-    className: "w-[6.4rem] md:w-[7.1rem]"
+    className: "w-[4.8rem] sm:w-[5.6rem] md:w-[7.1rem]"
   },
   {
     key: "wordmark-3",
@@ -81,7 +81,7 @@ const stripLogos: StripLogo[] = [
     darkSrc: "/assets/Graphxify-Logo-white.webp",
     width: 246,
     height: 68,
-    className: "w-[7.8rem] md:w-[8.8rem]"
+    className: "w-[6.2rem] sm:w-[7rem] md:w-[8.8rem]"
   },
   {
     key: "mark-3",
@@ -89,7 +89,7 @@ const stripLogos: StripLogo[] = [
     lightSrc: "/assets/logo-mark.svg",
     width: 128,
     height: 32,
-    className: "w-[6.4rem] md:w-[7.1rem]"
+    className: "w-[4.8rem] sm:w-[5.6rem] md:w-[7.1rem]"
   }
 ];
 const fallbackService = {
@@ -214,14 +214,14 @@ export function HomeSections({
   const faqColumns = [homeFaqs.filter((_, index) => index % 2 === 0), homeFaqs.filter((_, index) => index % 2 !== 0)];
 
   return (
-    <div className="space-y-24 pb-20 pt-6 md:pt-10">
+    <div className="space-y-16 pb-16 pt-4 md:space-y-20 md:pb-20 md:pt-8 lg:space-y-24 lg:pt-10">
       <SectionReveal className="container pt-0 md:pt-2" effect="zoom">
         <div className="mx-auto max-w-[940px]">
           <div className="mx-auto flex w-fit items-center justify-center rounded-full border border-border/18 bg-card/72 px-3.5 py-1.5 text-center shadow-[0_8px_22px_rgba(13,13,15,0.08)]">
             <p className="text-sm text-fg/66">Trusted by founders</p>
           </div>
 
-          <h1 className="mx-auto mt-6 max-w-[940px] text-center text-[clamp(1.95rem,5.6vw,5.1rem)] font-semibold leading-[0.96] tracking-tight">
+          <h1 className="mx-auto mt-6 max-w-[940px] text-center text-[clamp(1.75rem,7.6vw,5.1rem)] font-semibold leading-[0.96] tracking-tight">
             <span className="block text-fg">
               Effortless
               <HeroChip src="/assets/work-1.svg" alt="Design token" tint="accent" />
@@ -239,21 +239,21 @@ export function HomeSections({
             </span>
           </h1>
 
-          <p className="mx-auto mt-5 max-w-3xl text-center text-[1rem] text-fg/60 md:text-[1.14rem]">
+          <p className="mx-auto mt-5 max-w-3xl text-center text-[0.96rem] text-fg/60 md:text-[1.14rem]">
             We make it easy for teams to launch, grow, and scale with clean brand systems, calm UX, and fast websites without noise.
           </p>
 
-          <div className="mt-6 flex items-center justify-center gap-4">
-            <Magnetic>
+          <div className="mt-6 flex flex-col items-center justify-center gap-3">
+            <Magnetic className="flex w-full justify-center sm:w-auto">
               <Button
                 asChild
                 size="lg"
-                className="rounded-full border border-border/26 px-6 !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92"
+                className="w-full max-w-[18rem] rounded-full border border-border/26 px-6 text-sm !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92 sm:w-auto sm:text-base"
               >
                 <Link href="/contact">Start a project inquiry</Link>
               </Button>
             </Magnetic>
-            <Link href="/works" className="link-sweep text-base text-fg/72">
+            <Link href="/works" className="link-sweep text-center text-sm text-fg/72 sm:text-base">
               View selected work
             </Link>
           </div>
@@ -267,12 +267,12 @@ export function HomeSections({
               <ul
                 key={`logo-loop-${loopIndex}`}
                 aria-hidden={loopIndex === 1}
-                className="flex shrink-0 items-center gap-8 pr-8 md:gap-12 md:pr-12"
+                className="flex shrink-0 items-center gap-6 pr-6 sm:gap-8 sm:pr-8 md:gap-12 md:pr-12"
               >
                 {stripLogos.map((logo) => (
                   <li
                     key={`${loopIndex}-${logo.key}`}
-                    className="inline-flex h-9 items-center justify-center opacity-56 transition duration-300 hover:opacity-92"
+                    className="inline-flex h-8 items-center justify-center opacity-56 transition duration-300 hover:opacity-92 sm:h-9"
                   >
                     <span className={cn("relative inline-flex items-center justify-center", logo.className)}>
                       <Image
@@ -308,7 +308,7 @@ export function HomeSections({
       <SectionReveal className="container" effect="right">
         <SectionHeading eyebrow="Services" title="Everything you need to build a strong digital foundation." />
         <div className="section-shell border-border/18 bg-card/72 p-4 md:p-6">
-          <div className="relative flex flex-wrap gap-2 border-b border-border/14 pb-4">
+          <div className="relative grid grid-cols-2 gap-2 border-b border-border/14 pb-4">
             {services.map((service) => {
               const active = service.key === activeService;
               const ServiceIcon = serviceIcons[service.key] ?? Sparkles;
@@ -318,7 +318,7 @@ export function HomeSections({
                   type="button"
                   onClick={() => setActiveService(service.key)}
                   className={cn(
-                    "group relative rounded-full px-4 py-2 text-sm transition-colors duration-300",
+                    "group relative inline-flex w-full items-center justify-start rounded-full px-4 py-2 text-left text-sm transition-colors duration-300",
                     active ? "text-ivory" : "text-fg/72 hover:text-ivory"
                   )}
                   aria-label={`Select ${service.title}`}
@@ -399,7 +399,7 @@ export function HomeSections({
               {column.map((item) => {
                 const open = openFaqId === item.id;
                 return (
-                  <article key={item.id} className="rounded-[1.9rem] border border-border/16 bg-card/78 px-6 py-5 md:px-7">
+                  <article key={item.id} className="rounded-[1.9rem] border border-border/16 bg-card/78 px-4 py-4 sm:px-6 sm:py-5 md:px-7">
                     <button
                       type="button"
                       onClick={() => setOpenFaqId((prev) => (prev === item.id ? "" : item.id))}
@@ -407,7 +407,7 @@ export function HomeSections({
                       aria-expanded={open}
                       aria-controls={`${item.id}-content`}
                     >
-                      <h3 className="text-lg font-medium md:text-[1.32rem]">{item.q}</h3>
+                      <h3 className="text-base font-medium sm:text-lg md:text-[1.32rem]">{item.q}</h3>
                       <span
                         className={cn(
                           "grid h-11 w-11 place-items-center rounded-full border p-[0.45rem] shadow-[0_8px_18px_rgba(13,13,15,0.08)] transition-all duration-300",
@@ -450,11 +450,11 @@ export function HomeSections({
 
       <SectionReveal className="container" effect="zoom">
         <SectionHeading eyebrow="Contact" title="Start a Project Inquiry" />
-        <div className="relative overflow-hidden rounded-[1.6rem] border border-border/18 bg-card/78 p-7 md:p-10">
+        <div className="relative overflow-hidden rounded-[1.6rem] border border-border/18 bg-card/78 p-5 md:p-8 lg:p-10">
           <div className="pointer-events-none absolute -bottom-10 right-8 h-44 w-44 rounded-full bg-accentB/20 blur-3xl" />
           <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_0.9fr]">
             <div>
-              <h3 className="max-w-xl text-2xl font-semibold leading-tight md:text-3xl">Let’s build a cleaner, sharper, more memorable digital experience.</h3>
+              <h3 className="max-w-xl text-xl font-semibold leading-tight md:text-3xl">Let’s build a cleaner, sharper, more memorable digital experience.</h3>
               <p className="mt-4 max-w-lg text-fg/68">
                 Share the scope and timeline. We’ll respond with a delivery roadmap tailored to your team and brand.
               </p>
