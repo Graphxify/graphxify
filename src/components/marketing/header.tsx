@@ -56,12 +56,20 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
           <div className="w-48 shrink-0 md:w-[13.5rem]">
             <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
               <Image
-                src="/assets/graphxify-logo-uploaded.svg"
+                src="/assets/Graphxify-Logo-Black.webp"
                 alt="Graphxify"
                 width={246}
                 height={68}
                 priority
-                className="h-auto w-[10.8rem] md:w-[11.8rem]"
+                className="h-auto w-[10.8rem] dark:hidden md:w-[11.8rem]"
+              />
+              <Image
+                src="/assets/Graphxify-Logo-white.webp"
+                alt="Graphxify"
+                width={246}
+                height={68}
+                priority
+                className="hidden h-auto w-[10.8rem] dark:block md:w-[11.8rem]"
               />
             </Link>
           </div>
