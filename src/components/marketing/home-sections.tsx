@@ -3,15 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { Code2, Compass, Database, LayoutTemplate, Minus, Palette, Plus, Rocket, Sparkles, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Code2, Compass, Database, LayoutTemplate, Mail, Minus, Palette, Phone, Plus, Rocket, Sparkles, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
+import { HomeProjectsSlider } from "@/components/marketing/home-projects-slider";
 import { LeadForm } from "@/components/marketing/lead-form";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { TestimonialsSection } from "@/components/marketing/testimonials-section";
 import { Magnetic } from "@/components/motion/magnetic";
-import { faqs, services } from "@/lib/constants";
+import { companyContact, faqs, services } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 type TestimonialCard = {
@@ -27,6 +28,14 @@ type TestimonialMetricCard = {
   value: string;
   label: string;
   sort_order: number;
+};
+
+type HomeProjectCard = {
+  id: string;
+  slug: string;
+  title: string;
+  industry: string;
+  coverImage: string;
 };
 
 type StripLogo = {
@@ -202,16 +211,19 @@ function SectionHeading({
 
 export function HomeSections({
   testimonials,
-  testimonialMetrics
+  testimonialMetrics,
+  homeProjects
 }: {
   testimonials: TestimonialCard[];
   testimonialMetrics: TestimonialMetricCard[];
+  homeProjects: HomeProjectCard[];
 }): JSX.Element {
   const reducedMotion = useReducedMotion();
   const [activeService, setActiveService] = useState<string>(services[0]?.key ?? fallbackService.key);
   const [openFaqId, setOpenFaqId] = useState<string>(homeFaqs[0]?.id ?? "");
   const activeServiceData = services.find((item) => item.key === activeService) ?? services[0] ?? fallbackService;
   const faqColumns = [homeFaqs.filter((_, index) => index % 2 === 0), homeFaqs.filter((_, index) => index % 2 !== 0)];
+  const projectCards = homeProjects.slice(0, 6);
 
   return (
     <div className="space-y-16 pb-16 pt-4 md:space-y-20 md:pb-20 md:pt-8 lg:space-y-24 lg:pt-10">
@@ -248,7 +260,7 @@ export function HomeSections({
               <Button
                 asChild
                 size="lg"
-                className="w-full max-w-[18rem] rounded-full border border-border/26 px-6 text-sm !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92 sm:w-auto sm:text-base"
+                className="w-full max-w-[18rem] rounded-lg border border-border/26 px-6 text-sm !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92 sm:w-auto sm:text-base"
               >
                 <Link href="/contact">Start a project inquiry</Link>
               </Button>
@@ -318,7 +330,7 @@ export function HomeSections({
                   type="button"
                   onClick={() => setActiveService(service.key)}
                   className={cn(
-                    "group relative inline-flex w-full items-center justify-start rounded-full px-4 py-2 text-left text-sm transition-colors duration-300",
+                    "group relative inline-flex w-full items-center justify-start rounded-lg px-4 py-2 text-left text-[0.95rem] md:text-base transition-colors duration-300",
                     active ? "text-ivory" : "text-fg/72 hover:text-ivory"
                   )}
                   aria-label={`Select ${service.title}`}
@@ -326,13 +338,13 @@ export function HomeSections({
                   {!active ? (
                     <span
                       aria-hidden
-                      className="absolute inset-0 rounded-full bg-accent-gradient opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                      className="absolute inset-0 rounded-lg bg-accent-gradient opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                     />
                   ) : null}
                   {active ? (
                     <motion.span
                       layoutId="service-tab"
-                      className="absolute inset-0 rounded-full border border-accentA/45 bg-accent-gradient"
+                      className="absolute inset-0 rounded-lg border border-accentA/45 bg-accent-gradient"
                       transition={{ duration: 0.44, ease: [0.16, 1, 0.3, 1] }}
                     />
                   ) : null}
@@ -358,6 +370,26 @@ export function HomeSections({
               <p className="mt-3 max-w-3xl text-fg/68">{activeServiceData.body}</p>
             </motion.div>
           </AnimatePresence>
+        </div>
+      </SectionReveal>
+
+      <SectionReveal className="container" effect="zoom">
+        <SectionHeading eyebrow="Projects" title="Selected Work" />
+        <div className="section-shell relative overflow-hidden border-border/18 bg-card/74 p-4 md:p-6">
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/35 to-transparent" />
+          <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-accentA/12 blur-3xl" />
+
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-border/14 pb-4">
+            <p className="max-w-xl text-sm text-fg/66 md:text-base">
+              A curated six-project carousel with controlled motion and clean transitions.
+            </p>
+            <Link href="/works" className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-fg/74 transition-colors duration-300 hover:text-fg">
+              View all projects
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <HomeProjectsSlider projects={projectCards} />
         </div>
       </SectionReveal>
 
@@ -453,11 +485,21 @@ export function HomeSections({
         <div className="relative overflow-hidden rounded-[1.6rem] border border-border/18 bg-card/78 p-5 md:p-8 lg:p-10">
           <div className="pointer-events-none absolute -bottom-10 right-8 h-44 w-44 rounded-full bg-accentB/20 blur-3xl" />
           <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_0.9fr]">
-            <div>
+            <div className="flex h-full flex-col">
               <h3 className="max-w-xl text-xl font-semibold leading-tight md:text-3xl">Let’s build a cleaner, sharper, more memorable digital experience.</h3>
               <p className="mt-4 max-w-lg text-fg/68">
                 Share the scope and timeline. We’ll respond with a delivery roadmap tailored to your team and brand.
               </p>
+              <div className="mt-8 flex flex-col gap-4 border-t border-border/16 pt-4 text-sm text-fg/74 lg:mt-auto lg:pt-5">
+                <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex w-fit items-center gap-2.5">
+                  <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
+                  <span>{companyContact.email}</span>
+                </a>
+                <a href={`tel:${companyContact.phoneHref}`} className="link-sweep inline-flex w-fit items-center gap-2.5">
+                  <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
+                  <span>{companyContact.phoneDisplay}</span>
+                </a>
+              </div>
             </div>
             <div className="section-shell border-border/18 bg-bg/58 p-4 md:p-6">
               <LeadForm />

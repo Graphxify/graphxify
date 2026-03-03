@@ -5,6 +5,12 @@ export const siteConfig = {
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 };
 
+export const companyContact = {
+  email: "info@graphxify",
+  phoneDisplay: "(647)-570-0334",
+  phoneHref: "+16475700334"
+} as const;
+
 export const marketingNav = [
   { href: "/", label: "Home" },
   { href: "/works", label: "Works" },

@@ -16,14 +16,13 @@ type MarketingHeaderProps = {
   showCms: boolean;
 };
 
-export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element {
+export function MarketingHeader(_: MarketingHeaderProps): JSX.Element {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const centerNav = marketingNav.filter((item) => item.href !== "/contact");
   const isRouteActive = (href: string): boolean =>
     href === "/" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
-  const cmsActive = pathname === "/dashboard" || pathname.startsWith("/dashboard/");
   const contactActive = isRouteActive("/contact");
   const mobileNavItemClass = (active: boolean): string =>
     cn(
@@ -58,8 +57,7 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
     <header className="sticky top-0 z-50">
       <div
         className={cn(
-          "relative bg-bg/22 transition-all duration-300",
-          mobileOpen ? "supports-[backdrop-filter]:backdrop-blur-none" : "supports-[backdrop-filter]:backdrop-blur-lg",
+          "relative bg-transparent transition-all duration-300",
           scrolled ? "pb-2 pt-1.5" : "pb-3 pt-2"
         )}
       >
@@ -72,16 +70,15 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
 
         <div
           className={cn(
-            "container relative mt-8 flex min-h-[68px] items-center gap-3 overflow-hidden rounded-[1.1rem] border border-border/22 bg-bg/55 px-3 backdrop-blur-[24px] transition-all duration-300 supports-[backdrop-filter]:bg-bg/42 sm:mt-8 sm:min-h-[72px] sm:px-4 lg:mt-12 lg:h-[80px] lg:px-6",
+            "container relative mt-8 flex min-h-[68px] items-center gap-3 overflow-hidden rounded-[1.1rem] border border-border/22 bg-bg px-3 transition-all duration-300 sm:mt-8 sm:min-h-[72px] sm:px-4 lg:mt-12 lg:h-[80px] lg:px-6",
             scrolled
               ? "shadow-[0_18px_38px_rgba(13,13,15,0.16)]"
               : "shadow-[0_8px_24px_rgba(13,13,15,0.1)]"
           )}
         >
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(242,240,235,0.2)_0%,rgba(242,240,235,0.04)_38%,rgba(242,240,235,0.12)_100%)] dark:bg-[linear-gradient(115deg,rgba(242,240,235,0.12)_0%,rgba(242,240,235,0.02)_44%,rgba(242,240,235,0.08)_100%)]" />
-          <div className="pointer-events-none absolute inset-0 rounded-[1.25rem] ring-1 ring-white/20 dark:ring-white/10" />
+          <div className="pointer-events-none absolute inset-0 z-0 rounded-[1.25rem] ring-1 ring-white/20 dark:ring-white/10" />
 
-          <div className="w-40 shrink-0 sm:w-48 lg:w-[13.5rem]">
+          <div className="relative z-10 w-40 shrink-0 sm:w-48 lg:w-[13.5rem]">
             <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
               <Image
                 src="/assets/Graphxify-Logo-Black.webp"
@@ -102,7 +99,7 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
             </Link>
           </div>
 
-          <nav className="hidden flex-1 items-center justify-center gap-1 lg:flex">
+          <nav className="relative z-10 hidden flex-1 items-center justify-center gap-1 lg:flex">
             {centerNav.map((item) => {
               const active = isRouteActive(item.href);
               return (
@@ -130,29 +127,14 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
             })}
           </nav>
 
-          <div className="ml-auto hidden items-center gap-2.5 lg:flex">
+          <div className="relative z-10 ml-auto hidden items-center gap-2.5 lg:flex">
             <ThemeToggle className="hidden lg:inline-flex" />
-            {showCms ? (
-              <Button
-                asChild
-                variant="secondary"
-                size="sm"
-                className={cn(
-                  "hidden rounded-full px-5 lg:inline-flex",
-                  cmsActive
-                    ? "border-accentA/45 bg-accent-gradient text-ivory shadow-[0_10px_22px_rgba(0,128,255,0.2)] hover:text-ivory"
-                    : "border-border/24 bg-card/86"
-                )}
-              >
-                <Link href="/dashboard">CMS</Link>
-              </Button>
-            ) : null}
             <Magnetic className="hidden lg:block">
               <Button
                 asChild
-                size="sm"
+                size="lg"
                 className={cn(
-                  "rounded-full border px-7 text-sm text-ivory",
+                  "rounded-lg border px-6 text-sm text-ivory",
                   contactActive
                     ? "border-accentA/55 bg-accent-gradient shadow-[0_12px_26px_rgba(0,128,255,0.22)]"
                     : "border-border/24 bg-accent-gradient shadow-[0_10px_22px_rgba(13,13,15,0.18)]"
@@ -163,7 +145,7 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
             </Magnetic>
           </div>
 
-          <div className="ml-auto flex items-center gap-2 lg:hidden">
+          <div className="relative z-10 ml-auto flex items-center gap-2 lg:hidden">
             <ThemeToggle />
             <button
               type="button"
@@ -230,12 +212,6 @@ export function MarketingHeader({ showCms }: MarketingHeaderProps): JSX.Element 
                   <Link href="/contact" className={mobileNavItemClass(contactActive)}>
                     Contact
                   </Link>
-
-                  {showCms ? (
-                    <Link href="/dashboard" className={mobileNavItemClass(cmsActive)}>
-                      CMS
-                    </Link>
-                  ) : null}
                 </nav>
               </motion.div>
             </>

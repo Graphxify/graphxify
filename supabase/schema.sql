@@ -28,9 +28,12 @@ create table if not exists public.works (
   year int not null,
   role text not null,
   services text[] not null default '{}',
+  subtitle text,
+  layout_variant text not null default 'A' check (layout_variant in ('A', 'B', 'C', 'D', 'E', 'F')),
   excerpt text not null,
   content text not null,
   cover_image_url text,
+  gallery_images text[] not null default '{}',
   status text not null default 'draft' check (status in ('draft', 'review', 'published')),
   author_id uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
@@ -106,9 +109,12 @@ create table if not exists public.work_versions (
   year int not null,
   role text not null,
   services text[] not null default '{}',
+  subtitle text,
+  layout_variant text not null default 'A' check (layout_variant in ('A', 'B', 'C', 'D', 'E', 'F')),
   excerpt text not null,
   content text not null,
   cover_image_url text,
+  gallery_images text[] not null default '{}',
   status text not null check (status in ('draft', 'review', 'published')),
   editor_id uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
@@ -152,6 +158,38 @@ drop trigger if exists set_testimonial_metrics_updated_at on public.testimonial_
 create trigger set_testimonial_metrics_updated_at
 before update on public.testimonial_metrics
 for each row execute function public.set_updated_at();
+
+alter table public.works
+  add column if not exists gallery_images text[] not null default '{}';
+
+alter table public.work_versions
+  add column if not exists gallery_images text[] not null default '{}';
+
+alter table public.works
+  add column if not exists subtitle text;
+
+alter table public.work_versions
+  add column if not exists subtitle text;
+
+alter table public.works
+  add column if not exists layout_variant text not null default 'A';
+
+alter table public.work_versions
+  add column if not exists layout_variant text not null default 'A';
+
+alter table public.works
+  drop constraint if exists works_layout_variant_check;
+
+alter table public.works
+  add constraint works_layout_variant_check
+  check (layout_variant in ('A', 'B', 'C', 'D', 'E', 'F'));
+
+alter table public.work_versions
+  drop constraint if exists work_versions_layout_variant_check;
+
+alter table public.work_versions
+  add constraint work_versions_layout_variant_check
+  check (layout_variant in ('A', 'B', 'C', 'D', 'E', 'F'));
 
 alter table public.audit_logs drop constraint if exists audit_logs_entity_type_check;
 alter table public.audit_logs

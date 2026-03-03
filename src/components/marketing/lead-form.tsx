@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { CheckCircle2, AlertTriangle } from "lucide-react";
+import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,7 +61,7 @@ export function LeadForm(): JSX.Element {
       <Input name="name" placeholder="Name" required aria-label="Name" />
       <Input name="email" type="email" placeholder="Email" required aria-label="Email" />
       <Textarea name="message" placeholder="Tell us about your product and goals" required aria-label="Message" />
-      <Button type="submit" disabled={loading} className="w-full">
+      <Button type="submit" size="lg" disabled={loading} className="w-full">
         {loading ? "Sending..." : "Send inquiry"}
       </Button>
     </form>

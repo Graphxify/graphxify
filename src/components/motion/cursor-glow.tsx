@@ -2,12 +2,14 @@
 
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils";
 
 export function CursorGlow(): JSX.Element | null {
   const reducedMotion = useReducedMotion();
   const [enabled, setEnabled] = useState(false);
   const [pressed, setPressed] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [cursorLabel, setCursorLabel] = useState("");
   const x = useMotionValue(-200);
   const y = useMotionValue(-200);
   const shellX = useSpring(x, { stiffness: 300, damping: 32, mass: 0.36 });
@@ -48,10 +50,16 @@ export function CursorGlow(): JSX.Element | null {
       x.set(event.clientX);
       y.set(event.clientY);
       setVisible(true);
+      const target = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null;
+      const label = target?.closest<HTMLElement>("[data-cursor-label]")?.dataset.cursorLabel ?? "";
+      setCursorLabel((prev) => (prev === label ? prev : label));
     };
     const onPointerDown = () => setPressed(true);
     const onPointerUp = () => setPressed(false);
-    const onPointerLeave = () => setVisible(false);
+    const onPointerLeave = () => {
+      setVisible(false);
+      setCursorLabel("");
+    };
 
     window.addEventListener("pointermove", onPointerMove, { passive: true });
     window.addEventListener("pointerdown", onPointerDown, { passive: true });
@@ -75,22 +83,27 @@ export function CursorGlow(): JSX.Element | null {
     <>
       <motion.div
         aria-hidden
-        className="pointer-events-none fixed z-[64] flex items-center justify-center border border-fg/32 bg-card/28 text-[0.56rem] font-semibold uppercase tracking-[0.18em] text-fg backdrop-blur-md"
+        className={cn(
+          "pointer-events-none fixed z-[64] flex items-center justify-center border text-[0.56rem] font-semibold uppercase tracking-[0.18em] backdrop-blur-md transition-colors duration-200",
+          cursorLabel ? "border-accentA/55 bg-accent-gradient text-ivory" : "border-fg/32 bg-card/28 text-fg"
+        )}
         style={{ x: shellX, y: shellY, translateX: "-50%", translateY: "-50%" }}
         animate={{
           opacity: visible ? 1 : 0,
-          width: 46,
-          height: 46,
+          width: cursorLabel ? 74 : 46,
+          height: cursorLabel ? 74 : 46,
           borderRadius: 999,
           scale: pressed ? 0.94 : 1
         }}
         transition={{ duration: 0.34, ease: [0.16, 1, 0.3, 1] }}
-      />
+      >
+        <span className="select-none">{cursorLabel}</span>
+      </motion.div>
       <motion.div
         aria-hidden
         className="pointer-events-none fixed z-[65] h-[8px] w-[8px] rounded-full bg-fg dark:bg-ivory"
         style={{ x: coreX, y: coreY, translateX: "-50%", translateY: "-50%" }}
-        animate={{ opacity: visible ? 1 : 0, scale: pressed ? 0.64 : 1 }}
+        animate={{ opacity: visible && !cursorLabel ? 1 : 0, scale: pressed ? 0.64 : 1 }}
         transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
       />
       <motion.div

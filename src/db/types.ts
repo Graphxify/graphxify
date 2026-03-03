@@ -27,9 +27,12 @@ export type Work = {
   year: number;
   role: string;
   services: string[];
+  subtitle: string | null;
+  layout_variant: "A" | "B" | "C" | "D" | "E" | "F";
   excerpt: string;
   content: string;
   cover_image_url: string | null;
+  gallery_images: string[];
   status: ContentStatus;
   author_id: string;
   created_at: string;

@@ -46,6 +46,25 @@ function parseServicesInput(raw: FormDataEntryValue | null): string[] {
     .filter(Boolean);
 }
 
+function parseGalleryImagesInput(rawValues: FormDataEntryValue[]): string[] {
+  return Array.from(
+    new Set(
+      rawValues
+        .map((value) => String(value).trim())
+        .filter(Boolean)
+    )
+  );
+}
+
+function sanitizeGalleryImages(galleryImages: string[], coverImageUrl?: string): string[] {
+  const normalizedCover = String(coverImageUrl ?? "").trim();
+  if (!normalizedCover) {
+    return galleryImages;
+  }
+
+  return galleryImages.filter((imageUrl) => imageUrl !== normalizedCover);
+}
+
 export async function createOrUpdatePost(params: { id?: string; formData: FormData }): Promise<{ id: string }> {
   const profile = await getCurrentProfile();
   if (!profile) {
@@ -190,11 +209,15 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     year: params.formData.get("year"),
     role: params.formData.get("role"),
     services: parseServicesInput(params.formData.get("services")),
+    subtitle: params.formData.get("subtitle"),
+    layoutVariant: params.formData.get("layoutVariant"),
     excerpt: params.formData.get("excerpt"),
     content: params.formData.get("content"),
     coverImageUrl: params.formData.get("coverImageUrl"),
+    galleryImages: parseGalleryImagesInput(params.formData.getAll("galleryImages")),
     status: params.formData.get("status")
   });
+  const galleryImages = sanitizeGalleryImages(parsed.galleryImages, parsed.coverImageUrl);
 
   const supabase = getWriteClient();
   const id = params.id;
@@ -208,9 +231,12 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
         year: parsed.year,
         role: parsed.role,
         services: parsed.services,
+        subtitle: parsed.subtitle || null,
+        layout_variant: parsed.layoutVariant,
         excerpt: parsed.excerpt,
         content: parsed.content,
         cover_image_url: parsed.coverImageUrl || null,
+        gallery_images: galleryImages,
         status: parsed.status,
         author_id: profile.id
       })
@@ -227,9 +253,12 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
       year: parsed.year,
       role: parsed.role,
       services: parsed.services,
+      subtitle: parsed.subtitle || null,
+      layout_variant: parsed.layoutVariant,
       excerpt: parsed.excerpt,
       content: parsed.content,
       cover_image_url: parsed.coverImageUrl || null,
+      gallery_images: galleryImages,
       status: parsed.status,
       editor_id: profile.id
     });
@@ -269,9 +298,12 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
       year: parsed.year,
       role: parsed.role,
       services: parsed.services,
+      subtitle: parsed.subtitle || null,
+      layout_variant: parsed.layoutVariant,
       excerpt: parsed.excerpt,
       content: parsed.content,
       cover_image_url: parsed.coverImageUrl || null,
+      gallery_images: galleryImages,
       status: parsed.status,
       author_id: existing.author_id ?? profile.id,
       updated_at: new Date().toISOString()
@@ -288,9 +320,12 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     year: parsed.year,
     role: parsed.role,
     services: parsed.services,
+    subtitle: parsed.subtitle || null,
+    layout_variant: parsed.layoutVariant,
     excerpt: parsed.excerpt,
     content: parsed.content,
     cover_image_url: parsed.coverImageUrl || null,
+    gallery_images: galleryImages,
     status: parsed.status,
     editor_id: profile.id
   });
@@ -419,9 +454,12 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
       year: version.year,
       role: version.role,
       services: version.services,
+      subtitle: version.subtitle ?? null,
+      layout_variant: version.layout_variant ?? "A",
       excerpt: version.excerpt,
       content: version.content,
       cover_image_url: version.cover_image_url,
+      gallery_images: version.gallery_images ?? [],
       status: version.status,
       author_id: workMeta.author_id ?? profile.id,
       updated_at: new Date().toISOString()
@@ -438,9 +476,12 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
     year: version.year,
     role: version.role,
     services: version.services,
+    subtitle: version.subtitle ?? null,
+    layout_variant: version.layout_variant ?? "A",
     excerpt: version.excerpt,
     content: version.content,
     cover_image_url: version.cover_image_url,
+    gallery_images: version.gallery_images ?? [],
     status: version.status,
     editor_id: profile.id
   });

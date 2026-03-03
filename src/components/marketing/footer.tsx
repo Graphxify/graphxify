@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Mail, Phone } from "lucide-react";
 import { BackToTop } from "@/components/marketing/back-to-top";
+import { companyContact } from "@/lib/constants";
 
 const footerLinks = [
   { href: "/works", label: "Works" },
@@ -75,9 +77,45 @@ export function MarketingFooter(): JSX.Element {
           <p className="max-w-md text-sm text-fg/68">
             Premium agency platform blending brand systems, high-comfort UX, and operational CMS governance.
           </p>
-          <div className="pt-1">
+          <div className="mt-8 flex flex-col gap-4 border-t border-border/16 pt-4 text-sm text-fg/74">
+            <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex w-fit items-center gap-2.5">
+              <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
+              <span>{companyContact.email}</span>
+            </a>
+            <a href={`tel:${companyContact.phoneHref}`} className="link-sweep inline-flex w-fit items-center gap-2.5">
+              <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
+              <span>{companyContact.phoneDisplay}</span>
+            </a>
+          </div>
+        </div>
+
+        <div className="space-y-3 lg:ml-12">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-fg/64">Explore</p>
+          <div className="flex flex-col gap-2">
+            {footerLinks.map((link) => (
+              <Link key={link.href} href={link.href} className="link-sweep w-fit text-sm text-fg/78">
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 lg:-ml-40 lg:h-full">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-fg/64">Legal</p>
+          <div className="flex flex-col gap-2">
+            <Link href="/privacy" className="link-sweep w-fit text-sm text-fg/78">
+              Privacy
+            </Link>
+            <Link href="/terms" className="link-sweep w-fit text-sm text-fg/78">
+              Terms
+            </Link>
+          </div>
+          <div className="pt-2">
+            <BackToTop />
+          </div>
+          <div className="pt-1 text-center lg:my-auto">
             <p className="text-xs uppercase tracking-[0.18em] text-fg/64">Follow</p>
-            <div className="mt-3 flex items-center gap-2.5">
+            <div className="mt-3 flex items-center justify-center gap-2.5">
               {socialLinks.map((item) => (
                 <a
                   key={item.label}
@@ -91,32 +129,6 @@ export function MarketingFooter(): JSX.Element {
                 </a>
               ))}
             </div>
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.18em] text-fg/64">Explore</p>
-          <div className="flex flex-col gap-2">
-            {footerLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="link-sweep w-fit text-sm text-fg/78">
-                {link.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-
-        <div className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.18em] text-fg/64">Legal</p>
-          <div className="flex flex-col gap-2">
-            <Link href="/privacy" className="link-sweep w-fit text-sm text-fg/78">
-              Privacy
-            </Link>
-            <Link href="/terms" className="link-sweep w-fit text-sm text-fg/78">
-              Terms
-            </Link>
-          </div>
-          <div className="pt-2">
-            <BackToTop />
           </div>
         </div>
       </div>

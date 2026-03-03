@@ -6,7 +6,7 @@ export async function getPublishedWorks() {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("works")
-    .select("id,title,slug,year,role,services,excerpt,cover_image_url,created_at")
+    .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,content,cover_image_url,gallery_images,created_at")
     .eq("status", "published")
     .order("year", { ascending: false });
 

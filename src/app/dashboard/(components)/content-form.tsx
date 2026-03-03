@@ -14,12 +14,49 @@ type ContentFormProps = {
   item?: Record<string, unknown> | null;
 };
 
+function uniqueGalleryValues(values: string[]): string[] {
+  return Array.from(new Set(values));
+}
+
 export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [cover, setCover] = useState(String(item?.cover_image_url ?? ""));
+  const normalizedCover = String(item?.cover_image_url ?? "").trim();
+  const initialGalleryImages =
+    type === "work" && Array.isArray(item?.gallery_images)
+      ? uniqueGalleryValues(
+          (item.gallery_images as unknown[])
+            .map((value) => String(value).trim())
+            .filter((value) => Boolean(value) && value !== normalizedCover)
+        )
+      : [];
+  const [galleryImages, setGalleryImages] = useState<string[]>(
+    type !== "work"
+      ? [""]
+      : initialGalleryImages.length > 0
+        ? initialGalleryImages
+        : [""]
+  );
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+
+  const updateGalleryImage = (index: number, value: string) => {
+    setGalleryImages((prev) => prev.map((entry, entryIndex) => (entryIndex === index ? value : entry)));
+  };
+
+  const addGalleryImage = () => {
+    setGalleryImages((prev) => (prev.length >= 24 ? prev : [...prev, ""]));
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryImages((prev) => {
+      if (prev.length <= 1) {
+        return [""];
+      }
+      return prev.filter((_, entryIndex) => entryIndex !== index);
+    });
+  };
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -29,6 +66,15 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
 
     const formData = new FormData(event.currentTarget);
     formData.set("coverImageUrl", cover);
+    const normalizedCoverValue = cover.trim();
+    formData.delete("galleryImages");
+    galleryImages.forEach((value) => {
+      const normalizedValue = value.trim();
+      if (!normalizedValue || normalizedValue === normalizedCoverValue) {
+        return;
+      }
+      formData.append("galleryImages", normalizedValue);
+    });
 
     const endpoint = type === "post" ? "/api/dashboard/posts" : "/api/dashboard/works";
     const method = item?.id ? "PUT" : "POST";
@@ -93,6 +139,36 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
               defaultValue={Array.isArray(item?.services) ? (item?.services as string[]).join(", ") : ""}
             />
           </div>
+          <div className="rounded-lg border border-border/20 bg-card/56 p-4">
+            <p className="text-xs uppercase tracking-[0.16em] text-fg/56">Project Detail Page Settings</p>
+            <div className="mt-3 grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="subtitle">Hero subtitle</Label>
+                <Input
+                  id="subtitle"
+                  name="subtitle"
+                  defaultValue={String(item?.subtitle ?? item?.excerpt ?? "")}
+                  placeholder="Small project description below title"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="layoutVariant">Layout variant</Label>
+                <select
+                  id="layoutVariant"
+                  name="layoutVariant"
+                  className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm"
+                  defaultValue={String(item?.layout_variant ?? "A")}
+                >
+                  <option value="A">A · Cinematic Hero</option>
+                  <option value="B">B · Editorial Collage</option>
+                  <option value="C">C · Sticky Split</option>
+                  <option value="D">D · Museum Flow</option>
+                  <option value="E">E · Grid Feature</option>
+                  <option value="F">F · Storyboard Lane</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </>
       ) : null}
       <div className="space-y-2">
@@ -117,10 +193,46 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
         </select>
       </div>
       <div className="space-y-2">
-        <Label>Cover image</Label>
+        <Label>Hero background image</Label>
         <UploadMedia onUploaded={setCover} />
         <Input name="coverImageUrl" value={cover} onChange={(e) => setCover(e.target.value)} placeholder="Image URL" />
       </div>
+      {type === "work" ? (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Label>Project details gallery images</Label>
+            <Button type="button" variant="secondary" size="sm" onClick={addGalleryImage} disabled={galleryImages.length >= 24}>
+              Add image slot
+            </Button>
+          </div>
+          <p className="text-xs text-fg/62">
+            These images control the visuals on each project detail page. Slot count matches saved images; you can add up to 24.
+          </p>
+          <div className="space-y-3">
+            {galleryImages.map((imageUrl, index) => (
+              <div key={`gallery-image-${index}`} className="space-y-2 rounded-lg border border-border/20 bg-card/56 p-3">
+                <div className="flex items-center justify-between text-xs uppercase tracking-[0.12em] text-fg/60">
+                  <span>Image {index + 1}</span>
+                  <button
+                    type="button"
+                    onClick={() => removeGalleryImage(index)}
+                    className="text-fg/66 transition-colors hover:text-fg"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <UploadMedia onUploaded={(url) => updateGalleryImage(index, url)} />
+                <Input
+                  name="galleryImages"
+                  value={imageUrl}
+                  onChange={(event) => updateGalleryImage(index, event.target.value)}
+                  placeholder="Image URL"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
       {error ? <p className="text-sm text-fg/76">{error}</p> : null}
       {notice ? <p className="text-sm text-fg/76">{notice}</p> : null}
       <Button type="submit" disabled={saving}>

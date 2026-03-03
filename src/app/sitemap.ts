@@ -1,17 +1,19 @@
 import type { MetadataRoute } from "next";
 import { getPublishedPosts } from "@/db/queries/posts";
-import { getPublishedWorks } from "@/db/queries/works";
 import { siteConfig } from "@/lib/constants";
+import { graphxifyProjects } from "@/lib/project-details";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = ["", "/works", "/services", "/about", "/blog", "/contact", "/privacy", "/terms"];
 
   let posts: Array<{ slug: string; updated_at?: string }> = [];
-  let works: Array<{ slug: string; updated_at?: string }> = [];
+  const works: Array<{ slug: string; updated_at?: string }> = graphxifyProjects.map((project) => ({
+    slug: project.slug,
+    updated_at: `${project.year}-01-01`
+  }));
 
   try {
     posts = (await getPublishedPosts()) as Array<{ slug: string; updated_at?: string }>;
-    works = (await getPublishedWorks()) as Array<{ slug: string; updated_at?: string }>;
   } catch {
     // degraded mode without DB
   }

@@ -1,7 +1,9 @@
 import { HomeSections } from "@/components/marketing/home-sections";
 import { getTestimonialMetrics } from "@/db/queries/testimonial-metrics";
 import { getPublishedTestimonials } from "@/db/queries/testimonials";
+import { getPublishedWorks } from "@/db/queries/works";
 import { testimonialMetricsDefault, testimonials as fallbackTestimonials } from "@/lib/constants";
+import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
 
 type TestimonialPreview = {
   id: string;
@@ -17,6 +19,32 @@ type TestimonialMetricPreview = {
   label: string;
   sort_order: number;
 };
+
+type HomeProjectPreview = {
+  id: string;
+  slug: string;
+  title: string;
+  industry: string;
+  coverImage: string;
+};
+
+function normalizeImage(value: string | null | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : null;
+}
+
+function fallbackHomeProjects(): HomeProjectPreview[] {
+  return graphxifyProjects.slice(0, 6).map((project) => ({
+    id: project.id,
+    slug: project.slug,
+    title: project.title,
+    industry: project.industry,
+    coverImage: project.coverImage
+  }));
+}
 
 function toTestimonialPreview(item: Partial<TestimonialPreview>): TestimonialPreview | null {
   if (!item.id || !item.quote || !item.name || !item.role) {
@@ -52,8 +80,13 @@ export default async function HomePage() {
   let testimonialMetrics: TestimonialMetricPreview[] = testimonialMetricsDefault
     .map((item) => toMetricPreview(item))
     .filter((item): item is TestimonialMetricPreview => item !== null);
+  let homeProjects: HomeProjectPreview[] = fallbackHomeProjects();
 
-  const [testimonialsResult, metricsResult] = await Promise.allSettled([getPublishedTestimonials(), getTestimonialMetrics()]);
+  const [testimonialsResult, metricsResult, worksResult] = await Promise.allSettled([
+    getPublishedTestimonials(),
+    getTestimonialMetrics(),
+    getPublishedWorks()
+  ]);
 
   if (testimonialsResult.status === "fulfilled" && testimonialsResult.value.length > 0) {
     testimonials = testimonialsResult.value
@@ -68,5 +101,24 @@ export default async function HomePage() {
       .sort((a, b) => a.sort_order - b.sort_order);
   }
 
-  return <HomeSections testimonials={testimonials} testimonialMetrics={testimonialMetrics} />;
+  if (worksResult.status === "fulfilled" && worksResult.value.length > 0) {
+    const cmsProjects = worksResult.value.map((work) => {
+      const fallbackProject = getProjectBySlug(work.slug);
+      return {
+        id: work.id,
+        slug: work.slug,
+        title: work.title,
+        industry: fallbackProject?.industry ?? "Digital Product",
+        coverImage: normalizeImage(work.cover_image_url) ?? fallbackProject?.coverImage ?? "/assets/work-1.svg"
+      };
+    });
+
+    if (cmsProjects.length > 0) {
+      const usedSlugs = new Set(cmsProjects.map((item) => item.slug));
+      const remainingFallback = homeProjects.filter((item) => !usedSlugs.has(item.slug));
+      homeProjects = [...cmsProjects, ...remainingFallback].slice(0, 6);
+    }
+  }
+
+  return <HomeSections testimonials={testimonials} testimonialMetrics={testimonialMetrics} homeProjects={homeProjects} />;
 }

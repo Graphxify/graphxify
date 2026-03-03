@@ -61,9 +61,12 @@ export const workSchema = z.object({
   year: z.coerce.number().int().min(2000).max(2100),
   role: z.string().min(2).max(120),
   services: z.array(z.string().min(2).max(80)).min(1),
+  subtitle: z.string().trim().max(220).optional().or(z.literal("")),
+  layoutVariant: z.enum(["A", "B", "C", "D", "E", "F"]).default("A"),
   excerpt: z.string().min(1).max(320),
   content: z.string().min(1),
   coverImageUrl: imageUrlSchema.optional().or(z.literal("")),
+  galleryImages: z.array(imageUrlSchema).max(24).default([]),
   status: z.enum(["draft", "review", "published"])
 }).superRefine((value, ctx) => {
   if (value.status !== "published") {

@@ -41,7 +41,7 @@ export function BackToTop(): JSX.Element {
             }
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="pointer-events-auto group absolute inset-0 inline-flex items-center justify-center rounded-full border border-border/24 bg-bg/70 text-fg shadow-[0_10px_24px_rgba(13,13,15,0.14)] transition hover:-translate-y-0.5 hover:bg-accentA hover:text-ivory dark:border-ivory/26 dark:bg-ivory/12 dark:text-ivory dark:hover:bg-accentA dark:hover:text-ivory"
+          className="pointer-events-auto group absolute inset-0 inline-flex items-center justify-center rounded-full border border-border/24 bg-bg/70 text-fg shadow-[0_10px_24px_rgba(13,13,15,0.14)] transition hover:-translate-y-0.5 hover:border-accentA/45 hover:bg-accent-gradient hover:text-ivory dark:border-ivory/26 dark:bg-ivory/12 dark:text-ivory dark:hover:border-accentA/45 dark:hover:bg-accent-gradient dark:hover:text-ivory"
         >
           <AnimatePresence mode="wait" initial={false}>
             {showArrow ? (

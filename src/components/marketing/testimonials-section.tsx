@@ -218,12 +218,12 @@ export function TestimonialsSection({
             transition={reducedMotion ? { duration: 0 } : { duration: 4.8, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }}
           />
 
-          <div className="relative z-10 flex h-full flex-col justify-between p-5 text-ivory sm:p-6 md:p-7">
-            <div className="space-y-6 sm:space-y-7">
+          <div className="relative z-10 flex h-full flex-col justify-center p-5 text-center text-ivory sm:p-6 md:p-7">
+            <div className="mx-auto w-full max-w-[16rem] space-y-6 sm:space-y-7">
               {metricItems.map((metric) => (
                 <div key={metric.id}>
-                  <p className="text-4xl font-semibold leading-none sm:text-5xl md:text-6xl">{metric.value}</p>
-                  <p className="mt-2 text-lg tracking-tight text-ivory/88 sm:text-xl md:text-[1.45rem]">{metric.label}</p>
+                  <p className="text-2xl font-semibold leading-none sm:text-3xl md:text-4xl">{metric.value}</p>
+                  <p className="mt-2 text-sm tracking-tight text-ivory/88 sm:text-base md:text-lg">{metric.label}</p>
                 </div>
               ))}
             </div>
@@ -284,7 +284,7 @@ export function TestimonialsSection({
 
                     <div className="relative z-10 flex h-full flex-col justify-between p-5 text-ivory sm:p-6 md:p-7">
                       <div className="space-y-4">
-                        <div className="flex items-center gap-3 text-xl tracking-tight text-ivory/92 sm:gap-4 sm:text-2xl md:text-[1.8rem]">
+                        <div className="flex items-center gap-3 text-base tracking-tight text-ivory/92 sm:gap-4 sm:text-lg md:text-[1.1rem]">
                           <span>{sliderCounter(index, total)}</span>
                           <span className="h-px w-10 bg-ivory/45 sm:w-16" />
                         </div>
@@ -304,10 +304,10 @@ export function TestimonialsSection({
                       </div>
 
                       <blockquote className="max-w-4xl">
-                        <p className="text-[1.55rem] font-semibold leading-tight sm:text-3xl md:text-[2.35rem]">"{slide.quote}"</p>
+                        <p className="text-[1.1rem] font-semibold leading-tight sm:text-[1.45rem] md:text-[1.7rem]">"{slide.quote}"</p>
                         <footer className="mt-5 sm:mt-6">
-                          <p className="text-xl text-ivory/96 sm:text-2xl md:text-[1.45rem]">{slide.name}</p>
-                          <p className="text-base text-ivory/72 sm:text-xl md:text-[1.12rem]">{slide.role}</p>
+                          <p className="text-base text-ivory/96 sm:text-lg md:text-[1.05rem]">{slide.name}</p>
+                          <p className="text-xs text-ivory/72 sm:text-sm md:text-[0.92rem]">{slide.role}</p>
                         </footer>
                       </blockquote>
                     </div>
