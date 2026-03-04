@@ -342,11 +342,13 @@ async function getResolvedProjectBySlug(slug: string): Promise<ProjectDetail | n
 async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectDetail[]> {
   const layoutVariantMap = await getResolvedLayoutVariantMap();
   const allowedSlugs = new Set<string>(projectCardSlugs);
+  const uniqueBySlug = (items: ProjectDetail[]) => Array.from(new Map(items.map((item) => [item.slug, item] as const)).values());
 
   try {
     const cmsWorks = await getPublishedWorks();
     if (cmsWorks.length > 0) {
-      const related = cmsWorks
+      const related = uniqueBySlug(
+        cmsWorks
         .filter((work) => work.slug !== currentSlug && allowedSlugs.has(work.slug))
         .map((work, index) =>
           mapCmsWorkToProject(
@@ -357,7 +359,7 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
           )
         )
         .map((project) => withProjectCardContent(project))
-        .slice(0, 5);
+      ).slice(0, 5);
 
       if (related.length > 0) {
         return related;
@@ -367,10 +369,11 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
     // Local fallback below.
   }
 
-  return graphxifyProjects
+  return uniqueBySlug(
+    graphxifyProjects
     .filter((project) => project.slug !== currentSlug && allowedSlugs.has(project.slug))
-    .slice(0, 5)
-    .map((project) => withProjectCardContent(withLayoutVariant(project, layoutVariantMap.get(project.slug))));
+    .map((project) => withProjectCardContent(withLayoutVariant(project, layoutVariantMap.get(project.slug))))
+  ).slice(0, 5);
 }
 
 export async function generateStaticParams(): Promise<Params[]> {
@@ -385,13 +388,14 @@ export async function generateStaticParams(): Promise<Params[]> {
   }
 }
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const project = await getResolvedProjectBySlug(params.slug);
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getResolvedProjectBySlug(slug);
   if (!project) {
     return buildMetadata({
       title: "Project Not Found",
       description: "Project item not found.",
-      path: `/works/${params.slug}`
+      path: `/works/${slug}`
     });
   }
 
@@ -639,8 +643,9 @@ function ProjectCtaSection({ project }: { project: ProjectDetail }): JSX.Element
   );
 }
 
-export default async function WorkDetailPage({ params }: { params: Params }) {
-  const project = await getResolvedProjectBySlug(params.slug);
+export default async function WorkDetailPage({ params }: { params: Promise<Params> }) {
+  const { slug } = await params;
+  const project = await getResolvedProjectBySlug(slug);
   if (!project) {
     notFound();
   }

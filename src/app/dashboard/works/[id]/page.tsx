@@ -11,16 +11,17 @@ import { requireRole } from "@/lib/auth/requireRole";
 
 type Params = { id: string };
 
-export default async function DashboardWorkEditorPage({ params }: { params: Params }) {
+export default async function DashboardWorkEditorPage({ params }: { params: Promise<Params> }) {
   await requireRole(["admin", "mod"]);
-  const isNew = params.id === "new";
+  const { id } = await params;
+  const isNew = id === "new";
 
-  const work = isNew ? null : await getWorkById(params.id);
+  const work = isNew ? null : await getWorkById(id);
   if (!isNew && !work) {
     notFound();
   }
 
-  const versions = isNew ? [] : await getWorkVersions(params.id);
+  const versions = isNew ? [] : await getWorkVersions(id);
 
   return (
     <section className="space-y-6">
@@ -69,7 +70,7 @@ export default async function DashboardWorkEditorPage({ params }: { params: Para
                         <TableCell>{new Date(version.created_at).toLocaleString()}</TableCell>
                         <TableCell>
                           <form action={restoreWorkVersionAction}>
-                            <input type="hidden" name="workId" value={params.id} />
+                            <input type="hidden" name="workId" value={id} />
                             <input type="hidden" name="versionId" value={version.id} />
                             <Button size="sm" variant="secondary" type="submit">
                               Restore
@@ -87,7 +88,7 @@ export default async function DashboardWorkEditorPage({ params }: { params: Para
 
         {!isNew ? (
           <RevealItem>
-            <DeleteContentButton type="work" id={params.id} />
+            <DeleteContentButton type="work" id={id} />
           </RevealItem>
         ) : null}
       </RevealStagger>

@@ -72,18 +72,28 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
   const [isHovering, setIsHovering] = useState(false);
   const [autoplayBlockedUntil, setAutoplayBlockedUntil] = useState(0);
 
-  const totalCards = projects.length;
-  const carouselActive = totalCards > 1;
+  const uniqueProjects = useMemo(
+    () => Array.from(new Map(projects.map((project) => [project.slug, project] as const)).values()),
+    [projects]
+  );
+
+  const totalCards = uniqueProjects.length;
+  if (totalCards === 0) {
+    return <section className="space-y-4" aria-label="Other projects carousel" />;
+  }
+
+  const carouselActive = totalCards > perView;
   const cloneCount = carouselActive ? perView : 0;
+  const displayPerView = carouselActive ? perView : Math.max(Math.min(perView, totalCards), 1);
 
   const renderCards = useMemo(() => {
     if (!carouselActive) {
-      return projects;
+      return uniqueProjects;
     }
-    const prefix = buildLoopSegment(projects, cloneCount, true);
-    const suffix = buildLoopSegment(projects, cloneCount, false);
-    return [...prefix, ...projects, ...suffix];
-  }, [carouselActive, cloneCount, projects]);
+    const prefix = buildLoopSegment(uniqueProjects, cloneCount, true);
+    const suffix = buildLoopSegment(uniqueProjects, cloneCount, false);
+    return [...prefix, ...uniqueProjects, ...suffix];
+  }, [carouselActive, cloneCount, uniqueProjects]);
 
   const baseIndex = carouselActive ? cloneCount : 0;
   const minRealTrackIndex = cloneCount;
@@ -158,9 +168,9 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
   const dotCount = carouselActive ? totalCards : 1;
   const activeDotIndex = carouselActive ? activeIndex : 0;
 
-  const cardWidthPx = perView > 0 ? Math.max((viewportWidth - GAP_PX * (perView - 1)) / perView, 0) : 0;
+  const cardWidthPx = displayPerView > 0 ? Math.max((viewportWidth - GAP_PX * (displayPerView - 1)) / displayPerView, 0) : 0;
   const stepPx = cardWidthPx + GAP_PX;
-  const cardBasis = `calc((100% - ${(perView - 1) * GAP_PX}px) / ${perView})`;
+  const cardBasis = `calc((100% - ${(displayPerView - 1) * GAP_PX}px) / ${displayPerView})`;
 
   const moveTrack = useCallback(
     (direction: 1 | -1) => {

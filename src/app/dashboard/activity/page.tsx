@@ -5,14 +5,19 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { requireRole } from "@/lib/auth/requireRole";
 import { listAuditLogs } from "@/services/activity-service";
 
-export default async function DashboardActivityPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function DashboardActivityPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requireRole(["admin", "mod"]);
-  const page = Number(searchParams.page ?? 1);
-  const action = typeof searchParams.action === "string" ? searchParams.action : "";
-  const entity = typeof searchParams.entity === "string" ? searchParams.entity : "";
-  const actor = typeof searchParams.actor === "string" ? searchParams.actor : "";
-  const from = typeof searchParams.from === "string" ? searchParams.from : "";
-  const to = typeof searchParams.to === "string" ? searchParams.to : "";
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1);
+  const action = typeof resolvedSearchParams.action === "string" ? resolvedSearchParams.action : "";
+  const entity = typeof resolvedSearchParams.entity === "string" ? resolvedSearchParams.entity : "";
+  const actor = typeof resolvedSearchParams.actor === "string" ? resolvedSearchParams.actor : "";
+  const from = typeof resolvedSearchParams.from === "string" ? resolvedSearchParams.from : "";
+  const to = typeof resolvedSearchParams.to === "string" ? resolvedSearchParams.to : "";
 
   const result = await listAuditLogs({ page, pageSize: 20, action, entity, actor, from, to });
 

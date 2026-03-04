@@ -10,10 +10,11 @@ export const dynamic = "force-dynamic";
 export default async function DashboardTestimonialsPage({
   searchParams
 }: {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   await requireRole(["admin", "mod"]);
-  const page = Number(searchParams.page ?? 1);
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1);
   let result: Awaited<ReturnType<typeof getDashboardTestimonials>> = {
     rows: [],
     total: 0,

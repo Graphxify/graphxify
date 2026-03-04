@@ -8,11 +8,12 @@ import { requireRole } from "@/lib/auth/requireRole";
 
 type Params = { id: string };
 
-export default async function DashboardTestimonialEditorPage({ params }: { params: Params }) {
+export default async function DashboardTestimonialEditorPage({ params }: { params: Promise<Params> }) {
   await requireRole(["admin", "mod"]);
-  const isNew = params.id === "new";
+  const { id } = await params;
+  const isNew = id === "new";
 
-  const testimonial = isNew ? null : await getTestimonialById(params.id);
+  const testimonial = isNew ? null : await getTestimonialById(id);
   if (!isNew && !testimonial) {
     notFound();
   }
@@ -35,7 +36,7 @@ export default async function DashboardTestimonialEditorPage({ params }: { param
 
         {!isNew ? (
           <RevealItem>
-            <DeleteContentButton type="testimonial" id={params.id} />
+            <DeleteContentButton type="testimonial" id={id} />
           </RevealItem>
         ) : null}
       </RevealStagger>

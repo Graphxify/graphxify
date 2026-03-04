@@ -1,13 +1,8 @@
-import dynamic from "next/dynamic";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAnalyticsSummary } from "@/db/queries/analytics";
 import { requireRole } from "@/lib/auth/requireRole";
-
-const AnalyticsChart = dynamic(
-  () => import("@/app/dashboard/(components)/analytics-chart").then((mod) => mod.AnalyticsChart),
-  { ssr: false }
-);
+import AnalyticsClient from "./analytics-client";
 
 export default async function DashboardAnalyticsPage() {
   await requireRole(["admin", "mod"]);
@@ -75,7 +70,7 @@ export default async function DashboardAnalyticsPage() {
               <CardTitle>Activity in last 14 days</CardTitle>
             </CardHeader>
             <CardContent>
-              <AnalyticsChart data={summary.activity} />
+              <AnalyticsClient data={summary.activity} />
             </CardContent>
           </Card>
         </RevealItem>

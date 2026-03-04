@@ -13,7 +13,11 @@ export const metadata: Metadata = buildMetadata({
   path: "/login"
 });
 
-export default function LoginPage({ searchParams }: { searchParams?: Record<string, string | string[] | undefined> }) {
+export default async function LoginPage({
+  searchParams
+}: {
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const errorMessages: Record<string, string> = {
     invalid_credentials: "Invalid email or password.",
     account_not_found: "No account exists for this email in Supabase Auth.",
@@ -24,9 +28,9 @@ export default function LoginPage({ searchParams }: { searchParams?: Record<stri
     unknown: "Unable to sign in. Please try again."
   };
 
-  return (
-    <LoginView errorMessages={errorMessages} searchParams={searchParams} />
-  );
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
+
+  return <LoginView errorMessages={errorMessages} searchParams={resolvedSearchParams} />;
 }
 
 function LoginView({

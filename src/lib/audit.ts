@@ -41,7 +41,7 @@ export async function logAuditEvent(params: {
     return;
   }
 
-  const headerStore = headers();
+  const headerStore = await headers();
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? headerStore.get("x-real-ip") ?? "unknown";
   const userAgent = headerStore.get("user-agent") ?? "unknown";
 

@@ -628,7 +628,7 @@ export function ContactPageContent(): JSX.Element {
                         rel="noreferrer"
                         className="group inline-flex items-center gap-2 text-fg/72 transition-colors hover:text-fg"
                       >
-                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-accentA/40 bg-transparent text-fg/74 transition group-hover:-translate-y-0.5 group-hover:border-accentA/45 group-hover:bg-accent-gradient group-hover:text-ivory">
+                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black bg-transparent text-fg/74 transition group-hover:-translate-y-0.5 group-hover:border-transparent group-hover:bg-accent-gradient group-hover:text-ivory">
                           <link.Icon className="h-4 w-4" aria-hidden="true" />
                         </span>
                         <span>{link.label}</span>

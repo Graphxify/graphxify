@@ -3,9 +3,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getDashboardLeads } from "@/db/queries/admin";
 import { requireRole } from "@/lib/auth/requireRole";
 
-export default async function DashboardLeadsPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function DashboardLeadsPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requireRole(["admin", "mod"]);
-  const page = Number(searchParams.page ?? 1);
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1);
   const result = await getDashboardLeads(page, 20);
 
   return (

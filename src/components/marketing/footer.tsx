@@ -141,7 +141,7 @@ export function MarketingFooter(): JSX.Element {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={item.label}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-accentA/40 bg-transparent text-fg/76 transition hover:-translate-y-0.5 hover:border-accentA/50 hover:bg-accent-gradient hover:text-ivory"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black bg-transparent text-fg/76 transition hover:-translate-y-0.5 hover:border-transparent hover:bg-accent-gradient hover:text-ivory"
               >
                 <item.Icon className="h-5 w-5" />
               </a>

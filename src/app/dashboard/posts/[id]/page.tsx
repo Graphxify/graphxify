@@ -11,16 +11,17 @@ import { requireRole } from "@/lib/auth/requireRole";
 
 type Params = { id: string };
 
-export default async function DashboardPostEditorPage({ params }: { params: Params }) {
+export default async function DashboardPostEditorPage({ params }: { params: Promise<Params> }) {
   await requireRole(["admin", "mod"]);
-  const isNew = params.id === "new";
+  const { id } = await params;
+  const isNew = id === "new";
 
-  const post = isNew ? null : await getPostById(params.id);
+  const post = isNew ? null : await getPostById(id);
   if (!isNew && !post) {
     notFound();
   }
 
-  const versions = isNew ? [] : await getPostVersions(params.id);
+  const versions = isNew ? [] : await getPostVersions(id);
 
   return (
     <section className="space-y-6">
@@ -69,7 +70,7 @@ export default async function DashboardPostEditorPage({ params }: { params: Para
                         <TableCell>{new Date(version.created_at).toLocaleString()}</TableCell>
                         <TableCell>
                           <form action={restorePostVersionAction}>
-                            <input type="hidden" name="postId" value={params.id} />
+                            <input type="hidden" name="postId" value={id} />
                             <input type="hidden" name="versionId" value={version.id} />
                             <Button size="sm" variant="secondary" type="submit">
                               Restore
@@ -87,7 +88,7 @@ export default async function DashboardPostEditorPage({ params }: { params: Para
 
         {!isNew ? (
           <RevealItem>
-            <DeleteContentButton type="post" id={params.id} />
+            <DeleteContentButton type="post" id={id} />
           </RevealItem>
         ) : null}
       </RevealStagger>

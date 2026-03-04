@@ -395,11 +395,12 @@ function PostContentRenderer({ content }: { content: string }): JSX.Element {
   );
 }
 
-export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  let rawPost: Partial<RawPost> | null = demoPosts.find((item) => item.slug === params.slug) as Partial<RawPost> | null;
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { slug } = await params;
+  let rawPost: Partial<RawPost> | null = demoPosts.find((item) => item.slug === slug) as Partial<RawPost> | null;
 
   try {
-    const dbPost = await getPublishedPostBySlug(params.slug);
+    const dbPost = await getPublishedPostBySlug(slug);
     if (dbPost) {
       rawPost = dbPost as Partial<RawPost>;
     }
@@ -409,7 +410,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 
   const post = rawPost ? normalizePostDetails(rawPost) : null;
   if (!post) {
-    return buildMetadata({ title: "Post Not Found", description: "Post item not found.", path: `/blog/${params.slug}` });
+    return buildMetadata({ title: "Post Not Found", description: "Post item not found.", path: `/blog/${slug}` });
   }
 
   return buildMetadata({
@@ -420,11 +421,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   });
 }
 
-export default async function BlogPostPage({ params }: { params: Params }) {
-  let rawPost: Partial<RawPost> | null = demoPosts.find((item) => item.slug === params.slug) as Partial<RawPost> | null;
+export default async function BlogPostPage({ params }: { params: Promise<Params> }) {
+  const { slug } = await params;
+  let rawPost: Partial<RawPost> | null = demoPosts.find((item) => item.slug === slug) as Partial<RawPost> | null;
 
   try {
-    const dbPost = await getPublishedPostBySlug(params.slug);
+    const dbPost = await getPublishedPostBySlug(slug);
     if (dbPost) {
       rawPost = dbPost as Partial<RawPost>;
     }

@@ -7,9 +7,14 @@ import { requireRole } from "@/lib/auth/requireRole";
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardPostsPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function DashboardPostsPage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   await requireRole(["admin", "mod"]);
-  const page = Number(searchParams.page ?? 1);
+  const resolvedSearchParams = await searchParams;
+  const page = Number(resolvedSearchParams.page ?? 1);
   const result = await getDashboardPosts(page, 10);
 
   return (

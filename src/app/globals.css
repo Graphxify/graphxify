@@ -15,6 +15,7 @@
   --layout-max: 1160px;
   --layout-gutter: 1.125rem;
   --font-scale: 0.985;
+  --font-poppins: "Poppins", "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 .dark {
@@ -130,10 +131,7 @@ select:focus-visible {
 .app-shell {
   position: relative;
   isolation: isolate;
-  background:
-    radial-gradient(circle at 16% 8%, rgb(var(--accent-a) / 0.07), transparent 34%),
-    radial-gradient(circle at 88% 4%, rgb(var(--accent-b) / 0.07), transparent 32%),
-    rgb(var(--bg));
+  background: rgb(var(--bg));
 }
 
 @layer components {
@@ -163,20 +161,6 @@ select:focus-visible {
   backdrop-filter: blur(14px) saturate(130%);
   box-shadow: 0 14px 34px rgb(13 13 15 / 0.07);
   overflow: hidden;
-}
-
-.section-shell::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(115deg, rgb(var(--accent-a) / 0.08), transparent 30%, transparent 70%, rgb(var(--accent-b) / 0.08));
-  opacity: 0;
-  transition: opacity 420ms ease;
-}
-
-.section-shell:hover::after {
-  opacity: 1;
 }
 
 .link-sweep {

@@ -27,7 +27,7 @@ export const projectCardContent = [
   {
     slug: "meridian-health-network-portal",
     industry: "Web Designer & Developer",
-    title: "King Medical Arts Pharmacy"
+    title: "King Medical Art Pharmacy"
   }
 ] as const;
 

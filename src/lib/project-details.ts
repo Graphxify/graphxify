@@ -702,7 +702,7 @@ export const graphxifyProjects: ProjectDetail[] = [
     id: "gp-6",
     slug: "meridian-health-network-portal",
     layoutVariant: "F",
-    title: "King Medical Arts Pharmacy",
+    title: "King Medical Art Pharmacy",
     subtitle: "A split-screen storytelling format for complex program communication.",
     year: 2026,
     industry: "Healthcare Network",

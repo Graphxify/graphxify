@@ -220,28 +220,38 @@ export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.
           {previewWorks.map((work) => {
             const displayTitle = getProjectDisplayTitle(work.slug, work.title);
             return (
-            <Link
-              key={work.id}
-              href={`/works/${work.slug}`}
-              className="group block overflow-hidden rounded-[1.1rem] border border-border/18 bg-card/72 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              data-cursor-label="Open"
-              aria-label={`Open project ${displayTitle}`}
-            >
-              <div className="relative h-[14.5rem] overflow-hidden">
-                <Image
-                  src={work.coverImage}
-                  alt={displayTitle}
-                  fill
-                  className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[1.2px] group-hover:brightness-[0.66]"
-                  sizes="(max-width: 1024px) 100vw, 33vw"
-                />
-                <span className="absolute inset-0 bg-gradient-to-t from-black/56 via-black/12 to-transparent" />
+              <div key={work.id}>
+                <Link
+                  href={`/works/${work.slug}`}
+                  className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  data-cursor-label="Open"
+                  aria-label={`Open project ${displayTitle}`}
+                >
+                  <article className="relative h-[20rem] overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] md:h-[22rem]">
+                    <div className="absolute inset-0">
+                      <Image
+                        src={work.coverImage}
+                        alt={displayTitle}
+                        fill
+                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[2px] group-hover:brightness-[0.55]"
+                        sizes="(max-width: 1024px) 50vw, 33vw"
+                      />
+                    </div>
+
+                    <div className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
+
+                    <div className="absolute inset-x-4 bottom-4 z-10 transition-all duration-300 group-hover:translate-y-2 group-hover:opacity-0">
+                      <h3 className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">{displayTitle}</h3>
+                    </div>
+
+                    <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <h4 className="text-[1.6rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.9rem]">
+                        {displayTitle}
+                      </h4>
+                    </div>
+                  </article>
+                </Link>
               </div>
-              <div className="flex items-center justify-between gap-2 px-4 py-3.5">
-                <p className="line-clamp-2 text-sm text-fg/88">{displayTitle}</p>
-                <ArrowUpRight className="h-4 w-4 shrink-0 text-fg/52 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </div>
-            </Link>
             );
           })}
         </div>

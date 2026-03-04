@@ -115,7 +115,7 @@ export async function loginAction(formData: FormData): Promise<void> {
     redirectLoginError("invalid_credentials");
   }
 
-  const headerStore = headers();
+  const headerStore = await headers();
   const ip = headerStore.get("x-forwarded-for")?.split(",")[0]?.trim() ?? headerStore.get("x-real-ip") ?? "unknown";
 
   let limited = { allowed: true, remaining: 0, retryAfter: 0 };

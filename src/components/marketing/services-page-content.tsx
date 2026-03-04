@@ -98,26 +98,152 @@ const typicalAgencyItems = [
 ] as const;
 
 function ServiceVisual({ serviceKey }: { serviceKey: ServicePillar["key"] }): JSX.Element {
+  const reducedMotion = useReducedMotion();
+
   if (serviceKey === "brand-systems") {
     return (
       <div className="relative h-[16.5rem] overflow-hidden rounded-[1.2rem] border border-border/18 bg-card/72 p-4">
         <span className="absolute left-4 top-0 h-px w-20 bg-accent-gradient" />
         <div className="grid h-full gap-3 sm:grid-cols-[0.95fr_1.05fr]">
-          <div className="rounded-xl border border-border/18 bg-bg/55 p-3">
-            <p className="text-[0.58rem] uppercase tracking-[0.16em] text-fg/58">Identity</p>
-            <div className="mt-3 grid gap-2">
-              <span className="h-7 rounded-md bg-accent-gradient opacity-85" />
-              <span className="h-2 rounded-full bg-fg/14" />
-              <span className="h-2 rounded-full bg-fg/10" />
+          <div className="relative overflow-hidden rounded-xl border border-border/18 bg-bg/55 p-3">
+            <div className="relative z-10">
+              <div className="flex items-center justify-between">
+                <p className="text-[0.58rem] uppercase tracking-[0.16em] text-fg/58">Identity</p>
+                <span className="text-[0.5rem] uppercase tracking-[0.14em] text-fg/48">Mark System</span>
+              </div>
+
+              <div className="relative mt-2.5 overflow-hidden rounded-lg border border-border/14 bg-card/58 p-2.5">
+                <div className="flex items-center justify-between text-[0.5rem] uppercase tracking-[0.14em] text-fg/50">
+                  <span>Approval Stamp</span>
+                  <span>v1.0</span>
+                </div>
+
+                <div className="relative mt-2 h-10">
+                  <motion.span
+                    className="absolute left-1/2 top-0 grid h-8 w-8 -translate-x-1/2 place-items-center rounded-full border border-accentA/35 bg-bg/78 text-accentA shadow-[0_6px_16px_rgba(13,13,15,0.12)]"
+                    animate={reducedMotion ? undefined : { x: [-16, 16, -16], y: [0, -1, 0], rotate: [-12, 12, -12] }}
+                    transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <Compass className="h-3.5 w-3.5" />
+                  </motion.span>
+                  <motion.span
+                    aria-hidden="true"
+                    className="absolute left-1/2 top-[1.72rem] h-1.5 w-[5.1rem] -translate-x-1/2 origin-center rounded-full bg-accent-gradient/85"
+                    animate={reducedMotion ? undefined : { x: [-18, 18, -18], scaleX: [0.72, 1, 0.72], opacity: [0.45, 0.95, 0.45] }}
+                    transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                  <span className="absolute left-1/2 top-[2.3rem] h-px w-[5.7rem] -translate-x-1/2 bg-fg/24" />
+                </div>
+
+                <div className="relative mt-2 grid grid-cols-3 gap-1.5">
+                  {[
+                    { key: "icon", label: "Icon" },
+                    { key: "wordmark", label: "Word" },
+                    { key: "stacked", label: "Stack" }
+                  ].map((item, index) => (
+                    <motion.span
+                      key={item.key}
+                      className="grid h-6 place-items-center rounded-md border border-border/16 bg-bg/68 text-[0.44rem] uppercase tracking-[0.12em] text-fg/52"
+                      animate={reducedMotion ? undefined : { x: [0, 1, 0], y: [0, -1.2, 0], scale: [1, 1.02, 1], opacity: [0.72, 1, 0.72] }}
+                      transition={{
+                        duration: 3.3 + index * 0.25,
+                        delay: index * 0.2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    >
+                      {item.label}
+                    </motion.span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-2.5 rounded-md border border-border/14 bg-bg/70 px-2 py-1.5">
+                <div className="relative h-4">
+                  <span className="absolute left-0 top-0 h-1.5 w-1.5 border-l border-t border-accentA/72" />
+                  <span className="absolute right-0 top-0 h-1.5 w-1.5 border-r border-t border-accentA/72" />
+                  <span className="absolute bottom-0 left-0 h-1.5 w-1.5 border-b border-l border-accentA/72" />
+                  <span className="absolute bottom-0 right-0 h-1.5 w-1.5 border-b border-r border-accentA/72" />
+                  <motion.span
+                    className="absolute inset-x-2 top-1/2 h-px -translate-y-1/2 bg-fg/22"
+                    animate={reducedMotion ? undefined : { x: ["-8%", "8%", "-8%"], opacity: [0.36, 0.85, 0.36] }}
+                    transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <div className="rounded-xl border border-border/18 bg-bg/48 p-3">
             <p className="text-[0.58rem] uppercase tracking-[0.16em] text-fg/58">Guidelines</p>
-            <div className="mt-3 space-y-2">
-              <span className="block h-2 rounded-full bg-fg/16" />
-              <span className="block h-2 rounded-full bg-fg/12" />
-              <span className="block h-2 rounded-full bg-fg/10" />
-              <span className="block h-2 rounded-full bg-fg/8" />
+            <div className="relative mt-3 overflow-hidden rounded-lg border border-border/14 bg-card/62 p-2.5">
+              <div className="relative z-10">
+                <div className="text-[0.54rem] uppercase tracking-[0.14em] text-fg/56">
+                  <span>Logo Lockup</span>
+                </div>
+
+                <div className="mt-2 flex items-center gap-2">
+                  <motion.span
+                    className="grid h-7 w-7 place-items-center rounded-md border border-accentA/35 bg-bg/70"
+                    animate={reducedMotion ? undefined : { rotate: [-3, 3] }}
+                    transition={{ duration: 3.4, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+                  >
+                    <Palette className="h-3.5 w-3.5 text-accentA" />
+                  </motion.span>
+                  <motion.span
+                    className="block h-2 flex-1 origin-left rounded-full bg-accent-gradient"
+                    animate={reducedMotion ? undefined : { opacity: [0.78, 1], scaleX: [0.94, 1] }}
+                    transition={{ duration: 2.8, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+                  />
+                </div>
+
+                <div className="mt-2.5 space-y-2">
+                  {[
+                    { key: "type-scale", label: "Type Scale", tag: "AA", width: "78%" },
+                    { key: "color-rules", label: "Color Rules", tag: "WCAG", width: "68%" },
+                    { key: "spacing-grid", label: "Spacing Grid", tag: "8pt", width: "58%" }
+                  ].map((item, index) => (
+                    <div key={item.key} className="space-y-1">
+                      <div className="flex items-center justify-between text-[0.5rem] uppercase tracking-[0.14em] text-fg/50">
+                        <span>{item.label}</span>
+                        <span>{item.tag}</span>
+                      </div>
+                      <span className="block h-1.5 overflow-hidden rounded-full bg-fg/12">
+                        <motion.span
+                          className="block h-full origin-left rounded-full bg-accent-gradient"
+                          style={{ width: item.width }}
+                          animate={reducedMotion ? undefined : { scaleX: [0.9, 1], opacity: [0.78, 1] }}
+                          transition={{
+                            duration: 3 + index * 0.25,
+                            repeat: Infinity,
+                            repeatType: "mirror",
+                            ease: "easeInOut"
+                          }}
+                        />
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-2.5 flex items-center gap-1.5">
+                  {["#0EA5E9", "#2563EB", "#0F172A"].map((color, index) => (
+                    <motion.i
+                      key={`brand-chip-${color}`}
+                      aria-hidden="true"
+                      className="h-3.5 w-3.5 rounded-full border border-border/18"
+                      style={{ backgroundColor: color }}
+                      animate={reducedMotion ? undefined : { y: [0, -1.5], opacity: [0.82, 1] }}
+                      transition={{
+                        duration: 2 + index * 0.1,
+                        delay: index * 0.12,
+                        repeat: Infinity,
+                        repeatType: "mirror",
+                        ease: "easeInOut"
+                      }}
+                    />
+                  ))}
+                  <span className="ml-1 text-[0.5rem] uppercase tracking-[0.14em] text-fg/50">Primary Palette</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -128,25 +254,112 @@ function ServiceVisual({ serviceKey }: { serviceKey: ServicePillar["key"] }): JS
   if (serviceKey === "web-design") {
     return (
       <div className="relative h-[16.5rem] overflow-hidden rounded-[1.2rem] border border-border/18 bg-card/72 p-4">
-        <span className="absolute right-4 top-4 h-2 w-2 rounded-full bg-accentA/75" />
-        <div className="rounded-xl border border-border/18 bg-bg/52 p-3">
-          <div className="mb-3 flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-fg/35" />
-            <span className="h-2 w-2 rounded-full bg-fg/22" />
-            <span className="h-2 w-2 rounded-full bg-fg/12" />
+        <div className="absolute inset-0 opacity-45 [background-image:linear-gradient(to_right,rgba(13,13,15,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(13,13,15,0.06)_1px,transparent_1px)] [background-size:24px_24px]" />
+
+        <div className="relative h-full overflow-hidden rounded-xl border border-border/18 bg-bg/56 p-3">
+          <div className="flex items-center justify-between text-[0.5rem] uppercase tracking-[0.14em] text-fg/52">
+            <span>Responsive Interface Lab</span>
+            <span className="rounded-full border border-border/18 bg-card/64 px-2 py-0.5 text-fg/58">Live Prototype</span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-[1fr_1.1fr]">
-            <div className="rounded-lg border border-border/16 bg-card/65 p-2.5">
-              <span className="mb-2 block h-2.5 w-1/2 rounded-full bg-fg/20" />
-              <span className="block h-20 rounded-md bg-fg/10" />
-            </div>
-            <div className="rounded-lg border border-border/16 bg-card/65 p-2.5">
-              <span className="mb-2 block h-2.5 w-2/3 rounded-full bg-fg/20" />
-              <div className="grid gap-2">
-                <span className="h-7 rounded-md bg-fg/10" />
-                <span className="h-7 rounded-md bg-fg/10" />
-                <span className="h-7 rounded-md bg-fg/10" />
+
+          <div className="relative mt-2 h-[calc(100%-1.45rem)]">
+            <motion.div
+              className="absolute left-0 top-2 w-[74%] overflow-hidden rounded-[0.85rem] border border-border/16 bg-card/72 p-2 shadow-[0_12px_24px_rgba(13,13,15,0.12)]"
+              animate={reducedMotion ? undefined : { y: [0, -4, 0], rotate: [-1, 1, -1] }}
+              transition={{ duration: 7.4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="flex items-center justify-between text-[0.44rem] uppercase tracking-[0.12em] text-fg/52">
+                <span>Desktop Frame</span>
+                <span>1440</span>
               </div>
+              <motion.span
+                className="mt-2 block h-6 origin-left rounded-md bg-accent-gradient/90"
+                animate={reducedMotion ? undefined : { scaleX: [0.78, 1, 0.82], opacity: [0.78, 1, 0.78] }}
+                transition={{ duration: 6.8, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <motion.span
+                    key={`design-tile-${index}`}
+                    className="h-4 rounded-md bg-fg/11"
+                    animate={reducedMotion ? undefined : { opacity: [0.45, 0.88, 0.45] }}
+                    transition={{ duration: 2.4 + (index % 3) * 0.35, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                ))}
+              </div>
+              <div className="mt-2 rounded-md border border-border/14 bg-bg/62 p-1.5">
+                <div className="flex items-center gap-1.5 text-[0.42rem] uppercase tracking-[0.12em] text-fg/50">
+                  <span>Auto Layout</span>
+                  <motion.i
+                    aria-hidden="true"
+                    className="h-1.5 w-1.5 rounded-full bg-accentA"
+                    animate={reducedMotion ? undefined : { opacity: [0.4, 1], scale: [1, 1.18] }}
+                    transition={{ duration: 1.9, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="absolute right-0 top-6 w-[30%] overflow-hidden rounded-[0.85rem] border border-accentA/28 bg-card/78 p-1.5 shadow-[0_14px_26px_rgba(13,13,15,0.16)]"
+              animate={reducedMotion ? undefined : { y: [0, -8, 0], x: [0, -3, 0], rotate: [2, -1, 2] }}
+              transition={{ duration: 6.2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="mx-auto h-1 w-5 rounded-full bg-fg/22" />
+              <motion.span
+                className="mt-2 block h-4 rounded-md bg-accent-gradient/85"
+                animate={reducedMotion ? undefined : { opacity: [0.72, 1, 0.72] }}
+                transition={{ duration: 2.6, repeat: Infinity, ease: "easeInOut" }}
+              />
+              <div className="mt-1.5 space-y-1">
+                <span className="block h-2 rounded-sm bg-fg/12" />
+                <span className="block h-2 rounded-sm bg-fg/10" />
+                <span className="block h-7 rounded-sm bg-fg/9" />
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="absolute bottom-2 left-[42%] w-[34%] overflow-hidden rounded-md border border-border/16 bg-card/74 p-1.5"
+              animate={reducedMotion ? undefined : { y: [0, -5, 0], rotate: [1, -1, 1] }}
+              transition={{ duration: 5.6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="text-[0.42rem] uppercase tracking-[0.12em] text-fg/50">CTA Card</div>
+              <span className="mt-1 block h-2 w-3/4 rounded-full bg-fg/20" />
+              <span className="mt-1 block h-5 rounded-md bg-fg/10" />
+            </motion.div>
+
+            <svg className="pointer-events-none absolute inset-0 h-full w-full" viewBox="0 0 320 180" preserveAspectRatio="none" aria-hidden="true">
+              <motion.path
+                d="M 122 62 C 154 46, 204 46, 250 82"
+                fill="none"
+                stroke="rgba(37,99,235,0.5)"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                animate={reducedMotion ? undefined : { pathLength: [0.2, 1, 0.2], opacity: [0.25, 0.75, 0.25] }}
+                transition={{ duration: 4.6, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </svg>
+
+            <motion.span
+              className="absolute left-[46%] top-[40%] grid h-5 w-5 place-items-center rounded-full border border-accentA/38 bg-bg/80 shadow-[0_6px_14px_rgba(13,13,15,0.12)]"
+              animate={reducedMotion ? undefined : { x: [0, 18, 10, 0], y: [0, -10, 8, 0], scale: [1, 1.08, 0.96, 1] }}
+              transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <Palette className="h-3 w-3 text-accentA/88" />
+            </motion.span>
+
+            <div className="absolute bottom-0 left-0 right-0 flex items-center gap-1.5 rounded-md border border-border/16 bg-bg/68 px-2 py-1.5 text-[0.42rem] uppercase tracking-[0.12em] text-fg/50">
+              <span className="mr-auto">Breakpoint Cycle</span>
+              {["Desktop", "Tablet", "Mobile"].map((item, index) => (
+                <motion.span
+                  key={`breakpoint-pill-${item}`}
+                  className="rounded-full border border-border/18 px-1.5 py-0.5"
+                  animate={reducedMotion ? undefined : { opacity: [0.45, 1, 0.45], y: [0, -1, 0] }}
+                  transition={{ duration: 2.8 + index * 0.25, delay: index * 0.2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  {item}
+                </motion.span>
+              ))}
             </div>
           </div>
         </div>
@@ -157,25 +370,120 @@ function ServiceVisual({ serviceKey }: { serviceKey: ServicePillar["key"] }): JS
   if (serviceKey === "web-development") {
     return (
       <div className="relative h-[16.5rem] overflow-hidden rounded-[1.2rem] border border-border/18 bg-card/72 p-4">
-        <span className="absolute inset-y-4 right-4 w-px bg-accent-gradient opacity-75" />
-        <div className="grid h-full gap-3">
-          <div className="rounded-xl border border-border/18 bg-bg/52 p-3">
-            <p className="text-[0.58rem] uppercase tracking-[0.16em] text-fg/58">Component Graph</p>
-            <div className="mt-3 grid grid-cols-4 gap-2">
-              {Array.from({ length: 12 }).map((_, index) => (
-                <span key={`dev-node-${index}`} className="h-6 rounded-md border border-border/14 bg-fg/[0.07]" />
+        <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(to_right,rgba(13,13,15,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(13,13,15,0.06)_1px,transparent_1px)] [background-size:20px_20px]" />
+
+        <div className="relative h-full overflow-hidden rounded-xl border border-border/18 bg-bg/54 p-3">
+          <div className="relative z-10 flex items-center justify-between text-[0.52rem] uppercase tracking-[0.14em] text-fg/52">
+            <span>CI/CD Pipeline</span>
+            <motion.span
+              className="rounded-full border border-border/18 bg-card/64 px-2 py-0.5 text-fg/58"
+              animate={reducedMotion ? undefined : { opacity: [0.55, 1, 0.55] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              Live Build
+            </motion.span>
+          </div>
+
+          <div className="relative z-10 mt-2 grid h-[calc(100%-1.45rem)] grid-cols-[1.1fr_0.9fr] gap-2">
+            <div className="rounded-lg border border-border/16 bg-card/68 p-2">
+              <div className="flex items-center justify-between text-[0.46rem] uppercase tracking-[0.13em] text-fg/52">
+                <span>Source</span>
+                <Code2 className="h-3 w-3 text-accentA/85" />
+              </div>
+
+              <div className="mt-2 space-y-1.5">
+                {[
+                  { key: "import", width: "86%" },
+                  { key: "component", width: "73%" },
+                  { key: "render", width: "64%" }
+                ].map((line, index) => (
+                  <motion.span
+                    key={`source-${line.key}`}
+                    className="block h-1.5 origin-left rounded-full bg-fg/20"
+                    style={{ width: line.width }}
+                    animate={reducedMotion ? undefined : { scaleX: [0.86, 1], opacity: [0.58, 0.95, 0.58] }}
+                    transition={{ duration: 3 + index * 0.25, repeat: Infinity, ease: "easeInOut" }}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-2.5 rounded-md border border-border/14 bg-bg/62 p-1.5">
+                <div className="text-[0.44rem] uppercase tracking-[0.12em] text-fg/48">Build Log</div>
+                <div className="mt-1.5 space-y-1">
+                  {["Transpile modules", "Bundle routes", "Ship assets"].map((item, index) => (
+                    <motion.div
+                      key={`log-${item}`}
+                      className="flex items-center gap-1.5 text-[0.44rem] text-fg/56"
+                      animate={reducedMotion ? undefined : { opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 2.4 + index * 0.2, delay: index * 0.16, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <motion.i
+                        aria-hidden="true"
+                        className="h-1.5 w-1.5 rounded-full bg-accentA"
+                        animate={reducedMotion ? undefined : { scale: [0.88, 1.2, 0.88] }}
+                        transition={{ duration: 1.6 + index * 0.15, repeat: Infinity, ease: "easeInOut" }}
+                      />
+                      <span>{item}</span>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-1.5">
+              {[
+                { key: "commit", label: "Commit", width: "84%" },
+                { key: "build", label: "Build", width: "68%" },
+                { key: "deploy", label: "Deploy", width: "92%" }
+              ].map((stage, index) => (
+                <motion.div
+                  key={`stage-${stage.key}`}
+                  className="rounded-md border border-border/16 bg-card/68 px-2 py-1.5"
+                  animate={
+                    reducedMotion
+                      ? undefined
+                      : {
+                          borderColor: ["rgba(13,13,15,0.14)", "rgba(0,163,255,0.35)", "rgba(13,13,15,0.14)"],
+                          x: [0, 1.5, 0]
+                        }
+                  }
+                  transition={{ duration: 3.6 + index * 0.26, delay: index * 0.24, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <div className="flex items-center justify-between text-[0.45rem] uppercase tracking-[0.12em] text-fg/54">
+                    <span>{stage.label}</span>
+                    <motion.i
+                      aria-hidden="true"
+                      className="h-1.5 w-1.5 rounded-full bg-accentA"
+                      animate={reducedMotion ? undefined : { opacity: [0.45, 1, 0.45] }}
+                      transition={{ duration: 1.8 + index * 0.1, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                  </div>
+                  <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-fg/12">
+                    <motion.span
+                      className="block h-full origin-left rounded-full bg-accent-gradient"
+                      style={{ width: stage.width }}
+                      animate={reducedMotion ? undefined : { scaleX: [0.82, 1], opacity: [0.72, 1] }}
+                      transition={{ duration: 2.8 + index * 0.18, repeat: Infinity, repeatType: "mirror", ease: "easeInOut" }}
+                    />
+                  </span>
+                </motion.div>
               ))}
+
+              <div className="rounded-md border border-border/16 bg-bg/64 px-2 py-1.5">
+                <div className="flex items-center justify-between text-[0.44rem] uppercase tracking-[0.12em] text-fg/52">
+                  <span>Lighthouse</span>
+                  <motion.span
+                    className="text-accentA"
+                    animate={reducedMotion ? undefined : { opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 2.1, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    95+
+                  </motion.span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="rounded-xl border border-border/18 bg-bg/45 p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-[0.58rem] uppercase tracking-[0.16em] text-fg/58">Performance</span>
-              <span className="text-[0.58rem] uppercase tracking-[0.16em] text-accentA">95+</span>
-            </div>
-            <span className="mt-3 block h-2 rounded-full bg-fg/10">
-              <span className="block h-full w-[78%] rounded-full bg-accent-gradient" />
-            </span>
-          </div>
+
         </div>
       </div>
     );
@@ -183,28 +491,116 @@ function ServiceVisual({ serviceKey }: { serviceKey: ServicePillar["key"] }): JS
 
   return (
     <div className="relative h-[16.5rem] overflow-hidden rounded-[1.2rem] border border-border/18 bg-card/72 p-4">
-      <span className="absolute -right-8 -top-10 h-24 w-24 rounded-full border border-accentA/35" />
-      <div className="grid h-full gap-3 sm:grid-cols-[1.08fr_0.92fr]">
+      <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(to_right,rgba(13,13,15,0.05)_1px,transparent_1px),linear-gradient(to_bottom,rgba(13,13,15,0.05)_1px,transparent_1px)] [background-size:22px_22px]" />
+      <div className="relative grid h-full gap-3 sm:grid-cols-[1fr_1fr]">
         <div className="rounded-xl border border-border/18 bg-bg/52 p-3">
-          <p className="text-[0.58rem] uppercase tracking-[0.16em] text-fg/58">Collections</p>
-          <div className="mt-3 space-y-2">
-            <span className="flex items-center justify-between rounded-md border border-border/14 bg-fg/[0.07] px-2 py-1.5 text-[0.62rem] text-fg/65">
-              Pages <i className="h-1.5 w-1.5 rounded-full bg-accentA/75" />
-            </span>
-            <span className="flex items-center justify-between rounded-md border border-border/14 bg-fg/[0.07] px-2 py-1.5 text-[0.62rem] text-fg/65">
-              Case Studies <i className="h-1.5 w-1.5 rounded-full bg-fg/45" />
-            </span>
-            <span className="flex items-center justify-between rounded-md border border-border/14 bg-fg/[0.07] px-2 py-1.5 text-[0.62rem] text-fg/65">
-              Blog <i className="h-1.5 w-1.5 rounded-full bg-fg/45" />
-            </span>
+          <div className="flex h-4 items-center justify-between">
+            <p className="text-[0.58rem] uppercase tracking-[0.16em] text-fg/58">Content Model</p>
+            <Database className="h-3.5 w-3.5 text-accentA/85" />
+          </div>
+
+          <div className="relative mt-2.5 h-[8.1rem] overflow-hidden rounded-lg border border-border/14 bg-card/68 p-2">
+            <div className="inline-flex items-center gap-1.5 rounded-md border border-border/16 bg-bg/60 px-1.5 py-1 text-[0.46rem] uppercase tracking-[0.12em] text-fg/54">
+              <span>page_type</span>
+            </div>
+
+            <motion.div
+              className="mt-2 rounded-md border border-border/16 bg-bg/64 px-1.5 py-1"
+              animate={reducedMotion ? undefined : { x: [0, 2, 0], borderColor: ["rgba(13,13,15,0.14)", "rgba(0,163,255,0.32)", "rgba(13,13,15,0.14)"] }}
+              transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <div className="text-[0.44rem] uppercase tracking-[0.11em] text-fg/54">
+                <span>hero_block[]</span>
+              </div>
+            </motion.div>
+
+            <div className="mt-2 grid grid-cols-2 gap-1.5">
+              {["title", "slug", "seo.meta", "module_ref"].map((field, index) => (
+                <motion.span
+                  key={`field-${field}`}
+                  className="rounded-md border border-border/14 bg-fg/[0.07] px-1.5 py-1 text-[0.42rem] uppercase tracking-[0.11em] text-fg/58"
+                  animate={reducedMotion ? undefined : { y: [0, -1, 0], opacity: [0.58, 0.96, 0.58] }}
+                  transition={{ duration: 2.6 + index * 0.2, delay: index * 0.14, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  {field}
+                </motion.span>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-2 h-[4.9rem] overflow-hidden rounded-md border border-border/14 bg-bg/62 p-1.5">
+            <div className="text-[0.45rem] uppercase tracking-[0.12em] text-fg/50">Relations</div>
+            <div className="mt-1.5 flex flex-wrap gap-1">
+              {["authors", "media", "taxonomy", "redirects"].map((rel, index) => (
+                <motion.span
+                  key={`rel-${rel}`}
+                  className="rounded-full border border-border/16 bg-card/66 px-1.5 py-0.5 text-[0.4rem] uppercase tracking-[0.11em] text-fg/55"
+                  animate={reducedMotion ? undefined : { opacity: [0.55, 0.95, 0.55] }}
+                  transition={{ duration: 2.4 + index * 0.2, delay: index * 0.16, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  {rel}
+                </motion.span>
+              ))}
+            </div>
           </div>
         </div>
+
         <div className="rounded-xl border border-border/18 bg-bg/45 p-3">
-          <p className="text-[0.58rem] uppercase tracking-[0.16em] text-fg/58">Access</p>
-          <div className="mt-3 grid gap-2">
-            <span className="h-7 rounded-md bg-fg/[0.09]" />
-            <span className="h-7 rounded-md bg-fg/[0.09]" />
-            <span className="h-7 rounded-md bg-accent-gradient/80" />
+          <div className="flex h-4 items-center justify-between">
+            <p className="text-[0.58rem] uppercase tracking-[0.16em] text-fg/58">Editorial Board</p>
+            <span className="text-[0.46rem] uppercase tracking-[0.12em] text-fg/52">Weekly</span>
+          </div>
+
+          <div className="relative mt-2.5 h-[8.1rem] rounded-lg border border-border/14 bg-card/66 p-1.5">
+            <div className="grid grid-cols-3 gap-1 text-[0.42rem] uppercase tracking-[0.11em] text-fg/48">
+              <span className="text-center">Draft</span>
+              <span className="text-center">Review</span>
+              <span className="text-center">Scheduled</span>
+            </div>
+
+            <div className="absolute inset-x-1.5 bottom-1.5 top-6 grid grid-cols-3 gap-1">
+              <div className="rounded-sm border border-border/12 bg-bg/56 p-1">
+                <span className="block h-2 rounded-sm bg-fg/12" />
+              </div>
+              <div className="rounded-sm border border-border/12 bg-bg/56 p-1">
+                <span className="block h-2 rounded-sm bg-fg/12" />
+                <span className="mt-1 block h-2 rounded-sm bg-fg/9" />
+              </div>
+              <div className="rounded-sm border border-border/12 bg-bg/56 p-1">
+                <span className="block h-2 rounded-sm bg-fg/10" />
+              </div>
+            </div>
+
+            <motion.div
+              className="absolute left-[4%] top-[2.05rem] w-[28%] rounded-md border border-accentA/34 bg-bg/82 p-1 shadow-[0_8px_18px_rgba(13,13,15,0.12)]"
+              animate={reducedMotion ? undefined : { x: ["0%", "105%", "210%", "105%", "0%"], y: [0, -1, 1, -1, 0] }}
+              transition={{ duration: 8.2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <span className="block h-1 w-2/3 rounded-full bg-fg/24" />
+              <span className="mt-1 block h-3 rounded-sm bg-fg/12" />
+            </motion.div>
+          </div>
+
+          <div className="mt-2 h-[4.9rem] overflow-hidden rounded-md border border-border/14 bg-bg/62 px-2 py-1.5">
+            <div className="flex items-center justify-between text-[0.44rem] uppercase tracking-[0.12em] text-fg/50">
+              <span>Publish Queue</span>
+              <span>Fri</span>
+            </div>
+            <div className="mt-1.5 flex items-center justify-between text-[0.39rem] uppercase tracking-[0.1em] text-fg/45">
+              <span>Mon</span>
+              <span>Tue</span>
+              <span>Wed</span>
+              <span>Thu</span>
+              <span>Fri</span>
+            </div>
+            <div className="relative mt-1 h-3">
+              <span className="absolute inset-x-0 top-1.5 h-px bg-fg/18" />
+              <motion.span
+                className="absolute left-0 top-0 h-3 w-3 rounded-full border border-border/18 bg-accent-gradient"
+                animate={reducedMotion ? undefined : { x: ["0%", "88%", "0%"] }}
+                transition={{ duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -300,7 +696,6 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
                 </div>
 
                 <div className="relative">
-                  {index === 3 ? <span className="pointer-events-none absolute -left-2 -top-2 h-4 w-4 rounded-full border border-accentA/55" /> : null}
                   <ServiceVisual serviceKey={service.key} />
                 </div>
               </div>
@@ -386,28 +781,38 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
           {previewWorks.map((work) => {
             const displayTitle = getProjectDisplayTitle(work.slug, work.title);
             return (
-            <Link
-              key={work.id}
-              href={`/works/${work.slug}`}
-              className="group block overflow-hidden rounded-[1.1rem] border border-border/18 bg-card/72 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              data-cursor-label="Open"
-              aria-label={`Open project ${displayTitle}`}
-            >
-              <div className="relative h-[14.5rem] overflow-hidden">
-                <Image
-                  src={work.coverImage}
-                  alt={displayTitle}
-                  fill
-                  className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[1.2px] group-hover:brightness-[0.66]"
-                  sizes="(max-width: 1024px) 100vw, 33vw"
-                />
-                <span className="absolute inset-0 bg-gradient-to-t from-black/56 via-black/12 to-transparent" />
+              <div key={work.id}>
+                <Link
+                  href={`/works/${work.slug}`}
+                  className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  data-cursor-label="Open"
+                  aria-label={`Open project ${displayTitle}`}
+                >
+                  <article className="relative h-[20rem] overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] md:h-[22rem]">
+                    <div className="absolute inset-0">
+                      <Image
+                        src={work.coverImage}
+                        alt={displayTitle}
+                        fill
+                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[2px] group-hover:brightness-[0.55]"
+                        sizes="(max-width: 1024px) 50vw, 33vw"
+                      />
+                    </div>
+
+                    <div className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
+
+                    <div className="absolute inset-x-4 bottom-4 z-10 transition-all duration-300 group-hover:translate-y-2 group-hover:opacity-0">
+                      <h3 className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">{displayTitle}</h3>
+                    </div>
+
+                    <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <h4 className="text-[1.6rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.9rem]">
+                        {displayTitle}
+                      </h4>
+                    </div>
+                  </article>
+                </Link>
               </div>
-              <div className="flex items-center justify-between gap-2 px-4 py-3.5">
-                <p className="line-clamp-2 text-sm text-fg/88">{displayTitle}</p>
-                <ArrowUpRight className="h-4 w-4 shrink-0 text-fg/52 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-              </div>
-            </Link>
             );
           })}
         </div>
