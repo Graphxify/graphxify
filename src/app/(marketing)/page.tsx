@@ -3,6 +3,7 @@ import { getTestimonialMetrics } from "@/db/queries/testimonial-metrics";
 import { getPublishedTestimonials } from "@/db/queries/testimonials";
 import { getPublishedWorks } from "@/db/queries/works";
 import { testimonialMetricsDefault, testimonials as fallbackTestimonials } from "@/lib/constants";
+import { projectCardContent, withProjectCardContent } from "@/lib/project-card-content";
 import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
 
 type TestimonialPreview = {
@@ -37,13 +38,18 @@ function normalizeImage(value: string | null | undefined): string | null {
 }
 
 function fallbackHomeProjects(): HomeProjectPreview[] {
-  return graphxifyProjects.slice(0, 6).map((project) => ({
-    id: project.id,
-    slug: project.slug,
-    title: project.title,
-    industry: project.industry,
-    coverImage: project.coverImage
-  }));
+  return projectCardContent.map((card, index) => {
+    const fallbackProject = getProjectBySlug(card.slug) ?? graphxifyProjects[index];
+    const baseProject: HomeProjectPreview = {
+      id: fallbackProject?.id ?? `home-project-${index + 1}`,
+      slug: fallbackProject?.slug ?? card.slug,
+      title: fallbackProject?.title ?? `Project ${index + 1}`,
+      industry: fallbackProject?.industry ?? "Digital Platform",
+      coverImage: fallbackProject?.coverImage ?? `/assets/work-${(index % 3) + 1}.svg`
+    };
+
+    return withProjectCardContent(baseProject);
+  });
 }
 
 function toTestimonialPreview(item: Partial<TestimonialPreview>): TestimonialPreview | null {
@@ -102,22 +108,18 @@ export default async function HomePage() {
   }
 
   if (worksResult.status === "fulfilled" && worksResult.value.length > 0) {
-    const cmsProjects = worksResult.value.map((work) => {
-      const fallbackProject = getProjectBySlug(work.slug);
-      return {
-        id: work.id,
-        slug: work.slug,
-        title: work.title,
-        industry: fallbackProject?.industry ?? "Digital Product",
-        coverImage: normalizeImage(work.cover_image_url) ?? fallbackProject?.coverImage ?? "/assets/work-1.svg"
+    const cmsBySlug = new Map(worksResult.value.map((work) => [work.slug, work]));
+    homeProjects = homeProjects.map((project) => {
+      const cmsProject = cmsBySlug.get(project.slug);
+      const fallbackProject = getProjectBySlug(project.slug);
+      const baseProject: HomeProjectPreview = {
+        ...project,
+        id: cmsProject?.id ?? project.id,
+        coverImage: normalizeImage(cmsProject?.cover_image_url) ?? fallbackProject?.coverImage ?? project.coverImage
       };
-    });
 
-    if (cmsProjects.length > 0) {
-      const usedSlugs = new Set(cmsProjects.map((item) => item.slug));
-      const remainingFallback = homeProjects.filter((item) => !usedSlugs.has(item.slug));
-      homeProjects = [...cmsProjects, ...remainingFallback].slice(0, 6);
-    }
+      return withProjectCardContent(baseProject);
+    });
   }
 
   return <HomeSections testimonials={testimonials} testimonialMetrics={testimonialMetrics} homeProjects={homeProjects} />;

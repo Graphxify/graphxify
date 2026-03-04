@@ -1,16 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Mail, Phone } from "lucide-react";
-import { BackToTop } from "@/components/marketing/back-to-top";
-import { companyContact } from "@/lib/constants";
+import { Mail, MapPin, Phone } from "lucide-react";
+import { FooterBackgroundGradient } from "@/components/ui/hover-footer";
 
-const footerLinks = [
-  { href: "/works", label: "Works" },
-  { href: "/services", label: "Services" },
-  { href: "/about", label: "About" },
-  { href: "/blog", label: "Journal" },
-  { href: "/contact", label: "Contact" }
-];
+const footerGroups = [
+  {
+    title: "Explore",
+    links: [
+      { label: "Works", href: "/works" },
+      { label: "Services", href: "/services" },
+      { label: "About", href: "/about" },
+      { label: "Blog", href: "/blog" },
+      { label: "Contact", href: "/contact" }
+    ]
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" }
+    ]
+  }
+] as const;
 
 function FacebookIcon({ className }: { className?: string }): JSX.Element {
   return (
@@ -59,78 +70,102 @@ function TikTokIcon({ className }: { className?: string }): JSX.Element {
 }
 
 const socialLinks = [
-  { href: "https://www.facebook.com", label: "Facebook", Icon: FacebookIcon },
-  { href: "https://www.instagram.com", label: "Instagram", Icon: InstagramIcon },
-  { href: "https://www.behance.net", label: "Behance", Icon: BehanceIcon },
-  { href: "https://www.tiktok.com", label: "TikTok", Icon: TikTokIcon }
+  { href: "https://www.facebook.com/Graphxify", label: "Facebook", Icon: FacebookIcon },
+  { href: "https://www.instagram.com/graphxify", label: "Instagram", Icon: InstagramIcon },
+  { href: "https://www.tiktok.com/@graphxify", label: "TikTok", Icon: TikTokIcon },
+  { href: "https://www.behance.net/graphxify", label: "Behance", Icon: BehanceIcon }
 ] as const;
 
 export function MarketingFooter(): JSX.Element {
   return (
-    <footer className="relative mt-24 border-t border-border/20 bg-bg">
-      <div className="container grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-[1.2fr_0.8fr_0.8fr]">
-        <div className="space-y-4">
-          <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
-            <Image src="/assets/Graphxify-Logo-Black.webp" alt="Graphxify" width={246} height={68} className="h-auto w-[8.9rem] dark:hidden md:w-[9.8rem]" />
-            <Image src="/assets/Graphxify-Logo-white.webp" alt="Graphxify" width={246} height={68} className="hidden h-auto w-[8.9rem] dark:block md:w-[9.8rem]" />
-          </Link>
-          <p className="max-w-md text-sm text-fg/68">
-            Premium agency platform blending brand systems, high-comfort UX, and operational CMS governance.
-          </p>
-          <div className="mt-8 flex flex-col gap-4 border-t border-border/16 pt-4 text-sm text-fg/74">
-            <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex w-fit items-center gap-2.5">
-              <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
-              <span>{companyContact.email}</span>
-            </a>
-            <a href={`tel:${companyContact.phoneHref}`} className="link-sweep inline-flex w-fit items-center gap-2.5">
-              <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
-              <span>{companyContact.phoneDisplay}</span>
-            </a>
+    <footer className="relative mt-20 overflow-hidden border-t border-border/20 bg-card/76">
+      <FooterBackgroundGradient />
+
+      <div className="container relative z-10 py-12 md:py-14 lg:py-16">
+        <div className="grid grid-cols-1 gap-10 pb-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.85fr_0.85fr_1fr] lg:gap-14">
+          <div className="space-y-4">
+            <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
+              <Image src="/assets/Graphxify-Logo-Black.webp" alt="Graphxify" width={246} height={68} className="h-auto w-[8.9rem] dark:hidden md:w-[9.8rem]" />
+              <Image src="/assets/Graphxify-Logo-white.webp" alt="Graphxify" width={246} height={68} className="hidden h-auto w-[8.9rem] dark:block md:w-[9.8rem]" />
+            </Link>
+            <h3 className="text-2xl font-semibold text-fg md:text-[1.8rem]">Built on structure. Designed to scale.</h3>
+            <p className="max-w-md text-sm leading-relaxed text-fg/72">
+              Brand systems, web platforms, and structured CMS architecture designed and built as one cohesive system.
+            </p>
+          </div>
+
+          {footerGroups.map((group) => (
+            <div key={group.title}>
+              <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-fg/64">{group.title}</h4>
+              <ul className="space-y-2.5">
+                {group.links.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="link-sweep text-sm text-fg/78 hover:text-fg">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+
+          <div>
+            <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-fg/64">Direct Contact</h4>
+            <ul className="space-y-3 text-sm text-fg/78">
+              <li>
+                <a href="mailto:info@graphxify.com" className="link-sweep inline-flex items-center gap-2.5 hover:text-fg">
+                  <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
+                  <span>info@graphxify.com</span>
+                </a>
+              </li>
+              <li>
+                <a href="tel:+16475700334" className="link-sweep inline-flex items-center gap-2.5 hover:text-fg">
+                  <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
+                  <span>+1 (647) 570-0334</span>
+                </a>
+              </li>
+              <li className="inline-flex items-center gap-2.5">
+                <MapPin className="h-4 w-4 text-accentA" aria-hidden="true" />
+                <span>Toronto, Canada</span>
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="space-y-3 lg:ml-12">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-fg/64">Explore</p>
-          <div className="flex flex-col gap-2">
-            {footerLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="link-sweep w-fit text-sm text-fg/78">
-                {link.label}
-              </Link>
+        <div className="flex flex-col items-center justify-between gap-5 border-t border-border/20 pt-6 md:flex-row">
+          <div className="flex items-center gap-2.5">
+            {socialLinks.map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={item.label}
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-accentA/40 bg-transparent text-fg/76 transition hover:-translate-y-0.5 hover:border-accentA/50 hover:bg-accent-gradient hover:text-ivory"
+              >
+                <item.Icon className="h-5 w-5" />
+              </a>
             ))}
           </div>
-        </div>
 
-        <div className="flex flex-col gap-3 lg:-ml-40 lg:h-full">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-fg/64">Legal</p>
-          <div className="flex flex-col gap-2">
-            <Link href="/privacy" className="link-sweep w-fit text-sm text-fg/78">
-              Privacy
-            </Link>
-            <Link href="/terms" className="link-sweep w-fit text-sm text-fg/78">
-              Terms
-            </Link>
-          </div>
-          <div className="pt-2">
-            <BackToTop />
-          </div>
-          <div className="pt-1 text-center lg:my-auto">
-            <p className="text-xs uppercase tracking-[0.18em] text-fg/64">Follow</p>
-            <div className="mt-3 flex items-center justify-center gap-2.5">
-              {socialLinks.map((item) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={item.label}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border/24 bg-card/72 text-fg/74 transition hover:-translate-y-0.5 hover:border-accentA/40 hover:bg-accent-gradient hover:text-ivory"
-                >
-                  <item.Icon className="h-6 w-6" />
-                </a>
-              ))}
-            </div>
-          </div>
+          <p className="text-center text-xs text-fg/62 md:text-right">&copy; {new Date().getFullYear()} Graphxify. All rights reserved.</p>
         </div>
+      </div>
+
+      <div className="hidden h-[8.5rem] items-end justify-center lg:flex">
+        <p
+          className="select-none text-[clamp(4.5rem,15vw,10.5rem)] font-semibold uppercase leading-none tracking-[0.04em] text-transparent [background:linear-gradient(180deg,rgba(13,13,15,0.92)_0%,rgba(13,13,15,0.76)_42%,rgba(13,13,15,0.24)_74%,rgba(13,13,15,0)_100%)] [-webkit-background-clip:text] [background-clip:text] [-webkit-text-fill-color:transparent] [mask-image:linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.84)_60%,rgba(255,255,255,0.36)_84%,rgba(255,255,255,0)_100%)] [-webkit-mask-image:linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.84)_60%,rgba(255,255,255,0.36)_84%,rgba(255,255,255,0)_100%)] [-webkit-text-stroke:1px_rgba(13,13,15,0.16)] dark:[background:linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(255,255,255,0.78)_40%,rgba(255,255,255,0.24)_72%,rgba(255,255,255,0)_100%)] dark:[-webkit-text-stroke:1px_rgba(255,255,255,0.2)]"
+          style={{
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            WebkitMaskImage: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.92) 44%, rgba(255,255,255,0.45) 66%, rgba(255,255,255,0.14) 80%, rgba(255,255,255,0) 100%)",
+            maskImage: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.92) 44%, rgba(255,255,255,0.45) 66%, rgba(255,255,255,0.14) 80%, rgba(255,255,255,0) 100%)"
+          }}
+          aria-hidden="true"
+        >
+          Graphxify
+        </p>
       </div>
     </footer>
   );

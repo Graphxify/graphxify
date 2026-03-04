@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/app/providers";
+import { MarketingFooter } from "@/components/marketing/footer";
+import { ChunkLoadRecovery } from "@/components/runtime/chunk-load-recovery";
 import { SmoothScrollDriver } from "@/components/motion/smooth-scroll-driver";
 import { buildMetadata } from "@/lib/seo";
 
@@ -24,7 +26,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${poppins.variable} light`} suppressHydrationWarning>
       <body className="app-shell min-h-screen bg-bg text-fg antialiased">
         <SmoothScrollDriver />
-        <Providers>{children}</Providers>
+        <Providers>
+          <ChunkLoadRecovery />
+          {children}
+          <MarketingFooter />
+        </Providers>
       </body>
     </html>
   );

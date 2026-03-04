@@ -14,7 +14,16 @@ export async function getPublishedWorks() {
     throw error;
   }
 
-  return data ?? [];
+  const rows = data ?? [];
+  const uniqueBySlug = new Map<string, (typeof rows)[number]>();
+
+  for (const row of rows) {
+    if (!uniqueBySlug.has(row.slug)) {
+      uniqueBySlug.set(row.slug, row);
+    }
+  }
+
+  return Array.from(uniqueBySlug.values());
 }
 
 export async function getPublishedWorkBySlug(slug: string) {

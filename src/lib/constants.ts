@@ -6,16 +6,16 @@ export const siteConfig = {
 };
 
 export const companyContact = {
-  email: "info@graphxify",
+  email: "info@graphxify.com",
   phoneDisplay: "(647)-570-0334",
   phoneHref: "+16475700334"
 } as const;
 
 export const marketingNav = [
   { href: "/", label: "Home" },
-  { href: "/works", label: "Works" },
-  { href: "/services", label: "Services" },
   { href: "/about", label: "About" },
+  { href: "/services", label: "Service" },
+  { href: "/works", label: "Work" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" }
 ];

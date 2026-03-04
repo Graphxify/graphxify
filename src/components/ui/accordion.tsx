@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const Accordion = AccordionPrimitive.Root;
@@ -17,8 +17,10 @@ AccordionItem.displayName = "AccordionItem";
 
 export const AccordionTrigger = React.forwardRef<
   React.ElementRef<typeof AccordionPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof AccordionPrimitive.Trigger> & {
+    icon?: "chevron" | "plusminus";
+  }
+>(({ className, children, icon = "chevron", ...props }, ref) => (
   <AccordionPrimitive.Header className="flex">
     <AccordionPrimitive.Trigger
       ref={ref}
@@ -29,7 +31,14 @@ export const AccordionTrigger = React.forwardRef<
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+      {icon === "plusminus" ? (
+        <span className="relative inline-flex h-4 w-4 shrink-0 items-center justify-center">
+          <Plus className="h-4 w-4 transition-all duration-200 group-data-[state=open]:scale-75 group-data-[state=open]:opacity-0" />
+          <Minus className="absolute h-4 w-4 scale-75 opacity-0 transition-all duration-200 group-data-[state=open]:scale-100 group-data-[state=open]:opacity-100" />
+        </span>
+      ) : (
+        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+      )}
     </AccordionPrimitive.Trigger>
   </AccordionPrimitive.Header>
 ));

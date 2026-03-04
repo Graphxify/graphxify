@@ -1,7 +1,7 @@
 import { logoutAction } from "@/app/login/actions";
 import { DashboardNav } from "@/app/dashboard/(components)/dashboard-nav";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type SidebarProps = {
   role: "admin" | "mod";
@@ -32,7 +32,7 @@ export function DashboardSidebar({ role }: SidebarProps): JSX.Element {
       </div>
 
       <div className="mt-4">
-        <ThemeToggle className="w-full" />
+        <ThemeToggle />
       </div>
 
       <DashboardNav items={commonLinks} />

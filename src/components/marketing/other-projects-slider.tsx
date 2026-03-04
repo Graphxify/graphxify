@@ -15,6 +15,7 @@ import {
   type WheelEvent
 } from "react";
 import { cn } from "@/lib/utils";
+import { getProjectDisplayTitle } from "@/lib/project-card-content";
 
 type SliderProject = {
   slug: string;
@@ -427,11 +428,13 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
           style={{ transform: `translate3d(${trackTranslate}px,0,0)` }}
           onTransitionEnd={onTrackTransitionEnd}
         >
-          {renderCards.map((item, index) => (
+          {renderCards.map((item, index) => {
+            const displayTitle = getProjectDisplayTitle(item.slug, item.title);
+            return (
             <Link
               key={`${item.slug}-${index}`}
               href={`/works/${item.slug}`}
-              aria-label={`Open project ${item.title}`}
+              aria-label={`Open project ${displayTitle}`}
               data-cursor-label="Open"
               className="group overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               style={{ flex: `0 0 ${cardBasis}` }}
@@ -439,7 +442,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
               <article className="relative h-[16.5rem] overflow-hidden rounded-[1.05rem] md:h-[18.5rem]">
                 <Image
                   src={item.coverImage}
-                  alt={item.title}
+                  alt={displayTitle}
                   fill
                   className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[2px] group-hover:brightness-[0.55]"
                   sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
@@ -448,18 +451,19 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
 
                 <span className="absolute inset-x-4 bottom-4 z-10 transition-all duration-300 group-hover:translate-y-2 group-hover:opacity-0">
                   <span className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
-                    {item.title}
+                    {displayTitle}
                   </span>
                 </span>
 
                 <span className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <span className="text-[1.45rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.75rem]">
-                    {item.title}
+                    {displayTitle}
                   </span>
                 </span>
               </article>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
 

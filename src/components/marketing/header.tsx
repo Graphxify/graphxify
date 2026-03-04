@@ -7,8 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Magnetic } from "@/components/motion/magnetic";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { marketingNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 

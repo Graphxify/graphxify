@@ -203,7 +203,10 @@ function SectionHeading({
 }): JSX.Element {
   return (
     <div className="mb-6">
-      <p className="text-xs uppercase tracking-[0.2em] text-fg/58">{eyebrow}</p>
+      <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-fg/58">
+        <span className="h-1.5 w-1.5 rounded-full bg-accentA" aria-hidden="true" />
+        <span>{eyebrow}</span>
+      </p>
       <h2 className="mt-1 text-2xl font-semibold md:text-3xl">{title}</h2>
     </div>
   );
@@ -224,6 +227,7 @@ export function HomeSections({
   const activeServiceData = services.find((item) => item.key === activeService) ?? services[0] ?? fallbackService;
   const faqColumns = [homeFaqs.filter((_, index) => index % 2 === 0), homeFaqs.filter((_, index) => index % 2 !== 0)];
   const projectCards = homeProjects.slice(0, 6);
+  const phoneDisplayCompact = "+1 (647) 570-0334";
 
   return (
     <div className="space-y-16 pb-16 pt-4 md:space-y-20 md:pb-20 md:pt-8 lg:space-y-24 lg:pt-10">
@@ -313,7 +317,7 @@ export function HomeSections({
       </SectionReveal>
 
       <SectionReveal className="container" effect="left">
-        <SectionHeading eyebrow="About" title="The Founder" />
+        <SectionHeading eyebrow="About" title="About Graphxify" />
         <FounderIntroSection showIntroLabel={false} />
       </SectionReveal>
 
@@ -375,15 +379,15 @@ export function HomeSections({
 
       <SectionReveal className="container" effect="zoom">
         <SectionHeading eyebrow="Projects" title="Selected Work" />
-        <div className="section-shell relative overflow-hidden border-border/18 bg-card/74 p-4 md:p-6">
+        <div className="section-shell relative overflow-hidden border-white/14 bg-[#0d0d0f]/94 p-4 md:p-6">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/35 to-transparent" />
           <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-accentA/12 blur-3xl" />
 
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-border/14 pb-4">
-            <p className="max-w-xl text-sm text-fg/66 md:text-base">
-              A curated six-project carousel with controlled motion and clean transitions.
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-white/12 pb-4">
+            <p className="max-w-xl text-sm text-ivory/66 md:text-base">
+              A selection of brands and websites we&apos;ve designed and built with a focus on clarity, structure, and performance.
             </p>
-            <Link href="/works" className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-fg/74 transition-colors duration-300 hover:text-fg">
+            <Link href="/works" className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-ivory/74 transition-colors duration-300 hover:text-ivory">
               View all projects
               <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
@@ -431,11 +435,17 @@ export function HomeSections({
               {column.map((item) => {
                 const open = openFaqId === item.id;
                 return (
-                  <article key={item.id} className="rounded-[1.9rem] border border-border/16 bg-card/78 px-4 py-4 sm:px-6 sm:py-5 md:px-7">
+                  <article
+                    key={item.id}
+                    className={cn(
+                      "rounded-[1.9rem] border bg-card/78 px-4 py-4 transition-colors duration-300 sm:px-6 sm:py-5 md:px-7",
+                      open ? "border-accentA/70 shadow-[0_0_0_1px_rgba(0,163,255,0.2)]" : "border-border/16"
+                    )}
+                  >
                     <button
                       type="button"
                       onClick={() => setOpenFaqId((prev) => (prev === item.id ? "" : item.id))}
-                      className="group flex w-full items-center justify-between gap-4 text-left"
+                      className="group flex w-full items-center justify-between gap-4 text-left focus-visible:outline-none"
                       aria-expanded={open}
                       aria-controls={`${item.id}-content`}
                     >
@@ -481,28 +491,33 @@ export function HomeSections({
       </SectionReveal>
 
       <SectionReveal className="container" effect="zoom">
-        <SectionHeading eyebrow="Contact" title="Start a Project Inquiry" />
-        <div className="relative overflow-hidden rounded-[1.6rem] border border-border/18 bg-card/78 p-5 md:p-8 lg:p-10">
-          <div className="pointer-events-none absolute -bottom-10 right-8 h-44 w-44 rounded-full bg-accentB/20 blur-3xl" />
-          <div className="relative z-10 grid gap-8 lg:grid-cols-[1fr_0.9fr]">
-            <div className="flex h-full flex-col">
-              <h3 className="max-w-xl text-xl font-semibold leading-tight md:text-3xl">Let’s build a cleaner, sharper, more memorable digital experience.</h3>
-              <p className="mt-4 max-w-lg text-fg/68">
-                Share the scope and timeline. We’ll respond with a delivery roadmap tailored to your team and brand.
-              </p>
-              <div className="mt-8 flex flex-col gap-4 border-t border-border/16 pt-4 text-sm text-fg/74 lg:mt-auto lg:pt-5">
-                <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex w-fit items-center gap-2.5">
+        <SectionHeading eyebrow="Contact" title="Start Your Project" />
+        <div className="section-shell relative overflow-hidden border-border/14 bg-bg/62 p-4 md:p-5">
+          <div className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-accentA/12 blur-3xl" />
+          <div className="relative z-10 space-y-3">
+            <h3 className="text-lg font-semibold md:text-xl">Tell us what you&apos;re building.</h3>
+            <p className="max-w-[46rem] text-sm leading-relaxed text-fg/64">
+              Share a few details about your brand, website, or CMS needs.
+              <br />
+              We&apos;ll review your inquiry and respond with clear next steps.
+            </p>
+
+            <LeadForm />
+
+            <div className="border-t border-border/14 pt-3">
+              <div className="flex flex-col gap-2.5 md:flex-row md:items-end md:justify-between">
+                <p className="text-[0.72rem] text-fg/56">Response time: 24-48 hours</p>
+                <div className="flex flex-wrap items-center gap-4 text-sm md:justify-end">
+                <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex w-fit items-center gap-2 text-fg/74">
                   <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
                   <span>{companyContact.email}</span>
                 </a>
-                <a href={`tel:${companyContact.phoneHref}`} className="link-sweep inline-flex w-fit items-center gap-2.5">
+                <a href={`tel:${companyContact.phoneHref}`} className="link-sweep inline-flex w-fit items-center gap-2 text-fg/74">
                   <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
-                  <span>{companyContact.phoneDisplay}</span>
+                  <span>{phoneDisplayCompact}</span>
                 </a>
+                </div>
               </div>
-            </div>
-            <div className="section-shell border-border/18 bg-bg/58 p-4 md:p-6">
-              <LeadForm />
             </div>
           </div>
         </div>

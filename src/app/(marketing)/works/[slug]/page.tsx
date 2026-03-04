@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ProjectLightboxImage } from "@/components/marketing/project-details-interactive";
 import { OtherProjectsSlider } from "@/components/marketing/other-projects-slider";
 import { getPublishedWorks } from "@/db/queries/works";
+import { getProjectDisplayTitle, projectCardSlugs, withProjectCardContent } from "@/lib/project-card-content";
 import {
   getProjectBySlug,
   graphxifyProjects,
@@ -235,6 +236,7 @@ function mapCmsWorkToProject(
   index = 0,
   forcedLayoutVariant?: LayoutVariant
 ): ProjectDetail {
+  const displayTitle = getProjectDisplayTitle(work.slug, work.title);
   const coverImage = normalizeImageSrc(work.cover_image_url) ?? fallbackProject?.coverImage ?? "/assets/work-1.svg";
   const cmsGallerySources = uniqueStrings(Array.isArray(work.gallery_images) ? work.gallery_images : []).filter(
     (src) => src !== coverImage
@@ -246,12 +248,12 @@ function mapCmsWorkToProject(
     gallerySources.length > 0
       ? gallerySources.map((src, imageIndex) => ({
           src,
-          alt: `${work.title} visual ${imageIndex + 1}`,
+          alt: `${displayTitle} visual ${imageIndex + 1}`,
           caption: work.excerpt
         }))
       : [];
 
-  const excerpt = work.excerpt?.trim() || fallbackProject?.excerpt || work.title;
+  const excerpt = work.excerpt?.trim() || fallbackProject?.excerpt || displayTitle;
   const content = work.content?.trim() || fallbackProject?.content || excerpt;
   const role = work.role?.trim();
   const services = Array.isArray(work.services) && work.services.length > 0 ? work.services : fallbackProject?.services ?? [];
@@ -266,7 +268,7 @@ function mapCmsWorkToProject(
     id: work.id,
     slug: work.slug,
     layoutVariant,
-    title: work.title,
+    title: displayTitle,
     subtitle,
     year: Number.isFinite(work.year) ? work.year : fallbackProject?.year ?? new Date().getFullYear(),
     industry: fallbackProject?.industry ?? "Digital Product",
@@ -329,22 +331,23 @@ async function getResolvedProjectBySlug(slug: string): Promise<ProjectDetail | n
     const cmsWorks = await getPublishedWorks();
     const cmsWork = cmsWorks.find((work) => work.slug === slug);
     if (!cmsWork) {
-      return fallbackProject ? withLayoutVariant(fallbackProject, forcedLayoutVariant) : null;
+      return fallbackProject ? withProjectCardContent(withLayoutVariant(fallbackProject, forcedLayoutVariant)) : null;
     }
-    return mapCmsWorkToProject(cmsWork as CmsWorkLike, fallbackProject, 0, forcedLayoutVariant);
+    return withProjectCardContent(mapCmsWorkToProject(cmsWork as CmsWorkLike, fallbackProject, 0, forcedLayoutVariant));
   } catch {
-    return fallbackProject ? withLayoutVariant(fallbackProject, forcedLayoutVariant) : null;
+    return fallbackProject ? withProjectCardContent(withLayoutVariant(fallbackProject, forcedLayoutVariant)) : null;
   }
 }
 
 async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectDetail[]> {
   const layoutVariantMap = await getResolvedLayoutVariantMap();
+  const allowedSlugs = new Set<string>(projectCardSlugs);
 
   try {
     const cmsWorks = await getPublishedWorks();
     if (cmsWorks.length > 0) {
       const related = cmsWorks
-        .filter((work) => work.slug !== currentSlug)
+        .filter((work) => work.slug !== currentSlug && allowedSlugs.has(work.slug))
         .map((work, index) =>
           mapCmsWorkToProject(
             work as CmsWorkLike,
@@ -353,6 +356,7 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
             layoutVariantMap.get(work.slug)
           )
         )
+        .map((project) => withProjectCardContent(project))
         .slice(0, 5);
 
       if (related.length > 0) {
@@ -364,9 +368,9 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
   }
 
   return graphxifyProjects
-    .filter((project) => project.slug !== currentSlug)
+    .filter((project) => project.slug !== currentSlug && allowedSlugs.has(project.slug))
     .slice(0, 5)
-    .map((project) => withLayoutVariant(project, layoutVariantMap.get(project.slug)));
+    .map((project) => withProjectCardContent(withLayoutVariant(project, layoutVariantMap.get(project.slug))));
 }
 
 export async function generateStaticParams(): Promise<Params[]> {

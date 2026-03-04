@@ -1,4 +1,3 @@
-import { MarketingFooter } from "@/components/marketing/footer";
 import { MarketingHeader } from "@/components/marketing/header";
 import { CursorGlow } from "@/components/motion/cursor-glow";
 import { ParallaxGrid } from "@/components/motion/parallax-grid";
@@ -27,7 +26,6 @@ export default async function MarketingLayout({ children }: { children: React.Re
       <PageTransition>
         <main className="relative z-10">{children}</main>
       </PageTransition>
-      <MarketingFooter />
     </div>
   );
 }

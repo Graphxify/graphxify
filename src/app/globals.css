@@ -82,8 +82,49 @@ select:focus-visible {
 
 .dark input::placeholder,
 .dark textarea::placeholder {
-  color: rgb(13 13 15 / 0.62) !important;
+  color: rgb(13 13 15) !important;
   opacity: 1;
+}
+
+.lead-form-premium input,
+.lead-form-premium textarea,
+.lead-form-premium select {
+  border-color: rgb(var(--accent-a) / 0.38) !important;
+}
+
+.dark .lead-form-premium input,
+.dark .lead-form-premium textarea,
+.dark .lead-form-premium select {
+  background-color: rgb(18 18 22) !important;
+  color: rgb(242 240 235) !important;
+  border-color: rgb(var(--accent-a) / 0.5) !important;
+}
+
+.dark .lead-form-premium input::placeholder,
+.dark .lead-form-premium textarea::placeholder {
+  color: rgb(242 240 235 / 0.72) !important;
+  opacity: 1;
+}
+
+.dark .lead-form-premium select option {
+  background-color: rgb(18 18 22);
+  color: rgb(242 240 235);
+}
+
+.lead-form-premium select.quick-service-select[data-empty="true"] {
+  color: rgb(var(--fg) / 0.45) !important;
+}
+
+.lead-form-premium select.quick-service-select[data-empty="false"] {
+  color: rgb(var(--fg) / 0.88) !important;
+}
+
+.dark .lead-form-premium select.quick-service-select[data-empty="true"] {
+  color: rgb(242 240 235 / 0.72) !important;
+}
+
+.dark .lead-form-premium select.quick-service-select[data-empty="false"] {
+  color: rgb(242 240 235) !important;
 }
 
 .app-shell {
