@@ -57,6 +57,7 @@ export type ProjectDetail = {
   id: string;
   slug: string;
   layoutVariant: LayoutVariant;
+  layoutSectionTitle?: string;
   title: string;
   subtitle: string;
   year: number;

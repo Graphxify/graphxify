@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
+import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { CopyLinkButton } from "@/components/marketing/copy-link-button";
 import { Button } from "@/components/ui/button";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -598,14 +599,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
       </SectionReveal>
 
       <SectionReveal className="container mt-10 md:mt-12" effect="zoom">
-        <div className="section-shell border-border/18 bg-card/76 p-6 text-center md:p-8">
-          <h2 className="text-2xl font-semibold md:text-3xl">Want help building something like this?</h2>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/contact">Start a Project</Link>
-            </Button>
-          </div>
-        </div>
+        <SiteCtaSection />
       </SectionReveal>
     </article>
   );

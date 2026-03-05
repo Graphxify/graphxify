@@ -43,7 +43,7 @@ export function SmoothScrollDriver(): null {
       stopAnimation();
       const startY = window.scrollY;
       const distance = target - startY;
-      const duration = 780;
+      const duration = 460;
       const startTime = performance.now();
 
       const step = (now: number) => {

@@ -9,14 +9,17 @@ import {
   Code2,
   Compass,
   Database,
+  LayoutTemplate,
   Palette,
+  Rocket,
   X,
   type LucideIcon
 } from "lucide-react";
 import { useMemo } from "react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
+import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { Button } from "@/components/ui/button";
-import { getProjectDisplayTitle } from "@/lib/project-card-content";
+import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
 type ServiceWorkPreview = {
   id: string;
@@ -75,10 +78,30 @@ const servicesData: ServicePillar[] = [
 ];
 
 const processSteps = [
-  { id: "01", title: "Discover", body: "align goals + scope" },
-  { id: "02", title: "Define", body: "structure the system" },
-  { id: "03", title: "Design", body: "craft the interface" },
-  { id: "04", title: "Develop", body: "build and ship" }
+  {
+    phase: "Goal Mapping",
+    title: "Discover",
+    body: "align goals + scope",
+    icon: Compass
+  },
+  {
+    phase: "System Blueprint",
+    title: "Define",
+    body: "structure the system",
+    icon: LayoutTemplate
+  },
+  {
+    phase: "Interface Craft",
+    title: "Design",
+    body: "craft the interface",
+    icon: Palette
+  },
+  {
+    phase: "Launch Engineering",
+    title: "Develop",
+    body: "build and ship",
+    icon: Rocket
+  }
 ] as const;
 
 const graphxifyComparisonItems = [
@@ -628,7 +651,10 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
             <span className="h-1.5 w-1.5 rounded-full bg-accentA" />
             Services
           </p>
-          <h1 className="mt-3 text-[clamp(2rem,5vw,4.5rem)] font-semibold leading-[0.96] tracking-tight">Brand Systems. Websites. Built to Scale.</h1>
+          <h1 className="mt-3 text-[clamp(2rem,5vw,4.5rem)] font-semibold leading-[0.96] tracking-tight">
+            <span className="block">Brand Systems. Websites.</span>
+            <span className="mt-3 block md:mt-4">Built to Scale.</span>
+          </h1>
           <span className="mt-4 block h-px w-24 bg-accent-gradient" />
           <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.08rem]">
             Graphxify builds structured brand identity and modern websites - designed and developed as one cohesive system.
@@ -710,15 +736,21 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {processSteps.map((step, index) => (
               <motion.article
-                key={`services-process-${step.id}`}
+                key={`services-process-${step.title}`}
                 initial={reducedMotion ? false : { opacity: 0, y: 10 }}
                 whileInView={reducedMotion ? {} : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-80px" }}
                 transition={{ duration: 0.45, delay: 0.04 * index, ease: [0.16, 1, 0.3, 1] }}
-                className="rounded-xl border border-border/16 bg-bg/44 px-4 py-4"
+                className="group rounded-xl border border-border/16 bg-bg/44 px-4 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-border/28"
               >
-                <p className="text-[0.64rem] uppercase tracking-[0.16em] text-accentA">{step.id}</p>
-                <p className="mt-2 text-lg font-medium">{step.title}</p>
+                <div className="flex items-center justify-between">
+                  <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-accentA/34 bg-accentA/10 text-accentA">
+                    <span aria-hidden className="pointer-events-none absolute -inset-1 -z-10 rounded-lg bg-accentA/18 opacity-0 blur-md transition-opacity duration-300 group-hover:opacity-100" />
+                    <step.icon className="h-4 w-4" aria-hidden="true" />
+                  </span>
+                  <p className="text-[0.62rem] uppercase tracking-[0.16em] text-fg/56">{step.phase}</p>
+                </div>
+                <p className="mt-3 text-lg font-medium">{step.title}</p>
                 <p className="mt-1 text-sm text-fg/62">{step.body}</p>
               </motion.article>
             ))}
@@ -783,7 +815,7 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
             return (
               <div key={work.id}>
                 <Link
-                  href={`/works/${work.slug}`}
+                  href={`/works/${getProjectPathSlug(work.slug)}`}
                   className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                   data-cursor-label="Open"
                   aria-label={`Open project ${displayTitle}`}
@@ -819,15 +851,7 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
       </SectionReveal>
 
       <SectionReveal className="container mt-10 md:mt-14" effect="zoom">
-        <div className="section-shell border-border/18 bg-card/76 p-6 text-center md:p-9">
-          <h2 className="text-2xl font-semibold md:text-3xl">Let&apos;s Build Something Structured.</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-fg/66">Clarity first. Scalable systems next. A launch-ready foundation from day one.</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg">
-              <Link href="/contact">Start a Project</Link>
-            </Button>
-          </div>
-        </div>
+        <SiteCtaSection />
       </SectionReveal>
     </div>
   );

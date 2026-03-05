@@ -72,9 +72,9 @@ export function RevealStagger({
     <motion.div
       className={className}
       variants={createContainerVariants(effect)}
-      initial="hidden"
+      initial={false}
       whileInView="visible"
-      viewport={{ once, margin: "-80px" }}
+      viewport={{ once, margin: "0px 0px -10% 0px" }}
     >
       {children}
     </motion.div>

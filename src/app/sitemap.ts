@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getPublishedPosts } from "@/db/queries/posts";
 import { siteConfig } from "@/lib/constants";
+import { getProjectPathSlug } from "@/lib/project-card-content";
 import { graphxifyProjects } from "@/lib/project-details";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -32,7 +33,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8
     })),
     ...works.map((work) => ({
-      url: `${siteConfig.url}/works/${work.slug}`,
+      url: `${siteConfig.url}/works/${getProjectPathSlug(work.slug)}`,
       lastModified: work.updated_at ? new Date(work.updated_at) : new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8

@@ -15,7 +15,7 @@ import {
   type WheelEvent
 } from "react";
 import { cn } from "@/lib/utils";
-import { getProjectDisplayTitle } from "@/lib/project-card-content";
+import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
 type HomeSliderProject = {
   id: string;
@@ -370,7 +370,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
             return (
               <Link
                 key={`${project.slug}-${index}`}
-                href={`/works/${project.slug}`}
+                href={`/works/${getProjectPathSlug(project.slug)}`}
                 aria-label={`Open project ${displayTitle}`}
                 data-cursor-label="Open"
                 className="group overflow-hidden rounded-[1.15rem] border border-border/18 shadow-[0_18px_36px_rgba(13,13,15,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"

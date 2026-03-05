@@ -2,13 +2,20 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { getPublishedWorks } from "@/db/queries/works";
-import { getProjectDisplayTitle, projectCardContent, withProjectCardContent } from "@/lib/project-card-content";
+import {
+  getProjectDisplayTitle,
+  getProjectPathSlug,
+  projectCardContent,
+  resolveProjectSlugFromPathSlug,
+  withProjectCardContent
+} from "@/lib/project-card-content";
 import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Selected Works",
-  description: "Six premium Graphxify project stories, each presented with a distinct layout system.",
+  title: "Featured Projects",
+  description:
+    "A curated collection of brand and web projects designed to combine strong identity, clear structure, and scalable digital experiences.",
   path: "/works"
 });
 
@@ -27,6 +34,32 @@ function normalizeImage(value: string | null | undefined): string | null {
   return normalized.length > 0 ? normalized : null;
 }
 
+function firstGalleryImage(value: string[] | null | undefined): string | null {
+  if (!Array.isArray(value)) {
+    return null;
+  }
+  for (const item of value) {
+    const normalized = normalizeImage(item);
+    if (normalized) {
+      return normalized;
+    }
+  }
+  return null;
+}
+
+function withImageVersion(src: string, version: string | null | undefined): string {
+  if (!version) {
+    return src;
+  }
+
+  const [path, rawQuery = ""] = src.split("?");
+  const params = new URLSearchParams(rawQuery);
+  params.set("v", version);
+  const nextQuery = params.toString();
+
+  return nextQuery.length > 0 ? `${path}?${nextQuery}` : path;
+}
+
 async function getWorkCards(): Promise<WorkCard[]> {
   const fallbackBySlug = new Map(graphxifyProjects.map((project) => [project.slug, project]));
 
@@ -38,6 +71,8 @@ async function getWorkCards(): Promise<WorkCard[]> {
         title: string;
         slug: string;
         cover_image_url: string | null;
+        gallery_images?: string[] | null;
+        updated_at?: string | null;
       }
     > = new Map()
   ): WorkCard[] =>
@@ -45,18 +80,33 @@ async function getWorkCards(): Promise<WorkCard[]> {
       const fallback = getProjectBySlug(card.slug) ?? fallbackBySlug.get(card.slug);
       const cms = cmsBySlug.get(card.slug);
 
+      const coverImageBase =
+        normalizeImage(cms?.cover_image_url) ??
+        firstGalleryImage(cms?.gallery_images) ??
+        fallback?.coverImage ??
+        `/assets/work-${(index % 3) + 1}.svg`;
+
       return withProjectCardContent({
         id: cms?.id ?? fallback?.id ?? `work-card-${index + 1}`,
         slug: card.slug,
         title: cms?.title ?? fallback?.title ?? card.title,
-        coverImage: normalizeImage(cms?.cover_image_url) ?? fallback?.coverImage ?? `/assets/work-${(index % 3) + 1}.svg`
+        coverImage: cms ? withImageVersion(coverImageBase, cms.updated_at ?? null) : coverImageBase
       });
     });
 
   try {
     const cmsWorks = await getPublishedWorks();
     if (cmsWorks.length > 0) {
-      const cmsBySlug = new Map(cmsWorks.map((work) => [work.slug, work]));
+      const cmsBySlug = new Map<string, (typeof cmsWorks)[number]>();
+      for (const work of cmsWorks) {
+        const canonicalSlug = resolveProjectSlugFromPathSlug(work.slug);
+        const existing = cmsBySlug.get(canonicalSlug);
+        const existingUpdated = Number.isFinite(Date.parse(existing?.updated_at ?? "")) ? Date.parse(existing?.updated_at ?? "") : 0;
+        const candidateUpdated = Number.isFinite(Date.parse(work.updated_at ?? "")) ? Date.parse(work.updated_at ?? "") : 0;
+        if (!existing || candidateUpdated >= existingUpdated) {
+          cmsBySlug.set(canonicalSlug, work);
+        }
+      }
       return buildCanonicalCards(cmsBySlug);
     }
   } catch {
@@ -77,9 +127,10 @@ export default async function WorksPage() {
             <span className="h-1.5 w-1.5 rounded-full bg-accentA" />
             Portfolio
           </p>
-          <h1 className="text-3xl font-semibold md:text-4xl">Selected Works</h1>
+          <h1 className="text-3xl font-semibold md:text-4xl">Featured Projects</h1>
           <p className="max-w-2xl text-fg/68">
-            Six signature projects. Six intentionally different detail experiences. One unified Graphxify brand system.
+            A curated collection of brand and web projects designed to combine strong identity, clear structure, and scalable digital
+            experiences.
           </p>
         </div>
 
@@ -89,7 +140,7 @@ export default async function WorksPage() {
             return (
             <div key={work.id}>
               <Link
-                href={`/works/${work.slug}`}
+                href={`/works/${getProjectPathSlug(work.slug)}`}
                 className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                 aria-label={`Open project ${displayTitle}`}
                 data-cursor-label="Open"

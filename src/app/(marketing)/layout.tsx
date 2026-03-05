@@ -6,14 +6,8 @@ import { ContentRefreshListener } from "@/components/realtime/content-refresh-li
 import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { JsonLd } from "@/components/seo/json-ld";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
-import { createClient } from "@/lib/supabase/server";
 
-export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient();
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
-
+export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen noise-overlay">
       <JsonLd data={organizationJsonLd()} />
@@ -22,7 +16,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
       <ParallaxGrid />
       <CursorGlow />
       <ContentRefreshListener pathPrefixes={["/works", "/blog"]} />
-      <MarketingHeader showCms={Boolean(user)} />
+      <MarketingHeader />
       <PageTransition>
         <main className="relative z-10">{children}</main>
       </PageTransition>

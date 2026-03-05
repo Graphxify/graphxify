@@ -1,12 +1,22 @@
 import "server-only";
 
+import { unstable_noStore as noStore } from "next/cache";
+import { getProjectDisplayTitle } from "@/lib/project-card-content";
 import { createClient } from "@/lib/supabase/server";
 
+function withCanonicalWorkTitle<T extends { slug: string; title: string }>(item: T): T {
+  return {
+    ...item,
+    title: getProjectDisplayTitle(item.slug, item.title)
+  };
+}
+
 export async function getPublishedWorks() {
+  noStore();
   const supabase = createClient();
   const { data, error } = await supabase
     .from("works")
-    .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,content,cover_image_url,gallery_images,created_at")
+    .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,content,cover_image_url,gallery_images,created_at,updated_at")
     .eq("status", "published")
     .order("year", { ascending: false });
 
@@ -27,6 +37,7 @@ export async function getPublishedWorks() {
 }
 
 export async function getPublishedWorkBySlug(slug: string) {
+  noStore();
   const supabase = createClient();
   const { data, error } = await supabase
     .from("works")
@@ -58,7 +69,7 @@ export async function getDashboardWorks(page = 1, pageSize = 10) {
   }
 
   return {
-    rows: data ?? [],
+    rows: (data ?? []).map((row) => withCanonicalWorkTitle(row)),
     total: count ?? 0,
     page,
     pageSize
@@ -71,7 +82,7 @@ export async function getWorkById(id: string) {
   if (error) {
     throw error;
   }
-  return data;
+  return data ? withCanonicalWorkTitle(data) : data;
 }
 
 export async function getWorkVersions(workId: string) {
@@ -86,5 +97,5 @@ export async function getWorkVersions(workId: string) {
     throw error;
   }
 
-  return data ?? [];
+  return (data ?? []).map((row) => withCanonicalWorkTitle(row));
 }

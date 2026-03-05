@@ -1,11 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ProjectLightboxImage } from "@/components/marketing/project-details-interactive";
 import { OtherProjectsSlider } from "@/components/marketing/other-projects-slider";
+import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { getPublishedWorks } from "@/db/queries/works";
-import { getProjectDisplayTitle, projectCardSlugs, withProjectCardContent } from "@/lib/project-card-content";
+import {
+  getProjectDisplayTitle,
+  getProjectPathSlug,
+  projectCardSlugs,
+  resolveProjectSlugFromPathSlug,
+  withProjectCardContent
+} from "@/lib/project-card-content";
 import {
   getProjectBySlug,
   graphxifyProjects,
@@ -23,7 +30,7 @@ type CmsWorkLike = {
   title: string;
   slug: string;
   year: number;
-  role: string;
+  role?: string | null;
   services: string[] | null;
   subtitle?: string | null;
   layout_variant?: string | null;
@@ -31,6 +38,7 @@ type CmsWorkLike = {
   content?: string | null;
   cover_image_url: string | null;
   gallery_images?: string[] | null;
+  updated_at?: string | null;
 };
 
 const galleryNotes: Record<LayoutVariant, string> = {
@@ -52,6 +60,19 @@ function normalizeImageSrc(value: string | null | undefined): string | null {
   }
   const normalized = value.trim();
   return normalized.length > 0 ? normalized : null;
+}
+
+function withImageVersion(src: string, version: string | null | undefined): string {
+  if (!version) {
+    return src;
+  }
+
+  const [path, rawQuery = ""] = src.split("?");
+  const params = new URLSearchParams(rawQuery);
+  params.set("v", version);
+  const nextQuery = params.toString();
+
+  return nextQuery.length > 0 ? `${path}?${nextQuery}` : path;
 }
 
 function uniqueStrings(values: Array<string | null | undefined>): string[] {
@@ -111,6 +132,29 @@ function variantForSlug(slug: string, index = 0): LayoutVariant {
     hash = (hash * 31 + slug.charCodeAt(charIndex)) >>> 0;
   }
   return layoutCycle[hash % layoutCycle.length];
+}
+
+function toUnixMs(value: string | null | undefined): number {
+  if (!value) {
+    return 0;
+  }
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function buildLatestCmsWorkByCanonicalSlug(cmsWorks: CmsWorkLike[]): Map<string, CmsWorkLike> {
+  const byCanonicalSlug = new Map<string, CmsWorkLike>();
+
+  for (const work of cmsWorks) {
+    const canonicalSlug = resolveProjectSlugFromPathSlug(work.slug);
+    const candidate: CmsWorkLike = { ...work, slug: canonicalSlug };
+    const existing = byCanonicalSlug.get(canonicalSlug);
+    if (!existing || toUnixMs(candidate.updated_at) >= toUnixMs(existing.updated_at)) {
+      byCanonicalSlug.set(canonicalSlug, candidate);
+    }
+  }
+
+  return byCanonicalSlug;
 }
 
 function seedFromSlug(slug: string): number {
@@ -197,14 +241,17 @@ async function getResolvedLayoutVariantMap(): Promise<Map<string, LayoutVariant>
   try {
     const cmsWorks = await getPublishedWorks();
     if (cmsWorks.length > 0) {
+      const latestByCanonicalSlug = buildLatestCmsWorkByCanonicalSlug(cmsWorks as CmsWorkLike[]);
       return buildUniqueLayoutVariantMap(
-        cmsWorks.map((work) => ({
-          slug: work.slug,
-          preferred:
-            normalizeLayoutVariant((work as CmsWorkLike).layout_variant) ??
-            fallbackBySlug.get(work.slug)?.layoutVariant ??
-            null
-        }))
+        Array.from(latestByCanonicalSlug.values()).map((work) => {
+          return {
+            slug: work.slug,
+            preferred:
+              normalizeLayoutVariant((work as CmsWorkLike).layout_variant) ??
+              fallbackBySlug.get(work.slug)?.layoutVariant ??
+              null
+          };
+        })
       );
     }
   } catch {
@@ -237,25 +284,28 @@ function mapCmsWorkToProject(
   forcedLayoutVariant?: LayoutVariant
 ): ProjectDetail {
   const displayTitle = getProjectDisplayTitle(work.slug, work.title);
-  const coverImage = normalizeImageSrc(work.cover_image_url) ?? fallbackProject?.coverImage ?? "/assets/work-1.svg";
-  const cmsGallerySources = uniqueStrings(Array.isArray(work.gallery_images) ? work.gallery_images : []).filter(
-    (src) => src !== coverImage
-  );
-  const fallbackSources = uniqueStrings((fallbackProject?.images ?? []).map((image) => image.src)).filter((src) => src !== coverImage);
-  const gallerySources = ensureExactGallerySources(cmsGallerySources, fallbackSources, coverImage);
+  const imageVersion = work.updated_at ?? null;
+  const layoutSectionTitle = work.role?.trim() || fallbackProject?.layoutSectionTitle || "Visual Layout";
+  const normalizedCmsGallerySources = uniqueStrings(Array.isArray(work.gallery_images) ? work.gallery_images : []);
+  const coverImageBase =
+    normalizeImageSrc(work.cover_image_url) ?? normalizedCmsGallerySources[0] ?? fallbackProject?.coverImage ?? "/assets/work-1.svg";
+  const cmsGallerySources = normalizedCmsGallerySources.filter((src) => src !== coverImageBase);
+  const fallbackSources = uniqueStrings((fallbackProject?.images ?? []).map((image) => image.src)).filter((src) => src !== coverImageBase);
+  const gallerySources = ensureExactGallerySources(cmsGallerySources, fallbackSources, coverImageBase);
 
   const images: ProjectImage[] =
     gallerySources.length > 0
       ? gallerySources.map((src, imageIndex) => ({
-          src,
+          src: withImageVersion(src, imageVersion),
           alt: `${displayTitle} visual ${imageIndex + 1}`,
           caption: work.excerpt
         }))
       : [];
 
+  const coverImage = withImageVersion(coverImageBase, imageVersion);
+
   const excerpt = work.excerpt?.trim() || fallbackProject?.excerpt || displayTitle;
   const content = work.content?.trim() || fallbackProject?.content || excerpt;
-  const role = work.role?.trim();
   const services = Array.isArray(work.services) && work.services.length > 0 ? work.services : fallbackProject?.services ?? [];
   const subtitle = work.subtitle?.trim() || fallbackProject?.subtitle || excerpt;
   const layoutVariant =
@@ -268,13 +318,14 @@ function mapCmsWorkToProject(
     id: work.id,
     slug: work.slug,
     layoutVariant,
+    layoutSectionTitle,
     title: displayTitle,
     subtitle,
     year: Number.isFinite(work.year) ? work.year : fallbackProject?.year ?? new Date().getFullYear(),
     industry: fallbackProject?.industry ?? "Digital Product",
     services,
     tools: fallbackProject?.tools ?? [],
-    roles: role ? [role] : fallbackProject?.roles ?? ["Delivery Partner"],
+    roles: fallbackProject?.roles ?? ["Delivery Partner"],
     overview: fallbackProject?.overview ?? content,
     excerpt,
     content,
@@ -323,17 +374,19 @@ function mapCmsWorkToProject(
 }
 
 async function getResolvedProjectBySlug(slug: string): Promise<ProjectDetail | null> {
-  const fallbackProject = getProjectBySlug(slug);
+  const resolvedSlug = resolveProjectSlugFromPathSlug(slug);
+  const fallbackProject = getProjectBySlug(resolvedSlug);
   const layoutVariantMap = await getResolvedLayoutVariantMap();
-  const forcedLayoutVariant = layoutVariantMap.get(slug);
+  const forcedLayoutVariant = layoutVariantMap.get(resolvedSlug);
 
   try {
     const cmsWorks = await getPublishedWorks();
-    const cmsWork = cmsWorks.find((work) => work.slug === slug);
+    const cmsByCanonicalSlug = buildLatestCmsWorkByCanonicalSlug(cmsWorks as CmsWorkLike[]);
+    const cmsWork = cmsByCanonicalSlug.get(resolvedSlug);
     if (!cmsWork) {
       return fallbackProject ? withProjectCardContent(withLayoutVariant(fallbackProject, forcedLayoutVariant)) : null;
     }
-    return withProjectCardContent(mapCmsWorkToProject(cmsWork as CmsWorkLike, fallbackProject, 0, forcedLayoutVariant));
+    return withProjectCardContent(mapCmsWorkToProject(cmsWork, fallbackProject, 0, forcedLayoutVariant));
   } catch {
     return fallbackProject ? withProjectCardContent(withLayoutVariant(fallbackProject, forcedLayoutVariant)) : null;
   }
@@ -342,24 +395,41 @@ async function getResolvedProjectBySlug(slug: string): Promise<ProjectDetail | n
 async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectDetail[]> {
   const layoutVariantMap = await getResolvedLayoutVariantMap();
   const allowedSlugs = new Set<string>(projectCardSlugs);
-  const uniqueBySlug = (items: ProjectDetail[]) => Array.from(new Map(items.map((item) => [item.slug, item] as const)).values());
+  const uniqueBySlug = (items: ProjectDetail[]) => {
+    const bySlug = new Map<string, ProjectDetail>();
+    for (const item of items) {
+      if (!bySlug.has(item.slug)) {
+        bySlug.set(item.slug, item);
+      }
+    }
+    return Array.from(bySlug.values());
+  };
+  const fallbackRelated = () =>
+    uniqueBySlug(
+      graphxifyProjects
+      .filter((project) => project.slug !== currentSlug && allowedSlugs.has(project.slug))
+      .map((project) => withProjectCardContent(withLayoutVariant(project, layoutVariantMap.get(project.slug))))
+    );
 
   try {
     const cmsWorks = await getPublishedWorks();
     if (cmsWorks.length > 0) {
-      const related = uniqueBySlug(
-        cmsWorks
+      const cmsByCanonicalSlug = buildLatestCmsWorkByCanonicalSlug(cmsWorks as CmsWorkLike[]);
+      const cmsRelated = uniqueBySlug(
+        Array.from(cmsByCanonicalSlug.values())
         .filter((work) => work.slug !== currentSlug && allowedSlugs.has(work.slug))
-        .map((work, index) =>
-          mapCmsWorkToProject(
-            work as CmsWorkLike,
+        .map((work, index) => {
+          return mapCmsWorkToProject(
+            work,
             getProjectBySlug(work.slug),
             index,
             layoutVariantMap.get(work.slug)
-          )
-        )
+          );
+        })
         .map((project) => withProjectCardContent(project))
-      ).slice(0, 5);
+      );
+
+      const related = uniqueBySlug([...cmsRelated, ...fallbackRelated()]).slice(0, 5);
 
       if (related.length > 0) {
         return related;
@@ -369,22 +439,25 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
     // Local fallback below.
   }
 
-  return uniqueBySlug(
-    graphxifyProjects
-    .filter((project) => project.slug !== currentSlug && allowedSlugs.has(project.slug))
-    .map((project) => withProjectCardContent(withLayoutVariant(project, layoutVariantMap.get(project.slug))))
-  ).slice(0, 5);
+  return fallbackRelated().slice(0, 5);
 }
 
 export async function generateStaticParams(): Promise<Params[]> {
   const fallbackSlugs = graphxifyProjects.map((project) => project.slug);
+  const fallbackPathSlugs = fallbackSlugs.map((slug) => getProjectPathSlug(slug));
 
   try {
     const cmsWorks = await getPublishedWorks();
-    const slugs = new Set([...fallbackSlugs, ...cmsWorks.map((work) => work.slug)]);
+    const slugs = new Set<string>([...fallbackSlugs, ...fallbackPathSlugs]);
+    cmsWorks.forEach((work) => {
+      const canonicalSlug = resolveProjectSlugFromPathSlug(work.slug);
+      slugs.add(work.slug);
+      slugs.add(canonicalSlug);
+      slugs.add(getProjectPathSlug(canonicalSlug));
+    });
     return Array.from(slugs).map((slug) => ({ slug }));
   } catch {
-    return fallbackSlugs.map((slug) => ({ slug }));
+    return Array.from(new Set([...fallbackSlugs, ...fallbackPathSlugs])).map((slug) => ({ slug }));
   }
 }
 
@@ -399,10 +472,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     });
   }
 
+  const canonicalPathSlug = getProjectPathSlug(project.slug);
+
   return buildMetadata({
     title: project.title,
     description: project.excerpt,
-    path: `/works/${project.slug}`,
+    path: `/works/${canonicalPathSlug}`,
     image: project.coverImage
   });
 }
@@ -420,9 +495,9 @@ function GalleryFrame({
   className?: string;
   accent?: AccentMode;
 }): JSX.Element {
-  const accentStamp = accent === "corner";
-  const accentHairline = accent === "hairline";
-  const accentFocusRing = accent === "ring";
+  const accentStamp = false;
+  const accentHairline = false;
+  const accentFocusRing = false;
 
   return (
     <ProjectLightboxImage
@@ -534,35 +609,63 @@ function StrictGridGallery({
   );
 }
 
-function GalleryA({ images, seed }: { images: ProjectImage[]; seed: number }): JSX.Element {
+function GalleryA({
+  images,
+  seed,
+  showHeroDominantLabel = true
+}: {
+  images: ProjectImage[];
+  seed: number;
+  showHeroDominantLabel?: boolean;
+}): JSX.Element {
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-3">
-        <span aria-hidden className="h-[2px] w-20 bg-accent-gradient" />
-        <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Hero Dominant · 1 / 2 / 1 / 2</p>
-      </div>
+      {showHeroDominantLabel ? (
+        <div className="flex items-center gap-3">
+          <span aria-hidden className="h-[2px] w-20 bg-accent-gradient" />
+          <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Hero Dominant · 1 / 2 / 1 / 2</p>
+        </div>
+      ) : null}
       <StrictGridGallery images={images} seed={seed} variant="A" />
     </div>
   );
 }
 
-function GalleryB({ images, seed }: { images: ProjectImage[]; seed: number }): JSX.Element {
+function GalleryB({
+  images,
+  seed,
+  showEditorialLabel = true
+}: {
+  images: ProjectImage[];
+  seed: number;
+  showEditorialLabel?: boolean;
+}): JSX.Element {
   return (
     <div className="space-y-4">
-      <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Asymmetrical Editorial</p>
+      {showEditorialLabel ? <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Asymmetrical Editorial</p> : null}
       <StrictGridGallery images={images} seed={seed} variant="B" />
     </div>
   );
 }
 
-function GalleryC({ images, seed }: { images: ProjectImage[]; seed: number }): JSX.Element {
+function GalleryC({
+  images,
+  seed,
+  showSplitShowcaseLabel = true
+}: {
+  images: ProjectImage[];
+  seed: number;
+  showSplitShowcaseLabel?: boolean;
+}): JSX.Element {
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <span aria-hidden className="absolute -left-3 top-0 h-full w-px bg-border/22 md:-left-5" />
-        <span aria-hidden className="absolute -left-3 top-8 h-24 w-px bg-accent-gradient md:-left-5" />
-        <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Split Grid Showcase</p>
-      </div>
+      {showSplitShowcaseLabel ? (
+        <div className="relative">
+          <span aria-hidden className="absolute -left-3 top-0 h-full w-px bg-border/22 md:-left-5" />
+          <span aria-hidden className="absolute -left-3 top-8 h-24 w-px bg-accent-gradient md:-left-5" />
+          <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Split Grid Showcase</p>
+        </div>
+      ) : null}
       <StrictGridGallery images={images} seed={seed} variant="C" />
     </div>
   );
@@ -570,38 +673,53 @@ function GalleryC({ images, seed }: { images: ProjectImage[]; seed: number }): J
 
 function GalleryD({ images, seed }: { images: ProjectImage[]; seed: number }): JSX.Element {
   return (
-    <div className="space-y-4">
-      <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Masonry / Collage</p>
-      <StrictGridGallery images={images} seed={seed} variant="D" />
-    </div>
+    <StrictGridGallery images={images} seed={seed} variant="D" />
   );
 }
 
-function GalleryE({ images, seed }: { images: ProjectImage[]; seed: number }): JSX.Element {
+function GalleryE({
+  images,
+  seed,
+  showRhythmIndicator = true
+}: {
+  images: ProjectImage[];
+  seed: number;
+  showRhythmIndicator?: boolean;
+}): JSX.Element {
   const ordered = rotateItems(images, seed);
   const activeIndicatorIndex = seed % REQUIRED_GALLERY_IMAGES;
 
   return (
     <div className="space-y-4">
-      <div className="inline-flex items-center gap-2 rounded-full border border-border/20 bg-bg/58 px-3 py-2">
-        {ordered.map((_, index) => (
-          <span
-            key={`dot-${index}`}
-            aria-hidden
-            className={cn("h-1.5 w-1.5 rounded-full", index === activeIndicatorIndex ? "bg-accent-gradient" : "bg-border/35")}
-          />
-        ))}
-        <span className="pl-2 text-[0.58rem] uppercase tracking-[0.14em] text-fg/58">Alternating Rhythm</span>
-      </div>
+      {showRhythmIndicator ? (
+        <div className="inline-flex items-center gap-2 rounded-full border border-border/20 bg-bg/58 px-3 py-2">
+          {ordered.map((_, index) => (
+            <span
+              key={`dot-${index}`}
+              aria-hidden
+              className={cn("h-1.5 w-1.5 rounded-full", index === activeIndicatorIndex ? "bg-accent-gradient" : "bg-border/35")}
+            />
+          ))}
+          <span className="pl-2 text-[0.58rem] uppercase tracking-[0.14em] text-fg/58">Alternating Rhythm</span>
+        </div>
+      ) : null}
       <StrictGridGallery images={ordered} seed={0} variant="E" />
     </div>
   );
 }
 
-function GalleryF({ images, seed }: { images: ProjectImage[]; seed: number }): JSX.Element {
+function GalleryF({
+  images,
+  seed,
+  showShowcaseLabel = true
+}: {
+  images: ProjectImage[];
+  seed: number;
+  showShowcaseLabel?: boolean;
+}): JSX.Element {
   return (
     <div className="space-y-4">
-      <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Framed Showcase</p>
+      {showShowcaseLabel ? <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Framed Showcase</p> : null}
       <StrictGridGallery images={images} seed={seed} variant="F" />
     </div>
   );
@@ -610,37 +728,33 @@ function GalleryF({ images, seed }: { images: ProjectImage[]; seed: number }): J
 function ProjectVisualGallery({ project }: { project: ProjectDetail }): JSX.Element {
   const images = getGalleryImages(project);
   const seed = seedFromSlug(project.slug);
+  const projectPathSlug = getProjectPathSlug(project.slug);
+  const isFlyUpLine = projectPathSlug === "flyup-line";
+  const isMaven = projectPathSlug === "maven";
+  const isBossRaam = projectPathSlug === "boss-raam-pharmacy";
+  const isPharmacyOnKing = projectPathSlug === "pharmacy-on-king";
+  const isLukaHairSalon = projectPathSlug === "luka-hair-salon";
 
-  if (project.layoutVariant === "A") return <GalleryA images={images} seed={seed} />;
-  if (project.layoutVariant === "B") return <GalleryB images={images} seed={seed} />;
-  if (project.layoutVariant === "C") return <GalleryC images={images} seed={seed} />;
+  if (project.layoutVariant === "A") return <GalleryA images={images} seed={seed} showHeroDominantLabel={!isLukaHairSalon} />;
+  if (project.layoutVariant === "B") return <GalleryB images={images} seed={seed} showEditorialLabel={!isBossRaam} />;
+  if (project.layoutVariant === "C") return <GalleryC images={images} seed={seed} showSplitShowcaseLabel={!isPharmacyOnKing} />;
   if (project.layoutVariant === "D") return <GalleryD images={images} seed={seed} />;
-  if (project.layoutVariant === "E") return <GalleryE images={images} seed={seed} />;
-  return <GalleryF images={images} seed={seed} />;
+  if (project.layoutVariant === "E") return <GalleryE images={images} seed={seed} showRhythmIndicator={!isFlyUpLine} />;
+  return <GalleryF images={images} seed={seed} showShowcaseLabel={!isMaven} />;
 }
 
-function ProjectCtaSection({ project }: { project: ProjectDetail }): JSX.Element {
-  return (
-    <section className="rounded-[1.2rem] border border-border/18 bg-bg/62 p-6 shadow-[0_14px_30px_rgba(13,13,15,0.08)] md:p-8">
-      <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/56">Call To Action</p>
-      <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Let’s Build Your Next Project</h2>
-      <p className="mt-3 max-w-2xl text-sm text-fg/66 md:text-base">{project.excerpt}</p>
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Link
-          href="/contact"
-          className="inline-flex items-center rounded-[0.9rem] border border-accentA/45 bg-accent-gradient px-5 py-3 text-sm font-medium text-ivory shadow-[0_10px_22px_rgba(0,128,255,0.2)] transition-transform duration-200 hover:-translate-y-[1px]"
-        >
-          Start A Project
-        </Link>
-        <Link
-          href="/works"
-          className="inline-flex items-center rounded-[0.9rem] border border-border/24 bg-card/72 px-5 py-3 text-sm font-medium text-fg transition-colors duration-200 hover:border-fg/40 hover:bg-bg/58"
-        >
-          View All Works
-        </Link>
-      </div>
-    </section>
-  );
+function getVisualLayoutNote(project: ProjectDetail): string {
+  const note = project.excerpt?.trim();
+  return note && note.length > 0 ? note : galleryNotes[project.layoutVariant];
+}
+
+function getVisualLayoutSectionTitle(project: ProjectDetail): string {
+  const title = project.layoutSectionTitle?.trim();
+  return title && title.length > 0 ? title : "Visual Layout";
+}
+
+function ProjectCtaSection(): JSX.Element {
+  return <SiteCtaSection />;
 }
 
 export default async function WorkDetailPage({ params }: { params: Promise<Params> }) {
@@ -649,6 +763,12 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
   if (!project) {
     notFound();
   }
+
+  const canonicalPathSlug = getProjectPathSlug(project.slug);
+  if (slug !== canonicalPathSlug) {
+    redirect(`/works/${canonicalPathSlug}`);
+  }
+
   const otherProjects = await getResolvedRelatedProjects(project.slug);
 
   return (
@@ -658,9 +778,13 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
         <div aria-hidden className="absolute inset-0 bg-black/48" />
         <div className="absolute inset-0 flex items-center">
           <div className="container">
-            <div className="mx-auto max-w-3xl text-center">
-              <h1 className="text-[clamp(2.2rem,5vw,4.8rem)] font-semibold leading-[0.96] text-ivory">{project.title}</h1>
-              <p className="mx-auto mt-4 max-w-2xl text-sm text-ivory/78 md:text-base">{project.subtitle}</p>
+            <div className="relative mx-auto max-w-3xl text-center">
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-x-0 -inset-y-5 rounded-[1.65rem] border border-white/12 bg-black/20 backdrop-blur-md"
+              />
+              <h1 className="relative text-[clamp(2.2rem,5vw,4.8rem)] font-semibold leading-[0.96] text-ivory">{project.title}</h1>
+              <p className="relative mx-auto mt-4 max-w-2xl text-sm text-ivory md:text-base">{project.subtitle}</p>
             </div>
           </div>
         </div>
@@ -669,13 +793,13 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
       <section className="relative z-20 -mt-[28svh] min-h-[120svh] rounded-t-[2.4rem] border-x border-border/18 bg-card px-0 pt-12 pb-20 shadow-[0_-16px_40px_rgba(13,13,15,0.08)] md:-mt-[26svh] md:rounded-t-[3.25rem] md:pt-16 md:pb-28">
         <div className="container space-y-8">
           <header className="space-y-2">
-            <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/56">Visual Layout · Template {project.layoutVariant}</p>
-            <p className="max-w-2xl text-sm text-fg/66">{galleryNotes[project.layoutVariant]}</p>
+            <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/56">{getVisualLayoutSectionTitle(project)}</p>
+            <p className="max-w-2xl text-sm text-fg/66">{getVisualLayoutNote(project)}</p>
           </header>
 
           <ProjectVisualGallery project={project} />
 
-          <ProjectCtaSection project={project} />
+          <ProjectCtaSection />
           <OtherProjectsSlider projects={otherProjects} />
         </div>
       </section>

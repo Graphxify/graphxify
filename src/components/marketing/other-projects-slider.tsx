@@ -15,7 +15,7 @@ import {
   type WheelEvent
 } from "react";
 import { cn } from "@/lib/utils";
-import { getProjectDisplayTitle } from "@/lib/project-card-content";
+import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
 type SliderProject = {
   slug: string;
@@ -72,19 +72,24 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
   const [isHovering, setIsHovering] = useState(false);
   const [autoplayBlockedUntil, setAutoplayBlockedUntil] = useState(0);
 
-  const uniqueProjects = useMemo(
-    () => Array.from(new Map(projects.map((project) => [project.slug, project] as const)).values()),
-    [projects]
-  );
+  const uniqueProjects = useMemo(() => {
+    const bySlug = new Map<string, SliderProject>();
+    for (const project of projects) {
+      if (!bySlug.has(project.slug)) {
+        bySlug.set(project.slug, project);
+      }
+    }
+    return Array.from(bySlug.values());
+  }, [projects]);
 
   const totalCards = uniqueProjects.length;
   if (totalCards === 0) {
     return <section className="space-y-4" aria-label="Other projects carousel" />;
   }
 
-  const carouselActive = totalCards > perView;
-  const cloneCount = carouselActive ? perView : 0;
-  const displayPerView = carouselActive ? perView : Math.max(Math.min(perView, totalCards), 1);
+  const displayPerView = Math.max(Math.min(perView, totalCards), 1);
+  const carouselActive = totalCards > 1;
+  const cloneCount = carouselActive ? displayPerView : 0;
 
   const renderCards = useMemo(() => {
     if (!carouselActive) {
@@ -443,7 +448,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
             return (
             <Link
               key={`${item.slug}-${index}`}
-              href={`/works/${item.slug}`}
+              href={`/works/${getProjectPathSlug(item.slug)}`}
               aria-label={`Open project ${displayTitle}`}
               data-cursor-label="Open"
               className="group overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"

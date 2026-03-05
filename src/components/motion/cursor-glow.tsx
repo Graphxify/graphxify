@@ -1,8 +1,21 @@
 "use client";
 
 import { motion, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
+
+type NavigatorWithHints = Navigator & {
+  connection?: { saveData?: boolean };
+  deviceMemory?: number;
+};
+
+function readCursorLabel(target: EventTarget | null): string {
+  if (!(target instanceof Element)) {
+    return "";
+  }
+
+  return target.closest<HTMLElement>("[data-cursor-label]")?.dataset.cursorLabel ?? "";
+}
 
 export function CursorGlow(): JSX.Element | null {
   const reducedMotion = useReducedMotion();
@@ -10,6 +23,8 @@ export function CursorGlow(): JSX.Element | null {
   const [pressed, setPressed] = useState(false);
   const [visible, setVisible] = useState(false);
   const [cursorLabel, setCursorLabel] = useState("");
+  const visibleRef = useRef(false);
+  const labelTargetRef = useRef<EventTarget | null>(null);
   const x = useMotionValue(-200);
   const y = useMotionValue(-200);
   const shellX = useSpring(x, { stiffness: 300, damping: 32, mass: 0.36 });
@@ -25,7 +40,13 @@ export function CursorGlow(): JSX.Element | null {
 
     const mediaFine = window.matchMedia("(pointer: fine)");
     const mediaWide = window.matchMedia("(min-width: 1024px)");
-    const update = () => setEnabled(mediaFine.matches && mediaWide.matches);
+    const update = () => {
+      const navigatorHints = window.navigator as NavigatorWithHints;
+      const lowPowerDevice = (navigatorHints.deviceMemory ?? 8) <= 4 || navigatorHints.hardwareConcurrency <= 4;
+      const saveData = Boolean(navigatorHints.connection?.saveData);
+
+      setEnabled(mediaFine.matches && mediaWide.matches && !lowPowerDevice && !saveData);
+    };
 
     update();
     mediaFine.addEventListener("change", update);
@@ -39,23 +60,40 @@ export function CursorGlow(): JSX.Element | null {
   useEffect(() => {
     if (!enabled) {
       document.documentElement.classList.remove("cursor-fx");
+      visibleRef.current = false;
+      labelTargetRef.current = null;
+      setVisible(false);
+      setCursorLabel("");
       return;
     }
 
     document.documentElement.classList.add("cursor-fx");
 
+    const setVisibleState = (next: boolean) => {
+      if (visibleRef.current === next) {
+        return;
+      }
+
+      visibleRef.current = next;
+      setVisible(next);
+    };
+
     const onPointerMove = (event: PointerEvent) => {
       x.set(event.clientX);
       y.set(event.clientY);
-      setVisible(true);
-      const target = document.elementFromPoint(event.clientX, event.clientY) as HTMLElement | null;
-      const label = target?.closest<HTMLElement>("[data-cursor-label]")?.dataset.cursorLabel ?? "";
-      setCursorLabel((prev) => (prev === label ? prev : label));
+      setVisibleState(true);
+
+      if (labelTargetRef.current !== event.target) {
+        labelTargetRef.current = event.target;
+        const label = readCursorLabel(event.target);
+        setCursorLabel((prev) => (prev === label ? prev : label));
+      }
     };
     const onPointerDown = () => setPressed(true);
     const onPointerUp = () => setPressed(false);
     const onPointerLeave = () => {
-      setVisible(false);
+      setVisibleState(false);
+      labelTargetRef.current = null;
       setCursorLabel("");
     };
 

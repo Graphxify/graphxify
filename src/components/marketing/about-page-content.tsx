@@ -5,8 +5,9 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Code2, Compass, Database, Palette, type LucideIcon } from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
+import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { Button } from "@/components/ui/button";
-import { getProjectDisplayTitle } from "@/lib/project-card-content";
+import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
 type SnapshotItem = {
   label: string;
@@ -222,7 +223,7 @@ export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.
             return (
               <div key={work.id}>
                 <Link
-                  href={`/works/${work.slug}`}
+                  href={`/works/${getProjectPathSlug(work.slug)}`}
                   className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                   data-cursor-label="Open"
                   aria-label={`Open project ${displayTitle}`}
@@ -258,15 +259,7 @@ export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.
       </SectionReveal>
 
       <SectionReveal className="container mt-10 md:mt-12" effect="zoom">
-        <div className="section-shell border-border/18 bg-card/76 p-6 text-center md:p-8">
-          <h2 className="text-2xl font-semibold md:text-3xl">Ready to build?</h2>
-          <p className="mx-auto mt-3 max-w-2xl text-fg/66">Start with clear goals, then we structure and ship.</p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button asChild size="lg" className="px-6">
-              <Link href="/contact">Start a Project</Link>
-            </Button>
-          </div>
-        </div>
+        <SiteCtaSection />
       </SectionReveal>
     </div>
   );

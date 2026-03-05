@@ -65,9 +65,9 @@ export function SectionReveal({
     <motion.section
       className={className}
       variants={createSectionVariants(effect)}
-      initial="hidden"
+      initial={false}
       whileInView="show"
-      viewport={{ once, margin: "-90px" }}
+      viewport={{ once, margin: "0px 0px -10% 0px" }}
     >
       <motion.div variants={childVariants}>{children}</motion.div>
     </motion.section>

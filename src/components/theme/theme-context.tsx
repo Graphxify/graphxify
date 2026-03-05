@@ -9,8 +9,6 @@ type ThemeContextValue = {
   setTheme: (theme: Theme) => void;
 };
 
-const STORAGE_KEY = "graphxify-theme";
-
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function applyThemeClass(theme: Theme): void {
@@ -27,20 +25,12 @@ export function GraphxifyThemeProvider({ children }: { children: React.ReactNode
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    const initial = stored === "light" || stored === "dark" ? stored : "light";
-    setThemeState(initial);
-    applyThemeClass(initial);
-  }, []);
-
-  useEffect(() => {
     resolveAndApply(theme);
   }, [theme, resolveAndApply]);
 
   const setTheme = useCallback(
     (next: Theme) => {
       setThemeState(next);
-      localStorage.setItem(STORAGE_KEY, next);
       resolveAndApply(next);
     },
     [resolveAndApply]

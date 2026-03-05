@@ -12,11 +12,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { marketingNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-type MarketingHeaderProps = {
-  showCms: boolean;
-};
-
-export function MarketingHeader(_: MarketingHeaderProps): JSX.Element {
+export function MarketingHeader(): JSX.Element {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -112,7 +108,6 @@ export function MarketingHeader(_: MarketingHeaderProps): JSX.Element {
                   )}
                 >
                   <span className="absolute inset-[1px] -z-10 scale-95 rounded-full bg-card/84 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100" />
-                  <span className="absolute inset-0 -z-10 rounded-full bg-[radial-gradient(circle_at_20%_0%,rgba(0,163,255,0.18),transparent_58%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                   <span className="absolute inset-x-4 bottom-[0.38rem] h-[1.5px] origin-left scale-x-0 rounded-full bg-accent-gradient transition-transform duration-300 group-hover:scale-x-100" />
                   {active ? (
                     <motion.span

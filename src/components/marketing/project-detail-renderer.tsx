@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
+import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { Badge } from "@/components/ui/badge";
 import {
   CountUpMetric,
@@ -11,6 +11,7 @@ import {
   StickySplitShowcase,
   StoryboardLane
 } from "@/components/marketing/project-details-interactive";
+import { getProjectPathSlug } from "@/lib/project-card-content";
 import type { LayoutVariant, ProjectDetail } from "@/lib/project-details";
 import { cn } from "@/lib/utils";
 
@@ -80,48 +81,12 @@ function VariantHeader({
   );
 }
 
-const ctaHoverFx: Record<LayoutVariant, string> = {
-  A: "after:absolute after:bottom-2 after:left-4 after:right-4 after:h-px after:origin-left after:scale-x-0 after:bg-accent-gradient after:transition-transform after:duration-300 hover:after:scale-x-100",
-  B: "hover:shadow-[0_0_0_1px_rgba(0,163,255,0.28),0_14px_26px_rgba(0,163,255,0.14)]",
-  C: "hover:border-accentA/54",
-  D: "before:absolute before:inset-y-0 before:left-0 before:w-[2px] before:bg-accent-gradient before:opacity-0 before:transition-opacity before:duration-300 hover:before:opacity-100",
-  E: "hover:ring-1 hover:ring-accentA/40",
-  F: "after:absolute after:inset-x-4 after:top-2 after:h-[2px] after:bg-accent-gradient after:opacity-0 after:transition-opacity after:duration-300 hover:after:opacity-100"
-};
-
 function ProjectCta({
-  project,
-  variant,
   className
 }: {
-  project: ProjectDetail;
-  variant: LayoutVariant;
   className?: string;
 }): JSX.Element {
-  return (
-    <section className={cn(shellClass, "space-y-4 p-6 md:p-7", className)}>
-      <p className="text-[0.6rem] uppercase tracking-[0.2em] text-fg/56">Start a Project</p>
-      <p className="max-w-2xl text-sm text-fg/68 md:text-base">{brief(project.overview, 17)}</p>
-      <div className="flex flex-wrap gap-3 pt-1">
-        {project.links.map((link, index) => (
-          <Link
-            key={link.href + link.label}
-            href={link.href}
-            className={cn(
-              "group relative inline-flex items-center gap-2 overflow-hidden rounded-[0.9rem] border px-5 py-3 text-sm font-medium transition-all duration-250 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/42 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-              index === 0
-                ? "border-fg bg-fg text-bg hover:bg-fg/90"
-                : "border-border/24 bg-transparent text-fg hover:border-fg/46 hover:bg-bg/56",
-              ctaHoverFx[variant]
-            )}
-          >
-            <span>{link.label}</span>
-            <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        ))}
-      </div>
-    </section>
-  );
+  return <SiteCtaSection className={className} />;
 }
 
 function TemplateA({ project }: { project: ProjectDetail }): JSX.Element {
@@ -185,7 +150,7 @@ function TemplateA({ project }: { project: ProjectDetail }): JSX.Element {
         </RevealItem>
 
         <RevealItem effect="up">
-          <ProjectCta project={project} variant="A" className="max-w-3xl" />
+          <ProjectCta className="mx-auto max-w-3xl" />
         </RevealItem>
       </RevealStagger>
     </section>
@@ -272,7 +237,7 @@ function TemplateB({ project }: { project: ProjectDetail }): JSX.Element {
         </RevealItem>
 
         <RevealItem effect="up">
-          <ProjectCta project={project} variant="B" className="ml-auto max-w-3xl" />
+          <ProjectCta className="mx-auto max-w-3xl" />
         </RevealItem>
       </RevealStagger>
     </section>
@@ -290,7 +255,7 @@ function TemplateC({ project }: { project: ProjectDetail }): JSX.Element {
         </RevealItem>
 
         <RevealItem effect="up">
-          <ProjectCta project={project} variant="C" className="max-w-3xl" />
+          <ProjectCta className="mx-auto max-w-3xl" />
         </RevealItem>
       </RevealStagger>
     </section>
@@ -374,7 +339,7 @@ function TemplateD({ project }: { project: ProjectDetail }): JSX.Element {
         </RevealItem>
 
         <RevealItem effect="up">
-          <ProjectCta project={project} variant="D" className="max-w-3xl" />
+          <ProjectCta className="mx-auto max-w-3xl" />
         </RevealItem>
       </RevealStagger>
     </section>
@@ -396,7 +361,7 @@ function TemplateE({ project }: { project: ProjectDetail }): JSX.Element {
         </RevealItem>
 
         <RevealItem effect="up">
-          <ProjectCta project={project} variant="E" className="max-w-3xl" />
+          <ProjectCta className="mx-auto max-w-3xl" />
         </RevealItem>
       </RevealStagger>
     </section>
@@ -418,7 +383,7 @@ function TemplateF({ project }: { project: ProjectDetail }): JSX.Element {
         </RevealItem>
 
         <RevealItem effect="up">
-          <ProjectCta project={project} variant="F" className="ml-auto max-w-3xl" />
+          <ProjectCta className="mx-auto max-w-3xl" />
         </RevealItem>
       </RevealStagger>
     </section>
@@ -438,7 +403,7 @@ function RelatedProjects({ projects }: { projects: ProjectDetail[] }): JSX.Eleme
         {projects.map((project) => (
           <Link
             key={project.slug}
-            href={`/works/${project.slug}`}
+            href={`/works/${getProjectPathSlug(project.slug)}`}
             className="group rounded-[1.2rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/42 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           >
             <article className={cn(shellClass, "h-full overflow-hidden p-0")}> 

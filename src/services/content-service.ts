@@ -8,6 +8,7 @@ import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/provider";
 import { publishNotificationTemplate } from "@/lib/email/templates";
 import { env } from "@/lib/env";
+import { getProjectPathSlug } from "@/lib/project-card-content";
 import { postSchema, workSchema } from "@/lib/validation/schemas";
 
 type ContentClient = ReturnType<typeof createClient> | NonNullable<ReturnType<typeof createAdminClient>>;
@@ -274,6 +275,8 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     });
 
     revalidatePath("/works");
+    revalidatePath(`/works/${getProjectPathSlug(parsed.slug)}`);
+    revalidatePath(`/works/${parsed.slug}`);
     revalidatePath("/dashboard/works");
     return { id: data.id };
   }
@@ -355,6 +358,7 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
   }
 
   revalidatePath("/works");
+  revalidatePath(`/works/${getProjectPathSlug(parsed.slug)}`);
   revalidatePath(`/works/${parsed.slug}`);
   revalidatePath("/dashboard/works");
   return { id };
@@ -497,6 +501,8 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
   });
 
   revalidatePath("/works");
+  revalidatePath(`/works/${getProjectPathSlug(version.slug)}`);
+  revalidatePath(`/works/${version.slug}`);
   revalidatePath("/dashboard/works");
 }
 
