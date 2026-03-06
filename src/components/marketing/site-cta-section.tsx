@@ -105,7 +105,7 @@ export function SiteCtaSection({ className }: { className?: string }): JSX.Eleme
   return (
     <section className={cn("section-shell border-border/18 bg-card/76 p-6 text-center md:p-8", className)}>
       <h2 className="text-2xl font-semibold md:text-3xl">
-        Ready to <span className="text-accentA">Build</span>
+        Ready to <span className="inline-block gradient-text">Build</span>
       </h2>
       <p className="mx-auto mt-3 min-h-[1.6rem] max-w-2xl text-fg/66 md:min-h-[1.8rem]">
         {typedSentence}

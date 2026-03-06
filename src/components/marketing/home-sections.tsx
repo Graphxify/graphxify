@@ -176,17 +176,22 @@ const homeFaqs: HomeFaq[] = [
 function HeroChip({
   src,
   alt,
-  tint
+  tint,
+  className
 }: {
   src: string;
   alt: string;
   tint: "accent" | "muted";
+  className?: string;
 }): JSX.Element {
   return (
     <span
       className={cn(
-        "mx-2 inline-flex h-[0.95em] w-[0.95em] translate-y-[0.08em] items-center justify-center overflow-hidden rounded-full border align-baseline shadow-[0_6px_14px_rgba(13,13,15,0.18)]",
-        tint === "accent" ? "border-accentA/45 bg-accentA/18" : "border-border/24 bg-fg/10"
+        "mx-2 inline-flex h-[0.95em] w-[0.95em] translate-y-[0.08em] items-center justify-center overflow-hidden rounded-full border align-baseline shadow-[0_6px_14px_rgba(13,13,15,0.18)] ring-1 ring-inset",
+        tint === "accent"
+          ? "border-accentA/45 bg-accentA/18 ring-accentA/26"
+          : "border-border/24 bg-fg/10 ring-border/22",
+        className
       )}
     >
       <Image src={src} alt={alt} width={84} height={84} className="h-full w-full object-cover" />
@@ -237,26 +242,30 @@ export function HomeSections({
             <p className="text-sm text-fg/66">Trusted by founders</p>
           </div>
 
-          <h1 className="mx-auto mt-6 max-w-[940px] text-center text-[clamp(1.75rem,7.6vw,5.1rem)] font-semibold leading-[0.96] tracking-tight">
-            <span className="block text-fg">
-              Effortless
-              <HeroChip src="/assets/work-1.svg" alt="Design token" tint="accent" />
-              <span className="text-accentA">Design</span>
-            </span>
-            <span className="block text-fg/66">
-              for
-              <HeroChip src="/assets/work-2.svg" alt="Workflow token" tint="muted" />
-              Brand Teams
-            </span>
-            <span className="block text-fg/72">
-              <span className="text-accentA">built</span> in Toronto,
-              <HeroChip src="/assets/work-3.svg" alt="Location token" tint="muted" />
-              Canada
-            </span>
-          </h1>
+          <div className="relative mt-6">
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute left-1/2 top-[48%] -z-10 h-28 w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accentA/14 blur-3xl md:h-36"
+            />
+            <h1 className="mx-auto max-w-[940px] text-center text-[clamp(1.75rem,7.6vw,5.1rem)] font-semibold leading-[0.96] tracking-tight text-black dark:text-white">
+              <span className="block">
+                Designing
+                <HeroChip src="/assets/work-1.svg" alt="Design token" tint="accent" className="mx-1.5 !h-[0.9em] !w-[0.9em]" />
+                <span className="gradient-text">brands</span> and
+              </span>
+              <span className="mt-1.5 block md:mt-2">websites that make</span>
+              <span className="mt-1.5 block md:mt-2">
+                <span className="gradient-text">businesses</span>
+                <HeroChip src="/assets/work-2.svg" alt="Workflow token" tint="muted" className="mx-1.5 !h-[0.9em] !w-[0.9em]" />
+                <span className="relative inline-flex items-center">
+                  <span className="text-black dark:text-white">stand out</span>
+                </span>
+              </span>
+            </h1>
+          </div>
 
-          <p className="mx-auto mt-5 max-w-3xl text-center text-[0.96rem] text-fg/60 md:text-[1.14rem]">
-            We make it easy for teams to launch, grow, and scale with clean brand systems, calm UX, and fast websites without noise.
+          <p className="mx-auto mt-5 max-w-3xl text-center text-[0.96rem] text-black dark:text-white md:text-[1.14rem]">
+            We combine branding, design, and modern web development to help businesses grow and stand out online.
           </p>
 
           <div className="mt-6 flex flex-col items-center justify-center gap-3">
