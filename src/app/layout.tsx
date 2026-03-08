@@ -15,7 +15,7 @@ export const metadata: Metadata = buildMetadata({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="light" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body suppressHydrationWarning className="app-shell min-h-screen bg-bg text-fg antialiased">
         <SmoothScrollDriver />
         <Providers>

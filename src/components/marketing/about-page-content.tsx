@@ -209,6 +209,10 @@ export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.
         </div>
       </SectionReveal>
 
+      <SectionReveal className="container mt-10 md:mt-12" effect="zoom">
+        <SiteCtaSection />
+      </SectionReveal>
+
       <SectionReveal className="container mt-10 md:mt-12" effect="up">
         <div className="mb-5 flex items-end justify-between gap-4">
           <h2 className="text-2xl font-semibold md:text-3xl">Selected Work</h2>
@@ -256,10 +260,6 @@ export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.
             );
           })}
         </div>
-      </SectionReveal>
-
-      <SectionReveal className="container mt-10 md:mt-12" effect="zoom">
-        <SiteCtaSection />
       </SectionReveal>
     </div>
   );

@@ -18,7 +18,7 @@ function applyThemeClass(theme: Theme): void {
 }
 
 export function GraphxifyThemeProvider({ children }: { children: React.ReactNode }): JSX.Element {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>("dark");
 
   const resolveAndApply = useCallback((selected: Theme) => {
     applyThemeClass(selected);

@@ -801,6 +801,10 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
         </div>
       </SectionReveal>
 
+      <SectionReveal className="container mt-10 md:mt-14" effect="zoom">
+        <SiteCtaSection />
+      </SectionReveal>
+
       <SectionReveal className="container mt-10 md:mt-14" effect="up">
         <div className="mb-5 flex items-end justify-between gap-4">
           <h2 className="text-2xl font-semibold md:text-3xl">Selected Work</h2>
@@ -848,10 +852,6 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
             );
           })}
         </div>
-      </SectionReveal>
-
-      <SectionReveal className="container mt-10 md:mt-14" effect="zoom">
-        <SiteCtaSection />
       </SectionReveal>
     </div>
   );
