@@ -466,9 +466,9 @@ function ServiceVisual({ serviceKey }: { serviceKey: ServicePillar["key"] }): JS
                     reducedMotion
                       ? undefined
                       : {
-                          borderColor: ["rgba(13,13,15,0.14)", "rgba(0,163,255,0.35)", "rgba(13,13,15,0.14)"],
-                          x: [0, 1.5, 0]
-                        }
+                        borderColor: ["rgba(13,13,15,0.14)", "rgba(0,163,255,0.35)", "rgba(13,13,15,0.14)"],
+                        x: [0, 1.5, 0]
+                      }
                   }
                   transition={{ duration: 3.6 + index * 0.26, delay: index * 0.24, repeat: Infinity, ease: "easeInOut" }}
                 >
@@ -765,7 +765,7 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <article className="group relative rounded-[1.2rem] border border-border/16 bg-card/60 p-5 md:p-6">
+          <article className="graphxify-glow-card group relative rounded-[1.2rem] border border-border/16 bg-card/60 p-5 md:p-6">
             <h3 className="text-xl font-semibold">Graphxify</h3>
             <ul className="mt-4">
               {graphxifyComparisonItems.map((item) => (

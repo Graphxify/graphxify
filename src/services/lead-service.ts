@@ -42,7 +42,7 @@ export async function createLead(payload: unknown): Promise<{ id: string }> {
       message: parsed.message,
       createdAt: data.created_at
     });
-    await sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+    void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
   }
 
   return { id: data.id };

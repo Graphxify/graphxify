@@ -37,7 +37,7 @@ export default async function DashboardUsersPage() {
                     <TableCell>
                       <form action={updateUserRoleAction} className="flex items-center gap-2">
                         <input type="hidden" name="userId" value={user.id} />
-                        <select name="role" defaultValue={user.role} className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-sm">
+                        <select name="role" defaultValue={user.role} className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-sm text-fg">
                           <option value="mod">mod</option>
                           <option value="admin">admin</option>
                         </select>

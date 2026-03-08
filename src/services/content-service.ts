@@ -156,31 +156,32 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
 
   if (error) throw error;
 
-  await supabase.from("post_versions").insert({
-    post_id: id,
-    version: await nextPostVersion(id, supabase),
-    title: parsed.title,
-    slug: parsed.slug,
-    excerpt: parsed.excerpt,
-    content: parsed.content,
-    cover_image_url: parsed.coverImageUrl || null,
-    status: parsed.status,
-    editor_id: profile.id
-  });
-
-  await logAuditEvent({
-    actorId: profile.id,
-    actorEmail: profile.email,
-    actorRole: profile.role,
-    action: parsed.status === "published" ? "post.publish" : "post.update",
-    entityType: "post",
-    entityId: id,
-    metadata: {
-      previous_status: existing.status,
-      next_status: parsed.status,
-      title: parsed.title
-    }
-  });
+  await Promise.all([
+    supabase.from("post_versions").insert({
+      post_id: id,
+      version: await nextPostVersion(id, supabase),
+      title: parsed.title,
+      slug: parsed.slug,
+      excerpt: parsed.excerpt,
+      content: parsed.content,
+      cover_image_url: parsed.coverImageUrl || null,
+      status: parsed.status,
+      editor_id: profile.id
+    }),
+    logAuditEvent({
+      actorId: profile.id,
+      actorEmail: profile.email,
+      actorRole: profile.role,
+      action: parsed.status === "published" ? "post.publish" : "post.update",
+      entityType: "post",
+      entityId: id,
+      metadata: {
+        previous_status: existing.status,
+        next_status: parsed.status,
+        title: parsed.title
+      }
+    })
+  ]);
 
   if (parsed.status === "published" && env.OWNER_NOTIFY_EMAIL) {
     const template = publishNotificationTemplate({
@@ -315,37 +316,38 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
 
   if (error) throw error;
 
-  await supabase.from("work_versions").insert({
-    work_id: id,
-    version: await nextWorkVersion(id, supabase),
-    title: parsed.title,
-    slug: parsed.slug,
-    year: parsed.year,
-    role: parsed.role,
-    services: parsed.services,
-    subtitle: parsed.subtitle || null,
-    layout_variant: parsed.layoutVariant,
-    excerpt: parsed.excerpt,
-    content: parsed.content,
-    cover_image_url: parsed.coverImageUrl || null,
-    gallery_images: galleryImages,
-    status: parsed.status,
-    editor_id: profile.id
-  });
-
-  await logAuditEvent({
-    actorId: profile.id,
-    actorEmail: profile.email,
-    actorRole: profile.role,
-    action: parsed.status === "published" ? "work.publish" : "work.update",
-    entityType: "work",
-    entityId: id,
-    metadata: {
-      previous_status: existing.status,
-      next_status: parsed.status,
-      title: parsed.title
-    }
-  });
+  await Promise.all([
+    supabase.from("work_versions").insert({
+      work_id: id,
+      version: await nextWorkVersion(id, supabase),
+      title: parsed.title,
+      slug: parsed.slug,
+      year: parsed.year,
+      role: parsed.role,
+      services: parsed.services,
+      subtitle: parsed.subtitle || null,
+      layout_variant: parsed.layoutVariant,
+      excerpt: parsed.excerpt,
+      content: parsed.content,
+      cover_image_url: parsed.coverImageUrl || null,
+      gallery_images: galleryImages,
+      status: parsed.status,
+      editor_id: profile.id
+    }),
+    logAuditEvent({
+      actorId: profile.id,
+      actorEmail: profile.email,
+      actorRole: profile.role,
+      action: parsed.status === "published" ? "work.publish" : "work.update",
+      entityType: "work",
+      entityId: id,
+      metadata: {
+        previous_status: existing.status,
+        next_status: parsed.status,
+        title: parsed.title
+      }
+    })
+  ]);
 
   if (parsed.status === "published" && env.OWNER_NOTIFY_EMAIL) {
     const template = publishNotificationTemplate({

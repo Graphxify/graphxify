@@ -25,9 +25,9 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
   const workYearValue = String(Number.isFinite(parsedWorkYear) ? parsedWorkYear : new Date().getFullYear());
   const workServicesValue = Array.isArray(item?.services)
     ? (item.services as unknown[])
-        .map((value) => String(value).trim())
-        .filter((value) => value.length > 0)
-        .join(", ")
+      .map((value) => String(value).trim())
+      .filter((value) => value.length > 0)
+      .join(", ")
     : "";
   const workServicesDefault = workServicesValue.length > 0 ? workServicesValue : "General";
   const workLayoutVariantValue = String(item?.layout_variant ?? "A");
@@ -39,10 +39,10 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
   const initialGalleryImages =
     type === "work" && Array.isArray(item?.gallery_images)
       ? uniqueGalleryValues(
-          (item.gallery_images as unknown[])
-            .map((value) => String(value).trim())
-            .filter((value) => Boolean(value) && value !== normalizedCover)
-        )
+        (item.gallery_images as unknown[])
+          .map((value) => String(value).trim())
+          .filter((value) => Boolean(value) && value !== normalizedCover)
+      )
       : [];
   const [galleryImages, setGalleryImages] = useState<string[]>(
     type !== "work"
@@ -200,7 +200,7 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
             <select
               id="status"
               name="status"
-              className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm"
+              className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm text-fg"
               defaultValue={String(item?.status ?? "draft")}
             >
               <option value="draft">Draft</option>
@@ -294,7 +294,7 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
             <select
               id="status"
               name="status"
-              className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm"
+              className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm text-fg"
               defaultValue={String(item?.status ?? "draft")}
             >
               <option value="draft">Draft</option>

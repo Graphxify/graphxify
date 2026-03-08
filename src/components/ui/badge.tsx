@@ -6,7 +6,9 @@ const badgeVariants = cva("inline-flex items-center rounded-full border px-2.5 p
   variants: {
     variant: {
       default: "border-border/18 bg-accentA/15 text-fg",
-      secondary: "border-border/18 bg-card/62 text-fg/82"
+      secondary: "border-border/18 bg-card/62 text-fg/82",
+      success: "border-emerald-500/25 bg-emerald-500/12 text-emerald-400",
+      warning: "border-amber-500/25 bg-amber-500/12 text-amber-400"
     }
   },
   defaultVariants: {
@@ -14,7 +16,7 @@ const badgeVariants = cva("inline-flex items-center rounded-full border px-2.5 p
   }
 });
 
-export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> {}
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof badgeVariants> { }
 
 export function Badge({ className, variant, ...props }: BadgeProps): JSX.Element {
   return <div className={cn(badgeVariants({ variant }), className)} {...props} />;

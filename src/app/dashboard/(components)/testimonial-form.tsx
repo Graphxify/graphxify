@@ -102,7 +102,7 @@ export function TestimonialForm({ item }: { item?: TestimonialItem | null }): JS
           <select
             id="status"
             name="status"
-            className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm"
+            className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm text-fg"
             defaultValue={String(item?.status ?? "draft")}
           >
             <option value="draft">Draft</option>

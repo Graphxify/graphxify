@@ -39,10 +39,6 @@ export async function getCurrentProfile() {
 }
 
 export async function requireAuth() {
-  const user = await getSessionUser();
-  if (!user) {
-    redirect("/login");
-  }
   const profile = await getCurrentProfile();
   if (!profile) {
     redirect("/login");

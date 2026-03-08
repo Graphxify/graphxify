@@ -1,6 +1,10 @@
+import { Activity } from "lucide-react";
+import { EmptyState } from "@/app/dashboard/(components)/empty-state";
+import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireRole } from "@/lib/auth/requireRole";
 import { listAuditLogs } from "@/services/activity-service";
@@ -20,6 +24,14 @@ export default async function DashboardActivityPage({
   const to = typeof resolvedSearchParams.to === "string" ? resolvedSearchParams.to : "";
 
   const result = await listAuditLogs({ page, pageSize: 20, action, entity, actor, from, to });
+
+  // Build search params for pagination to preserve filters
+  const filterParams: Record<string, string> = {};
+  if (action) filterParams.action = action;
+  if (entity) filterParams.entity = entity;
+  if (actor) filterParams.actor = actor;
+  if (from) filterParams.from = from;
+  if (to) filterParams.to = to;
 
   return (
     <section className="space-y-5">
@@ -42,36 +54,52 @@ export default async function DashboardActivityPage({
 
         <RevealItem>
           <div className="section-shell border-border/18 bg-card/72 p-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Actor</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Entity</TableHead>
-                  <TableHead>IP</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {result.rows.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell>{new Date(log.created_at).toLocaleString()}</TableCell>
-                    <TableCell>{log.actor_email || "system"}</TableCell>
-                    <TableCell>{log.actor_role || "-"}</TableCell>
-                    <TableCell>{log.action}</TableCell>
-                    <TableCell>{log.entity_type}</TableCell>
-                    <TableCell>{log.ip || "-"}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {result.rows.length === 0 ? (
+              <EmptyState
+                icon={<Activity className="h-8 w-8 text-fg/32" />}
+                title="No activity yet"
+                description="Actions performed in the CMS will be logged here."
+              />
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Time</TableHead>
+                      <TableHead>Actor</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Action</TableHead>
+                      <TableHead>Entity</TableHead>
+                      <TableHead>IP</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {result.rows.map((log) => (
+                      <TableRow key={log.id}>
+                        <TableCell className="whitespace-nowrap text-fg/56">{new Date(log.created_at).toLocaleString()}</TableCell>
+                        <TableCell className="font-medium">{log.actor_email || "system"}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{log.actor_role || "–"}</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="default">{log.action}</Badge>
+                        </TableCell>
+                        <TableCell className="text-fg/56">{log.entity_type}</TableCell>
+                        <TableCell className="font-mono text-xs text-fg/42">{log.ip || "–"}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <ServerPagination
+                  currentPage={result.page}
+                  total={result.total}
+                  pageSize={20}
+                  basePath="/dashboard/activity"
+                  searchParams={filterParams}
+                />
+              </>
+            )}
           </div>
-        </RevealItem>
-        <RevealItem>
-          <p className="text-sm text-fg/62">
-            Page {result.page} - Total {result.total}
-          </p>
         </RevealItem>
       </RevealStagger>
     </section>

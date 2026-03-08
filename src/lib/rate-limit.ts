@@ -23,10 +23,24 @@ type ScoredEntry = {
 };
 
 const memoryStore = new Map<string, number[]>();
+const MEMORY_STORE_MAX_KEYS = 5000;
 
 const redis = env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN
   ? new Redis({ url: env.UPSTASH_REDIS_REST_URL, token: env.UPSTASH_REDIS_REST_TOKEN })
   : null;
+
+function evictStaleKeys(now: number, windowSec: number): void {
+  if (memoryStore.size <= MEMORY_STORE_MAX_KEYS) {
+    return;
+  }
+  const cutoff = now - windowSec * 1000;
+  for (const [storedKey, timestamps] of memoryStore) {
+    const hasActive = timestamps.some((ts) => ts > cutoff);
+    if (!hasActive) {
+      memoryStore.delete(storedKey);
+    }
+  }
+}
 
 export async function rateLimit({ key, route, limit = 10, windowSec = 60 }: LimitOptions): Promise<RateLimitResult> {
   const now = Date.now();
@@ -67,5 +81,6 @@ export async function rateLimit({ key, route, limit = 10, windowSec = 60 }: Limi
   }
   filtered.push(now);
   memoryStore.set(fullKey, filtered);
+  evictStaleKeys(now, windowSec);
   return { allowed: true, remaining: limit - filtered.length, retryAfter: 0 };
 }

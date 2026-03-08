@@ -235,6 +235,76 @@ select:focus-visible {
   }
 }
 
+/* ── Animated Glowing Border — Graphxify Comparison Card ── */
+@property --glow-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.graphxify-glow-card {
+  --glow-angle: 0deg;
+  position: relative;
+  border: none !important;
+  background: rgb(var(--card) / 0.60);
+  border-radius: 1.2rem;
+  overflow: visible;
+  isolation: isolate;
+  animation: glow-card-pulse 4s ease-in-out infinite;
+}
+
+.graphxify-glow-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: 1.3rem;
+  background: conic-gradient(
+    from var(--glow-angle),
+    transparent 0%,
+    rgb(var(--accent-a) / 0.05) 8%,
+    rgb(var(--accent-a)) 16%,
+    rgb(var(--accent-b)) 24%,
+    transparent 36%,
+    transparent 50%,
+    rgb(var(--accent-a) / 0.05) 58%,
+    rgb(var(--accent-a) / 0.6) 66%,
+    rgb(var(--accent-b) / 0.4) 74%,
+    transparent 86%
+  );
+  animation: glow-border-spin 4s linear infinite;
+}
+
+.graphxify-glow-card::after {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  border-radius: calc(1.2rem - 1px);
+  background: rgb(var(--card) / 0.92);
+  backdrop-filter: blur(8px);
+}
+
+@keyframes glow-border-spin {
+  0% { --glow-angle: 0deg; }
+  100% { --glow-angle: 360deg; }
+}
+
+@keyframes glow-card-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 15px rgb(var(--accent-a) / 0.12),
+      0 0 40px rgb(var(--accent-a) / 0.06),
+      0 0 80px rgb(var(--accent-a) / 0.03);
+  }
+  50% {
+    box-shadow:
+      0 0 20px rgb(var(--accent-a) / 0.22),
+      0 0 60px rgb(var(--accent-a) / 0.12),
+      0 0 100px rgb(var(--accent-a) / 0.06);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

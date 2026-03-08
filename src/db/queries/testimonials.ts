@@ -45,7 +45,10 @@ export async function getPublishedTestimonials() {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("testimonials")
-    .select("*");
+    .select("*")
+    .eq("status", "published")
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
 
   if (error) {
     if (isTestimonialsTableMissing(error)) {
@@ -57,9 +60,7 @@ export async function getPublishedTestimonials() {
 
   const rows = (data ?? [])
     .map((row) => normalizeTestimonialRow(row as Record<string, unknown>))
-    .filter((row): row is TestimonialRow => row !== null)
-    .filter((row) => row.status === "published")
-    .sort((a, b) => a.sort_order - b.sort_order || a.created_at.localeCompare(b.created_at));
+    .filter((row): row is TestimonialRow => row !== null);
 
   return rows;
 }

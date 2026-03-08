@@ -1,12 +1,14 @@
 import "server-only";
 
+import { unstable_noStore as noStore } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 
 export async function getPublishedPosts() {
+  noStore();
   const supabase = createClient();
   const { data, error } = await supabase
     .from("posts")
-    .select("*")
+    .select("id,title,slug,excerpt,cover_image_url,created_at,category,author,seo_title,seo_description")
     .eq("status", "published")
     .order("created_at", { ascending: false });
 

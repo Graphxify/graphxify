@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, Code2, Compass, Database, Palette, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Check, Code2, Compass, Database, Palette, X, type LucideIcon } from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,22 @@ const differentiators = [
   "Consistent components and documentation",
   "Clear process and predictable delivery",
   "Transparent communication from kickoff to launch"
+] as const;
+
+const graphxifyComparisonItems = [
+  "Structured brand systems",
+  "Scalable website architecture",
+  "Clean CMS structure",
+  "Fast modern performance",
+  "Built for long-term growth"
+] as const;
+
+const typicalAgencyItems = [
+  "One-off designs",
+  "Hard-to-manage websites",
+  "Rigid page builders",
+  "Slow heavy builds",
+  "Frequent redesigns required"
 ] as const;
 
 function HeroVisualPanel(): JSX.Element {
@@ -206,6 +222,49 @@ export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.
               </li>
             ))}
           </ul>
+        </div>
+      </SectionReveal>
+
+      <SectionReveal className="container mt-10 md:mt-14" effect="up">
+        <div className="mx-auto max-w-3xl text-center">
+          <h2 className="text-2xl font-semibold md:text-3xl">Built Differently</h2>
+          <p className="mt-3 text-fg/66">A more structured way to design brands and build modern websites.</p>
+        </div>
+
+        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+          <article className="graphxify-glow-card group relative rounded-[1.2rem] border border-border/16 bg-card/60 p-5 md:p-6">
+            <h3 className="text-xl font-semibold">Graphxify</h3>
+            <ul className="mt-4">
+              {graphxifyComparisonItems.map((item) => (
+                <li
+                  key={`about-graphxify-compare-${item}`}
+                  className="flex items-center gap-3 border-b border-border/14 py-3.5 last:border-b-0 last:pb-0 first:pt-0"
+                >
+                  <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-accentA/35 bg-accentA/12 text-accentA">
+                    <Check className="h-3 w-3" aria-hidden="true" />
+                  </span>
+                  <span className="text-sm text-fg/86">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="rounded-[1.2rem] border border-border/16 bg-card/60 p-5 md:p-6">
+            <h3 className="text-xl font-semibold text-fg/84">Typical Agency</h3>
+            <ul className="mt-4">
+              {typicalAgencyItems.map((item) => (
+                <li
+                  key={`about-typical-compare-${item}`}
+                  className="flex items-center gap-3 border-b border-border/12 py-3.5 last:border-b-0 last:pb-0 first:pt-0"
+                >
+                  <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/26 bg-bg/40 text-fg/50">
+                    <X className="h-3 w-3" aria-hidden="true" />
+                  </span>
+                  <span className="text-sm text-fg/64">{item}</span>
+                </li>
+              ))}
+            </ul>
+          </article>
         </div>
       </SectionReveal>
 

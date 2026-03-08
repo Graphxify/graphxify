@@ -1,3 +1,6 @@
+import { Users } from "lucide-react";
+import { EmptyState } from "@/app/dashboard/(components)/empty-state";
+import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDashboardLeads } from "@/db/queries/admin";
@@ -23,32 +26,43 @@ export default async function DashboardLeadsPage({
 
         <RevealItem>
           <div className="section-shell border-border/18 bg-card/72 p-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Message</TableHead>
-                  <TableHead>Created</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {result.rows.map((lead) => (
-                  <TableRow key={lead.id}>
-                    <TableCell>{lead.name}</TableCell>
-                    <TableCell>{lead.email}</TableCell>
-                    <TableCell className="max-w-md whitespace-pre-wrap">{lead.message}</TableCell>
-                    <TableCell>{new Date(lead.created_at).toLocaleString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {result.rows.length === 0 ? (
+              <EmptyState
+                icon={<Users className="h-8 w-8 text-fg/32" />}
+                title="No leads yet"
+                description="Leads from your contact form will appear here."
+              />
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Message</TableHead>
+                      <TableHead>Created</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {result.rows.map((lead) => (
+                      <TableRow key={lead.id}>
+                        <TableCell className="font-medium">{lead.name}</TableCell>
+                        <TableCell className="text-fg/72">{lead.email}</TableCell>
+                        <TableCell className="max-w-md truncate text-fg/56">{lead.message}</TableCell>
+                        <TableCell className="whitespace-nowrap text-fg/56">{new Date(lead.created_at).toLocaleString()}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <ServerPagination
+                  currentPage={result.page}
+                  total={result.total}
+                  pageSize={20}
+                  basePath="/dashboard/leads"
+                />
+              </>
+            )}
           </div>
-        </RevealItem>
-        <RevealItem>
-          <p className="text-sm text-fg/62">
-            Page {result.page} - Total {result.total}
-          </p>
         </RevealItem>
       </RevealStagger>
     </section>

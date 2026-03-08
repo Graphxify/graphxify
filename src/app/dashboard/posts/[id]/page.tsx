@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
 import { ContentForm } from "@/app/dashboard/(components)/content-form";
 import { DeleteContentButton } from "@/app/dashboard/(components)/delete-content-button";
+import { VersionHistoryTable } from "@/app/dashboard/(components)/version-history-table";
 import { restorePostVersionAction } from "@/app/dashboard/posts/[id]/actions";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getPostById, getPostVersions } from "@/db/queries/posts";
 import { requireRole } from "@/lib/auth/requireRole";
 
@@ -51,36 +50,12 @@ export default async function DashboardPostEditorPage({ params }: { params: Prom
                 <CardTitle>Version history</CardTitle>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Version</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Edited At</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {versions.map((version) => (
-                      <TableRow key={version.id}>
-                        <TableCell>#{version.version}</TableCell>
-                        <TableCell>{version.title}</TableCell>
-                        <TableCell>{version.status}</TableCell>
-                        <TableCell>{new Date(version.created_at).toLocaleString()}</TableCell>
-                        <TableCell>
-                          <form action={restorePostVersionAction}>
-                            <input type="hidden" name="postId" value={id} />
-                            <input type="hidden" name="versionId" value={version.id} />
-                            <Button size="sm" variant="secondary" type="submit">
-                              Restore
-                            </Button>
-                          </form>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <VersionHistoryTable
+                  versions={versions}
+                  itemId={id}
+                  itemIdField="postId"
+                  restoreAction={restorePostVersionAction}
+                />
               </CardContent>
             </Card>
           </RevealItem>

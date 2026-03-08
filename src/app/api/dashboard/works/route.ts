@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createOrUpdateWork, deleteWork } from "@/services/content-service";
 import { requireApiRole } from "@/lib/auth/requireRole";
+import { errorMessage } from "@/lib/api-error";
 import { logger } from "@/lib/logger";
-
-function errorMessage(error: unknown, fallback: string): string {
-  if (error && typeof error === "object" && "issues" in error) {
-    const issues = (error as { issues?: Array<{ path?: Array<string | number>; message?: string }> }).issues;
-    if (Array.isArray(issues) && issues.length > 0) {
-      return issues
-        .map((issue) => {
-          const key = issue.path?.join(".") || "field";
-          return `${key}: ${issue.message || "Invalid value"}`;
-        })
-        .join("; ");
-    }
-  }
-  return error instanceof Error && error.message ? error.message : fallback;
-}
 
 export async function POST(request: NextRequest) {
   try {
