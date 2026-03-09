@@ -133,19 +133,7 @@ export default async function DashboardAnalyticsPage() {
           </Card>
         </RevealItem>
 
-        {/* ── Most viewed placeholder ── */}
-        <RevealItem>
-          <Card>
-            <CardHeader>
-              <CardTitle>Most viewed content</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-fg/48">
-                Use the <code className="rounded bg-card/60 px-1.5 py-0.5 text-xs">page_views</code> table to render top paths and trend lines.
-              </p>
-            </CardContent>
-          </Card>
-        </RevealItem>
+
       </RevealStagger>
     </section>
   );

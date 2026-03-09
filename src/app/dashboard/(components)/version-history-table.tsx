@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ConfirmDialog } from "@/app/dashboard/(components)/confirm-dialog";
 
 type VersionRow = {
     id: string;
@@ -60,13 +61,21 @@ export function VersionHistoryTable({
                             <TableCell>{version.status}</TableCell>
                             <TableCell>{new Date(version.created_at).toLocaleString()}</TableCell>
                             <TableCell>
-                                <form action={restoreAction}>
-                                    <input type="hidden" name={itemIdField} value={itemId} />
-                                    <input type="hidden" name="versionId" value={version.id} />
-                                    <Button size="sm" variant="secondary" type="submit">
+                                <ConfirmDialog
+                                    title={`Restore version #${version.version}?`}
+                                    description="This will overwrite the current content with this version's data."
+                                    confirmLabel="Restore"
+                                    onConfirm={() => {
+                                        const formData = new FormData();
+                                        formData.set(itemIdField, itemId);
+                                        formData.set("versionId", version.id);
+                                        restoreAction(formData);
+                                    }}
+                                >
+                                    <Button size="sm" variant="secondary" type="button">
                                         Restore
                                     </Button>
-                                </form>
+                                </ConfirmDialog>
                             </TableCell>
                         </TableRow>
                     ))}

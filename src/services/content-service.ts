@@ -12,6 +12,8 @@ import { getProjectPathSlug } from "@/lib/project-card-content";
 import { postSchema, workSchema } from "@/lib/validation/schemas";
 
 type ContentClient = ReturnType<typeof createClient> | NonNullable<ReturnType<typeof createAdminClient>>;
+type ContentProfile = NonNullable<Awaited<ReturnType<typeof getCurrentProfile>>>;
+type PublishContentType = "post" | "work";
 
 async function nextPostVersion(postId: string, supabase: ContentClient): Promise<number> {
   const { data } = await supabase
@@ -39,11 +41,31 @@ function getWriteClient(): ContentClient {
   return createAdminClient() ?? createClient();
 }
 
+async function requireProfile(): Promise<ContentProfile> {
+  const profile = await getCurrentProfile();
+  if (!profile) {
+    throw new Error("Unauthorized");
+  }
+  return profile;
+}
+
+function assertCanEditOwnedContent(profile: ContentProfile, authorId: string | null): void {
+  if (profile.role === "mod" && authorId && authorId !== profile.id) {
+    throw new Error("Forbidden");
+  }
+}
+
+function assertCanManageContent(profile: ContentProfile): void {
+  if (profile.role !== "admin" && profile.role !== "mod") {
+    throw new Error("Forbidden");
+  }
+}
+
 function parseServicesInput(raw: FormDataEntryValue | null): string[] {
   const value = String(raw ?? "");
   return value
     .split(",")
-    .map((s) => s.trim())
+    .map((segment) => segment.trim())
     .filter(Boolean);
 }
 
@@ -66,12 +88,38 @@ function sanitizeGalleryImages(galleryImages: string[], coverImageUrl?: string):
   return galleryImages.filter((imageUrl) => imageUrl !== normalizedCover);
 }
 
-export async function createOrUpdatePost(params: { id?: string; formData: FormData }): Promise<{ id: string }> {
-  const profile = await getCurrentProfile();
-  if (!profile) {
-    throw new Error("Unauthorized");
+function revalidatePaths(paths: string[]): void {
+  for (const path of new Set(paths)) {
+    revalidatePath(path);
+  }
+}
+
+function getPostRevalidationPaths(slug?: string): string[] {
+  return slug
+    ? ["/blog", `/blog/${slug}`, "/dashboard/posts"]
+    : ["/blog", "/dashboard/posts"];
+}
+
+function getWorkRevalidationPaths(slug: string): string[] {
+  return ["/works", `/works/${getProjectPathSlug(slug)}`, `/works/${slug}`, "/dashboard/works"];
+}
+
+function notifyPublish(type: PublishContentType, title: string, slug: string): void {
+  if (!env.OWNER_NOTIFY_EMAIL) {
+    return;
   }
 
+  const template = publishNotificationTemplate({
+    type,
+    title,
+    slug,
+    publishedAt: new Date().toISOString()
+  });
+  void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+}
+
+export async function createOrUpdatePost(params: { id?: string; formData: FormData }): Promise<{ id: string }> {
+  const profile = await requireProfile();
   const parsed = postSchema.parse({
     title: params.formData.get("title"),
     slug: params.formData.get("slug"),
@@ -99,7 +147,9 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
       .select("id")
       .single();
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     await supabase.from("post_versions").insert({
       post_id: data.id,
@@ -123,22 +173,24 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
       metadata: { status: parsed.status, slug: parsed.slug }
     });
 
-    revalidatePath("/blog");
-    revalidatePath("/dashboard/posts");
+    revalidatePaths(getPostRevalidationPaths());
     return { id: data.id };
   }
 
   const { data: existing, error: existingError } = await supabase
     .from("posts")
-    .select("id,author_id,status,title,slug")
+    .select("author_id,status")
     .eq("id", id)
     .maybeSingle();
-  if (existingError) throw existingError;
-  if (!existing) throw new Error("Post not found");
 
-  if (profile.role === "mod" && existing.author_id && existing.author_id !== profile.id) {
-    throw new Error("Forbidden");
+  if (existingError) {
+    throw existingError;
   }
+  if (!existing) {
+    throw new Error("Post not found");
+  }
+
+  assertCanEditOwnedContent(profile, existing.author_id);
 
   const { error } = await supabase
     .from("posts")
@@ -154,12 +206,15 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
     })
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
+  const version = await nextPostVersion(id, supabase);
   await Promise.all([
     supabase.from("post_versions").insert({
       post_id: id,
-      version: await nextPostVersion(id, supabase),
+      version,
       title: parsed.title,
       slug: parsed.slug,
       excerpt: parsed.excerpt,
@@ -183,28 +238,16 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
     })
   ]);
 
-  if (parsed.status === "published" && env.OWNER_NOTIFY_EMAIL) {
-    const template = publishNotificationTemplate({
-      type: "post",
-      title: parsed.title,
-      slug: parsed.slug,
-      publishedAt: new Date().toISOString()
-    });
-    void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+  if (parsed.status === "published") {
+    notifyPublish("post", parsed.title, parsed.slug);
   }
 
-  revalidatePath("/blog");
-  revalidatePath(`/blog/${parsed.slug}`);
-  revalidatePath("/dashboard/posts");
+  revalidatePaths(getPostRevalidationPaths(parsed.slug));
   return { id };
 }
 
 export async function createOrUpdateWork(params: { id?: string; formData: FormData }): Promise<{ id: string }> {
-  const profile = await getCurrentProfile();
-  if (!profile) {
-    throw new Error("Unauthorized");
-  }
-
+  const profile = await requireProfile();
   const parsed = workSchema.parse({
     title: params.formData.get("title"),
     slug: params.formData.get("slug"),
@@ -219,8 +262,8 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     galleryImages: parseGalleryImagesInput(params.formData.getAll("galleryImages")),
     status: params.formData.get("status")
   });
-  const galleryImages = sanitizeGalleryImages(parsed.galleryImages, parsed.coverImageUrl);
 
+  const galleryImages = sanitizeGalleryImages(parsed.galleryImages, parsed.coverImageUrl);
   const supabase = getWriteClient();
   const id = params.id;
 
@@ -245,7 +288,9 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
       .select("id")
       .single();
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     await supabase.from("work_versions").insert({
       work_id: data.id,
@@ -275,24 +320,24 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
       metadata: { status: parsed.status, slug: parsed.slug }
     });
 
-    revalidatePath("/works");
-    revalidatePath(`/works/${getProjectPathSlug(parsed.slug)}`);
-    revalidatePath(`/works/${parsed.slug}`);
-    revalidatePath("/dashboard/works");
+    revalidatePaths(getWorkRevalidationPaths(parsed.slug));
     return { id: data.id };
   }
 
   const { data: existing, error: existingError } = await supabase
     .from("works")
-    .select("id,author_id,status,title,slug")
+    .select("author_id,status")
     .eq("id", id)
     .maybeSingle();
-  if (existingError) throw existingError;
-  if (!existing) throw new Error("Work not found");
 
-  if (profile.role === "mod" && existing.author_id && existing.author_id !== profile.id) {
-    throw new Error("Forbidden");
+  if (existingError) {
+    throw existingError;
   }
+  if (!existing) {
+    throw new Error("Work not found");
+  }
+
+  assertCanEditOwnedContent(profile, existing.author_id);
 
   const { error } = await supabase
     .from("works")
@@ -314,12 +359,15 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     })
     .eq("id", id);
 
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
+  const version = await nextWorkVersion(id, supabase);
   await Promise.all([
     supabase.from("work_versions").insert({
       work_id: id,
-      version: await nextWorkVersion(id, supabase),
+      version,
       title: parsed.title,
       slug: parsed.slug,
       year: parsed.year,
@@ -349,35 +397,32 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     })
   ]);
 
-  if (parsed.status === "published" && env.OWNER_NOTIFY_EMAIL) {
-    const template = publishNotificationTemplate({
-      type: "work",
-      title: parsed.title,
-      slug: parsed.slug,
-      publishedAt: new Date().toISOString()
-    });
-    void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+  if (parsed.status === "published") {
+    notifyPublish("work", parsed.title, parsed.slug);
   }
 
-  revalidatePath("/works");
-  revalidatePath(`/works/${getProjectPathSlug(parsed.slug)}`);
-  revalidatePath(`/works/${parsed.slug}`);
-  revalidatePath("/dashboard/works");
+  revalidatePaths(getWorkRevalidationPaths(parsed.slug));
   return { id };
 }
 
 export async function restorePostVersion(postId: string, versionId: string): Promise<void> {
-  const profile = await getCurrentProfile();
-  if (!profile) throw new Error("Unauthorized");
-
+  const profile = await requireProfile();
   const supabase = getWriteClient();
 
-  const { data: postMeta, error: postMetaError } = await supabase.from("posts").select("author_id").eq("id", postId).maybeSingle();
-  if (postMetaError) throw postMetaError;
-  if (!postMeta) throw new Error("Post not found");
-  if (profile.role === "mod" && postMeta.author_id && postMeta.author_id !== profile.id) {
-    throw new Error("Forbidden");
+  const { data: postMeta, error: postMetaError } = await supabase
+    .from("posts")
+    .select("author_id")
+    .eq("id", postId)
+    .maybeSingle();
+
+  if (postMetaError) {
+    throw postMetaError;
   }
+  if (!postMeta) {
+    throw new Error("Post not found");
+  }
+
+  assertCanEditOwnedContent(profile, postMeta.author_id);
 
   const { data: version, error: versionError } = await supabase
     .from("post_versions")
@@ -386,7 +431,9 @@ export async function restorePostVersion(postId: string, versionId: string): Pro
     .eq("post_id", postId)
     .single();
 
-  if (versionError) throw versionError;
+  if (versionError) {
+    throw versionError;
+  }
 
   const { error: updateError } = await supabase
     .from("posts")
@@ -402,11 +449,14 @@ export async function restorePostVersion(postId: string, versionId: string): Pro
     })
     .eq("id", postId);
 
-  if (updateError) throw updateError;
+  if (updateError) {
+    throw updateError;
+  }
 
+  const nextVersion = await nextPostVersion(postId, supabase);
   await supabase.from("post_versions").insert({
     post_id: postId,
-    version: await nextPostVersion(postId, supabase),
+    version: nextVersion,
     title: version.title,
     slug: version.slug,
     excerpt: version.excerpt,
@@ -426,22 +476,27 @@ export async function restorePostVersion(postId: string, versionId: string): Pro
     metadata: { restored_version_id: versionId, restored_version: version.version }
   });
 
-  revalidatePath("/blog");
-  revalidatePath("/dashboard/posts");
+  revalidatePaths(getPostRevalidationPaths());
 }
 
 export async function restoreWorkVersion(workId: string, versionId: string): Promise<void> {
-  const profile = await getCurrentProfile();
-  if (!profile) throw new Error("Unauthorized");
-
+  const profile = await requireProfile();
   const supabase = getWriteClient();
 
-  const { data: workMeta, error: workMetaError } = await supabase.from("works").select("author_id").eq("id", workId).maybeSingle();
-  if (workMetaError) throw workMetaError;
-  if (!workMeta) throw new Error("Work not found");
-  if (profile.role === "mod" && workMeta.author_id && workMeta.author_id !== profile.id) {
-    throw new Error("Forbidden");
+  const { data: workMeta, error: workMetaError } = await supabase
+    .from("works")
+    .select("author_id")
+    .eq("id", workId)
+    .maybeSingle();
+
+  if (workMetaError) {
+    throw workMetaError;
   }
+  if (!workMeta) {
+    throw new Error("Work not found");
+  }
+
+  assertCanEditOwnedContent(profile, workMeta.author_id);
 
   const { data: version, error: versionError } = await supabase
     .from("work_versions")
@@ -450,7 +505,9 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
     .eq("work_id", workId)
     .single();
 
-  if (versionError) throw versionError;
+  if (versionError) {
+    throw versionError;
+  }
 
   const { error: updateError } = await supabase
     .from("works")
@@ -472,11 +529,14 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
     })
     .eq("id", workId);
 
-  if (updateError) throw updateError;
+  if (updateError) {
+    throw updateError;
+  }
 
+  const nextVersion = await nextWorkVersion(workId, supabase);
   await supabase.from("work_versions").insert({
     work_id: workId,
-    version: await nextWorkVersion(workId, supabase),
+    version: nextVersion,
     title: version.title,
     slug: version.slug,
     year: version.year,
@@ -502,21 +562,18 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
     metadata: { restored_version_id: versionId, restored_version: version.version }
   });
 
-  revalidatePath("/works");
-  revalidatePath(`/works/${getProjectPathSlug(version.slug)}`);
-  revalidatePath(`/works/${version.slug}`);
-  revalidatePath("/dashboard/works");
+  revalidatePaths(getWorkRevalidationPaths(version.slug));
 }
 
 export async function deletePost(postId: string): Promise<void> {
-  const profile = await getCurrentProfile();
-  if (!profile || (profile.role !== "admin" && profile.role !== "mod")) {
-    throw new Error("Forbidden");
-  }
+  const profile = await requireProfile();
+  assertCanManageContent(profile);
 
   const supabase = getWriteClient();
   const { error } = await supabase.from("posts").delete().eq("id", postId);
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
   await logAuditEvent({
     actorId: profile.id,
@@ -528,19 +585,18 @@ export async function deletePost(postId: string): Promise<void> {
     metadata: { operation: "delete" }
   });
 
-  revalidatePath("/blog");
-  revalidatePath("/dashboard/posts");
+  revalidatePaths(getPostRevalidationPaths());
 }
 
 export async function deleteWork(workId: string): Promise<void> {
-  const profile = await getCurrentProfile();
-  if (!profile || (profile.role !== "admin" && profile.role !== "mod")) {
-    throw new Error("Forbidden");
-  }
+  const profile = await requireProfile();
+  assertCanManageContent(profile);
 
   const supabase = getWriteClient();
   const { error } = await supabase.from("works").delete().eq("id", workId);
-  if (error) throw error;
+  if (error) {
+    throw error;
+  }
 
   await logAuditEvent({
     actorId: profile.id,
@@ -552,6 +608,5 @@ export async function deleteWork(workId: string): Promise<void> {
     metadata: { operation: "delete" }
   });
 
-  revalidatePath("/works");
-  revalidatePath("/dashboard/works");
+  revalidatePaths(["/works", "/dashboard/works"]);
 }

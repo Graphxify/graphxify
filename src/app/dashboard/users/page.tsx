@@ -1,6 +1,6 @@
 import { updateUserRoleAction } from "@/app/dashboard/users/actions";
+import { UserRoleForm } from "@/app/dashboard/users/user-role-form";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getProfiles } from "@/db/queries/admin";
 import { requireRole } from "@/lib/auth/requireRole";
@@ -35,16 +35,11 @@ export default async function DashboardUsersPage() {
                     <TableCell>{user.role}</TableCell>
                     <TableCell>{new Date(user.created_at).toLocaleString()}</TableCell>
                     <TableCell>
-                      <form action={updateUserRoleAction} className="flex items-center gap-2">
-                        <input type="hidden" name="userId" value={user.id} />
-                        <select name="role" defaultValue={user.role} className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-sm text-fg">
-                          <option value="mod">mod</option>
-                          <option value="admin">admin</option>
-                        </select>
-                        <Button type="submit" size="sm" variant="secondary">
-                          Update
-                        </Button>
-                      </form>
+                      <UserRoleForm
+                        userId={user.id}
+                        currentRole={user.role}
+                        updateAction={updateUserRoleAction}
+                      />
                     </TableCell>
                   </TableRow>
                 ))}

@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { FolderKanban } from "lucide-react";
+import { FolderKanban, Search } from "lucide-react";
 import { EmptyState } from "@/app/dashboard/(components)/empty-state";
 import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDashboardWorks } from "@/db/queries/works";
 import { requireRole } from "@/lib/auth/requireRole";
@@ -25,7 +26,8 @@ export default async function DashboardWorksPage({
   await requireRole(["admin", "mod"]);
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
-  const result = await getDashboardWorks(page, 10);
+  const search = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : "";
+  const result = await getDashboardWorks(page, 10, search);
 
   return (
     <section className="space-y-5">
@@ -42,15 +44,38 @@ export default async function DashboardWorksPage({
           </div>
         </RevealItem>
 
+        {/* Search */}
+        <RevealItem>
+          <form className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/36" />
+              <Input
+                name="q"
+                defaultValue={search}
+                placeholder="Search works by title..."
+                className="pl-9"
+              />
+            </div>
+            <Button type="submit" variant="secondary" size="sm">
+              Search
+            </Button>
+            {search && (
+              <Button asChild variant="ghost" size="sm" className="text-fg/56">
+                <Link href="/dashboard/works">Clear</Link>
+              </Button>
+            )}
+          </form>
+        </RevealItem>
+
         <RevealItem>
           <div className="section-shell border-border/18 bg-card/72 p-4">
             {result.rows.length === 0 ? (
               <EmptyState
                 icon={<FolderKanban className="h-8 w-8 text-fg/32" />}
-                title="No works yet"
-                description="Add your first project to showcase your work."
-                actionLabel="New work"
-                actionHref="/dashboard/works/new"
+                title={search ? "No works match your search" : "No works yet"}
+                description={search ? "Try a different search term." : "Add your first project to showcase your work."}
+                actionLabel={search ? undefined : "New work"}
+                actionHref={search ? undefined : "/dashboard/works/new"}
               />
             ) : (
               <>
@@ -85,6 +110,7 @@ export default async function DashboardWorksPage({
                   total={result.total}
                   pageSize={10}
                   basePath="/dashboard/works"
+                  searchParams={search ? { q: search } : {}}
                 />
               </>
             )}

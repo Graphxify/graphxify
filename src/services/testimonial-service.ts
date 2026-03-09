@@ -15,9 +15,35 @@ import {
 import { testimonialSchema } from "@/lib/validation/schemas";
 
 type TestimonialClient = ReturnType<typeof createClient> | NonNullable<ReturnType<typeof createAdminClient>>;
+type TestimonialProfile = NonNullable<Awaited<ReturnType<typeof getCurrentProfile>>>;
 
 function getWriteClient(): TestimonialClient {
   return createAdminClient() ?? createClient();
+}
+
+async function requireTestimonialProfile(): Promise<TestimonialProfile> {
+  const profile = await getCurrentProfile();
+  if (!profile) {
+    throw new Error("Unauthorized");
+  }
+  return profile;
+}
+
+function assertCanEditOwnedTestimonial(profile: TestimonialProfile, authorId: string | null): void {
+  if (profile.role === "mod" && authorId && authorId !== profile.id) {
+    throw new Error("Forbidden");
+  }
+}
+
+function assertCanDeleteTestimonial(profile: TestimonialProfile): void {
+  if (profile.role !== "admin" && profile.role !== "mod") {
+    throw new Error("Forbidden");
+  }
+}
+
+function revalidateTestimonialPages(): void {
+  revalidatePath("/");
+  revalidatePath("/dashboard/testimonials");
 }
 
 function toFallbackRecord(params: {
@@ -49,10 +75,7 @@ function toFallbackRecord(params: {
 }
 
 export async function createOrUpdateTestimonial(params: { id?: string; formData: FormData }): Promise<{ id: string }> {
-  const profile = await getCurrentProfile();
-  if (!profile) {
-    throw new Error("Unauthorized");
-  }
+  const profile = await requireTestimonialProfile();
 
   const parsed = testimonialSchema.parse({
     name: params.formData.get("name"),
@@ -119,8 +142,7 @@ export async function createOrUpdateTestimonial(params: { id?: string; formData:
       }
     });
 
-    revalidatePath("/");
-    revalidatePath("/dashboard/testimonials");
+    revalidateTestimonialPages();
     return { id: createdId };
   }
 
@@ -157,9 +179,7 @@ export async function createOrUpdateTestimonial(params: { id?: string; formData:
     throw new Error("Testimonial not found");
   }
 
-  if (profile.role === "mod" && existing.author_id && existing.author_id !== profile.id) {
-    throw new Error("Forbidden");
-  }
+  assertCanEditOwnedTestimonial(profile, existing.author_id);
 
   try {
     const { error } = await supabase
@@ -212,16 +232,13 @@ export async function createOrUpdateTestimonial(params: { id?: string; formData:
     }
   });
 
-  revalidatePath("/");
-  revalidatePath("/dashboard/testimonials");
+  revalidateTestimonialPages();
   return { id: params.id };
 }
 
 export async function deleteTestimonial(id: string): Promise<void> {
-  const profile = await getCurrentProfile();
-  if (!profile || (profile.role !== "admin" && profile.role !== "mod")) {
-    throw new Error("Forbidden");
-  }
+  const profile = await requireTestimonialProfile();
+  assertCanDeleteTestimonial(profile);
 
   const supabase = getWriteClient();
   let existing: { id: string; author_id: string | null } | null = null;
@@ -254,9 +271,7 @@ export async function deleteTestimonial(id: string): Promise<void> {
     throw new Error("Testimonial not found");
   }
 
-  if (profile.role === "mod" && existing.author_id && existing.author_id !== profile.id) {
-    throw new Error("Forbidden");
-  }
+  assertCanEditOwnedTestimonial(profile, existing.author_id);
 
   try {
     const { error } = await supabase.from("testimonials").delete().eq("id", id);
@@ -286,6 +301,5 @@ export async function deleteTestimonial(id: string): Promise<void> {
     metadata: { operation: "delete" }
   });
 
-  revalidatePath("/");
-  revalidatePath("/dashboard/testimonials");
+  revalidateTestimonialPages();
 }

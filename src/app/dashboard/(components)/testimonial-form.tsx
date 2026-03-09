@@ -113,7 +113,7 @@ export function TestimonialForm({ item }: { item?: TestimonialItem | null }): JS
 
       <div className="space-y-2">
         <Label>Background image</Label>
-        <UploadMedia onUploaded={setImageUrl} />
+        <UploadMedia onUploaded={setImageUrl} currentUrl={imageUrl} />
         <Input
           name="imageUrl"
           value={imageUrl}
@@ -122,8 +122,8 @@ export function TestimonialForm({ item }: { item?: TestimonialItem | null }): JS
         />
       </div>
 
-      {error ? <p className="text-sm text-fg/76">{error}</p> : null}
-      {notice ? <p className="text-sm text-fg/76">{notice}</p> : null}
+      {error ? <p className="text-sm font-medium text-red-400">{error}</p> : null}
+      {notice ? <p className="text-sm font-medium text-emerald-400">{notice}</p> : null}
 
       <Button type="submit" disabled={saving}>
         {saving ? "Saving..." : "Save"}

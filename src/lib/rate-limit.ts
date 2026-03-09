@@ -24,19 +24,37 @@ type ScoredEntry = {
 
 const memoryStore = new Map<string, number[]>();
 const MEMORY_STORE_MAX_KEYS = 5000;
+const MS_IN_SECOND = 1000;
 
 const redis = env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN
   ? new Redis({ url: env.UPSTASH_REDIS_REST_URL, token: env.UPSTASH_REDIS_REST_TOKEN })
   : null;
 
+function trimExpiredTimestamps(timestamps: number[], windowStart: number): number[] {
+  let firstValidIndex = 0;
+  while (firstValidIndex < timestamps.length && timestamps[firstValidIndex] <= windowStart) {
+    firstValidIndex += 1;
+  }
+
+  if (firstValidIndex === 0) {
+    return timestamps;
+  }
+
+  return timestamps.slice(firstValidIndex);
+}
+
+function retryAfterSeconds(untilTimestamp: number, now: number): number {
+  return Math.max(1, Math.ceil((untilTimestamp - now) / MS_IN_SECOND));
+}
+
 function evictStaleKeys(now: number, windowSec: number): void {
   if (memoryStore.size <= MEMORY_STORE_MAX_KEYS) {
     return;
   }
-  const cutoff = now - windowSec * 1000;
+  const cutoff = now - windowSec * MS_IN_SECOND;
   for (const [storedKey, timestamps] of memoryStore) {
-    const hasActive = timestamps.some((ts) => ts > cutoff);
-    if (!hasActive) {
+    const latestTimestamp = timestamps[timestamps.length - 1];
+    if (!latestTimestamp || latestTimestamp <= cutoff) {
       memoryStore.delete(storedKey);
     }
   }
@@ -44,7 +62,8 @@ function evictStaleKeys(now: number, windowSec: number): void {
 
 export async function rateLimit({ key, route, limit = 10, windowSec = 60 }: LimitOptions): Promise<RateLimitResult> {
   const now = Date.now();
-  const windowStart = now - windowSec * 1000;
+  const windowMs = windowSec * MS_IN_SECOND;
+  const windowStart = now - windowMs;
   const fullKey = `${route}:${key}`;
 
   if (redis) {
@@ -56,7 +75,7 @@ export async function rateLimit({ key, route, limit = 10, windowSec = 60 }: Limi
       if (total >= limit) {
         const oldest = (await redis.zrange(redisKey, 0, 0, { withScores: true })) as ScoredEntry[];
         const oldestTimestamp = oldest[0] ? Number(oldest[0].score) : now;
-        const retryAfter = Math.max(1, Math.ceil((oldestTimestamp + windowSec * 1000 - now) / 1000));
+        const retryAfter = retryAfterSeconds(oldestTimestamp + windowMs, now);
         return { allowed: false, remaining: 0, retryAfter };
       }
 
@@ -72,15 +91,15 @@ export async function rateLimit({ key, route, limit = 10, windowSec = 60 }: Limi
     }
   }
 
-  const points = memoryStore.get(fullKey) ?? [];
-  const filtered = points.filter((timestamp) => timestamp > windowStart);
-  if (filtered.length >= limit) {
-    const retryAfter = Math.max(1, Math.ceil((filtered[0] + windowSec * 1000 - now) / 1000));
-    memoryStore.set(fullKey, filtered);
+  const timestamps = trimExpiredTimestamps(memoryStore.get(fullKey) ?? [], windowStart);
+  if (timestamps.length >= limit) {
+    const retryAfter = retryAfterSeconds(timestamps[0] + windowMs, now);
+    memoryStore.set(fullKey, timestamps);
     return { allowed: false, remaining: 0, retryAfter };
   }
-  filtered.push(now);
-  memoryStore.set(fullKey, filtered);
+
+  timestamps.push(now);
+  memoryStore.set(fullKey, timestamps);
   evictStaleKeys(now, windowSec);
-  return { allowed: true, remaining: limit - filtered.length, retryAfter: 0 };
+  return { allowed: true, remaining: limit - timestamps.length, retryAfter: 0 };
 }

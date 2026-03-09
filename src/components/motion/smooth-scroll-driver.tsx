@@ -1,73 +1,74 @@
 "use client";
 
-import { useReducedMotion } from "framer-motion";
 import { useEffect, useRef } from "react";
+import Lenis from "lenis";
+import { usePathname } from "next/navigation";
+import { useReducedMotion } from "framer-motion";
+
+/**
+ * Global Lenis smooth-scroll driver.
+ *
+ * Renders as `null` — it just creates a Lenis instance attached to
+ * the window and drives it via rAF. On route changes the scroll
+ * position is instantly reset to 0 (no jerky native jump).
+ *
+ * Also exposes `window.__graphxifySmoothScrollTo` so other components
+ * (e.g. anchor-link navigations) can trigger a smooth scroll.
+ */
 
 type SmoothWindow = Window & {
   __graphxifySmoothScrollTo?: (top: number) => void;
+  __lenis?: Lenis;
 };
-
-function clamp01(value: number): number {
-  return Math.min(Math.max(value, 0), 1);
-}
-
-function easeOutQuart(value: number): number {
-  return 1 - (1 - value) ** 4;
-}
 
 export function SmoothScrollDriver(): null {
   const reducedMotion = useReducedMotion();
+  const lenisRef = useRef<Lenis | null>(null);
   const rafRef = useRef<number | null>(null);
+  const pathname = usePathname();
 
+  // Create / destroy Lenis instance
   useEffect(() => {
-    if (typeof window === "undefined") {
+    if (typeof window === "undefined") return;
+
+    // Don't use smooth scroll if user prefers reduced motion
+    if (reducedMotion) {
       return;
     }
 
-    const smoothWindow = window as SmoothWindow;
+    const lenis = new Lenis({
+      duration: 1.1,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 1.5,
+    });
 
-    const stopAnimation = () => {
-      if (rafRef.current !== null) {
-        window.cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
-      }
+    lenisRef.current = lenis;
+    (window as SmoothWindow).__lenis = lenis;
+
+    // Expose smooth scroll helper for other components
+    (window as SmoothWindow).__graphxifySmoothScrollTo = (top: number) => {
+      lenis.scrollTo(top, { duration: 1.2 });
     };
 
-    const smoothScrollTo = (top: number) => {
-      const target = Math.max(0, top);
-      if (reducedMotion) {
-        window.scrollTo({ top: target, behavior: "auto" });
-        return;
-      }
+    // Drive Lenis with rAF
+    function raf(time: number) {
+      lenis.raf(time);
+      rafRef.current = requestAnimationFrame(raf);
+    }
+    rafRef.current = requestAnimationFrame(raf);
 
-      stopAnimation();
-      const startY = window.scrollY;
-      const distance = target - startY;
-      const duration = 460;
-      const startTime = performance.now();
-
-      const step = (now: number) => {
-        const t = clamp01((now - startTime) / duration);
-        const eased = easeOutQuart(t);
-        window.scrollTo(0, startY + distance * eased);
-        if (t < 1) {
-          rafRef.current = window.requestAnimationFrame(step);
-        } else {
-          rafRef.current = null;
-        }
-      };
-
-      rafRef.current = window.requestAnimationFrame(step);
-    };
-
-    smoothWindow.__graphxifySmoothScrollTo = smoothScrollTo;
-
+    // Handle anchor clicks
     const onDocumentClick = (event: MouseEvent) => {
       const targetNode = event.target as HTMLElement | null;
       const anchor = targetNode?.closest("a[href]") as HTMLAnchorElement | null;
       if (!anchor) return;
 
-      if (anchor.origin !== window.location.origin || anchor.pathname !== window.location.pathname || !anchor.hash) {
+      if (
+        anchor.origin !== window.location.origin ||
+        anchor.pathname !== window.location.pathname ||
+        !anchor.hash
+      ) {
         return;
       }
 
@@ -76,18 +77,32 @@ export function SmoothScrollDriver(): null {
       if (!section) return;
 
       event.preventDefault();
-      const y = section.getBoundingClientRect().top + window.scrollY;
-      smoothScrollTo(y);
+      lenis.scrollTo(section as HTMLElement, { offset: 0, duration: 1.2 });
     };
 
     document.addEventListener("click", onDocumentClick);
 
     return () => {
-      stopAnimation();
       document.removeEventListener("click", onDocumentClick);
-      delete smoothWindow.__graphxifySmoothScrollTo;
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      lenis.destroy();
+      lenisRef.current = null;
+      delete (window as SmoothWindow).__lenis;
+      delete (window as SmoothWindow).__graphxifySmoothScrollTo;
     };
   }, [reducedMotion]);
+
+  // Scroll to top on route change
+  useEffect(() => {
+    if (lenisRef.current) {
+      lenisRef.current.scrollTo(0, { immediate: true });
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname]);
 
   return null;
 }

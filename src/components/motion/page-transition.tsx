@@ -1,24 +1,17 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { usePathname } from "next/navigation";
-
+/**
+ * Page wrapper — no unmount / remount animation.
+ *
+ * In Next.js App Router the router already handles content swaps
+ * internally. Adding `key={pathname}` + AnimatePresence forces a
+ * full React tree tear-down and rebuild, which causes a visible
+ * flash no matter how fast the animation is.
+ *
+ * Individual sections already animate via `<SectionReveal>`, so a
+ * page-level transition is unnecessary. This component is kept as a
+ * simple pass-through to avoid touching every layout that imports it.
+ */
 export function PageTransition({ children }: { children: React.ReactNode }): JSX.Element {
-  const pathname = usePathname();
-  const reducedMotion = useReducedMotion();
-
-  if (reducedMotion) {
-    return <>{children}</>;
-  }
-
-  return (
-    <motion.div
-      key={pathname}
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
-    >
-      {children}
-    </motion.div>
-  );
+  return <>{children}</>;
 }

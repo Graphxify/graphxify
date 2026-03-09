@@ -9,14 +9,15 @@ import { leadSchema } from "@/lib/validation/schemas";
 
 export async function createLead(payload: unknown): Promise<{ id: string }> {
   const parsed = leadSchema.parse(payload);
+  const { name, email, message } = parsed;
   const supabase = createClient();
 
   const { data, error } = await supabase
     .from("leads")
     .insert({
-      name: parsed.name,
-      email: parsed.email,
-      message: parsed.message
+      name,
+      email,
+      message
     })
     .select("id,created_at")
     .single();
@@ -27,7 +28,7 @@ export async function createLead(payload: unknown): Promise<{ id: string }> {
 
   await logAuditEvent({
     actorId: null,
-    actorEmail: parsed.email,
+    actorEmail: email,
     actorRole: "public",
     action: "lead.create",
     entityType: "lead",
@@ -37,9 +38,9 @@ export async function createLead(payload: unknown): Promise<{ id: string }> {
 
   if (env.OWNER_NOTIFY_EMAIL) {
     const template = leadNotificationTemplate({
-      name: parsed.name,
-      email: parsed.email,
-      message: parsed.message,
+      name,
+      email,
+      message,
       createdAt: data.created_at
     });
     void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });

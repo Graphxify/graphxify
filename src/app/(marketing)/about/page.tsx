@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AboutPageContent } from "@/components/marketing/about-page-content";
 import { getPublishedWorks } from "@/db/queries/works";
+import { getPublishedTestimonials } from "@/db/queries/testimonials";
 import { projectCardContent, resolveProjectSlugFromPathSlug, withProjectCardContent } from "@/lib/project-card-content";
 import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
 import { buildMetadata } from "@/lib/seo";
@@ -108,5 +109,20 @@ async function getWorkCards(): Promise<WorkCard[]> {
 
 export default async function AboutPage() {
   const works = await getWorkCards();
-  return <AboutPageContent works={works.slice(0, 3)} />;
+
+  let testimonials: { id: string; name: string; role: string; quote: string; image_url: string | null }[] = [];
+  try {
+    const raw = await getPublishedTestimonials();
+    testimonials = raw.slice(0, 3).map((t) => ({
+      id: t.id,
+      name: t.name,
+      role: t.role,
+      quote: t.quote,
+      image_url: t.image_url
+    }));
+  } catch {
+    // testimonials table may not exist — graceful fallback
+  }
+
+  return <AboutPageContent works={works.slice(0, 3)} testimonials={testimonials} />;
 }

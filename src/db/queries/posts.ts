@@ -35,16 +35,21 @@ export async function getPublishedPostBySlug(slug: string) {
   return data;
 }
 
-export async function getDashboardPosts(page = 1, pageSize = 10) {
+export async function getDashboardPosts(page = 1, pageSize = 10, search = "") {
   const supabase = createClient();
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const { data, error, count } = await supabase
+  let query = supabase
     .from("posts")
     .select("id,title,slug,status,updated_at,author_id", { count: "exact" })
-    .order("updated_at", { ascending: false })
-    .range(from, to);
+    .order("updated_at", { ascending: false });
+
+  if (search.trim()) {
+    query = query.ilike("title", `%${search.trim()}%`);
+  }
+
+  const { data, error, count } = await query.range(from, to);
 
   if (error) {
     throw error;

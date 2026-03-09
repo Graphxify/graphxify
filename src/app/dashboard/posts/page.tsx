@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { FileText } from "lucide-react";
+import { FileText, Search } from "lucide-react";
 import { EmptyState } from "@/app/dashboard/(components)/empty-state";
 import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDashboardPosts } from "@/db/queries/posts";
 import { requireRole } from "@/lib/auth/requireRole";
@@ -25,7 +26,8 @@ export default async function DashboardPostsPage({
   await requireRole(["admin", "mod"]);
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
-  const result = await getDashboardPosts(page, 10);
+  const search = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : "";
+  const result = await getDashboardPosts(page, 10, search);
 
   return (
     <section className="space-y-5">
@@ -42,15 +44,38 @@ export default async function DashboardPostsPage({
           </div>
         </RevealItem>
 
+        {/* Search */}
+        <RevealItem>
+          <form className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/36" />
+              <Input
+                name="q"
+                defaultValue={search}
+                placeholder="Search posts by title..."
+                className="pl-9"
+              />
+            </div>
+            <Button type="submit" variant="secondary" size="sm">
+              Search
+            </Button>
+            {search && (
+              <Button asChild variant="ghost" size="sm" className="text-fg/56">
+                <Link href="/dashboard/posts">Clear</Link>
+              </Button>
+            )}
+          </form>
+        </RevealItem>
+
         <RevealItem>
           <div className="section-shell border-border/18 bg-card/72 p-4">
             {result.rows.length === 0 ? (
               <EmptyState
                 icon={<FileText className="h-8 w-8 text-fg/32" />}
-                title="No posts yet"
-                description="Create your first blog post to get started."
-                actionLabel="New post"
-                actionHref="/dashboard/posts/new"
+                title={search ? "No posts match your search" : "No posts yet"}
+                description={search ? "Try a different search term." : "Create your first blog post to get started."}
+                actionLabel={search ? undefined : "New post"}
+                actionHref={search ? undefined : "/dashboard/posts/new"}
               />
             ) : (
               <>
@@ -85,6 +110,7 @@ export default async function DashboardPostsPage({
                   total={result.total}
                   pageSize={10}
                   basePath="/dashboard/posts"
+                  searchParams={search ? { q: search } : {}}
                 />
               </>
             )}

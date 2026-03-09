@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UploadMedia } from "@/app/dashboard/(components)/upload-media";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,16 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { emitCmsContentChanged } from "@/lib/client/cms-sync";
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
 
 type ContentFormProps = {
   type: "post" | "work";
@@ -53,6 +63,10 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
   );
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [slug, setSlug] = useState(String(item?.slug ?? ""));
+  const slugManuallyEdited = useRef(Boolean(item?.slug));
+  const [showPreview, setShowPreview] = useState(false);
+  const [contentValue, setContentValue] = useState(String(item?.content ?? ""));
 
   const updateGalleryImage = (index: number, value: string) => {
     setGalleryImages((prev) => prev.map((entry, entryIndex) => (entryIndex === index ? value : entry)));
@@ -132,7 +146,7 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
 
           <div className="space-y-2">
             <Label>Hero background image</Label>
-            <UploadMedia onUploaded={setCover} />
+            <UploadMedia onUploaded={setCover} currentUrl={cover} />
             <Input
               name="coverImageUrl"
               value={cover}
@@ -149,6 +163,11 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
               required
               defaultValue={String(item?.title ?? "")}
               placeholder="Shown on project cards and the project detail hero title"
+              onChange={(e) => {
+                if (!slugManuallyEdited.current) {
+                  setSlug(slugify(e.target.value));
+                }
+              }}
             />
           </div>
 
@@ -168,7 +187,11 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
               id="slug"
               name="slug"
               required
-              defaultValue={String(item?.slug ?? "")}
+              value={slug}
+              onChange={(e) => {
+                slugManuallyEdited.current = true;
+                setSlug(e.target.value);
+              }}
               placeholder="Used in the URL (/works/...) - lowercase letters, numbers, hyphens only"
             />
           </div>
@@ -232,7 +255,7 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
                       Remove
                     </button>
                   </div>
-                  <UploadMedia onUploaded={(url) => updateGalleryImage(index, url)} />
+                  <UploadMedia onUploaded={(url) => updateGalleryImage(index, url)} currentUrl={imageUrl} />
                   <Input
                     name="galleryImages"
                     value={imageUrl}
@@ -256,6 +279,11 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
               required
               defaultValue={String(item?.title ?? "")}
               placeholder="Shown on blog cards and the blog article title"
+              onChange={(e) => {
+                if (!slugManuallyEdited.current) {
+                  setSlug(slugify(e.target.value));
+                }
+              }}
             />
           </div>
           <div className="space-y-2">
@@ -264,7 +292,11 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
               id="slug"
               name="slug"
               required
-              defaultValue={String(item?.slug ?? "")}
+              value={slug}
+              onChange={(e) => {
+                slugManuallyEdited.current = true;
+                setSlug(e.target.value);
+              }}
               placeholder="Used in the URL (/blog/...) - lowercase letters, numbers, hyphens only"
             />
           </div>
@@ -279,15 +311,46 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
-            <Textarea
-              id="content"
-              name="content"
-              required
-              className="min-h-[220px]"
-              defaultValue={String(item?.content ?? "")}
-              placeholder="Main blog article body shown on the blog detail page"
-            />
+            <div className="flex items-center justify-between">
+              <Label htmlFor="content">Content</Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs text-fg/62"
+                onClick={() => setShowPreview((prev) => !prev)}
+              >
+                {showPreview ? "Edit" : "Preview"}
+              </Button>
+            </div>
+            {showPreview ? (
+              <div
+                className="prose prose-sm prose-invert min-h-[220px] rounded-lg border border-border/18 bg-card/72 px-3 py-2 text-sm text-fg"
+                dangerouslySetInnerHTML={{
+                  __html: contentValue
+                    .replace(/^### (.+)$/gm, "<h3>$1</h3>")
+                    .replace(/^## (.+)$/gm, "<h2>$1</h2>")
+                    .replace(/^# (.+)$/gm, "<h1>$1</h1>")
+                    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+                    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+                    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-accentA underline">$1</a>')
+                    .replace(/^- (.+)$/gm, "<li>$1</li>")
+                    .replace(/(<li>.*<\/li>)/s, "<ul>$1</ul>")
+                    .replace(/\n/g, "<br />")
+                }}
+              />
+            ) : (
+              <Textarea
+                id="content"
+                name="content"
+                required
+                className="min-h-[220px]"
+                value={contentValue}
+                onChange={(e) => setContentValue(e.target.value)}
+                placeholder="Main blog article body shown on the blog detail page"
+              />
+            )}
+            {showPreview ? <input type="hidden" name="content" value={contentValue} /> : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
@@ -304,7 +367,7 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
           </div>
           <div className="space-y-2">
             <Label>Hero background image</Label>
-            <UploadMedia onUploaded={setCover} />
+            <UploadMedia onUploaded={setCover} currentUrl={cover} />
             <Input
               name="coverImageUrl"
               value={cover}
@@ -314,8 +377,8 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
           </div>
         </>
       )}
-      {error ? <p className="text-sm text-fg/76">{error}</p> : null}
-      {notice ? <p className="text-sm text-fg/76">{notice}</p> : null}
+      {error ? <p className="text-sm font-medium text-red-400">{error}</p> : null}
+      {notice ? <p className="text-sm font-medium text-emerald-400">{notice}</p> : null}
       <Button type="submit" disabled={saving}>
         {saving ? "Saving..." : "Save"}
       </Button>

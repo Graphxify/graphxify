@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { MessageSquareQuote } from "lucide-react";
+import { EmptyState } from "@/app/dashboard/(components)/empty-state";
+import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -66,44 +69,56 @@ export default async function DashboardTestimonialsPage({
         <RevealItem>
           <div className="section-shell border-border/18 bg-card/72 p-4">
             {result.warning ? <p className="mb-3 text-sm text-fg/72">{result.warning}</p> : null}
-            {loadError ? <p className="mb-3 text-sm text-fg/72">{loadError}</p> : null}
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Order</TableHead>
-                  <TableHead>Updated</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {result.rows.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.name}</TableCell>
-                    <TableCell>{item.role}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{item.status}</Badge>
-                    </TableCell>
-                    <TableCell>{item.sort_order}</TableCell>
-                    <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>
-                    <TableCell>
-                      <Link href={`/dashboard/testimonials/${item.id}`} className="link-sweep text-sm">
-                        Edit
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {loadError ? <p className="mb-3 text-sm text-red-400">{loadError}</p> : null}
+            {result.rows.length === 0 && !loadError ? (
+              <EmptyState
+                icon={<MessageSquareQuote className="h-8 w-8 text-fg/32" />}
+                title="No testimonials yet"
+                description="Add your first client testimonial to showcase on your site."
+                actionLabel="New testimonial"
+                actionHref="/dashboard/testimonials/new"
+              />
+            ) : (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Order</TableHead>
+                      <TableHead>Updated</TableHead>
+                      <TableHead></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {result.rows.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>{item.name}</TableCell>
+                        <TableCell>{item.role}</TableCell>
+                        <TableCell>
+                          <Badge variant="secondary">{item.status}</Badge>
+                        </TableCell>
+                        <TableCell>{item.sort_order}</TableCell>
+                        <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>
+                        <TableCell>
+                          <Link href={`/dashboard/testimonials/${item.id}`} className="link-sweep text-sm">
+                            Edit
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+                <ServerPagination
+                  currentPage={result.page}
+                  total={result.total}
+                  pageSize={12}
+                  basePath="/dashboard/testimonials"
+                />
+              </>
+            )}
           </div>
-        </RevealItem>
-
-        <RevealItem>
-          <p className="text-sm text-fg/62">
-            Page {result.page} - Total {result.total}
-          </p>
         </RevealItem>
       </RevealStagger>
     </section>

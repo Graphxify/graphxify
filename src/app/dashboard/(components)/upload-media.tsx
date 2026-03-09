@@ -3,7 +3,13 @@
 import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
-export function UploadMedia({ onUploaded }: { onUploaded: (url: string) => void }): JSX.Element {
+export function UploadMedia({
+  onUploaded,
+  currentUrl
+}: {
+  onUploaded: (url: string) => void;
+  currentUrl?: string;
+}): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -43,39 +49,56 @@ export function UploadMedia({ onUploaded }: { onUploaded: (url: string) => void 
   }
 
   return (
-    <div
-      className="rounded-lg border border-dashed border-border/26 bg-card/56 p-4"
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-        if (file) uploadFile(file);
-      }}
-      aria-label="Drag and drop upload"
-    >
-      <p className="mb-2 text-sm text-fg/66">Drag & drop image, or pick a file.</p>
-      <input
-        ref={fileInputRef}
-        type="file"
-        className="hidden"
-        accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
+    <div className="space-y-3">
+      <div
+        className="rounded-lg border border-dashed border-border/26 bg-card/56 p-4"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
+          const file = e.dataTransfer.files[0];
           if (file) uploadFile(file);
-          e.currentTarget.value = "";
         }}
-      />
-      <Button
-        type="button"
-        variant="secondary"
-        disabled={loading}
-        onClick={() => {
-          fileInputRef.current?.click();
-        }}
+        aria-label="Drag and drop upload"
       >
-        {loading ? "Uploading..." : "Choose file"}
-      </Button>
-      {status ? <p className="mt-2 text-xs text-fg/72">{status}</p> : null}
+        <p className="mb-2 text-sm text-fg/66">Drag & drop image, or pick a file.</p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) uploadFile(file);
+            e.currentTarget.value = "";
+          }}
+        />
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={loading}
+          onClick={() => {
+            fileInputRef.current?.click();
+          }}
+        >
+          {loading ? "Uploading..." : "Choose file"}
+        </Button>
+        {status ? <p className="mt-2 text-xs text-fg/72">{status}</p> : null}
+      </div>
+
+      {/* Image preview */}
+      {currentUrl ? (
+        <div className="relative overflow-hidden rounded-lg border border-border/18">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={currentUrl}
+            alt="Upload preview"
+            className="h-32 w-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Plus, ExternalLink } from "lucide-react";
 import { DashboardSidebar } from "@/app/dashboard/(components)/sidebar";
+import { Breadcrumbs } from "@/app/dashboard/(components)/breadcrumbs";
 import { PageTransition } from "@/components/motion/page-transition";
 import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
 import { ScrollProgress } from "@/components/motion/scroll-progress";
@@ -49,6 +50,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
               </Button>
             </div>
           </div>
+
+          <Breadcrumbs />
 
           <PageTransition>
             <div className="mx-auto max-w-6xl">{children}</div>

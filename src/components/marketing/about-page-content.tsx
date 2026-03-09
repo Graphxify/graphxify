@@ -3,30 +3,38 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, Check, Code2, Compass, Database, Palette, X, type LucideIcon } from "lucide-react";
+import {
+  ArrowUpRight,
+  Blocks,
+  Brush,
+  Cable,
+  Clock,
+  Code2,
+  Compass,
+  Database,
+  Eye,
+  Feather,
+  FolderTree,
+  Globe,
+  LayoutGrid,
+  Lightbulb,
+  MessageSquare,
+  Milestone,
+  Puzzle,
+  Quote,
+  Search,
+  Send,
+  Sparkles,
+  Terminal,
+  Workflow,
+  type LucideIcon
+} from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { Button } from "@/components/ui/button";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
-type SnapshotItem = {
-  label: string;
-  value: string;
-};
-
-type ApproachStep = {
-  id: string;
-  title: string;
-  body: string;
-};
-
-type CapabilityItem = {
-  title: string;
-  body: string;
-  href: string;
-  icon: LucideIcon;
-};
-
+/* ── Types ── */
 type AboutWorkPreview = {
   id: string;
   slug: string;
@@ -34,71 +42,51 @@ type AboutWorkPreview = {
   coverImage: string;
 };
 
-const snapshotItems: SnapshotItem[] = [
-  { label: "Focus", value: "Brand Systems + Websites + CMS" },
-  { label: "Delivery", value: "Design + Development aligned" },
-  { label: "Response", value: "24-48 hours" }
-];
+type AboutTestimonial = {
+  id: string;
+  name: string;
+  role: string;
+  quote: string;
+  image_url: string | null;
+};
 
-const approachSteps: ApproachStep[] = [
-  { id: "01", title: "Discover", body: "clarify goals + scope" },
-  { id: "02", title: "Structure", body: "define systems + content" },
-  { id: "03", title: "Design", body: "craft interface + identity" },
-  { id: "04", title: "Build", body: "develop + launch" }
-];
+/* ── Data — every icon is unique across ALL sections ── */
+const snapshotItems = [
+  { label: "Focus", value: "Brand · Websites · CMS", icon: Eye },
+  { label: "Delivery", value: "Design + Dev aligned", icon: Workflow },
+  { label: "Response", value: "24–48 hours", icon: Clock }
+] as const;
 
-const capabilities: CapabilityItem[] = [
-  {
-    title: "Brand Systems",
-    body: "We define positioning, visual language, and usage standards so your brand stays consistent across every channel as content scales.",
-    href: "/services#service-brand-systems",
-    icon: Compass
-  },
-  {
-    title: "Web Design",
-    body: "We design clear, conversion-focused interfaces with structured hierarchy, responsive behavior, and reusable design patterns.",
-    href: "/services#service-web-design",
-    icon: Palette
-  },
-  {
-    title: "Web Development",
-    body: "We build performant, maintainable websites with clean component architecture, accessibility best practices, and production-ready quality.",
-    href: "/services#service-web-development",
-    icon: Code2
-  },
-  {
-    title: "CMS Architecture",
-    body: "We architect content models, editor workflows, and permissions so your team can publish confidently without breaking consistency.",
-    href: "/services#service-cms-architecture",
-    icon: Database
-  }
+const approachSteps = [
+  { num: "01", title: "Discover", body: "Research your goals, audience, and competitive landscape to build a clear strategic foundation.", icon: Search },
+  { num: "02", title: "Structure", body: "Map content architecture, define systems, and establish the information hierarchy.", icon: FolderTree },
+  { num: "03", title: "Design", body: "Craft a visual identity and interface system that communicates with clarity and purpose.", icon: Brush },
+  { num: "04", title: "Build & Ship", body: "Develop, test, and deploy a performant product ready for real-world scale.", icon: Send }
+] as const;
+
+const capabilities: { title: string; body: string; href: string; icon: LucideIcon }[] = [
+  { title: "Brand Systems", body: "Positioning, visual language, and usage standards that keep your brand consistent as content scales.", href: "/services#service-brand-systems", icon: Compass },
+  { title: "Web Design", body: "Clear, conversion-focused interfaces with responsive behavior and reusable design patterns.", href: "/services#service-web-design", icon: LayoutGrid },
+  { title: "Web Development", body: "Performant, maintainable websites with clean architecture, accessibility, and production quality.", href: "/services#service-web-development", icon: Terminal },
+  { title: "CMS Architecture", body: "Content models and editor workflows so your team can publish confidently without breaking consistency.", href: "/services#service-cms-architecture", icon: Database }
 ];
 
 const differentiators = [
-  "System-driven identity + web design",
-  "Clean, maintainable development",
-  "Structured CMS architecture",
-  "Consistent components and documentation",
-  "Clear process and predictable delivery",
-  "Transparent communication from kickoff to launch"
+  { text: "System-driven identity + web design", icon: Puzzle },
+  { text: "Clean, maintainable development", icon: Code2 },
+  { text: "Structured CMS architecture", icon: Blocks },
+  { text: "Consistent components and documentation", icon: Cable },
+  { text: "Clear process and predictable delivery", icon: Milestone },
+  { text: "Transparent communication, kickoff to launch", icon: MessageSquare }
 ] as const;
 
-const graphxifyComparisonItems = [
-  "Structured brand systems",
-  "Scalable website architecture",
-  "Clean CMS structure",
-  "Fast modern performance",
-  "Built for long-term growth"
-] as const;
+const principles = [
+  { title: "Systems First", body: "Every decision is made through the lens of scalable, reusable systems — not one-off deliverables.", icon: Globe },
+  { title: "Quality as Standard", body: "Accessibility, performance, and clean code aren't extras. They're the baseline of every project.", icon: Sparkles },
+  { title: "Transparent Process", body: "Clear timelines, predictable delivery, and open communication from the first call to final launch.", icon: Lightbulb }
+];
 
-const typicalAgencyItems = [
-  "One-off designs",
-  "Hard-to-manage websites",
-  "Rigid page builders",
-  "Slow heavy builds",
-  "Frequent redesigns required"
-] as const;
-
+/* ── Hero Visual — clean, no overlays ── */
 function HeroVisualPanel(): JSX.Element {
   return (
     <div className="section-shell relative h-full min-h-[16rem] overflow-hidden border-border/18 bg-card/74 p-2.5 md:p-3">
@@ -116,12 +104,21 @@ function HeroVisualPanel(): JSX.Element {
   );
 }
 
-export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.Element {
+/* ── Main Component ── */
+export function AboutPageContent({
+  works,
+  testimonials = []
+}: {
+  works: AboutWorkPreview[];
+  testimonials?: AboutTestimonial[];
+}): JSX.Element {
   const reducedMotion = useReducedMotion();
   const previewWorks = works.slice(0, 3);
+  const featuredTestimonials = testimonials.slice(0, 3);
 
   return (
     <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
+      {/* ── Hero ── */}
       <SectionReveal className="container" effect="up">
         <div className="grid gap-7 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
           <div>
@@ -130,12 +127,12 @@ export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.
               About Graphxify
             </p>
             <h1 className="mt-3 text-[clamp(2rem,5vw,4rem)] font-semibold leading-[0.96] tracking-tight">
-              Built on Structure. Designed to Scale.
+              Built on <span className="gradient-text">Structure</span>.<br className="hidden md:block" /> Designed to Scale.
             </h1>
             <span className="mt-4 block h-px w-24 bg-accent-gradient" />
             <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.04rem]">
               Graphxify is a design and development studio focused on structured brand and web systems. We align identity, interface, and
-              architecture into one cohesive platform - built for clarity, consistency, and long-term growth.
+              architecture into one cohesive platform — built for clarity, consistency, and long-term growth.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="px-6">
@@ -150,132 +147,339 @@ export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.
         </div>
       </SectionReveal>
 
+      {/* ── Snapshot Strip ── */}
       <SectionReveal className="container mt-10 md:mt-12" effect="up">
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {snapshotItems.map((item) => (
-            <article key={`about-snapshot-${item.label}`} className="rounded-xl border border-border/16 bg-card/72 px-4 py-4">
-              <p className="text-[0.66rem] uppercase tracking-[0.16em] text-fg/56">{item.label}</p>
-              <p className="mt-1.5 text-sm text-fg/82">{item.value}</p>
-            </article>
-          ))}
-        </div>
-      </SectionReveal>
-
-      <SectionReveal className="container mt-10 md:mt-12" effect="up">
-        <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
-          <h2 className="text-2xl font-semibold md:text-3xl">Our Approach</h2>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {approachSteps.map((step, index) => (
-              <motion.article
-                key={`about-approach-${step.id}`}
-                initial={reducedMotion ? undefined : { opacity: 0, y: 10 }}
-                whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.42, delay: 0.05 * index, ease: [0.16, 1, 0.3, 1] }}
-                className="rounded-xl border border-border/16 bg-bg/44 px-4 py-4"
-              >
-                <p className="text-[0.64rem] uppercase tracking-[0.16em] text-accentA">{step.id}</p>
-                <p className="mt-2 text-lg font-medium">{step.title}</p>
-                <p className="mt-1 text-sm text-fg/62">{step.body}</p>
-              </motion.article>
-            ))}
-          </div>
-        </div>
-      </SectionReveal>
-
-      <SectionReveal className="container mt-10 md:mt-12" effect="up">
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <h2 className="text-2xl font-semibold md:text-3xl">What We Do</h2>
-          <Link href="/services" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-fg/72 hover:text-fg">
-            Services
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          {capabilities.map((item) => {
+          {snapshotItems.map((item, index) => {
             const Icon = item.icon;
             return (
-              <Link
-                key={`about-capability-${item.title}`}
-                href={item.href}
-                className="group rounded-xl border border-border/16 bg-card/72 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-border/34 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+              <motion.article
+                key={item.label}
+                initial={reducedMotion ? undefined : { opacity: 0, y: 10 }}
+                whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ duration: 0.4, delay: 0.06 * index, ease: [0.16, 1, 0.3, 1] }}
+                className="group flex items-center gap-4 rounded-xl border border-border/16 bg-card/72 px-5 py-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_8px_24px_rgba(0,82,204,0.06)]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-[1.18rem] font-semibold">{item.title}</h3>
-                  <Icon className="mt-0.5 h-4 w-4 text-accentA" />
+                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accentA/25 bg-accentA/10 text-accentA transition-colors group-hover:bg-accentA/18">
+                  <Icon className="h-4.5 w-4.5" />
+                </span>
+                <div>
+                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/50">{item.label}</p>
+                  <p className="mt-0.5 text-sm font-medium text-fg/82">{item.value}</p>
                 </div>
-                <p className="mt-2 text-sm leading-relaxed text-fg/64">{item.body}</p>
-              </Link>
+              </motion.article>
             );
           })}
         </div>
       </SectionReveal>
 
-      <SectionReveal className="container mt-10 md:mt-12" effect="up">
-        <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
-          <h2 className="text-2xl font-semibold md:text-3xl">Why Graphxify</h2>
-          <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
-            {differentiators.map((item) => (
-              <li key={`about-why-${item}`} className="inline-flex items-center gap-2 rounded-lg border border-border/14 bg-bg/44 px-3 py-2 text-sm text-fg/74">
-                <span className="h-1.5 w-1.5 rounded-full bg-accentA" />
-                <span>{item}</span>
-              </li>
-            ))}
+      {/* ── Our Approach — timeline layout ── */}
+      <SectionReveal className="container mt-14 md:mt-16" effect="up">
+        <div className="mb-6 text-center">
+          <p className="text-xs uppercase tracking-[0.2em] text-accentA">How We Work</p>
+          <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Our Approach</h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm text-fg/60">A proven four-stage process that turns ideas into structured, scalable digital products.</p>
+        </div>
+        <div className="relative">
+          {/* Vertical timeline line */}
+          <div className="pointer-events-none absolute bottom-0 left-6 top-0 w-px bg-gradient-to-b from-accentA/40 via-accentA/20 to-transparent md:left-1/2 md:-translate-x-px" />
+          <div className="space-y-6 md:space-y-8">
+            {approachSteps.map((step, index) => {
+              const Icon = step.icon;
+              const isEven = index % 2 === 0;
+              return (
+                <motion.div
+                  key={step.num}
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
+                  whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{ duration: 0.5, delay: 0.08 * index, ease: [0.16, 1, 0.3, 1] }}
+                  className={`relative flex items-start gap-5 md:gap-0 ${isEven ? "md:flex-row" : "md:flex-row-reverse"}`}
+                >
+                  {/* Timeline dot */}
+                  <div className="relative z-10 flex shrink-0 md:absolute md:left-1/2 md:-translate-x-1/2">
+                    <span className="grid h-12 w-12 place-items-center rounded-2xl border border-accentA/30 bg-bg shadow-[0_8px_24px_rgba(0,82,204,0.08)]">
+                      <Icon className="h-5 w-5 text-accentA" />
+                    </span>
+                  </div>
+                  {/* Content card */}
+                  <div className={`group flex-1 rounded-xl border border-border/16 bg-card/72 p-5 transition-all duration-200 hover:border-accentA/25 hover:shadow-[0_12px_32px_rgba(0,82,204,0.06)] ${isEven ? "md:mr-[calc(50%+2rem)] md:text-right" : "md:ml-[calc(50%+2rem)]"}`}>
+                    <span className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-accentA">{step.num}</span>
+                    <h3 className="mt-1 text-lg font-semibold">{step.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-fg/62">{step.body}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </SectionReveal>
+
+      {/* ── What We Do ── */}
+      <SectionReveal className="container mt-14 md:mt-16" effect="up">
+        <div className="mb-5 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-accentA">Capabilities</p>
+            <h2 className="mt-2 text-2xl font-semibold md:text-3xl">What We Do</h2>
+          </div>
+          <Link href="/services" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-fg/72 transition-colors hover:text-accentA">
+            All Services
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          {capabilities.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <motion.div
+                key={item.title}
+                initial={reducedMotion ? undefined : { opacity: 0, y: 12 }}
+                whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.45, delay: 0.08 * index, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Link
+                  href={item.href}
+                  className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/16 bg-card/72 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-accentA/30 hover:shadow-[0_16px_40px_rgba(0,82,204,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                >
+                  <span className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-accentA/[0.04] blur-xl transition-all duration-500 group-hover:scale-[2] group-hover:bg-accentA/[0.08]" />
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-accentA/25 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16 group-hover:shadow-[0_4px_16px_rgba(0,82,204,0.15)]">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <ArrowUpRight className="mt-1 h-4 w-4 text-fg/25 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accentA" />
+                  </div>
+                  <h3 className="mt-3 text-[1.12rem] font-semibold">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-fg/60">{item.body}</p>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </SectionReveal>
+
+      {/* ── Why Graphxify ── */}
+      <SectionReveal className="container mt-14 md:mt-16" effect="up">
+        <div className="section-shell overflow-hidden border-border/18 bg-card/74 p-5 md:p-7">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-accentA">The Difference</p>
+              <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Why Graphxify</h2>
+            </div>
+            <Feather className="mt-1 h-5 w-5 text-fg/20" />
+          </div>
+          <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
+            {differentiators.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <motion.li
+                  key={item.text}
+                  initial={reducedMotion ? undefined : { opacity: 0, x: -8 }}
+                  whileInView={reducedMotion ? undefined : { opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.35, delay: 0.06 * index, ease: [0.16, 1, 0.3, 1] }}
+                  className="group flex items-center gap-3 rounded-lg border border-border/14 bg-bg/44 px-3.5 py-3 transition-all duration-200 hover:border-accentA/25 hover:bg-accentA/[0.03] hover:shadow-[0_4px_16px_rgba(0,82,204,0.04)]"
+                >
+                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-accentA/20 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16">
+                    <Icon className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="text-sm text-fg/72">{item.text}</span>
+                </motion.li>
+              );
+            })}
           </ul>
         </div>
       </SectionReveal>
 
-      <SectionReveal className="container mt-10 md:mt-14" effect="up">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="text-2xl font-semibold md:text-3xl">Built Differently</h2>
-          <p className="mt-3 text-fg/66">A more structured way to design brands and build modern websites.</p>
-        </div>
-
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <article className="graphxify-glow-card group relative rounded-[1.2rem] border border-border/16 bg-card/60 p-5 md:p-6">
-            <h3 className="text-xl font-semibold">Graphxify</h3>
-            <ul className="mt-4">
-              {graphxifyComparisonItems.map((item) => (
-                <li
-                  key={`about-graphxify-compare-${item}`}
-                  className="flex items-center gap-3 border-b border-border/14 py-3.5 last:border-b-0 last:pb-0 first:pt-0"
-                >
-                  <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-accentA/35 bg-accentA/12 text-accentA">
-                    <Check className="h-3 w-3" aria-hidden="true" />
-                  </span>
-                  <span className="text-sm text-fg/86">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </article>
-
-          <article className="rounded-[1.2rem] border border-border/16 bg-card/60 p-5 md:p-6">
-            <h3 className="text-xl font-semibold text-fg/84">Typical Agency</h3>
-            <ul className="mt-4">
-              {typicalAgencyItems.map((item) => (
-                <li
-                  key={`about-typical-compare-${item}`}
-                  className="flex items-center gap-3 border-b border-border/12 py-3.5 last:border-b-0 last:pb-0 first:pt-0"
-                >
-                  <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/26 bg-bg/40 text-fg/50">
-                    <X className="h-3 w-3" aria-hidden="true" />
-                  </span>
-                  <span className="text-sm text-fg/64">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </article>
+      {/* ── Behind the Studio ── */}
+      <SectionReveal className="container mt-14 md:mt-16" effect="up">
+        <div className="section-shell overflow-hidden border-border/18 bg-card/74 p-5 md:p-7">
+          <div className="grid gap-6 md:grid-cols-[auto_1fr] md:items-center">
+            <div className="relative mx-auto md:mx-0">
+              <div className="h-24 w-24 overflow-hidden rounded-2xl border border-border/18 bg-gradient-to-br from-accentA/12 via-card/60 to-accentB/12 md:h-28 md:w-28">
+                <div className="grid h-full w-full place-items-center">
+                  <span className="text-3xl font-bold text-accentA">G</span>
+                </div>
+              </div>
+              <motion.span
+                className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border border-accentA/40 bg-bg/90 shadow-lg"
+                animate={reducedMotion ? undefined : { scale: [1, 1.12, 1] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <span className="h-2 w-2 rounded-full bg-emerald-400" />
+              </motion.span>
+            </div>
+            <div>
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/50">Behind the Studio</p>
+              <h2 className="mt-1 text-xl font-semibold md:text-2xl">Built by a designer who <span className="gradient-text">codes</span>.</h2>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-fg/62">
+                Graphxify was founded on the belief that brand, design, and development should operate as one unified system — not three
+                disconnected services. Every project is approached with a builder&apos;s mindset: structured, intentional, and engineered
+                for long-term growth. No handoff friction, no misalignment — just cohesive systems from concept to launch.
+              </p>
+            </div>
+          </div>
         </div>
       </SectionReveal>
 
-      <SectionReveal className="container mt-10 md:mt-12" effect="zoom">
+      {/* ── Testimonials — creative spotlight layout ── */}
+      {featuredTestimonials.length > 0 && (
+        <SectionReveal className="container mt-14 md:mt-16" effect="up">
+          <div className="section-shell relative overflow-hidden border-border/18 bg-gradient-to-br from-card/80 via-bg/60 to-card/80 p-6 md:p-8">
+            {/* Subtle background glow */}
+            <motion.span
+              className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accentA/[0.04] blur-[80px]"
+              animate={reducedMotion ? undefined : { scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.span
+              className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-accentB/[0.03] blur-[60px]"
+              animate={reducedMotion ? undefined : { scale: [1.1, 1, 1.1], opacity: [0.4, 0.7, 0.4] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            />
+
+            <div className="relative">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-accentA">Testimonials</p>
+                  <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Trusted by <span className="gradient-text">Clients</span></h2>
+                </div>
+                {/* Star cluster */}
+                <div className="hidden items-center gap-0.5 md:flex">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <motion.svg
+                      key={`star-${i}`}
+                      viewBox="0 0 20 20"
+                      className="h-4 w-4 text-amber-400"
+                      fill="currentColor"
+                      initial={reducedMotion ? undefined : { scale: 0, rotate: -30 }}
+                      whileInView={reducedMotion ? undefined : { scale: 1, rotate: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: 0.08 * i, ease: [0.34, 1.56, 0.64, 1] }}
+                    >
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </motion.svg>
+                  ))}
+                </div>
+              </div>
+
+              {/* Spotlight: First testimonial — hero card */}
+              {featuredTestimonials.length > 0 && (
+                <motion.article
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
+                  whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="group relative overflow-hidden rounded-2xl border border-accentA/16 bg-gradient-to-r from-bg/80 via-card/60 to-bg/80 p-6 md:p-8"
+                >
+                  {/* Large decorative quote mark */}
+                  <svg
+                    className="pointer-events-none absolute -left-2 -top-3 h-28 w-28 text-accentA/[0.06] md:h-36 md:w-36"
+                    viewBox="0 0 100 100"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <path d="M30 60c-8 0-15-7-15-15s7-15 15-15c2 0 4 0 6 1-2-10-10-18-20-21l4-8c18 4 30 20 30 38 0 11-9 20-20 20zm45 0c-8 0-15-7-15-15s7-15 15-15c2 0 4 0 6 1-2-10-10-18-20-21l4-8c18 4 30 20 30 38 0 11-9 20-20 20z" />
+                  </svg>
+                  {/* Accent line */}
+                  <span className="mb-5 block h-[2px] w-16 rounded-full bg-accent-gradient" />
+                  <blockquote className="relative text-base leading-relaxed text-fg/76 md:text-lg md:leading-relaxed">
+                    &ldquo;{featuredTestimonials[0].quote}&rdquo;
+                  </blockquote>
+                  <div className="mt-5 flex items-center gap-3">
+                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-accentA/25 bg-accentA/10 text-sm font-bold text-accentA">
+                      {featuredTestimonials[0].name.charAt(0)}
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-fg/86">{featuredTestimonials[0].name}</p>
+                      <p className="text-xs text-fg/48">{featuredTestimonials[0].role}</p>
+                    </div>
+                  </div>
+                </motion.article>
+              )}
+
+              {/* Secondary testimonials */}
+              {featuredTestimonials.length > 1 && (
+                <div className="mt-3 grid gap-3 md:grid-cols-2">
+                  {featuredTestimonials.slice(1).map((t, index) => (
+                    <motion.article
+                      key={t.id}
+                      initial={reducedMotion ? undefined : { opacity: 0, y: 12 }}
+                      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-60px" }}
+                      transition={{ duration: 0.45, delay: 0.12 * (index + 1), ease: [0.16, 1, 0.3, 1] }}
+                      className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/50 p-5 transition-all duration-300 hover:border-accentA/20 hover:shadow-[0_12px_40px_rgba(0,82,204,0.06)]"
+                    >
+                      <span className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-accentA/[0.03] blur-xl transition-all duration-500 group-hover:scale-[2.5] group-hover:bg-accentA/[0.06]" />
+                      <div className="relative">
+                        <Quote className="h-4 w-4 text-accentA/30" />
+                        <p className="mt-2.5 text-sm leading-relaxed text-fg/66">&ldquo;{t.quote}&rdquo;</p>
+                        <div className="mt-4 flex items-center gap-2.5 border-t border-border/10 pt-3">
+                          <span className="grid h-8 w-8 place-items-center rounded-lg border border-accentA/20 bg-accentA/8 text-xs font-bold text-accentA">
+                            {t.name.charAt(0)}
+                          </span>
+                          <div>
+                            <p className="text-sm font-medium text-fg/80">{t.name}</p>
+                            <p className="text-[0.68rem] text-fg/42">{t.role}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.article>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </SectionReveal>
+      )}
+
+      {/* ── Our Principles ── */}
+      <SectionReveal className="container mt-14 md:mt-16" effect="up">
+        <div className="section-shell overflow-hidden border-border/18 bg-card/74 p-5 md:p-7">
+          <div className="text-center">
+            <p className="text-xs uppercase tracking-[0.2em] text-accentA">Core Values</p>
+            <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Our Principles</h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-fg/58">The core beliefs that drive how we design, develop, and deliver.</p>
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {principles.map((p, index) => {
+              const Icon = p.icon;
+              return (
+                <motion.article
+                  key={p.title}
+                  initial={reducedMotion ? undefined : { opacity: 0, scale: 0.96 }}
+                  whileInView={reducedMotion ? undefined : { opacity: 1, scale: 1 }}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.45, delay: 0.08 * index, ease: [0.16, 1, 0.3, 1] }}
+                  className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/44 p-5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_12px_32px_rgba(0,82,204,0.05)]"
+                >
+                  <span className="pointer-events-none absolute -bottom-8 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full bg-accentA/[0.03] blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:bg-accentA/[0.06]" />
+                  <span className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-accentA/25 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <h3 className="mt-3 text-base font-semibold">{p.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-fg/58">{p.body}</p>
+                </motion.article>
+              );
+            })}
+          </div>
+        </div>
+      </SectionReveal>
+
+      {/* ── CTA ── */}
+      <SectionReveal className="container mt-14 md:mt-16" effect="zoom">
         <SiteCtaSection />
       </SectionReveal>
 
-      <SectionReveal className="container mt-10 md:mt-12" effect="up">
+      {/* ── Selected Work ── */}
+      <SectionReveal className="container mt-14 md:mt-16" effect="up">
         <div className="mb-5 flex items-end justify-between gap-4">
-          <h2 className="text-2xl font-semibold md:text-3xl">Selected Work</h2>
-          <Link href="/works" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-fg/72 hover:text-fg">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-accentA">Portfolio</p>
+            <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Selected Work</h2>
+          </div>
+          <Link href="/works" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-fg/72 transition-colors hover:text-accentA">
             View all
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
@@ -301,13 +505,10 @@ export function AboutPageContent({ works }: { works: AboutWorkPreview[] }): JSX.
                         sizes="(max-width: 1024px) 50vw, 33vw"
                       />
                     </div>
-
                     <div className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
-
                     <div className="absolute inset-x-4 bottom-4 z-10 transition-all duration-300 group-hover:translate-y-2 group-hover:opacity-0">
                       <h3 className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">{displayTitle}</h3>
                     </div>
-
                     <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                       <h4 className="text-[1.6rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.9rem]">
                         {displayTitle}
