@@ -115,8 +115,17 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
     };
 
     updatePerView();
-    window.addEventListener("resize", updatePerView);
-    return () => window.removeEventListener("resize", updatePerView);
+    // rAF-debounce so resize fires at most once per frame
+    let rafId: number;
+    const onResize = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updatePerView);
+    };
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -270,7 +279,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
     }
 
     wheelLockRef.current = true;
-    window.setTimeout(() => {
+    setTimeout(() => {
       wheelLockRef.current = false;
     }, 360);
 
@@ -420,11 +429,15 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
               onClick={() => goToSlide(index)}
               aria-label={`Go to project ${index + 1}`}
               aria-current={active ? "true" : undefined}
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-                active ? "w-10 bg-accent-gradient" : "w-4 bg-border/30 hover:bg-border/50"
-              )}
-            />
+              className="flex items-center justify-center py-[19px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+            >
+              <span
+                className={cn(
+                  "block h-1.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  active ? "w-10 bg-accent-gradient" : "w-4 bg-border/30 hover:bg-border/50"
+                )}
+              />
+            </button>
           );
         })}
       </div>

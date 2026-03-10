@@ -12,7 +12,6 @@ const MAGNETIC_PROXIMITY_PX = 72;
 const MAGNETIC_MAX_OFFSET_PX = 6;
 const BASE_BUTTON_SHADOW = "0 10px 20px rgba(13,13,15,0.11)";
 const HOVER_BUTTON_SHADOW = "0 18px 34px rgba(0,82,204,0.24)";
-const IDLE_BOUNCE_TIMES = [0, 0.05, 0.1, 0.15, 0.2, 1];
 const PREMIUM_EASE: [number, number, number, number] = [0.3, 0.7, 0, 1];
 
 const clamp = (value: number, min: number, max: number): number => Math.min(max, Math.max(min, value));
@@ -20,6 +19,7 @@ const clamp = (value: number, min: number, max: number): number => Math.min(max,
 export function SiteCtaSection({ className }: { className?: string }): JSX.Element {
   const reducedMotion = useReducedMotion();
   const [isButtonHovered, setIsButtonHovered] = useState(false);
+  const isButtonHoveredRef = useRef(false);
   const [charIndex, setCharIndex] = useState(0);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const buttonFrameRef = useRef<HTMLDivElement>(null);
@@ -78,7 +78,7 @@ export function SiteCtaSection({ className }: { className?: string }): JSX.Eleme
       const maxDistance = Math.hypot(rect.width / 2 + MAGNETIC_PROXIMITY_PX, rect.height / 2 + MAGNETIC_PROXIMITY_PX);
       const distance = Math.hypot(deltaX, deltaY);
       const strength = clamp(1 - distance / maxDistance, 0, 1);
-      const maxOffset = (isButtonHovered ? MAGNETIC_MAX_OFFSET_PX : MAGNETIC_MAX_OFFSET_PX - 2) * strength;
+      const maxOffset = (isButtonHoveredRef.current ? MAGNETIC_MAX_OFFSET_PX : MAGNETIC_MAX_OFFSET_PX - 2) * strength;
       const normalizedX = clamp(deltaX / Math.max(1, rect.width / 2), -1, 1);
       const normalizedY = clamp(deltaY / Math.max(1, rect.height / 2), -1, 1);
 
@@ -98,7 +98,9 @@ export function SiteCtaSection({ className }: { className?: string }): JSX.Eleme
       window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("blur", resetMagnetism);
     };
-  }, [isButtonHovered, magneticX, magneticY, reducedMotion]);
+    // isButtonHoveredRef is a ref — reading .current in the handler means we never
+    // need to re-register the listener when hover state changes.
+  }, [magneticX, magneticY, reducedMotion]);
 
   const typedSentence = useMemo(() => ctaSentence.slice(0, charIndex), [charIndex]);
 
@@ -123,26 +125,12 @@ export function SiteCtaSection({ className }: { className?: string }): JSX.Eleme
             className="pointer-events-none absolute -inset-[2px] rounded-[14px] bg-[linear-gradient(90deg,#00A3FF,#0052CC)] blur-[12px]"
             animate={
               reducedMotion
-                ? { opacity: 0, scale: 1 }
+                ? { opacity: 0 }
                 : isButtonHovered
                   ? { opacity: 0.28, scale: 1.04 }
-                  : {
-                      opacity: [0, 0.28, 0.12, 0.2, 0, 0],
-                      scale: [1, 1.08, 1.02, 1.06, 1, 1]
-                    }
+                  : { opacity: 0 }
             }
-            transition={
-              reducedMotion
-                ? { duration: 0 }
-                : isButtonHovered
-                  ? { duration: 0.25, ease: PREMIUM_EASE }
-                  : {
-                      duration: 4,
-                      times: IDLE_BOUNCE_TIMES,
-                      ease: PREMIUM_EASE,
-                      repeat: Infinity
-                    }
-            }
+            transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
             aria-hidden
           />
           <motion.div
@@ -152,32 +140,11 @@ export function SiteCtaSection({ className }: { className?: string }): JSX.Eleme
                 ? { y: 0, scale: 1, boxShadow: BASE_BUTTON_SHADOW }
                 : isButtonHovered
                   ? { y: -5, scale: 1.05, boxShadow: HOVER_BUTTON_SHADOW }
-                  : {
-                      y: [0, -10, 0, -6, 0, 0],
-                      boxShadow: [
-                        BASE_BUTTON_SHADOW,
-                        HOVER_BUTTON_SHADOW,
-                        BASE_BUTTON_SHADOW,
-                        "0 14px 27px rgba(0,82,204,0.2)",
-                        BASE_BUTTON_SHADOW,
-                        BASE_BUTTON_SHADOW
-                      ]
-                    }
+                  : { y: 0, scale: 1, boxShadow: BASE_BUTTON_SHADOW }
             }
-            transition={
-              reducedMotion
-                ? { duration: 0 }
-                : isButtonHovered
-                  ? { duration: 0.24, ease: [0.22, 1, 0.36, 1] }
-                  : {
-                      duration: 4,
-                      times: IDLE_BOUNCE_TIMES,
-                      ease: PREMIUM_EASE,
-                      repeat: Infinity
-                    }
-            }
-            onHoverStart={() => setIsButtonHovered(true)}
-            onHoverEnd={() => setIsButtonHovered(false)}
+            transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
+            onHoverStart={() => { isButtonHoveredRef.current = true; setIsButtonHovered(true); }}
+            onHoverEnd={() => { isButtonHoveredRef.current = false; setIsButtonHovered(false); }}
             whileTap={reducedMotion ? undefined : { y: -1, scale: 1.01 }}
           >
             <motion.div className="inline-flex" style={reducedMotion ? undefined : { x: springMagneticX, y: springMagneticY }}>

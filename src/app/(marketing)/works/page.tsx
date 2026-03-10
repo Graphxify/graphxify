@@ -102,43 +102,43 @@ export default async function WorksPage() {
         </div>
 
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {works.map((work) => {
+          {works.map((work, index) => {
             const displayTitle = getProjectDisplayTitle(work.slug, work.title);
             return (
-              <div key={work.id}>
-                <Link
-                  href={`/works/${getProjectPathSlug(work.slug)}`}
-                  className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                  aria-label={`Open project ${displayTitle}`}
-                  data-cursor-label="Open"
-                >
-                  <article className="relative h-[20rem] overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] md:h-[22rem]">
-                    <div className="absolute inset-0">
-                      <Image
-                        src={work.coverImage}
-                        alt={displayTitle}
-                        fill
-                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[2px] group-hover:brightness-[0.55]"
-                        sizes="(max-width: 1024px) 50vw, 33vw"
-                      />
-                    </div>
+              <Link
+                key={work.id}
+                href={`/works/${getProjectPathSlug(work.slug)}`}
+                className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                aria-label={`Open project ${displayTitle}`}
+                data-cursor-label="Open"
+              >
+                <article className="relative h-[20rem] overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] md:h-[22rem]">
+                  <div className="absolute inset-0">
+                    <Image
+                      src={work.coverImage}
+                      alt={displayTitle}
+                      fill
+                      priority={index < 3}
+                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[2px] group-hover:brightness-[0.55]"
+                      sizes="(max-width: 767px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    />
+                  </div>
 
-                    <div className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
+                  <div className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
 
-                    <div className="absolute inset-x-4 bottom-4 z-10 transition-all duration-300 group-hover:translate-y-2 group-hover:opacity-0">
-                      <h2 className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
-                        {displayTitle}
-                      </h2>
-                    </div>
+                  <div className="absolute inset-x-4 bottom-4 z-10 transition-all duration-300 group-hover:translate-y-2 group-hover:opacity-0">
+                    <h2 className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
+                      {displayTitle}
+                    </h2>
+                  </div>
 
-                    <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <h3 className="text-[1.6rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.9rem]">
-                        {displayTitle}
-                      </h3>
-                    </div>
-                  </article>
-                </Link>
-              </div>
+                  <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <h3 className="text-[1.6rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.9rem]">
+                      {displayTitle}
+                    </h3>
+                  </div>
+                </article>
+              </Link>
             );
           })}
         </div>

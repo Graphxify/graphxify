@@ -26,21 +26,21 @@ export const testimonials = [
     quote: "Graphxify turned our ideas into a sharp, clean brand. Fast, easy, and right on point.",
     name: "Ethan Moore",
     role: "Co-founder, NovaTech",
-    image_url: "/assets/work-1.svg"
+    image_url: null
   },
   {
     id: "02",
     quote: "The design and build loop was seamless. We launched with clarity, speed, and a system our team can manage.",
     name: "Leah Mendez",
     role: "Head of Digital, Northline",
-    image_url: "/assets/work-2.svg"
+    image_url: null
   },
   {
     id: "03",
     quote: "Our site feels premium now, and the CMS structure means we can publish confidently without design drift.",
     name: "Omar Rahim",
     role: "Operations Director, Axis Group",
-    image_url: "/assets/work-3.svg"
+    image_url: null
   }
 ] as const;
 

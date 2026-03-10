@@ -31,7 +31,12 @@ type TestimonialMetricInput = {
   sort_order: number;
 };
 
-const fallbackImages = ["/assets/work-1.svg", "/assets/work-2.svg", "/assets/work-3.svg"] as const;
+// Gradient accent combinations used as abstract slide backgrounds when no real photo is available
+const abstractBgGradients = [
+  "radial-gradient(ellipse at 20% 30%, rgba(0,163,255,0.22) 0%, rgba(0,82,204,0.14) 40%, rgba(13,13,15,0) 70%)",
+  "radial-gradient(ellipse at 80% 20%, rgba(0,82,204,0.24) 0%, rgba(0,163,255,0.12) 44%, rgba(13,13,15,0) 72%)",
+  "radial-gradient(ellipse at 50% 80%, rgba(0,163,255,0.18) 0%, rgba(0,52,128,0.16) 48%, rgba(13,13,15,0) 74%)"
+] as const;
 
 function sliderCounter(index: number, total: number): string {
   return `${String(index + 1).padStart(2, "0")} / ${String(total).padStart(2, "0")}`;
@@ -63,12 +68,12 @@ export function TestimonialsSection({
 
   const slides = useMemo<TestimonialSlide[]>(() => {
     const source = Array.isArray(items) && items.length > 0 ? items : testimonials;
-    return source.map((item, index) => ({
+    return source.map((item) => ({
       id: item.id,
       quote: item.quote,
       name: item.name,
       role: item.role,
-      image: item.image_url || fallbackImages[index % fallbackImages.length]
+      image: item.image_url ?? null
     }));
   }, [items]);
 
@@ -108,9 +113,17 @@ export function TestimonialsSection({
       controls.set({ x: nextWidth > 0 ? -nextWidth : 0 });
     };
     updateWidth();
-    window.addEventListener("resize", updateWidth);
+
+    // rAF-debounce so resize fires at most once per frame (avoids layout-thrash on every pixel)
+    let rafId: number;
+    const onResize = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updateWidth);
+    };
+    window.addEventListener("resize", onResize, { passive: true });
     return () => {
-      window.removeEventListener("resize", updateWidth);
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", onResize);
     };
   }, [controls]);
 
@@ -265,22 +278,30 @@ export function TestimonialsSection({
             >
               {visibleSlides.map(({ slot, slide, index }) => {
                 const isActiveSlide = slot === "active";
+                const bgGradient = abstractBgGradients[index % abstractBgGradients.length];
                 return (
                   <div key={`${slot}-${slide.id}`} className="relative h-full w-1/3 shrink-0">
-                    <div className="absolute inset-0">
-                      <Image
-                        src={slide.image || "/assets/work-fallback.svg"}
-                        alt={`${slide.name} testimonial background`}
-                        fill
-                        className="object-cover"
-                        sizes="65vw"
-                        priority={isActiveSlide}
+                    {slide.image ? (
+                      <div className="absolute inset-0">
+                        <Image
+                          src={slide.image}
+                          alt={`${slide.name} testimonial background`}
+                          fill
+                          className="object-cover"
+                          sizes="65vw"
+                          priority={isActiveSlide}
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="absolute inset-0 bg-[#080810]"
+                        style={{ backgroundImage: bgGradient }}
+                        aria-hidden="true"
                       />
-                    </div>
+                    )}
 
                     <div className="absolute inset-0 bg-black/20" />
-                    <div className="absolute inset-0 bg-[linear-gradient(140deg,rgba(186,127,33,0.38)_0%,rgba(116,73,18,0.16)_44%,rgba(0,0,0,0.42)_100%)] mix-blend-multiply" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/58 via-black/24 to-black/20" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/68 via-black/28 to-black/10" />
 
                     <div className="relative z-10 flex h-full flex-col justify-between p-5 text-ivory sm:p-6 md:p-7">
                       <div className="space-y-4">
@@ -323,7 +344,7 @@ export function TestimonialsSection({
               aria-label="Previous testimonial"
               onClick={() => void paginate(-1)}
               disabled={animating}
-              className="grid h-10 w-10 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48 sm:h-11 sm:w-11"
+              className="grid h-11 w-11 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory/50"
             >
               <ChevronLeft className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </button>
@@ -332,7 +353,7 @@ export function TestimonialsSection({
               aria-label="Next testimonial"
               onClick={() => void paginate(1)}
               disabled={animating}
-              className="grid h-10 w-10 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48 sm:h-11 sm:w-11"
+              className="grid h-11 w-11 place-items-center rounded-full border border-ivory/34 bg-black/30 text-ivory transition hover:scale-[1.02] hover:bg-black/48 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ivory/50"
             >
               <ChevronRight className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
             </button>

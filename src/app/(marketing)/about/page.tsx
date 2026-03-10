@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AboutPageContent } from "@/components/marketing/about-page-content";
 import { getPublishedWorks } from "@/db/queries/works";
 import { getPublishedTestimonials } from "@/db/queries/testimonials";
+import { normalizeImage, firstGalleryImage, withImageVersion } from "@/lib/content-helpers";
 import { projectCardContent, resolveProjectSlugFromPathSlug, withProjectCardContent } from "@/lib/project-card-content";
 import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
 import { buildMetadata } from "@/lib/seo";
@@ -18,39 +19,6 @@ type WorkCard = {
   title: string;
   coverImage: string;
 };
-
-function normalizeImage(value: string | null | undefined): string | null {
-  if (!value) {
-    return null;
-  }
-  const normalized = value.trim();
-  return normalized.length > 0 ? normalized : null;
-}
-
-function firstGalleryImage(value: string[] | null | undefined): string | null {
-  if (!Array.isArray(value)) {
-    return null;
-  }
-  for (const item of value) {
-    const normalized = normalizeImage(item);
-    if (normalized) {
-      return normalized;
-    }
-  }
-  return null;
-}
-
-function withImageVersion(src: string, version: string | null | undefined): string {
-  if (!version) {
-    return src;
-  }
-
-  const [path, rawQuery = ""] = src.split("?");
-  const params = new URLSearchParams(rawQuery);
-  params.set("v", version);
-  const nextQuery = params.toString();
-  return nextQuery.length > 0 ? `${path}?${nextQuery}` : path;
-}
 
 async function getWorkCards(): Promise<WorkCard[]> {
   const fallbackBySlug = new Map(graphxifyProjects.map((project) => [project.slug, project]));

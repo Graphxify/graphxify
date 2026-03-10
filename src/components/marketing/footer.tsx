@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { FooterBackgroundGradient } from "@/components/ui/hover-footer";
+import { companyContact } from "@/lib/constants";
 
 const footerGroups = [
   {
@@ -113,15 +114,15 @@ export function MarketingFooter(): JSX.Element {
             <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-fg/64">Direct Contact</h4>
             <ul className="space-y-3 text-sm text-fg/78">
               <li>
-                <a href="mailto:info@graphxify.com" className="link-sweep inline-flex items-center gap-2.5 hover:text-fg">
+                <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex items-center gap-2.5 hover:text-fg">
                   <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
-                  <span>info@graphxify.com</span>
+                  <span>{companyContact.email}</span>
                 </a>
               </li>
               <li>
-                <a href="tel:+16475700334" className="link-sweep inline-flex items-center gap-2.5 hover:text-fg">
+                <a href={`tel:${companyContact.phoneHref}`} className="link-sweep inline-flex items-center gap-2.5 hover:text-fg">
                   <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
-                  <span>+1 (647) 570-0334</span>
+                  <span>{companyContact.phoneDisplay}</span>
                 </a>
               </li>
               <li className="inline-flex items-center gap-2.5">
@@ -141,7 +142,7 @@ export function MarketingFooter(): JSX.Element {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={item.label}
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black bg-transparent text-fg/76 transition hover:-translate-y-0.5 hover:border-transparent hover:bg-accent-gradient hover:text-ivory"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-fg/30 bg-transparent text-fg/76 transition hover:-translate-y-0.5 hover:border-transparent hover:bg-accent-gradient hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               >
                 <item.Icon className="h-5 w-5" />
               </a>

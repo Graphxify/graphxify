@@ -33,6 +33,7 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { Button } from "@/components/ui/button";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
+import { cn } from "@/lib/utils";
 
 /* ── Types ── */
 type AboutWorkPreview = {
@@ -95,6 +96,7 @@ function HeroVisualPanel(): JSX.Element {
           src="/assets/work-2.svg"
           alt="Graphxify brand and web system preview"
           fill
+          priority
           className="object-cover"
           sizes="(max-width: 1024px) 100vw, 46vw"
         />
@@ -155,10 +157,10 @@ export function AboutPageContent({
             return (
               <motion.article
                 key={item.label}
-                initial={reducedMotion ? undefined : { opacity: 0, y: 10 }}
+                initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
                 whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.4, delay: 0.06 * index, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.65, delay: 0.08 * index, ease: [0.23, 1, 0.32, 1] }}
                 className="group flex items-center gap-4 rounded-xl border border-border/16 bg-card/72 px-5 py-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_8px_24px_rgba(0,82,204,0.06)]"
               >
                 <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accentA/25 bg-accentA/10 text-accentA transition-colors group-hover:bg-accentA/18">
@@ -191,11 +193,11 @@ export function AboutPageContent({
               return (
                 <motion.div
                   key={step.num}
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
                   whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-80px" }}
-                  transition={{ duration: 0.5, delay: 0.08 * index, ease: [0.16, 1, 0.3, 1] }}
-                  className={`relative flex items-start gap-5 md:gap-0 ${isEven ? "md:flex-row" : "md:flex-row-reverse"}`}
+                  viewport={{ once: true, margin: "-60px" }}
+                  transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
+                  className={cn("relative flex items-start gap-5 md:gap-0", isEven ? "md:flex-row" : "md:flex-row-reverse")}
                 >
                   {/* Timeline dot */}
                   <div className="relative z-10 flex shrink-0 md:absolute md:left-1/2 md:-translate-x-1/2">
@@ -234,10 +236,10 @@ export function AboutPageContent({
             return (
               <motion.div
                 key={item.title}
-                initial={reducedMotion ? undefined : { opacity: 0, y: 12 }}
+                initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
                 whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.45, delay: 0.08 * index, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
               >
                 <Link
                   href={item.href}
@@ -275,10 +277,10 @@ export function AboutPageContent({
               return (
                 <motion.li
                   key={item.text}
-                  initial={reducedMotion ? undefined : { opacity: 0, x: -8 }}
-                  whileInView={reducedMotion ? undefined : { opacity: 1, x: 0 }}
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 20 }}
+                  whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.35, delay: 0.06 * index, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.55, delay: 0.07 * index, ease: [0.23, 1, 0.32, 1] }}
                   className="group flex items-center gap-3 rounded-lg border border-border/14 bg-bg/44 px-3.5 py-3 transition-all duration-200 hover:border-accentA/25 hover:bg-accentA/[0.03] hover:shadow-[0_4px_16px_rgba(0,82,204,0.04)]"
                 >
                   <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-accentA/20 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16">
@@ -302,13 +304,9 @@ export function AboutPageContent({
                   <span className="text-3xl font-bold text-accentA">G</span>
                 </div>
               </div>
-              <motion.span
-                className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border border-accentA/40 bg-bg/90 shadow-lg"
-                animate={reducedMotion ? undefined : { scale: [1, 1.12, 1] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              >
+              <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border border-accentA/40 bg-bg/90 shadow-lg">
                 <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              </motion.span>
+              </span>
             </div>
             <div>
               <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/50">Behind the Studio</p>
@@ -328,16 +326,8 @@ export function AboutPageContent({
         <SectionReveal className="container mt-14 md:mt-16" effect="up">
           <div className="section-shell relative overflow-hidden border-border/18 bg-gradient-to-br from-card/80 via-bg/60 to-card/80 p-6 md:p-8">
             {/* Subtle background glow */}
-            <motion.span
-              className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accentA/[0.04] blur-[80px]"
-              animate={reducedMotion ? undefined : { scale: [1, 1.2, 1], opacity: [0.5, 0.8, 0.5] }}
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            />
-            <motion.span
-              className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-accentB/[0.03] blur-[60px]"
-              animate={reducedMotion ? undefined : { scale: [1.1, 1, 1.1], opacity: [0.4, 0.7, 0.4] }}
-              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            />
+            <span className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accentA/[0.05] blur-[80px]" />
+            <span className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-accentB/[0.04] blur-[60px]" />
 
             <div className="relative">
               <div className="mb-6 flex items-center justify-between">
@@ -353,10 +343,10 @@ export function AboutPageContent({
                       viewBox="0 0 20 20"
                       className="h-4 w-4 text-amber-400"
                       fill="currentColor"
-                      initial={reducedMotion ? undefined : { scale: 0, rotate: -30 }}
-                      whileInView={reducedMotion ? undefined : { scale: 1, rotate: 0 }}
+                      initial={reducedMotion ? undefined : { opacity: 0, y: 12 }}
+                      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                       viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: 0.08 * i, ease: [0.34, 1.56, 0.64, 1] }}
+                      transition={{ duration: 0.5, delay: 0.07 * i, ease: [0.23, 1, 0.32, 1] }}
                     >
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                     </motion.svg>
@@ -367,10 +357,10 @@ export function AboutPageContent({
               {/* Spotlight: First testimonial — hero card */}
               {featuredTestimonials.length > 0 && (
                 <motion.article
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
                   whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
                   className="group relative overflow-hidden rounded-2xl border border-accentA/16 bg-gradient-to-r from-bg/80 via-card/60 to-bg/80 p-6 md:p-8"
                 >
                   {/* Large decorative quote mark */}
@@ -405,10 +395,10 @@ export function AboutPageContent({
                   {featuredTestimonials.slice(1).map((t, index) => (
                     <motion.article
                       key={t.id}
-                      initial={reducedMotion ? undefined : { opacity: 0, y: 12 }}
+                      initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
                       whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-60px" }}
-                      transition={{ duration: 0.45, delay: 0.12 * (index + 1), ease: [0.16, 1, 0.3, 1] }}
+                      transition={{ duration: 0.65, delay: 0.1 * (index + 1), ease: [0.23, 1, 0.32, 1] }}
                       className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/50 p-5 transition-all duration-300 hover:border-accentA/20 hover:shadow-[0_12px_40px_rgba(0,82,204,0.06)]"
                     >
                       <span className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-accentA/[0.03] blur-xl transition-all duration-500 group-hover:scale-[2.5] group-hover:bg-accentA/[0.06]" />
@@ -448,10 +438,10 @@ export function AboutPageContent({
               return (
                 <motion.article
                   key={p.title}
-                  initial={reducedMotion ? undefined : { opacity: 0, scale: 0.96 }}
-                  whileInView={reducedMotion ? undefined : { opacity: 1, scale: 1 }}
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
+                  whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.45, delay: 0.08 * index, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
                   className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/44 p-5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_12px_32px_rgba(0,82,204,0.05)]"
                 >
                   <span className="pointer-events-none absolute -bottom-8 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full bg-accentA/[0.03] blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:bg-accentA/[0.06]" />

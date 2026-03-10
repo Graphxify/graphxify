@@ -46,6 +46,7 @@ export function FounderIntroSection({
               src="/assets/work-1.svg"
               alt="Graphxify brand and web systems preview"
               fill
+              loading="lazy"
               className="object-cover"
               sizes="(max-width: 1024px) 100vw, 44vw"
             />

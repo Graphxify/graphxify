@@ -43,15 +43,13 @@ function buildLoopSegment(items: SliderProject[], count: number, fromEnd = false
     return [];
   }
 
-  const segment = Array.from({ length: count }, (_, index) => {
+  return Array.from({ length: count }, (_, index) => {
     if (fromEnd) {
       const sourceIndex = (items.length - (count - index)) % items.length;
       return items[(sourceIndex + items.length) % items.length];
     }
     return items[index % items.length];
   });
-
-  return segment;
 }
 
 function wrapIndex(value: number, total: number): number {
@@ -136,8 +134,16 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
     };
 
     updatePerView();
-    window.addEventListener("resize", updatePerView);
-    return () => window.removeEventListener("resize", updatePerView);
+    let rafId: number;
+    const onResize = () => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(updatePerView);
+    };
+    window.addEventListener("resize", onResize, { passive: true });
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   useEffect(() => {
@@ -394,7 +400,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
             onClick={goPrev}
             disabled={!carouselActive}
             className={cn(
-              "inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+              "inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
               !carouselActive
                 ? "cursor-not-allowed border-border/18 bg-card/54 text-fg/34"
                 : "border-border/26 bg-card/74 text-fg/74 hover:border-accentA/42 hover:text-fg"
@@ -408,7 +414,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
             onClick={goNext}
             disabled={!carouselActive}
             className={cn(
-              "inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+              "inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
               !carouselActive
                 ? "cursor-not-allowed border-border/18 bg-card/54 text-fg/34"
                 : "border-border/26 bg-card/74 text-fg/74 hover:border-accentA/42 hover:text-fg"
@@ -495,13 +501,17 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                   onKeyDown={onDotKeyDown}
                   aria-label={`Go to slide ${index + 1}`}
                   aria-current={active ? "true" : undefined}
-                  className={cn(
-                    "relative h-2 w-2 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-                    active
-                      ? "scale-110 bg-accentA opacity-100 shadow-[0_0_0_1px_rgba(0,163,255,0.24),0_0_12px_rgba(0,82,204,0.18)]"
-                      : "bg-accentA/35 opacity-70 hover:opacity-100"
-                  )}
-                />
+                  className="flex items-center justify-center p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                >
+                  <span
+                    className={cn(
+                      "block h-2 w-2 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                      active
+                        ? "scale-110 bg-accentA opacity-100 shadow-[0_0_0_1px_rgba(0,163,255,0.24),0_0_12px_rgba(0,82,204,0.18)]"
+                        : "bg-accentA/35 opacity-70 hover:opacity-100"
+                    )}
+                  />
+                </button>
               );
             })}
           </div>

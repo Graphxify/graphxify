@@ -157,7 +157,7 @@ function ServiceVisual({ serviceKey }: { serviceKey: ServicePillar["key"] }): JS
               </div>
               {/* Bottom status */}
               <div className="mt-2 flex items-center justify-center gap-2">
-                <motion.span className="h-1.5 w-1.5 rounded-full bg-emerald-400" animate={reducedMotion ? undefined : { scale: [1, 1.4, 1], opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} />
+                <motion.span className="h-1.5 w-1.5 rounded-full bg-emerald-400" animate={reducedMotion ? undefined : { opacity: [0.4, 1, 0.4] }} transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }} />
                 <span className="text-[0.46rem] uppercase tracking-[0.14em] text-fg/50">Brand Consistency: Active</span>
               </div>
             </div>
@@ -186,7 +186,7 @@ function ServiceVisual({ serviceKey }: { serviceKey: ServicePillar["key"] }): JS
               {/* Color palette row */}
               <div className="flex items-center gap-1.5 pt-1">
                 {["#6366F1", "#0EA5E9", "#10B981", "#F59E0B", "#0F172A"].map((color, index) => (
-                  <motion.i key={`brand-chip-${color}`} aria-hidden="true" className="h-4 w-4 rounded-full border border-border/20 shadow-[0_2px_8px_rgba(0,0,0,0.15)]" style={{ backgroundColor: color }} animate={reducedMotion ? undefined : { y: [0, -3, 0], scale: [1, 1.12, 1] }} transition={{ duration: 2.2, delay: index * 0.15, repeat: Infinity, ease: "easeInOut" }} />
+                  <motion.i key={`brand-chip-${color}`} aria-hidden="true" className="h-4 w-4 rounded-full border border-border/20 shadow-[0_2px_8px_rgba(0,0,0,0.15)]" style={{ backgroundColor: color }} animate={reducedMotion ? undefined : { y: [0, -2, 0] }} transition={{ duration: 2.8, delay: index * 0.18, repeat: Infinity, ease: "easeInOut" }} />
                 ))}
                 <span className="ml-1 text-[0.44rem] uppercase tracking-[0.12em] text-fg/45">Palette</span>
               </div>
@@ -267,7 +267,7 @@ function ServiceVisual({ serviceKey }: { serviceKey: ServicePillar["key"] }): JS
           <div className="relative z-10 flex items-center justify-between text-[0.52rem] uppercase tracking-[0.14em] text-fg/52">
             <span>Build Engine</span>
             <motion.span className="flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-2 py-0.5 text-emerald-400" animate={reducedMotion ? undefined : { opacity: [0.6, 1, 0.6] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
-              <motion.span className="h-1.5 w-1.5 rounded-full bg-emerald-400" animate={reducedMotion ? undefined : { scale: [1, 1.5, 1] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }} />Deploying
+              <motion.span className="h-1.5 w-1.5 rounded-full bg-emerald-400" animate={reducedMotion ? undefined : { opacity: [0.5, 1, 0.5] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }} />Deploying
             </motion.span>
           </div>
           <div className="relative z-10 mt-2 grid h-[calc(100%-1.45rem)] grid-cols-[1.1fr_0.9fr] gap-2">
@@ -498,10 +498,10 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
             {processSteps.map((step, index) => (
               <motion.article
                 key={`services-process-${step.title}`}
-                initial={reducedMotion ? false : { opacity: 0, y: 10 }}
+                initial={reducedMotion ? false : { opacity: 0, y: 24 }}
                 whileInView={reducedMotion ? {} : { opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
-                transition={{ duration: 0.45, delay: 0.04 * index, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
                 className="group rounded-xl border border-border/16 bg-bg/44 px-4 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-border/28"
               >
                 <div className="flex items-center justify-between">
