@@ -118,3 +118,10 @@ export const testimonialMetricItemSchema = z.object({
 export const testimonialMetricsSchema = z.object({
   metrics: z.array(testimonialMetricItemSchema).min(1).max(6)
 });
+
+export const publicReviewSchema = z.object({
+  name: z.string().trim().min(2, "Name must be at least 2 characters.").max(120),
+  role: z.string().trim().min(2, "Role/title must be at least 2 characters.").max(160),
+  quote: z.string().trim().min(10, "Review must be at least 10 characters.").max(600, "Review must be under 600 characters."),
+  company: z.string().trim().max(120).optional().or(z.literal(""))
+});

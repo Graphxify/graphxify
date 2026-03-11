@@ -4,18 +4,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Magnetic } from "@/components/motion/magnetic";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { marketingNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { createBrowserClient } from "@supabase/ssr";
 
 export function MarketingHeader(): JSX.Element {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const centerNav = marketingNav.filter((item) => item.href !== "/contact");
   const isRouteActive = (href: string): boolean =>
     href === "/" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
@@ -36,6 +38,26 @@ export function MarketingHeader(): JSX.Element {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
+
+  // Reactive auth state detection — uses anon key directly
+  useEffect(() => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return;
+
+    try {
+      const supabase = createBrowserClient(url, key);
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        setIsAuthenticated(!!session);
+      });
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setIsAuthenticated(!!session);
+      });
+      return () => subscription.unsubscribe();
+    } catch {
+      // Client creation failed — keep button hidden
+    }
+  }, []);
 
   useEffect(() => {
     if (!mobileOpen) {
@@ -123,6 +145,15 @@ export function MarketingHeader(): JSX.Element {
           </nav>
 
           <div className="relative z-10 ml-auto hidden items-center gap-2.5 lg:flex">
+            {isAuthenticated ? (
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-1.5 rounded-full border border-accentA/30 bg-accentA/10 px-3.5 py-1.5 text-xs font-medium text-accentA transition-all duration-200 hover:border-accentA/50 hover:bg-accentA/18 hover:shadow-[0_4px_16px_rgba(0,163,255,0.18)]"
+              >
+                <LayoutDashboard className="h-3.5 w-3.5" />
+                CMS
+              </Link>
+            ) : null}
             <ThemeToggle className="hidden lg:inline-flex" />
             <Magnetic className="hidden lg:block">
               <Button
@@ -207,6 +238,19 @@ export function MarketingHeader(): JSX.Element {
                   <Link href="/contact" className={mobileNavItemClass(contactActive)}>
                     Contact
                   </Link>
+
+                  {isAuthenticated ? (
+                    <>
+                      <div className="my-1 border-t border-border/12" />
+                      <Link
+                        href="/dashboard"
+                        className="flex items-center gap-2 rounded-xl bg-accentA/10 px-3 py-2.5 text-sm font-medium text-accentA transition-colors duration-150 hover:bg-accentA/18"
+                      >
+                        <LayoutDashboard className="h-4 w-4" />
+                        CMS Dashboard
+                      </Link>
+                    </>
+                  ) : null}
                 </nav>
               </motion.div>
             </>
