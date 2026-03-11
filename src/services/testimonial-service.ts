@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getCurrentProfile } from "@/lib/auth/requireRole";
+import { getCurrentProfile, hasPermission } from "@/lib/auth/requireRole";
 import { logAuditEvent } from "@/lib/audit";
 import {
   isTestimonialsTableMissing,
@@ -29,14 +29,26 @@ async function requireTestimonialProfile(): Promise<TestimonialProfile> {
   return profile;
 }
 
-function assertCanEditOwnedTestimonial(profile: TestimonialProfile, authorId: string | null): void {
-  if (profile.role === "mod" && authorId && authorId !== profile.id) {
+function assertCanEditTestimonial(profile: TestimonialProfile): void {
+  if (!hasPermission(profile, "content.testimonials.edit")) {
+    throw new Error("Forbidden");
+  }
+}
+
+function assertCanCreateTestimonial(profile: TestimonialProfile): void {
+  if (!hasPermission(profile, "content.testimonials.create")) {
     throw new Error("Forbidden");
   }
 }
 
 function assertCanDeleteTestimonial(profile: TestimonialProfile): void {
-  if (profile.role !== "admin" && profile.role !== "mod") {
+  if (!hasPermission(profile, "content.testimonials.delete")) {
+    throw new Error("Forbidden");
+  }
+}
+
+function assertCanModerateTestimonial(profile: TestimonialProfile): void {
+  if (!hasPermission(profile, "content.testimonials.moderate")) {
     throw new Error("Forbidden");
   }
 }
@@ -54,7 +66,8 @@ function toFallbackRecord(params: {
     role: string;
     quote: string;
     imageUrl?: string;
-    status: "draft" | "published";
+    rating: number;
+    status: "draft" | "pending" | "published" | "rejected";
     sortOrder: number;
   };
   createdAt?: string;
@@ -66,6 +79,7 @@ function toFallbackRecord(params: {
     role: params.parsed.role,
     quote: params.parsed.quote,
     image_url: params.parsed.imageUrl || null,
+    rating: params.parsed.rating,
     status: params.parsed.status,
     sort_order: params.parsed.sortOrder,
     author_id: params.profileId,
@@ -76,12 +90,14 @@ function toFallbackRecord(params: {
 
 export async function createOrUpdateTestimonial(params: { id?: string; formData: FormData }): Promise<{ id: string }> {
   const profile = await requireTestimonialProfile();
+  assertCanEditTestimonial(profile);
 
   const parsed = testimonialSchema.parse({
     name: params.formData.get("name"),
     role: params.formData.get("role"),
     quote: params.formData.get("quote"),
     imageUrl: params.formData.get("imageUrl"),
+    rating: params.formData.get("rating"),
     status: params.formData.get("status"),
     sortOrder: params.formData.get("sortOrder")
   });
@@ -89,6 +105,8 @@ export async function createOrUpdateTestimonial(params: { id?: string; formData:
   const supabase = getWriteClient();
 
   if (!params.id) {
+    assertCanCreateTestimonial(profile);
+
     let createdId = "";
     try {
       const { data, error } = await supabase
@@ -98,6 +116,7 @@ export async function createOrUpdateTestimonial(params: { id?: string; formData:
           role: parsed.role,
           quote: parsed.quote,
           image_url: parsed.imageUrl || null,
+          rating: parsed.rating ?? 5,
           status: parsed.status,
           sort_order: parsed.sortOrder,
           author_id: profile.id
@@ -146,7 +165,7 @@ export async function createOrUpdateTestimonial(params: { id?: string; formData:
     return { id: createdId };
   }
 
-  let existing: { id: string; author_id: string | null; status: "draft" | "published"; created_at?: string } | null = null;
+  let existing: { id: string; author_id: string | null; status: "draft" | "pending" | "published" | "rejected"; created_at?: string } | null = null;
   try {
     const { data, error: existingError } = await supabase
       .from("testimonials")
@@ -179,8 +198,6 @@ export async function createOrUpdateTestimonial(params: { id?: string; formData:
     throw new Error("Testimonial not found");
   }
 
-  assertCanEditOwnedTestimonial(profile, existing.author_id);
-
   try {
     const { error } = await supabase
       .from("testimonials")
@@ -189,6 +206,7 @@ export async function createOrUpdateTestimonial(params: { id?: string; formData:
         role: parsed.role,
         quote: parsed.quote,
         image_url: parsed.imageUrl || null,
+        rating: parsed.rating ?? 5,
         status: parsed.status,
         sort_order: parsed.sortOrder,
         author_id: existing.author_id ?? profile.id,
@@ -271,8 +289,6 @@ export async function deleteTestimonial(id: string): Promise<void> {
     throw new Error("Testimonial not found");
   }
 
-  assertCanEditOwnedTestimonial(profile, existing.author_id);
-
   try {
     const { error } = await supabase.from("testimonials").delete().eq("id", id);
     if (error) {
@@ -303,3 +319,34 @@ export async function deleteTestimonial(id: string): Promise<void> {
 
   revalidateTestimonialPages();
 }
+
+export async function updateTestimonialStatus(
+  id: string,
+  newStatus: "draft" | "pending" | "published" | "rejected"
+): Promise<void> {
+  const profile = await requireTestimonialProfile();
+  assertCanModerateTestimonial(profile);
+  const supabase = getWriteClient();
+
+  const { error } = await supabase
+    .from("testimonials")
+    .update({ status: newStatus })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(`Failed to update status: ${error.message}`);
+  }
+
+  await logAuditEvent({
+    actorId: profile.id,
+    actorEmail: profile.email,
+    actorRole: profile.role,
+    action: "testimonial.status_change",
+    entityType: "testimonial",
+    entityId: id,
+    metadata: { operation: "status_change", new_status: newStatus }
+  });
+
+  revalidateTestimonialPages();
+}
+

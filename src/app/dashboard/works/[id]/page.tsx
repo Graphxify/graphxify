@@ -6,14 +6,16 @@ import { restoreWorkVersionAction } from "@/app/dashboard/works/[id]/actions";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getWorkById, getWorkVersions } from "@/db/queries/works";
-import { requireRole } from "@/lib/auth/requireRole";
+import { requirePermission } from "@/lib/auth/requireRole";
+import { hasPermission } from "@/lib/auth/roles";
 
 type Params = { id: string };
 
 export default async function DashboardWorkEditorPage({ params }: { params: Promise<Params> }) {
-  await requireRole(["admin", "mod"]);
+  const profile = await requirePermission("content.works.edit_any");
   const { id } = await params;
   const isNew = id === "new";
+  const canPublish = hasPermission(profile.role, "content.works.publish");
 
   const work = isNew ? null : await getWorkById(id);
   if (!isNew && !work) {
@@ -38,7 +40,7 @@ export default async function DashboardWorkEditorPage({ params }: { params: Prom
         <RevealItem>
           <Card>
             <CardContent className="p-6">
-              <ContentForm type="work" item={work} />
+              <ContentForm type="work" item={work} canPublish={canPublish} />
             </CardContent>
           </Card>
         </RevealItem>

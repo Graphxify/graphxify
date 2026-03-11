@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Activity, BarChart3, FileText, LayoutDashboard, MessageSquareQuote, Settings, Shield, Users, Workflow } from "lucide-react";
+import { Activity, BarChart3, FileText, LayoutDashboard, MessageSquareQuote, Settings, Shield, Users, Workflow, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 type NavItem = {
   href: string;
   label: string;
+  badge?: number;
 };
 
 const iconByLabel: Record<string, JSX.Element> = {
@@ -19,9 +20,9 @@ const iconByLabel: Record<string, JSX.Element> = {
   Testimonials: <MessageSquareQuote className="h-4 w-4" />,
   Leads: <Users className="h-4 w-4" />,
   Activity: <Activity className="h-4 w-4" />,
+  Profile: <User className="h-4 w-4" />,
   Settings: <Settings className="h-4 w-4" />,
-  Users: <Shield className="h-4 w-4" />,
-  Webhooks: <BarChart3 className="h-4 w-4" />
+  Users: <Shield className="h-4 w-4" />
 };
 
 export function DashboardNav({ items }: { items: NavItem[] }): JSX.Element {
@@ -55,6 +56,11 @@ export function DashboardNav({ items }: { items: NavItem[] }): JSX.Element {
             ) : null}
             <span className="text-fg/72">{iconByLabel[item.label] ?? <LayoutDashboard className="h-4 w-4" />}</span>
             <span>{item.label}</span>
+            {item.badge && item.badge > 0 ? (
+              <span className="ml-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-accentA/20 px-1.5 text-[0.6rem] font-semibold tabular-nums text-accentA">
+                {item.badge}
+              </span>
+            ) : null}
           </Link>
         );
       })}

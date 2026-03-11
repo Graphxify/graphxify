@@ -20,7 +20,6 @@ type TestimonialCard = {
   quote: string;
   name: string;
   role: string;
-  image_url?: string | null;
 };
 
 type TestimonialMetricCard = {

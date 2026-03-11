@@ -3,7 +3,7 @@ import "server-only";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getCurrentProfile } from "@/lib/auth/requireRole";
+import { getCurrentProfile, hasPermission } from "@/lib/auth/requireRole";
 import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/provider";
 import { publishNotificationTemplate } from "@/lib/email/templates";
@@ -49,14 +49,56 @@ async function requireProfile(): Promise<ContentProfile> {
   return profile;
 }
 
-function assertCanEditOwnedContent(profile: ContentProfile, authorId: string | null): void {
-  if (profile.role === "mod" && authorId && authorId !== profile.id) {
+function assertCanCreatePost(profile: ContentProfile): void {
+  if (!hasPermission(profile, "content.posts.create")) {
     throw new Error("Forbidden");
   }
 }
 
-function assertCanManageContent(profile: ContentProfile): void {
-  if (profile.role !== "admin" && profile.role !== "mod") {
+function assertCanEditPost(profile: ContentProfile, authorId: string | null): void {
+  if (hasPermission(profile, "content.posts.edit_any")) {
+    return;
+  }
+
+  if (hasPermission(profile, "content.posts.edit_own") && authorId && authorId === profile.id) {
+    return;
+  }
+
+  throw new Error("Forbidden");
+}
+
+function assertCanPublishPost(profile: ContentProfile, nextStatus: string): void {
+  if (nextStatus === "published" && !hasPermission(profile, "content.posts.publish")) {
+    throw new Error("Forbidden");
+  }
+}
+
+function assertCanDeletePost(profile: ContentProfile): void {
+  if (!hasPermission(profile, "content.posts.delete")) {
+    throw new Error("Forbidden");
+  }
+}
+
+function assertCanCreateWork(profile: ContentProfile): void {
+  if (!hasPermission(profile, "content.works.create")) {
+    throw new Error("Forbidden");
+  }
+}
+
+function assertCanEditWork(profile: ContentProfile): void {
+  if (!hasPermission(profile, "content.works.edit_any")) {
+    throw new Error("Forbidden");
+  }
+}
+
+function assertCanPublishWork(profile: ContentProfile, nextStatus: string): void {
+  if (nextStatus === "published" && !hasPermission(profile, "content.works.publish")) {
+    throw new Error("Forbidden");
+  }
+}
+
+function assertCanDeleteWork(profile: ContentProfile): void {
+  if (!hasPermission(profile, "content.works.delete")) {
     throw new Error("Forbidden");
   }
 }
@@ -133,6 +175,9 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
   const id = params.id;
 
   if (!id) {
+    assertCanCreatePost(profile);
+    assertCanPublishPost(profile, parsed.status);
+
     const { data, error } = await supabase
       .from("posts")
       .insert({
@@ -190,7 +235,8 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
     throw new Error("Post not found");
   }
 
-  assertCanEditOwnedContent(profile, existing.author_id);
+  assertCanEditPost(profile, existing.author_id);
+  assertCanPublishPost(profile, parsed.status);
 
   const { error } = await supabase
     .from("posts")
@@ -268,6 +314,9 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
   const id = params.id;
 
   if (!id) {
+    assertCanCreateWork(profile);
+    assertCanPublishWork(profile, parsed.status);
+
     const { data, error } = await supabase
       .from("works")
       .insert({
@@ -337,7 +386,8 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     throw new Error("Work not found");
   }
 
-  assertCanEditOwnedContent(profile, existing.author_id);
+  assertCanEditWork(profile);
+  assertCanPublishWork(profile, parsed.status);
 
   const { error } = await supabase
     .from("works")
@@ -422,7 +472,7 @@ export async function restorePostVersion(postId: string, versionId: string): Pro
     throw new Error("Post not found");
   }
 
-  assertCanEditOwnedContent(profile, postMeta.author_id);
+  assertCanEditPost(profile, postMeta.author_id);
 
   const { data: version, error: versionError } = await supabase
     .from("post_versions")
@@ -434,6 +484,7 @@ export async function restorePostVersion(postId: string, versionId: string): Pro
   if (versionError) {
     throw versionError;
   }
+  assertCanPublishPost(profile, String(version.status));
 
   const { error: updateError } = await supabase
     .from("posts")
@@ -496,7 +547,7 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
     throw new Error("Work not found");
   }
 
-  assertCanEditOwnedContent(profile, workMeta.author_id);
+  assertCanEditWork(profile);
 
   const { data: version, error: versionError } = await supabase
     .from("work_versions")
@@ -508,6 +559,7 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
   if (versionError) {
     throw versionError;
   }
+  assertCanPublishWork(profile, String(version.status));
 
   const { error: updateError } = await supabase
     .from("works")
@@ -567,7 +619,7 @@ export async function restoreWorkVersion(workId: string, versionId: string): Pro
 
 export async function deletePost(postId: string): Promise<void> {
   const profile = await requireProfile();
-  assertCanManageContent(profile);
+  assertCanDeletePost(profile);
 
   const supabase = getWriteClient();
   const { error } = await supabase.from("posts").delete().eq("id", postId);
@@ -590,7 +642,7 @@ export async function deletePost(postId: string): Promise<void> {
 
 export async function deleteWork(workId: string): Promise<void> {
   const profile = await requireProfile();
-  assertCanManageContent(profile);
+  assertCanDeleteWork(profile);
 
   const supabase = getWriteClient();
   const { error } = await supabase.from("works").delete().eq("id", workId);

@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { normalizeAccountStatus, normalizeRole, type AppRole } from "@/lib/auth/roles";
 import { rateLimit } from "@/lib/rate-limit";
 import { logAuditEvent } from "@/lib/audit";
 import { logger } from "@/lib/logger";
@@ -15,6 +16,9 @@ type LoginErrorCode =
   | "password_auth_disabled"
   | "email_not_confirmed"
   | "account_not_found"
+  | "account_disabled"
+  | "account_pending"
+  | "session_revoked"
   | "unknown";
 
 function redirectLoginError(code: LoginErrorCode): never {
@@ -177,10 +181,14 @@ export async function loginAction(formData: FormData): Promise<void> {
     redirectLoginError("unknown");
   }
 
+  const nowIso = new Date().toISOString();
+  let actorRole: AppRole = "editor";
+  let forcePasswordReset = false;
+
   try {
     const { data: existingProfile, error: existingError } = await supabase
       .from("profiles")
-      .select("id,role")
+      .select("id,role,status,force_password_reset")
       .eq("id", data.user.id)
       .maybeSingle();
 
@@ -189,9 +197,25 @@ export async function loginAction(formData: FormData): Promise<void> {
     }
 
     if (existingProfile) {
+      const normalizedStatus = normalizeAccountStatus(
+        typeof existingProfile.status === "string" ? existingProfile.status : "active"
+      );
+      actorRole = normalizeRole(typeof existingProfile.role === "string" ? existingProfile.role : "editor");
+      forcePasswordReset = Boolean(existingProfile.force_password_reset);
+
+      if (normalizedStatus === "disabled") {
+        await supabase.auth.signOut();
+        redirectLoginError("account_disabled");
+      }
+
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ email: data.user.email ?? email })
+        .update({
+          email: data.user.email ?? email,
+          status: normalizedStatus === "pending_invite" ? "active" : normalizedStatus,
+          last_login: nowIso,
+          force_logout_at: null
+        })
         .eq("id", data.user.id);
       if (updateError) {
         throw updateError;
@@ -199,10 +223,20 @@ export async function loginAction(formData: FormData): Promise<void> {
     } else {
       const { error: insertError } = await supabase
         .from("profiles")
-        .insert({ id: data.user.id, email: data.user.email ?? email, role: "mod" });
+        .insert({
+          id: data.user.id,
+          email: data.user.email ?? email,
+          role: "editor",
+          status: "active",
+          last_login: nowIso,
+          force_password_reset: false,
+          force_logout_at: null
+        });
       if (insertError) {
         throw insertError;
       }
+      actorRole = "editor";
+      forcePasswordReset = false;
     }
   } catch (error) {
     logger.warn("Profile sync failed during login", {
@@ -215,7 +249,7 @@ export async function loginAction(formData: FormData): Promise<void> {
     await logAuditEvent({
       actorId: data.user.id,
       actorEmail: data.user.email ?? email,
-      actorRole: "mod",
+      actorRole,
       action: "auth.login",
       entityType: "profile",
       entityId: data.user.id,
@@ -226,6 +260,10 @@ export async function loginAction(formData: FormData): Promise<void> {
       userId: data.user.id,
       error: error instanceof Error ? error.message : "unknown"
     });
+  }
+
+  if (forcePasswordReset) {
+    redirect("/login/reset-password?forced=1");
   }
 
   redirect("/dashboard");

@@ -3,7 +3,17 @@ export type ContentStatus = "draft" | "review" | "published";
 export type Profile = {
   id: string;
   email: string;
-  role: "admin" | "mod";
+  role: "admin" | "mod" | "editor";
+  status: "active" | "disabled" | "pending_invite";
+  display_name: string | null;
+  avatar_url: string | null;
+  phone: string | null;
+  bio: string | null;
+  last_login: string | null;
+  last_activity: string | null;
+  last_password_change: string | null;
+  force_password_reset: boolean;
+  force_logout_at: string | null;
   created_at: string;
 };
 
@@ -53,7 +63,8 @@ export type Testimonial = {
   name: string;
   role: string;
   image_url: string | null;
-  status: "draft" | "published";
+  rating: number;
+  status: "draft" | "pending" | "published" | "rejected";
   sort_order: number;
   author_id: string | null;
   created_at: string;

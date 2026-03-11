@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireApiRole } from "@/lib/auth/requireRole";
+import { requireApiPermission } from "@/lib/auth/requireRole";
 import { logger } from "@/lib/logger";
 import { saveTestimonialMetrics } from "@/services/testimonial-metric-service";
 
@@ -30,7 +30,7 @@ function mapError(error: unknown): string {
 
 export async function PUT(request: NextRequest) {
   try {
-    await requireApiRole(["admin", "mod"]);
+    await requireApiPermission("content.testimonial_metrics.edit");
     const body = (await request.json()) as unknown;
     const result = await saveTestimonialMetrics(body);
     return NextResponse.json(result, { status: 200 });

@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createOrUpdateWork, deleteWork } from "@/services/content-service";
-import { requireApiRole } from "@/lib/auth/requireRole";
+import { requireApiPermission } from "@/lib/auth/requireRole";
 import { errorMessage } from "@/lib/api-error";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
-    await requireApiRole(["admin", "mod"]);
+    await requireApiPermission("content.works.create");
     const formData = await request.formData();
     const result = await createOrUpdateWork({ formData });
     return NextResponse.json(result, { status: 201 });
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await requireApiRole(["admin", "mod"]);
+    await requireApiPermission("content.works.edit_any");
     const formData = await request.formData();
     const id = String(formData.get("id") || "");
     if (!id) {
@@ -36,7 +36,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    await requireApiRole(["admin", "mod"]);
+    await requireApiPermission("content.works.delete");
     const id = request.nextUrl.searchParams.get("id");
     if (!id) {
       return NextResponse.json({ message: "Missing work id" }, { status: 400 });

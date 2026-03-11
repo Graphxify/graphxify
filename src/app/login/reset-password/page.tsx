@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -16,6 +16,12 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [forced, setForced] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setForced(params.get("forced") === "1");
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,6 +60,11 @@ export default function ResetPasswordPage() {
         return;
       }
 
+      await fetch("/api/auth/password-reset-complete", {
+        method: "POST",
+        credentials: "include"
+      });
+      await supabase.auth.signOut();
       setSuccess(true);
       setTimeout(() => router.push("/login"), 3000);
     } catch {
@@ -103,6 +114,11 @@ export default function ResetPasswordPage() {
             <h1 className="text-2xl font-semibold tracking-tight">Set New Password</h1>
             <p className="mt-1.5 text-sm text-fg/50">Enter your new password below.</p>
           </div>
+          {forced ? (
+            <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/8 px-3 py-2.5">
+              <p className="text-sm text-amber-400">An administrator requires you to reset your password.</p>
+            </div>
+          ) : null}
 
           {success ? (
             <div className="space-y-4">

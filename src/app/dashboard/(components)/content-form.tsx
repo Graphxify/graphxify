@@ -22,13 +22,14 @@ function slugify(text: string): string {
 type ContentFormProps = {
   type: "post" | "work";
   item?: Record<string, unknown> | null;
+  canPublish?: boolean;
 };
 
 function uniqueGalleryValues(values: string[]): string[] {
   return Array.from(new Set(values));
 }
 
-export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
+export function ContentForm({ type, item, canPublish = true }: ContentFormProps): JSX.Element {
   const router = useRouter();
   const isWork = type === "work";
   const parsedWorkYear = Number.parseInt(String(item?.year ?? ""), 10);
@@ -228,7 +229,7 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
             >
               <option value="draft">Draft</option>
               <option value="review">Review</option>
-              <option value="published">Published</option>
+              {canPublish ? <option value="published">Published</option> : null}
             </select>
           </div>
 
@@ -362,7 +363,7 @@ export function ContentForm({ type, item }: ContentFormProps): JSX.Element {
             >
               <option value="draft">Draft</option>
               <option value="review">Review</option>
-              <option value="published">Published</option>
+              {canPublish ? <option value="published">Published</option> : null}
             </select>
           </div>
           <div className="space-y-2">

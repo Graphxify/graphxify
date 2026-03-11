@@ -42,23 +42,48 @@ using (true);
 create policy "testimonial_metrics_staff_select"
 on public.testimonial_metrics
 for select
-using (public.is_admin_or_mod());
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+  )
+);
 
 create policy "testimonial_metrics_staff_insert"
 on public.testimonial_metrics
 for insert
-with check (public.is_admin_or_mod());
+with check (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+  )
+);
 
 create policy "testimonial_metrics_staff_update"
 on public.testimonial_metrics
 for update
-using (public.is_admin_or_mod())
-with check (public.is_admin_or_mod());
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+  )
+)
+with check (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+  )
+);
 
 create policy "testimonial_metrics_staff_delete"
 on public.testimonial_metrics
 for delete
-using (public.is_admin_or_mod());
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+  )
+);
 
 notify pgrst, 'reload schema';
 

@@ -1,23 +1,41 @@
 import Link from "next/link";
-import { MessageSquareQuote } from "lucide-react";
+import { MessageSquareQuote, Search } from "lucide-react";
 import { EmptyState } from "@/app/dashboard/(components)/empty-state";
 import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
+import { TestimonialActions } from "@/app/dashboard/(components)/testimonial-actions";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDashboardTestimonials } from "@/db/queries/testimonials";
-import { requireRole } from "@/lib/auth/requireRole";
+import { requirePermission } from "@/lib/auth/requireRole";
+import { hasPermission } from "@/lib/auth/roles";
 
 export const dynamic = "force-dynamic";
+
+const STATUS_TABS = [
+  { value: "", label: "All" },
+  { value: "pending", label: "Pending" },
+  { value: "published", label: "Published" },
+  { value: "rejected", label: "Rejected" }
+];
 
 export default async function DashboardTestimonialsPage({
   searchParams
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireRole(["admin", "mod"]);
+  const profile = await requirePermission("content.testimonials.view");
+  const canModerate = hasPermission(profile.role, "content.testimonials.moderate");
+  const canDelete = hasPermission(profile.role, "content.testimonials.delete");
+  const canCreate = hasPermission(profile.role, "content.testimonials.create");
+  const canEditMetrics = hasPermission(profile.role, "content.testimonial_metrics.edit");
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
+  const statusFilter = typeof resolvedSearchParams.status === "string" ? resolvedSearchParams.status : "";
+  const search = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : "";
+
   let result: Awaited<ReturnType<typeof getDashboardTestimonials>> = {
     rows: [],
     total: 0,
@@ -28,7 +46,7 @@ export default async function DashboardTestimonialsPage({
   let loadError = "";
 
   try {
-    result = await getDashboardTestimonials(page, 12);
+    result = await getDashboardTestimonials(page, 12, statusFilter, search);
   } catch (error) {
     if (error && typeof error === "object" && "code" in error) {
       const code = String((error as { code?: string }).code || "");
@@ -46,6 +64,10 @@ export default async function DashboardTestimonialsPage({
     }
   }
 
+  const filterParams: Record<string, string> = {};
+  if (statusFilter) filterParams.status = statusFilter;
+  if (search) filterParams.q = search;
+
   return (
     <section className="space-y-5">
       <RevealStagger className="space-y-5">
@@ -56,13 +78,58 @@ export default async function DashboardTestimonialsPage({
               <h1 className="text-3xl font-semibold">Testimonials</h1>
             </div>
             <div className="flex items-center gap-4">
-              <Link href="/dashboard/testimonials/metrics" className="link-sweep text-sm">
-                Edit metrics card
-              </Link>
-              <Link href="/dashboard/testimonials/new" className="link-sweep text-sm">
-                New testimonial
-              </Link>
+              {canEditMetrics ? (
+                <Link href="/dashboard/testimonials/metrics" className="link-sweep text-sm">
+                  Edit metrics card
+                </Link>
+              ) : null}
+              {canCreate ? (
+                <Link href="/dashboard/testimonials/new" className="link-sweep text-sm">
+                  New testimonial
+                </Link>
+              ) : null}
             </div>
+          </div>
+        </RevealItem>
+
+        {/* Status Tabs + Search */}
+        <RevealItem>
+          <div className="space-y-3">
+            <div className="flex items-center gap-1 rounded-lg border border-border/14 bg-card/60 p-1">
+              {STATUS_TABS.map((tab) => (
+                <Link
+                  key={tab.value}
+                  href={`/dashboard/testimonials${tab.value ? `?status=${tab.value}` : ""}${search ? `${tab.value ? "&" : "?"}q=${search}` : ""}`}
+                  className={`rounded-md px-3.5 py-1.5 text-xs font-medium transition-all ${
+                    statusFilter === tab.value
+                      ? "bg-accentA/12 text-accentA shadow-sm"
+                      : "text-fg/56 hover:text-fg hover:bg-card/80"
+                  }`}
+                >
+                  {tab.label}
+                </Link>
+              ))}
+            </div>
+            <form className="flex items-center gap-2">
+              {statusFilter && <input type="hidden" name="status" value={statusFilter} />}
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/36" />
+                <Input
+                  name="q"
+                  defaultValue={search}
+                  placeholder="Search by name, role, or quote..."
+                  className="pl-9 h-9"
+                />
+              </div>
+              <Button type="submit" variant="secondary" size="sm" className="h-9">
+                Search
+              </Button>
+              {(search || statusFilter) && (
+                <Button asChild variant="ghost" size="sm" className="h-9 text-fg/56">
+                  <Link href="/dashboard/testimonials">Clear</Link>
+                </Button>
+              )}
+            </form>
           </div>
         </RevealItem>
 
@@ -73,10 +140,10 @@ export default async function DashboardTestimonialsPage({
             {result.rows.length === 0 && !loadError ? (
               <EmptyState
                 icon={<MessageSquareQuote className="h-8 w-8 text-fg/32" />}
-                title="No testimonials yet"
-                description="Add your first client testimonial to showcase on your site."
-                actionLabel="New testimonial"
-                actionHref="/dashboard/testimonials/new"
+                title={statusFilter || search ? "No testimonials match your filters" : "No testimonials yet"}
+                description={statusFilter || search ? "Try different filters or search terms." : "Add your first client testimonial to showcase on your site."}
+                actionLabel={canCreate && !statusFilter && !search ? "New testimonial" : undefined}
+                actionHref={canCreate && !statusFilter && !search ? "/dashboard/testimonials/new" : undefined}
               />
             ) : (
               <>
@@ -85,29 +152,49 @@ export default async function DashboardTestimonialsPage({
                     <TableRow>
                       <TableHead>Name</TableHead>
                       <TableHead>Role</TableHead>
+                      <TableHead className="max-w-[18rem]">Quote</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Order</TableHead>
-                      <TableHead>Updated</TableHead>
-                      <TableHead></TableHead>
+                      <TableHead>Source</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {result.rows.map((item) => (
-                      <TableRow key={item.id}>
-                        <TableCell>{item.name}</TableCell>
-                        <TableCell>{item.role}</TableCell>
-                        <TableCell>
-                          <Badge variant="secondary">{item.status}</Badge>
-                        </TableCell>
-                        <TableCell>{item.sort_order}</TableCell>
-                        <TableCell>{new Date(item.updated_at).toLocaleString()}</TableCell>
-                        <TableCell>
-                          <Link href={`/dashboard/testimonials/${item.id}`} className="link-sweep text-sm">
-                            Edit
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {result.rows.map((item) => {
+                      const badgeClass =
+                        item.status === "published"
+                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                          : item.status === "pending"
+                            ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                            : item.status === "rejected"
+                              ? "border-red-500/30 bg-red-500/10 text-red-400"
+                              : "";
+                      const isClientSubmission = !item.author_id;
+                      return (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.name}</TableCell>
+                          <TableCell>{item.role}</TableCell>
+                          <TableCell className="max-w-[18rem] truncate text-xs text-fg/56">
+                            {item.quote.length > 80 ? `${item.quote.slice(0, 80)}…` : item.quote}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="secondary" className={badgeClass}>{item.status}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            {isClientSubmission ? (
+                              <span className="inline-flex items-center gap-1 text-xs text-fg/48">
+                                <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400/70" />
+                                Client
+                              </span>
+                            ) : (
+                              <span className="text-xs text-fg/32">Staff</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <TestimonialActions id={item.id} status={item.status} canModerate={canModerate} canDelete={canDelete} />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
                 <ServerPagination
@@ -115,6 +202,7 @@ export default async function DashboardTestimonialsPage({
                   total={result.total}
                   pageSize={12}
                   basePath="/dashboard/testimonials"
+                  searchParams={filterParams}
                 />
               </>
             )}

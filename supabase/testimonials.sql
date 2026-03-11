@@ -7,12 +7,22 @@ create table if not exists public.testimonials (
   name text not null,
   role text not null,
   image_url text,
-  status text not null default 'draft' check (status in ('draft', 'published')),
+  rating int not null default 5 check (rating between 1 and 5),
+  status text not null default 'draft' check (status in ('draft', 'pending', 'published', 'rejected')),
   sort_order int not null default 0,
   author_id uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.testimonials add column if not exists rating int not null default 5;
+alter table public.testimonials drop constraint if exists testimonials_rating_check;
+alter table public.testimonials add constraint testimonials_rating_check check (rating between 1 and 5);
+
+alter table public.testimonials drop constraint if exists testimonials_status_check;
+alter table public.testimonials
+  add constraint testimonials_status_check
+  check (status in ('draft', 'pending', 'published', 'rejected'));
 
 create or replace function public.set_updated_at()
 returns trigger
@@ -43,7 +53,10 @@ stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or (public.is_mod() and auth.uid() = testimonial_author_id);
+  select exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role in ('admin', 'editor', 'reviewer', 'mod')
+  );
 $$;
 
 grant execute on function public.can_edit_testimonial(uuid) to anon, authenticated, service_role;
@@ -62,12 +75,17 @@ using (status = 'published');
 create policy "testimonials_staff_read_all"
 on public.testimonials
 for select
-using (public.is_admin_or_mod());
+using (public.can_edit_testimonial(author_id));
 
 create policy "testimonials_insert_staff"
 on public.testimonials
 for insert
-with check (public.is_admin_or_mod());
+with check (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+  )
+);
 
 create policy "testimonials_update_staff_owned"
 on public.testimonials
@@ -78,7 +96,12 @@ with check (public.can_edit_testimonial(author_id));
 create policy "testimonials_delete_staff_owned"
 on public.testimonials
 for delete
-using (public.can_edit_testimonial(author_id));
+using (
+  exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role = 'admin'
+  )
+);
 
 -- Force PostgREST (Supabase API) to refresh schema cache immediately.
 notify pgrst, 'reload schema';

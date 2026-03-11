@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireApiRole } from "@/lib/auth/requireRole";
+import { requireApiPermission } from "@/lib/auth/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
@@ -8,7 +8,7 @@ export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
-    await requireApiRole(["admin", "mod"]);
+    await requireApiPermission("media.upload");
 
     const formData = await request.formData();
     const file = formData.get("file");

@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { publicReviewSchema } from "@/lib/validation/schemas";
+import { sendEmail } from "@/lib/email/provider";
+import { reviewSubmissionTemplate } from "@/lib/email/templates";
+import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
@@ -14,7 +17,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: firstError }, { status: 400 });
     }
 
-    const { name, role, quote, company } = parsed.data;
+    const { name, role, quote, company, rating } = parsed.data;
     const supabase = createAdminClient() ?? createClient();
 
     const roleDisplay = company ? `${role}, ${company}` : role;
@@ -23,7 +26,8 @@ export async function POST(request: NextRequest) {
       name,
       role: roleDisplay,
       quote,
-      status: "draft",
+      rating: rating ?? 5,
+      status: "pending",
       sort_order: 0,
       author_id: null
     });
@@ -34,6 +38,17 @@ export async function POST(request: NextRequest) {
         { message: "Something went wrong. Please try again." },
         { status: 500 }
       );
+    }
+
+    // Notify owner about new review submission
+    if (env.OWNER_NOTIFY_EMAIL) {
+      const template = reviewSubmissionTemplate({
+        name,
+        role: roleDisplay,
+        quote,
+        rating: rating ?? 5
+      });
+      void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
     }
 
     return NextResponse.json(

@@ -6,14 +6,16 @@ import { restorePostVersionAction } from "@/app/dashboard/posts/[id]/actions";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPostById, getPostVersions } from "@/db/queries/posts";
-import { requireRole } from "@/lib/auth/requireRole";
+import { requirePermission } from "@/lib/auth/requireRole";
+import { hasPermission } from "@/lib/auth/roles";
 
 type Params = { id: string };
 
 export default async function DashboardPostEditorPage({ params }: { params: Promise<Params> }) {
-  await requireRole(["admin", "mod"]);
+  const profile = await requirePermission("content.posts.edit_own");
   const { id } = await params;
   const isNew = id === "new";
+  const canPublish = hasPermission(profile.role, "content.posts.publish");
 
   const post = isNew ? null : await getPostById(id);
   if (!isNew && !post) {
@@ -38,7 +40,7 @@ export default async function DashboardPostEditorPage({ params }: { params: Prom
         <RevealItem>
           <Card>
             <CardContent className="p-6">
-              <ContentForm type="post" item={post} />
+              <ContentForm type="post" item={post} canPublish={canPublish} />
             </CardContent>
           </Card>
         </RevealItem>

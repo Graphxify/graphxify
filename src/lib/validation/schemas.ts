@@ -93,7 +93,8 @@ export const testimonialSchema = z.object({
   role: z.string().min(2).max(160),
   quote: z.string().min(1).max(600),
   imageUrl: imageUrlSchema.optional().or(z.literal("")),
-  status: z.enum(["draft", "published"]),
+  rating: z.coerce.number().int().min(1).max(5).default(5),
+  status: z.enum(["draft", "pending", "published", "rejected"]),
   sortOrder: z.coerce.number().int().min(0).max(9999)
 }).superRefine((value, ctx) => {
   if (value.status !== "published") {
@@ -123,5 +124,6 @@ export const publicReviewSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters.").max(120),
   role: z.string().trim().min(2, "Role/title must be at least 2 characters.").max(160),
   quote: z.string().trim().min(10, "Review must be at least 10 characters.").max(600, "Review must be under 600 characters."),
-  company: z.string().trim().max(120).optional().or(z.literal(""))
+  company: z.string().trim().max(120).optional().or(z.literal("")),
+  rating: z.coerce.number().int().min(1, "Please select a rating.").max(5).default(5)
 });

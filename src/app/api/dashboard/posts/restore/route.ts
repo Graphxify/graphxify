@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { restorePostVersion } from "@/services/content-service";
-import { requireApiRole } from "@/lib/auth/requireRole";
+import { requireApiPermission } from "@/lib/auth/requireRole";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
-    await requireApiRole(["admin", "mod"]);
+    await requireApiPermission("content.posts.edit_own");
     const formData = await request.formData();
     const postId = String(formData.get("postId") || "");
     const versionId = String(formData.get("versionId") || "");

@@ -1,10 +1,8 @@
 import "server-only";
 
 import nodemailer from "nodemailer";
-import { Resend } from "resend";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
-import { withTimeout } from "@/lib/utils";
 
 export type SendEmailInput = {
   to: string;
@@ -13,78 +11,94 @@ export type SendEmailInput = {
   html: string;
 };
 
-type Provider = {
-  send: (input: SendEmailInput) => Promise<void>;
-};
+const DEFAULT_FROM = "Graphxify <info@graphxify.com>";
 
-function createResendProvider(): Provider | null {
-  if (!env.RESEND_API_KEY) {
-    return null;
-  }
-
-  const resend = new Resend(env.RESEND_API_KEY);
-  return {
-    async send(input) {
-      await resend.emails.send({
-        from: "Graphxify <no-reply@graphxify.local>",
-        to: input.to,
-        subject: input.subject,
-        text: input.text,
-        html: input.html
-      });
-    }
-  };
+function getFrom(): string {
+  return env.SMTP_FROM || DEFAULT_FROM;
 }
 
-function createSmtpProvider(): Provider | null {
+function createTransport(): nodemailer.Transporter | null {
   if (!env.SMTP_HOST || !env.SMTP_PORT || !env.SMTP_USER || !env.SMTP_PASS) {
     return null;
   }
 
-  const transport = nodemailer.createTransport({
+  const port = Number(env.SMTP_PORT);
+
+  return nodemailer.createTransport({
     host: env.SMTP_HOST,
-    port: Number(env.SMTP_PORT),
+    port,
+    secure: port === 465,
     auth: {
       user: env.SMTP_USER,
       pass: env.SMTP_PASS
-    }
+    },
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 15_000
   });
-
-  return {
-    async send(input) {
-      await transport.sendMail({
-        from: "Graphxify <no-reply@graphxify.local>",
-        to: input.to,
-        subject: input.subject,
-        text: input.text,
-        html: input.html
-      });
-    }
-  };
 }
 
-function createConsoleProvider(): Provider {
-  return {
-    async send(input) {
-      logger.info("Email fallback provider", {
-        to: input.to,
-        subject: input.subject,
-        preview: input.text.slice(0, 120)
-      });
-    }
-  };
+let cachedTransport: nodemailer.Transporter | null | undefined;
+
+function getTransport(): nodemailer.Transporter | null {
+  if (cachedTransport === undefined) {
+    cachedTransport = createTransport();
+  }
+  return cachedTransport;
 }
 
-const provider = createResendProvider() ?? createSmtpProvider() ?? createConsoleProvider();
+/**
+ * Verify SMTP connection. Returns { ok, message }.
+ */
+export async function verifySmtp(): Promise<{ ok: boolean; message: string }> {
+  const transport = getTransport();
+  if (!transport) {
+    return { ok: false, message: "SMTP not configured (missing SMTP_HOST/PORT/USER/PASS)" };
+  }
 
-export async function sendEmail(input: SendEmailInput): Promise<void> {
   try {
-    await withTimeout(provider.send(input), 2500);
+    await transport.verify();
+    return { ok: true, message: "SMTP connection verified" };
   } catch (error) {
+    const msg = error instanceof Error ? error.message : "Unknown error";
+    logger.error("SMTP verification failed", { error: msg });
+    return { ok: false, message: `SMTP verification failed: ${msg}` };
+  }
+}
+
+/**
+ * Send an email via Hostinger SMTP and fall back to console logging
+ * in development if SMTP is not configured.
+ */
+export async function sendEmail(input: SendEmailInput): Promise<{ ok: boolean; error?: string }> {
+  const transport = getTransport();
+
+  if (!transport) {
+    logger.info("[Email fallback] SMTP not configured → console", {
+      to: input.to,
+      subject: input.subject,
+      preview: input.text.slice(0, 120)
+    });
+    return { ok: true };
+  }
+
+  try {
+    await transport.sendMail({
+      from: getFrom(),
+      to: input.to,
+      subject: input.subject,
+      text: input.text,
+      html: input.html
+    });
+    logger.info("Email sent", { to: input.to, subject: input.subject });
+    return { ok: true };
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : "Unknown error";
     logger.error("Email send failed", {
-      error: error instanceof Error ? error.message : "unknown",
+      error: msg,
       to: input.to,
       subject: input.subject
     });
+    return { ok: false, error: msg };
   }
 }

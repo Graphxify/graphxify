@@ -3,28 +3,83 @@ import { DashboardNav } from "@/app/dashboard/(components)/dashboard-nav";
 import { MobileSidebarToggle } from "@/app/dashboard/(components)/mobile-sidebar-toggle";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { hasPermission, type AppRole } from "@/lib/auth/roles";
+import { getPendingCounts } from "@/db/queries/analytics";
 
 type SidebarProps = {
-  role: "admin" | "mod";
+  role: AppRole;
 };
 
-const commonLinks = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/analytics", label: "Analytics" },
-  { href: "/dashboard/posts", label: "Posts" },
-  { href: "/dashboard/works", label: "Works" },
-  { href: "/dashboard/testimonials", label: "Testimonials" },
-  { href: "/dashboard/leads", label: "Leads" },
-  { href: "/dashboard/activity", label: "Activity" },
-  { href: "/dashboard/profile", label: "Profile" }
-];
+async function buildNavLinks(role: AppRole) {
+  const links: { href: string; label: string; badge?: number }[] = [
+    { href: "/dashboard", label: "Overview" }
+  ];
 
-const adminLinks = [
-  { href: "/dashboard/settings", label: "Settings" },
-  { href: "/dashboard/users", label: "Users" }
-];
+  if (hasPermission(role, "analytics.view")) {
+    links.push({ href: "/dashboard/analytics", label: "Analytics" });
+  }
 
-export function DashboardSidebar({ role }: SidebarProps): JSX.Element {
+  if (hasPermission(role, "content.posts.edit_own")) {
+    links.push({ href: "/dashboard/posts", label: "Posts" });
+  }
+
+  if (hasPermission(role, "content.works.edit_any")) {
+    links.push({ href: "/dashboard/works", label: "Works" });
+  }
+
+  if (hasPermission(role, "content.testimonials.view")) {
+    links.push({ href: "/dashboard/testimonials", label: "Testimonials" });
+  }
+
+  if (hasPermission(role, "leads.view")) {
+    links.push({ href: "/dashboard/leads", label: "Leads" });
+  }
+
+  if (hasPermission(role, "activity.view")) {
+    links.push({ href: "/dashboard/activity", label: "Activity" });
+  }
+
+  links.push({ href: "/dashboard/profile", label: "Profile" });
+
+  // Fetch pending counts for badges
+  try {
+    const pending = await getPendingCounts();
+    for (const link of links) {
+      if (link.href === "/dashboard/leads" && pending.newLeads > 0) {
+        link.badge = pending.newLeads;
+      }
+      if (link.href === "/dashboard/testimonials" && pending.pendingTestimonials > 0) {
+        link.badge = pending.pendingTestimonials;
+      }
+      if (link.href === "/dashboard/posts" && pending.postsInReview > 0) {
+        link.badge = pending.postsInReview;
+      }
+    }
+  } catch {
+    // Non-critical — badges just won't show
+  }
+
+  return links;
+}
+
+function buildAdminLinks(role: AppRole) {
+  const links: { href: string; label: string }[] = [];
+
+  if (hasPermission(role, "settings.manage")) {
+    links.push({ href: "/dashboard/settings", label: "Settings" });
+  }
+
+  if (hasPermission(role, "users.manage")) {
+    links.push({ href: "/dashboard/users", label: "Users" });
+  }
+
+  return links;
+}
+
+export async function DashboardSidebar({ role }: SidebarProps) {
+  const navLinks = await buildNavLinks(role);
+  const adminLinks = buildAdminLinks(role);
+
   return (
     <MobileSidebarToggle>
       <aside className="h-full w-full border-b border-border/14 bg-card/72 p-4 backdrop-blur md:sticky md:top-0 md:h-screen md:w-80 md:border-b-0 md:border-r md:p-6 overflow-y-auto">
@@ -50,9 +105,9 @@ export function DashboardSidebar({ role }: SidebarProps): JSX.Element {
           <ThemeToggle />
         </div>
 
-        <DashboardNav items={commonLinks} />
+        <DashboardNav items={navLinks} />
 
-        {role === "admin" ? (
+        {adminLinks.length > 0 ? (
           <>
             <div className="mx-3 my-2 border-t border-border/10" />
             <DashboardNav items={adminLinks} />

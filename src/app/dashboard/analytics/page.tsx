@@ -2,11 +2,11 @@ import { FileText, FolderKanban, Users, TrendingUp } from "lucide-react";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAnalyticsSummary } from "@/db/queries/analytics";
-import { requireRole } from "@/lib/auth/requireRole";
+import { requirePermission } from "@/lib/auth/requireRole";
 import AnalyticsClient from "./analytics-client";
 
 export default async function DashboardAnalyticsPage() {
-  await requireRole(["admin", "mod"]);
+  await requirePermission("analytics.view");
   const summary = await getAnalyticsSummary();
 
   const stats = [

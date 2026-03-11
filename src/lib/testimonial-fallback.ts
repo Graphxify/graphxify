@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import type { AppRole } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 
 export type FallbackTestimonial = {
@@ -9,7 +10,8 @@ export type FallbackTestimonial = {
   name: string;
   role: string;
   image_url: string | null;
-  status: "draft" | "published";
+  rating: number;
+  status: "draft" | "pending" | "published" | "rejected";
   sort_order: number;
   author_id: string | null;
   created_at: string;
@@ -66,13 +68,20 @@ function normalizeFallback(input: Record<string, unknown>): FallbackTestimonial 
   const updatedAt =
     typeof input.updated_at === "string" && input.updated_at ? input.updated_at : createdAt;
 
+  const rawStatus = String(input.status ?? "");
+  const status: FallbackTestimonial["status"] =
+    rawStatus === "published" ? "published" :
+    rawStatus === "pending" ? "pending" :
+    rawStatus === "rejected" ? "rejected" : "draft";
+
   return {
     id: input.id,
     quote: typeof input.quote === "string" ? input.quote : "",
     name: typeof input.name === "string" ? input.name : "",
     role: typeof input.role === "string" ? input.role : "",
     image_url: typeof input.image_url === "string" ? input.image_url : null,
-    status: input.status === "published" ? "published" : "draft",
+    rating: typeof input.rating === "number" ? input.rating : 5,
+    status,
     sort_order: typeof input.sort_order === "number" ? input.sort_order : 0,
     author_id: typeof input.author_id === "string" ? input.author_id : null,
     created_at: createdAt,
@@ -137,7 +146,7 @@ export async function writeFallbackSnapshot(params: {
   entityId: string;
   actorId: string;
   actorEmail: string;
-  actorRole: "admin" | "mod";
+  actorRole: AppRole;
   testimonial?: FallbackTestimonial;
   deleted?: boolean;
 }): Promise<void> {
@@ -224,7 +233,7 @@ export async function readFallbackTestimonialMetrics(): Promise<FallbackTestimon
 export async function writeFallbackMetricsSnapshot(params: {
   actorId: string;
   actorEmail: string;
-  actorRole: "admin" | "mod";
+  actorRole: AppRole;
   metrics: FallbackTestimonialMetric[];
 }): Promise<void> {
   const supabase = createAdminClient() ?? createClient();

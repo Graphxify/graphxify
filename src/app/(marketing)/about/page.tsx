@@ -85,14 +85,14 @@ export default async function AboutPage() {
 
   const resolvedWorks = works.status === "fulfilled" ? works.value : [];
 
-  const testimonials: { id: string; name: string; role: string; quote: string; image_url: string | null }[] =
+  const testimonials: { id: string; name: string; role: string; quote: string; rating?: number }[] =
     testimonialsResult.status === "fulfilled"
-      ? testimonialsResult.value.slice(0, 3).map((t) => ({
+      ? testimonialsResult.value.slice(0, 6).map((t) => ({
           id: t.id,
           name: t.name,
           role: t.role,
           quote: t.quote,
-          image_url: t.image_url
+          rating: t.rating ?? 5
         }))
       : [];
 

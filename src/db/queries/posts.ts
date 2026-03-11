@@ -35,7 +35,7 @@ export async function getPublishedPostBySlug(slug: string) {
   return data;
 }
 
-export async function getDashboardPosts(page = 1, pageSize = 10, search = "") {
+export async function getDashboardPosts(page = 1, pageSize = 10, search = "", status = "") {
   const supabase = createClient();
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
@@ -47,6 +47,10 @@ export async function getDashboardPosts(page = 1, pageSize = 10, search = "") {
 
   if (search.trim()) {
     query = query.ilike("title", `%${search.trim()}%`);
+  }
+
+  if (status && ["draft", "review", "published"].includes(status)) {
+    query = query.eq("status", status);
   }
 
   const { data, error, count } = await query.range(from, to);

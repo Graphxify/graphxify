@@ -4,7 +4,17 @@ create extension if not exists pgcrypto;
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   email text not null,
-  role text not null default 'mod' check (role in ('admin', 'mod')),
+  role text not null default 'author' check (role in ('admin', 'editor', 'reviewer', 'author')),
+  status text not null default 'active' check (status in ('active', 'disabled', 'pending_invite')),
+  display_name text,
+  bio text,
+  avatar_url text,
+  phone text,
+  last_login timestamptz,
+  last_activity timestamptz,
+  last_password_change timestamptz,
+  force_password_reset boolean not null default false,
+  force_logout_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -46,7 +56,8 @@ create table if not exists public.testimonials (
   name text not null,
   role text not null,
   image_url text,
-  status text not null default 'draft' check (status in ('draft', 'published')),
+  rating int not null default 5 check (rating between 1 and 5),
+  status text not null default 'draft' check (status in ('draft', 'pending', 'published', 'rejected')),
   sort_order int not null default 0,
   author_id uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
@@ -196,6 +207,78 @@ alter table public.audit_logs
   add constraint audit_logs_entity_type_check
   check (entity_type in ('post', 'work', 'testimonial', 'lead', 'profile', 'system'));
 
+alter table public.testimonials
+  add column if not exists rating int not null default 5;
+
+alter table public.testimonials
+  drop constraint if exists testimonials_rating_check;
+
+alter table public.testimonials
+  add constraint testimonials_rating_check
+  check (rating between 1 and 5);
+
+alter table public.testimonials
+  drop constraint if exists testimonials_status_check;
+
+alter table public.testimonials
+  add constraint testimonials_status_check
+  check (status in ('draft', 'pending', 'published', 'rejected'));
+
+alter table public.profiles
+  add column if not exists status text not null default 'active';
+
+alter table public.profiles
+  add column if not exists display_name text;
+
+alter table public.profiles
+  add column if not exists bio text;
+
+alter table public.profiles
+  add column if not exists avatar_url text;
+
+alter table public.profiles
+  add column if not exists phone text;
+
+alter table public.profiles
+  add column if not exists last_login timestamptz;
+
+alter table public.profiles
+  add column if not exists last_activity timestamptz;
+
+alter table public.profiles
+  add column if not exists last_password_change timestamptz;
+
+alter table public.profiles
+  add column if not exists force_password_reset boolean not null default false;
+
+alter table public.profiles
+  add column if not exists force_logout_at timestamptz;
+
+alter table public.profiles
+  alter column role set default 'author';
+
+update public.profiles
+set role = 'editor'
+where role = 'mod';
+
+alter table public.profiles
+  drop constraint if exists profiles_role_check;
+
+alter table public.profiles
+  add constraint profiles_role_check
+  check (role in ('admin', 'editor', 'reviewer', 'author'));
+
+update public.profiles
+set status = 'active'
+where status is null;
+
+alter table public.profiles
+  drop constraint if exists profiles_status_check;
+
+alter table public.profiles
+  add constraint profiles_status_check
+  check (status in ('active', 'disabled', 'pending_invite'));
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -203,9 +286,20 @@ security definer
 set search_path = public
 as $$
 begin
-  insert into public.profiles (id, email, role)
-  values (new.id, coalesce(new.email, ''), 'mod')
-  on conflict (id) do update set email = excluded.email;
+  insert into public.profiles (id, email, role, status, display_name)
+  values (
+    new.id,
+    coalesce(new.email, ''),
+    case
+      when coalesce(new.raw_user_meta_data ->> 'role', '') in ('admin', 'editor', 'reviewer', 'author')
+        then new.raw_user_meta_data ->> 'role'
+      else 'author'
+    end,
+    'active',
+    nullif(coalesce(new.raw_user_meta_data ->> 'display_name', ''), '')
+  )
+  on conflict (id) do update
+  set email = excluded.email;
   return new;
 end;
 $$;

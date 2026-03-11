@@ -4,7 +4,7 @@ import { randomUUID } from "crypto";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getCurrentProfile } from "@/lib/auth/requireRole";
+import { getCurrentProfile, hasPermission } from "@/lib/auth/requireRole";
 import { logAuditEvent } from "@/lib/audit";
 import {
   isTestimonialMetricsTableMissing,
@@ -23,7 +23,7 @@ function getWriteClient(): MetricsClient {
 
 async function requireMetricsProfile(): Promise<MetricsProfile> {
   const profile = await getCurrentProfile();
-  if (!profile || (profile.role !== "admin" && profile.role !== "mod")) {
+  if (!profile || !hasPermission(profile, "content.testimonial_metrics.edit")) {
     throw new Error("Forbidden");
   }
   return profile;

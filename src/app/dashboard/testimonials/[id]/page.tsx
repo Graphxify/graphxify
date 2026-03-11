@@ -4,12 +4,12 @@ import { DeleteContentButton } from "@/app/dashboard/(components)/delete-content
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTestimonialById } from "@/db/queries/testimonials";
-import { requireRole } from "@/lib/auth/requireRole";
+import { requirePermission } from "@/lib/auth/requireRole";
 
 type Params = { id: string };
 
 export default async function DashboardTestimonialEditorPage({ params }: { params: Promise<Params> }) {
-  await requireRole(["admin", "mod"]);
+  await requirePermission("content.testimonials.edit");
   const { id } = await params;
   const isNew = id === "new";
 

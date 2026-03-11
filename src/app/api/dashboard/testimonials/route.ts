@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createOrUpdateTestimonial, deleteTestimonial } from "@/services/testimonial-service";
-import { requireApiRole } from "@/lib/auth/requireRole";
+import { requireApiPermission } from "@/lib/auth/requireRole";
 import { errorMessage } from "@/lib/api-error";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
-    await requireApiRole(["admin", "mod"]);
+    await requireApiPermission("content.testimonials.create");
     const formData = await request.formData();
     const result = await createOrUpdateTestimonial({ formData });
     return NextResponse.json(result, { status: 201 });
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    await requireApiRole(["admin", "mod"]);
+    await requireApiPermission("content.testimonials.edit");
     const formData = await request.formData();
     const id = String(formData.get("id") || "");
     if (!id) {
@@ -36,7 +36,7 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    await requireApiRole(["admin", "mod"]);
+    await requireApiPermission("content.testimonials.delete");
     const id = request.nextUrl.searchParams.get("id");
     if (!id) {
       return NextResponse.json({ message: "Missing testimonial id" }, { status: 400 });
@@ -50,3 +50,29 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ message }, { status: 400 });
   }
 }
+
+export async function PATCH(request: NextRequest) {
+  try {
+    await requireApiPermission("content.testimonials.moderate");
+    const body = (await request.json()) as { id?: string; status?: string };
+    const { id, status } = body;
+
+    if (!id || !status) {
+      return NextResponse.json({ message: "Missing id or status" }, { status: 400 });
+    }
+
+    const validStatuses = ["draft", "pending", "published", "rejected"];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json({ message: "Invalid status" }, { status: 400 });
+    }
+
+    const { updateTestimonialStatus } = await import("@/services/testimonial-service");
+    await updateTestimonialStatus(id, status as "draft" | "pending" | "published" | "rejected");
+    return NextResponse.json({ ok: true, id });
+  } catch (error) {
+    const message = errorMessage(error, "Unable to update testimonial status");
+    logger.error("Testimonial status update failed", { error: message });
+    return NextResponse.json({ message }, { status: 400 });
+  }
+}
+

@@ -21,7 +21,6 @@ import {
   MessageSquare,
   Milestone,
   Puzzle,
-  Quote,
   Search,
   Send,
   Sparkles,
@@ -31,6 +30,7 @@ import {
 } from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
+import { TestimonialsSection } from "@/components/marketing/testimonials-section";
 import { Button } from "@/components/ui/button";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 import { cn } from "@/lib/utils";
@@ -48,7 +48,7 @@ type AboutTestimonial = {
   name: string;
   role: string;
   quote: string;
-  image_url: string | null;
+  rating?: number;
 };
 
 /* ── Data — every icon is unique across ALL sections ── */
@@ -321,96 +321,14 @@ export function AboutPageContent({
         </div>
       </SectionReveal>
 
-      {/* ── Testimonials — creative spotlight layout ── */}
+      {/* ── Testimonials — single-row marquee ── */}
       {featuredTestimonials.length > 0 && (
         <SectionReveal className="container mt-14 md:mt-16" effect="up">
-          <div className="section-shell relative overflow-hidden border-border/18 bg-gradient-to-br from-card/80 via-bg/60 to-card/80 p-6 md:p-8">
-
-
-            <div className="relative">
-              <div className="mb-6 flex items-center justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-accentA">Testimonials</p>
-                  <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Trusted by <span className="gradient-text">Clients</span></h2>
-                </div>
-                {/* Star cluster */}
-                <div className="hidden items-center gap-0.5 md:flex">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <motion.svg
-                      key={`star-${i}`}
-                      viewBox="0 0 20 20"
-                      className="h-4 w-4 text-amber-400"
-                      fill="currentColor"
-                      initial={reducedMotion ? undefined : { opacity: 0, y: 10 }}
-                      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: 0.07 * i, ease: [0.23, 1, 0.32, 1] }}
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </motion.svg>
-                  ))}
-                </div>
-              </div>
-
-              {/* Spotlight: First testimonial — hero card */}
-              {featuredTestimonials.length > 0 && (
-                <motion.article
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
-                  whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
-                  className="group relative overflow-hidden rounded-2xl border border-accentA/16 bg-gradient-to-r from-bg/80 via-card/60 to-bg/80 p-6 md:p-8"
-                >
-
-                  {/* Accent line */}
-                  <span className="mb-5 block h-[2px] w-16 rounded-full bg-accent-gradient" />
-                  <blockquote className="relative text-base leading-relaxed text-fg/76 md:text-lg md:leading-relaxed">
-                    &ldquo;{featuredTestimonials[0].quote}&rdquo;
-                  </blockquote>
-                  <div className="mt-5 flex items-center gap-3">
-                    <span className="grid h-10 w-10 place-items-center rounded-xl border border-accentA/25 bg-accentA/10 text-sm font-bold text-accentA">
-                      {featuredTestimonials[0].name.charAt(0)}
-                    </span>
-                    <div>
-                      <p className="text-sm font-semibold text-fg/86">{featuredTestimonials[0].name}</p>
-                      <p className="text-xs text-fg/48">{featuredTestimonials[0].role}</p>
-                    </div>
-                  </div>
-                </motion.article>
-              )}
-
-              {/* Secondary testimonials */}
-              {featuredTestimonials.length > 1 && (
-                <div className="mt-3 grid gap-3 md:grid-cols-2">
-                  {featuredTestimonials.slice(1).map((t, index) => (
-                    <motion.article
-                      key={t.id}
-                      initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
-                      whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                      viewport={{ once: true, margin: "-60px" }}
-                      transition={{ duration: 0.65, delay: 0.1 * (index + 1), ease: [0.23, 1, 0.32, 1] }}
-                      className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/50 p-5 transition-[border-color,box-shadow] duration-200 hover:border-accentA/20 hover:shadow-[0_12px_40px_rgba(0,82,204,0.06)]"
-                    >
-                      <span className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-accentA/[0.03] blur-xl" />
-                      <div className="relative">
-                        <Quote className="h-4 w-4 text-accentA/30" />
-                        <p className="mt-2.5 text-sm leading-relaxed text-fg/66">&ldquo;{t.quote}&rdquo;</p>
-                        <div className="mt-4 flex items-center gap-2.5 border-t border-border/10 pt-3">
-                          <span className="grid h-8 w-8 place-items-center rounded-lg border border-accentA/20 bg-accentA/8 text-xs font-bold text-accentA">
-                            {t.name.charAt(0)}
-                          </span>
-                          <div>
-                            <p className="text-sm font-medium text-fg/80">{t.name}</p>
-                            <p className="text-[0.68rem] text-fg/42">{t.role}</p>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.article>
-                  ))}
-                </div>
-              )}
-            </div>
+          <div className="mb-6 text-center">
+            <p className="text-xs uppercase tracking-[0.2em] text-accentA">Testimonials</p>
+            <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Trusted by <span className="gradient-text">Clients</span></h2>
           </div>
+          <TestimonialsSection items={featuredTestimonials} singleRow />
         </SectionReveal>
       )}
 

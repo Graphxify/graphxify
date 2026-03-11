@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { UploadMedia } from "@/app/dashboard/(components)/upload-media";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,15 +13,14 @@ type TestimonialItem = {
   name?: string;
   role?: string;
   quote?: string;
-  image_url?: string | null;
-  status?: "draft" | "published";
+  rating?: number;
+  status?: "draft" | "pending" | "published" | "rejected";
   sort_order?: number;
 };
 
 export function TestimonialForm({ item }: { item?: TestimonialItem | null }): JSX.Element {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [imageUrl, setImageUrl] = useState(String(item?.image_url ?? ""));
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -33,7 +31,6 @@ export function TestimonialForm({ item }: { item?: TestimonialItem | null }): JS
     setNotice("");
 
     const formData = new FormData(event.currentTarget);
-    formData.set("imageUrl", imageUrl);
 
     const endpoint = "/api/dashboard/testimonials";
     const method = item?.id ? "PUT" : "POST";
@@ -91,10 +88,15 @@ export function TestimonialForm({ item }: { item?: TestimonialItem | null }): JS
         />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-2">
           <Label htmlFor="sortOrder">Sort order</Label>
           <Input id="sortOrder" name="sortOrder" type="number" min={0} max={9999} defaultValue={String(item?.sort_order ?? 0)} />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="rating">Rating (1–5)</Label>
+          <Input id="rating" name="rating" type="number" min={1} max={5} defaultValue={String(item?.rating ?? 5)} />
         </div>
 
         <div className="space-y-2">
@@ -106,20 +108,11 @@ export function TestimonialForm({ item }: { item?: TestimonialItem | null }): JS
             defaultValue={String(item?.status ?? "draft")}
           >
             <option value="draft">Draft</option>
+            <option value="pending">Pending</option>
             <option value="published">Published</option>
+            <option value="rejected">Rejected</option>
           </select>
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Background image</Label>
-        <UploadMedia onUploaded={setImageUrl} currentUrl={imageUrl} />
-        <Input
-          name="imageUrl"
-          value={imageUrl}
-          onChange={(event) => setImageUrl(event.target.value)}
-          placeholder="Image URL"
-        />
       </div>
 
       {error ? <p className="text-sm font-medium text-red-400">{error}</p> : null}

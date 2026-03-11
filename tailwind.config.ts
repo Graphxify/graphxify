@@ -60,13 +60,18 @@ const config: Config = {
         },
         marquee: {
           "0%": { transform: "translate3d(0,0,0)" },
-          "100%": { transform: "translate3d(-50%,0,0)" }
+          "100%": { transform: "translate3d(-33.333%,0,0)" }
+        },
+        "marquee-reverse": {
+          "0%": { transform: "translate3d(-33.333%,0,0)" },
+          "100%": { transform: "translate3d(0,0,0)" }
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.22s ease-out",
         "accordion-up": "accordion-up 0.22s ease-out",
-        marquee: "marquee 20s linear infinite"
+        marquee: "marquee 20s linear infinite",
+        "marquee-reverse": "marquee-reverse 20s linear infinite"
       }
     }
   },

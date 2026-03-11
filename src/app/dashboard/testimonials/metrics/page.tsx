@@ -4,12 +4,12 @@ import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Card, CardContent } from "@/components/ui/card";
 import { getTestimonialMetrics } from "@/db/queries/testimonial-metrics";
 import { testimonialMetricsDefault } from "@/lib/constants";
-import { requireRole } from "@/lib/auth/requireRole";
+import { requirePermission } from "@/lib/auth/requireRole";
 
 export const dynamic = "force-dynamic";
 
 export default async function DashboardTestimonialMetricsPage() {
-  await requireRole(["admin", "mod"]);
+  await requirePermission("content.testimonial_metrics.edit");
 
   const { rows, warning } = await getTestimonialMetrics();
   const initialRows =

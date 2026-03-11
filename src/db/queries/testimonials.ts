@@ -9,7 +9,8 @@ type TestimonialRow = {
   name: string;
   role: string;
   image_url: string | null;
-  status: "draft" | "published";
+  rating: number;
+  status: "draft" | "pending" | "published" | "rejected";
   sort_order: number;
   author_id: string | null;
   created_at: string;
@@ -21,7 +22,11 @@ function normalizeTestimonialRow(row: Record<string, unknown>): TestimonialRow |
     return null;
   }
 
-  const status = row.status === "published" ? "published" : "draft";
+  const rawStatus = String(row.status ?? "");
+  const status: "draft" | "pending" | "published" | "rejected" =
+    rawStatus === "published" ? "published" :
+    rawStatus === "pending" ? "pending" :
+    rawStatus === "rejected" ? "rejected" : "draft";
   const createdAt =
     typeof row.created_at === "string" && row.created_at ? row.created_at : new Date().toISOString();
   const updatedAt =
@@ -33,6 +38,7 @@ function normalizeTestimonialRow(row: Record<string, unknown>): TestimonialRow |
     name: typeof row.name === "string" ? row.name : "Unknown",
     role: typeof row.role === "string" ? row.role : "",
     image_url: typeof row.image_url === "string" ? row.image_url : null,
+    rating: typeof row.rating === "number" ? row.rating : 5,
     status,
     sort_order: typeof row.sort_order === "number" ? row.sort_order : 0,
     author_id: typeof row.author_id === "string" ? row.author_id : null,
@@ -65,15 +71,25 @@ export async function getPublishedTestimonials() {
   return rows;
 }
 
-export async function getDashboardTestimonials(page = 1, pageSize = 12) {
+export async function getDashboardTestimonials(page = 1, pageSize = 12, status = "", search = "") {
   const supabase = createClient();
   const from = (page - 1) * pageSize;
   const to = from + pageSize - 1;
 
-  const { data, error, count } = await supabase
+  let query = supabase
     .from("testimonials")
-    .select("*", { count: "exact" })
-    .range(from, to);
+    .select("*", { count: "exact" });
+
+  if (status && ["draft", "pending", "published", "rejected"].includes(status)) {
+    query = query.eq("status", status);
+  }
+
+  if (search.trim()) {
+    const escaped = search.trim().replace(/[%_]/g, "");
+    query = query.or(`name.ilike.%${escaped}%,role.ilike.%${escaped}%,quote.ilike.%${escaped}%`);
+  }
+
+  const { data, error, count } = await query.range(from, to);
 
   if (error) {
     if (isTestimonialsTableMissing(error)) {

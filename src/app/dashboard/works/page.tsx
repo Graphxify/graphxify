@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDashboardWorks } from "@/db/queries/works";
-import { requireRole } from "@/lib/auth/requireRole";
+import { requirePermission } from "@/lib/auth/requireRole";
 
 export const dynamic = "force-dynamic";
 
@@ -18,16 +18,28 @@ function statusVariant(status: string) {
   return "secondary" as const;
 }
 
+const STATUS_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "draft", label: "Draft" },
+  { value: "review", label: "In Review" },
+  { value: "published", label: "Published" }
+];
+
 export default async function DashboardWorksPage({
   searchParams
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireRole(["admin", "mod"]);
+  await requirePermission("content.works.edit_any");
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
   const search = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : "";
-  const result = await getDashboardWorks(page, 10, search);
+  const status = typeof resolvedSearchParams.status === "string" ? resolvedSearchParams.status : "";
+  const result = await getDashboardWorks(page, 10, search, status);
+
+  const filterParams: Record<string, string> = {};
+  if (search) filterParams.q = search;
+  if (status) filterParams.status = status;
 
   return (
     <section className="space-y-5">
@@ -44,23 +56,32 @@ export default async function DashboardWorksPage({
           </div>
         </RevealItem>
 
-        {/* Search */}
+        {/* Filters */}
         <RevealItem>
-          <form className="flex items-center gap-2">
-            <div className="relative flex-1">
+          <form className="flex flex-wrap items-center gap-2">
+            <div className="relative flex-1 min-w-[200px]">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/36" />
               <Input
                 name="q"
                 defaultValue={search}
                 placeholder="Search works by title..."
-                className="pl-9"
+                className="pl-9 h-9"
               />
             </div>
-            <Button type="submit" variant="secondary" size="sm">
+            <select
+              name="status"
+              defaultValue={status}
+              className="h-9 rounded-md border border-border/20 bg-card/72 px-2.5 text-xs text-fg"
+            >
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <Button type="submit" variant="secondary" size="sm" className="h-9">
               Search
             </Button>
-            {search && (
-              <Button asChild variant="ghost" size="sm" className="text-fg/56">
+            {(search || status) && (
+              <Button asChild variant="ghost" size="sm" className="h-9 text-fg/56">
                 <Link href="/dashboard/works">Clear</Link>
               </Button>
             )}
@@ -72,10 +93,10 @@ export default async function DashboardWorksPage({
             {result.rows.length === 0 ? (
               <EmptyState
                 icon={<FolderKanban className="h-8 w-8 text-fg/32" />}
-                title={search ? "No works match your search" : "No works yet"}
-                description={search ? "Try a different search term." : "Add your first project to showcase your work."}
-                actionLabel={search ? undefined : "New work"}
-                actionHref={search ? undefined : "/dashboard/works/new"}
+                title={search || status ? "No works match your filters" : "No works yet"}
+                description={search || status ? "Try different search terms or filters." : "Add your first project to showcase your work."}
+                actionLabel={search || status ? undefined : "New work"}
+                actionHref={search || status ? undefined : "/dashboard/works/new"}
               />
             ) : (
               <>
@@ -110,7 +131,7 @@ export default async function DashboardWorksPage({
                   total={result.total}
                   pageSize={10}
                   basePath="/dashboard/works"
-                  searchParams={search ? { q: search } : {}}
+                  searchParams={filterParams}
                 />
               </>
             )}

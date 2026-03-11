@@ -106,6 +106,19 @@ export async function changePasswordAction(
   }
 
   try {
+    await supabase
+      .from("profiles")
+      .update({
+        last_password_change: new Date().toISOString(),
+        force_password_reset: false,
+        force_logout_at: null
+      })
+      .eq("id", profile.id);
+  } catch {
+    // Non-critical; password has already changed.
+  }
+
+  try {
     await logAuditEvent({
       actorId: profile.id,
       actorEmail: profile.email,

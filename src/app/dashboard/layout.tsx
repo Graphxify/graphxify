@@ -7,6 +7,7 @@ import { ContentRefreshListener } from "@/components/realtime/content-refresh-li
 import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/lib/auth/requireRole";
+import { hasPermission } from "@/lib/auth/roles";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profile = await requireAuth();
@@ -30,24 +31,30 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   Site
                 </Link>
               </Button>
-              <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
-                <Link href="/dashboard/posts/new">
-                  <Plus className="h-3 w-3" />
-                  Post
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
-                <Link href="/dashboard/works/new">
-                  <Plus className="h-3 w-3" />
-                  Work
-                </Link>
-              </Button>
-              <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
-                <Link href="/dashboard/testimonials/new">
-                  <Plus className="h-3 w-3" />
-                  Testimonial
-                </Link>
-              </Button>
+              {hasPermission(profile.role, "content.posts.create") ? (
+                <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
+                  <Link href="/dashboard/posts/new">
+                    <Plus className="h-3 w-3" />
+                    Post
+                  </Link>
+                </Button>
+              ) : null}
+              {hasPermission(profile.role, "content.works.create") ? (
+                <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
+                  <Link href="/dashboard/works/new">
+                    <Plus className="h-3 w-3" />
+                    Work
+                  </Link>
+                </Button>
+              ) : null}
+              {hasPermission(profile.role, "content.testimonials.create") ? (
+                <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
+                  <Link href="/dashboard/testimonials/new">
+                    <Plus className="h-3 w-3" />
+                    Testimonial
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           </div>
 

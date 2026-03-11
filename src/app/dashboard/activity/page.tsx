@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { requireRole } from "@/lib/auth/requireRole";
+import { requirePermission } from "@/lib/auth/requireRole";
 import { listAuditLogs } from "@/services/activity-service";
 
 export default async function DashboardActivityPage({
@@ -14,7 +14,7 @@ export default async function DashboardActivityPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requireRole(["admin", "mod"]);
+  await requirePermission("activity.view");
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
   const action = typeof resolvedSearchParams.action === "string" ? resolvedSearchParams.action : "";
@@ -25,7 +25,6 @@ export default async function DashboardActivityPage({
 
   const result = await listAuditLogs({ page, pageSize: 20, action, entity, actor, from, to });
 
-  // Build search params for pagination to preserve filters
   const filterParams: Record<string, string> = {};
   if (action) filterParams.action = action;
   if (entity) filterParams.entity = entity;
@@ -70,7 +69,6 @@ export default async function DashboardActivityPage({
                       <TableHead>Role</TableHead>
                       <TableHead>Action</TableHead>
                       <TableHead>Entity</TableHead>
-                      <TableHead>IP</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -79,13 +77,12 @@ export default async function DashboardActivityPage({
                         <TableCell className="whitespace-nowrap text-fg/56">{new Date(log.created_at).toLocaleString()}</TableCell>
                         <TableCell className="font-medium">{log.actor_email || "system"}</TableCell>
                         <TableCell>
-                          <Badge variant="secondary">{log.actor_role || "–"}</Badge>
+                          <Badge variant="secondary">{log.actor_role || "-"}</Badge>
                         </TableCell>
                         <TableCell>
                           <Badge variant="default">{log.action}</Badge>
                         </TableCell>
                         <TableCell className="text-fg/56">{log.entity_type}</TableCell>
-                        <TableCell className="font-mono text-xs text-fg/42">{log.ip || "–"}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

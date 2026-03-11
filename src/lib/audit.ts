@@ -17,10 +17,21 @@ export type AuditAction =
   | "testimonial.update"
   | "testimonial.delete"
   | "testimonial.publish"
+  | "testimonial.status_change"
   | "lead.create"
   | "auth.login"
   | "auth.signup"
   | "user.role_change"
+  | "user.created"
+  | "user.invited"
+  | "user.updated"
+  | "user.deleted"
+  | "user.disabled"
+  | "user.enabled"
+  | "user.password_reset_email"
+  | "user.force_password_reset"
+  | "user.force_logout"
+  | "user.permissions_change"
   | "post.restore"
   | "work.restore"
   | "profile.update"
@@ -64,5 +75,13 @@ export async function logAuditEvent(params: {
 
   if (error) {
     logger.error("Failed to write audit log", { error: error.message, action: params.action });
+    return;
+  }
+
+  if (params.actorId) {
+    await admin
+      .from("profiles")
+      .update({ last_activity: new Date().toISOString() })
+      .eq("id", params.actorId);
   }
 }

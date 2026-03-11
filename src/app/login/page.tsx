@@ -23,6 +23,9 @@ export default async function LoginPage({
   const errorMessages: Record<string, string> = {
     invalid_credentials: "Invalid email or password.",
     account_not_found: "No account exists for this email in Supabase Auth.",
+    account_disabled: "This account has been disabled. Contact an administrator.",
+    account_pending: "Your invitation is pending. Complete account setup from your invite email first.",
+    session_revoked: "Your session was revoked. Please sign in again.",
     email_not_confirmed: "Email is not confirmed. Confirm your inbox first, then try again.",
     password_auth_disabled: "Email/password login is disabled in Supabase Auth providers.",
     rate_limited: "Too many attempts. Please wait and try again.",
@@ -44,6 +47,7 @@ function LoginView({
 }) {
   const errorCode = typeof searchParams?.error === "string" ? searchParams.error : "";
   const errorText = errorMessages[errorCode] ?? "";
+  const forcedReset = searchParams?.reset === "required";
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-16">
@@ -128,6 +132,11 @@ function LoginView({
           {errorText ? (
             <div className="mt-4 rounded-lg border border-red-500/20 bg-red-500/8 px-3 py-2.5">
               <p className="text-sm text-red-400">{errorText}</p>
+            </div>
+          ) : null}
+          {forcedReset ? (
+            <div className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/8 px-3 py-2.5">
+              <p className="text-sm text-amber-400">Password reset is required before accessing the dashboard.</p>
             </div>
           ) : null}
           {process.env.NODE_ENV !== "production" && errorCode ? (

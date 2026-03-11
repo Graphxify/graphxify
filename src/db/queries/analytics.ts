@@ -2,6 +2,23 @@ import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
 
+/** Counts of items that need admin attention — used on Overview and sidebar badges */
+export async function getPendingCounts() {
+  const supabase = createClient();
+
+  const [newLeads, pendingTestimonials, postsInReview] = await Promise.all([
+    supabase.from("leads").select("id", { count: "exact", head: true }).eq("status", "new"),
+    supabase.from("testimonials").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("posts").select("id", { count: "exact", head: true }).eq("status", "review")
+  ]);
+
+  return {
+    newLeads: newLeads.count ?? 0,
+    pendingTestimonials: pendingTestimonials.count ?? 0,
+    postsInReview: postsInReview.count ?? 0
+  };
+}
+
 export async function getAnalyticsSummary() {
   const supabase = createClient();
 

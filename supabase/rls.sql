@@ -24,7 +24,7 @@ as $$
   );
 $$;
 
-create or replace function public.is_mod()
+create or replace function public.is_editor()
 returns boolean
 language sql
 stable
@@ -33,58 +33,181 @@ set search_path = public
 as $$
   select exists (
     select 1 from public.profiles p
-    where p.id = auth.uid() and p.role = 'mod'
+    where p.id = auth.uid() and p.role in ('editor', 'mod')
   );
 $$;
 
-create or replace function public.is_admin_or_mod()
+create or replace function public.is_reviewer()
 returns boolean
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or public.is_mod();
+  select exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role = 'reviewer'
+  );
 $$;
 
-create or replace function public.can_edit_post(post_author_id uuid)
+create or replace function public.is_author()
 returns boolean
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or (public.is_mod() and auth.uid() = post_author_id);
+  select exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role = 'author'
+  );
 $$;
 
-create or replace function public.can_edit_work(work_author_id uuid)
+create or replace function public.can_access_posts(post_author_id uuid)
 returns boolean
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or (public.is_mod() and auth.uid() = work_author_id);
+  select public.is_admin()
+    or public.is_editor()
+    or (public.is_author() and auth.uid() = post_author_id);
 $$;
 
-create or replace function public.can_edit_testimonial(testimonial_author_id uuid)
+create or replace function public.can_edit_posts(post_author_id uuid)
 returns boolean
 language sql
 stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or (public.is_mod() and auth.uid() = testimonial_author_id);
+  select public.is_admin()
+    or (public.is_author() and auth.uid() = post_author_id);
+$$;
+
+create or replace function public.can_access_works()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.is_admin() or public.is_editor();
+$$;
+
+create or replace function public.can_manage_testimonials()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.is_admin() or public.is_editor() or public.is_reviewer();
+$$;
+
+create or replace function public.can_manage_testimonial_metrics()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.is_admin() or public.is_editor();
+$$;
+
+create or replace function public.can_view_leads()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.is_admin() or public.is_editor();
+$$;
+
+create or replace function public.can_upload_media()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.is_admin() or public.is_editor();
 $$;
 
 grant execute on function public.is_admin() to anon, authenticated, service_role;
-grant execute on function public.is_mod() to anon, authenticated, service_role;
-grant execute on function public.is_admin_or_mod() to anon, authenticated, service_role;
-grant execute on function public.can_edit_post(uuid) to anon, authenticated, service_role;
-grant execute on function public.can_edit_work(uuid) to anon, authenticated, service_role;
-grant execute on function public.can_edit_testimonial(uuid) to anon, authenticated, service_role;
+grant execute on function public.is_editor() to anon, authenticated, service_role;
+grant execute on function public.is_reviewer() to anon, authenticated, service_role;
+grant execute on function public.is_author() to anon, authenticated, service_role;
+grant execute on function public.can_access_posts(uuid) to anon, authenticated, service_role;
+grant execute on function public.can_edit_posts(uuid) to anon, authenticated, service_role;
+grant execute on function public.can_access_works() to anon, authenticated, service_role;
+grant execute on function public.can_manage_testimonials() to anon, authenticated, service_role;
+grant execute on function public.can_manage_testimonial_metrics() to anon, authenticated, service_role;
+grant execute on function public.can_view_leads() to anon, authenticated, service_role;
+grant execute on function public.can_upload_media() to anon, authenticated, service_role;
+
+-- Profile triggers for high-risk protections
+create or replace function public.prevent_last_admin_change()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  admin_count int;
+begin
+  if tg_op = 'UPDATE' then
+    if old.role = 'admin' and (new.role <> 'admin' or new.status <> 'active') then
+      select count(*) into admin_count from public.profiles where role = 'admin';
+      if admin_count <= 1 then
+        raise exception 'Cannot remove or disable the last admin';
+      end if;
+    end if;
+
+    if auth.uid() = old.id and not public.is_admin() then
+      if new.role is distinct from old.role
+        or new.status is distinct from old.status
+        or new.force_password_reset is distinct from old.force_password_reset
+        or new.force_logout_at is distinct from old.force_logout_at then
+        raise exception 'Only admins can change role or security status';
+      end if;
+    end if;
+
+    return new;
+  end if;
+
+  if tg_op = 'DELETE' then
+    if auth.uid() = old.id then
+      raise exception 'Admins cannot delete themselves';
+    end if;
+
+    if old.role = 'admin' then
+      select count(*) into admin_count from public.profiles where role = 'admin';
+      if admin_count <= 1 then
+        raise exception 'Cannot delete the last admin';
+      end if;
+    end if;
+
+    return old;
+  end if;
+
+  return null;
+end;
+$$;
+
+drop trigger if exists profiles_prevent_last_admin_change on public.profiles;
+create trigger profiles_prevent_last_admin_change
+before update or delete on public.profiles
+for each row execute function public.prevent_last_admin_change();
 
 -- Profiles policies
+drop policy if exists "profiles_select_own_or_admin" on public.profiles;
+drop policy if exists "profiles_insert_self" on public.profiles;
+drop policy if exists "profiles_update_self_or_admin" on public.profiles;
+drop policy if exists "profiles_delete_admin" on public.profiles;
+
 create policy "profiles_select_own_or_admin"
 on public.profiles
 for select
@@ -101,7 +224,18 @@ for update
 using (auth.uid() = id or public.is_admin())
 with check (auth.uid() = id or public.is_admin());
 
+create policy "profiles_delete_admin"
+on public.profiles
+for delete
+using (public.is_admin());
+
 -- Posts policies
+drop policy if exists "posts_public_read_published" on public.posts;
+drop policy if exists "posts_staff_read_all" on public.posts;
+drop policy if exists "posts_insert_staff" on public.posts;
+drop policy if exists "posts_update_staff_owned" on public.posts;
+drop policy if exists "posts_delete_admin" on public.posts;
+
 create policy "posts_public_read_published"
 on public.posts
 for select
@@ -110,18 +244,21 @@ using (status = 'published');
 create policy "posts_staff_read_all"
 on public.posts
 for select
-using (public.is_admin_or_mod());
+using (public.can_access_posts(author_id));
 
 create policy "posts_insert_staff"
 on public.posts
 for insert
-with check (public.is_admin_or_mod());
+with check (public.is_admin() or public.is_author());
 
 create policy "posts_update_staff_owned"
 on public.posts
 for update
-using (public.can_edit_post(author_id))
-with check (public.can_edit_post(author_id));
+using (public.can_edit_posts(author_id))
+with check (
+  public.can_edit_posts(author_id)
+  and (status <> 'published' or public.is_admin())
+);
 
 create policy "posts_delete_admin"
 on public.posts
@@ -129,6 +266,12 @@ for delete
 using (public.is_admin());
 
 -- Works policies
+drop policy if exists "works_public_read_published" on public.works;
+drop policy if exists "works_staff_read_all" on public.works;
+drop policy if exists "works_insert_staff" on public.works;
+drop policy if exists "works_update_staff_owned" on public.works;
+drop policy if exists "works_delete_admin" on public.works;
+
 create policy "works_public_read_published"
 on public.works
 for select
@@ -137,18 +280,18 @@ using (status = 'published');
 create policy "works_staff_read_all"
 on public.works
 for select
-using (public.is_admin_or_mod());
+using (public.can_access_works());
 
 create policy "works_insert_staff"
 on public.works
 for insert
-with check (public.is_admin_or_mod());
+with check (public.can_access_works());
 
 create policy "works_update_staff_owned"
 on public.works
 for update
-using (public.can_edit_work(author_id))
-with check (public.can_edit_work(author_id));
+using (public.can_access_works())
+with check (public.can_access_works());
 
 create policy "works_delete_admin"
 on public.works
@@ -170,23 +313,23 @@ using (status = 'published');
 create policy "testimonials_staff_read_all"
 on public.testimonials
 for select
-using (public.is_admin_or_mod());
+using (public.can_manage_testimonials());
 
 create policy "testimonials_insert_staff"
 on public.testimonials
 for insert
-with check (public.is_admin_or_mod());
+with check (public.is_admin() or public.is_editor());
 
 create policy "testimonials_update_staff_owned"
 on public.testimonials
 for update
-using (public.can_edit_testimonial(author_id))
-with check (public.can_edit_testimonial(author_id));
+using (public.can_manage_testimonials())
+with check (public.can_manage_testimonials());
 
 create policy "testimonials_delete_staff_owned"
 on public.testimonials
 for delete
-using (public.can_edit_testimonial(author_id));
+using (public.is_admin());
 
 -- Testimonial metrics policies
 drop policy if exists "testimonial_metrics_public_read" on public.testimonial_metrics;
@@ -203,25 +346,30 @@ using (true);
 create policy "testimonial_metrics_staff_select"
 on public.testimonial_metrics
 for select
-using (public.is_admin_or_mod());
+using (public.can_manage_testimonial_metrics());
 
 create policy "testimonial_metrics_staff_insert"
 on public.testimonial_metrics
 for insert
-with check (public.is_admin_or_mod());
+with check (public.can_manage_testimonial_metrics());
 
 create policy "testimonial_metrics_staff_update"
 on public.testimonial_metrics
 for update
-using (public.is_admin_or_mod())
-with check (public.is_admin_or_mod());
+using (public.can_manage_testimonial_metrics())
+with check (public.can_manage_testimonial_metrics());
 
 create policy "testimonial_metrics_staff_delete"
 on public.testimonial_metrics
 for delete
-using (public.is_admin_or_mod());
+using (public.can_manage_testimonial_metrics());
 
 -- Versions policies
+drop policy if exists "post_versions_select_staff" on public.post_versions;
+drop policy if exists "post_versions_insert_staff" on public.post_versions;
+drop policy if exists "work_versions_select_staff" on public.work_versions;
+drop policy if exists "work_versions_insert_staff" on public.work_versions;
+
 create policy "post_versions_select_staff"
 on public.post_versions
 for select
@@ -229,7 +377,7 @@ using (
   public.is_admin() or exists (
     select 1 from public.posts p
     where p.id = post_versions.post_id
-      and public.can_edit_post(p.author_id)
+      and public.can_edit_posts(p.author_id)
   )
 );
 
@@ -240,33 +388,25 @@ with check (
   public.is_admin() or exists (
     select 1 from public.posts p
     where p.id = post_versions.post_id
-      and public.can_edit_post(p.author_id)
+      and public.can_edit_posts(p.author_id)
   )
 );
 
 create policy "work_versions_select_staff"
 on public.work_versions
 for select
-using (
-  public.is_admin() or exists (
-    select 1 from public.works w
-    where w.id = work_versions.work_id
-      and public.can_edit_work(w.author_id)
-  )
-);
+using (public.can_access_works());
 
 create policy "work_versions_insert_staff"
 on public.work_versions
 for insert
-with check (
-  public.is_admin() or exists (
-    select 1 from public.works w
-    where w.id = work_versions.work_id
-      and public.can_edit_work(w.author_id)
-  )
-);
+with check (public.can_access_works());
 
 -- Leads policies
+drop policy if exists "leads_public_insert" on public.leads;
+drop policy if exists "leads_staff_select" on public.leads;
+drop policy if exists "leads_delete_admin" on public.leads;
+
 create policy "leads_public_insert"
 on public.leads
 for insert
@@ -275,7 +415,7 @@ with check (true);
 create policy "leads_staff_select"
 on public.leads
 for select
-using (public.is_admin_or_mod());
+using (public.can_view_leads());
 
 create policy "leads_delete_admin"
 on public.leads
@@ -283,17 +423,23 @@ for delete
 using (public.is_admin());
 
 -- Audit policies
+drop policy if exists "audit_logs_staff_select" on public.audit_logs;
+drop policy if exists "audit_logs_staff_insert" on public.audit_logs;
+
 create policy "audit_logs_staff_select"
 on public.audit_logs
 for select
-using (public.is_admin_or_mod());
+using (public.is_admin());
 
 create policy "audit_logs_staff_insert"
 on public.audit_logs
 for insert
-with check (public.is_admin_or_mod());
+with check (public.is_admin());
 
--- Page view policies (optional analytics hook)
+-- Page view policies
+drop policy if exists "page_views_public_insert" on public.page_views;
+drop policy if exists "page_views_staff_select" on public.page_views;
+
 create policy "page_views_public_insert"
 on public.page_views
 for insert
@@ -302,14 +448,9 @@ with check (true);
 create policy "page_views_staff_select"
 on public.page_views
 for select
-using (public.is_admin_or_mod());
+using (public.is_admin() or public.is_editor());
 
 -- Storage policies for media bucket
--- NOTE:
--- `storage.objects` is managed by Supabase internals, and some SQL editor roles
--- are not table owners. Do not run `alter table storage.objects ...` here.
--- RLS is already enabled by Supabase for storage tables.
-
 drop policy if exists "media_public_read" on storage.objects;
 drop policy if exists "media_staff_insert" on storage.objects;
 drop policy if exists "media_staff_update" on storage.objects;
@@ -323,15 +464,15 @@ using (bucket_id = 'media');
 create policy "media_staff_insert"
 on storage.objects
 for insert
-with check (bucket_id = 'media' and public.is_admin_or_mod());
+with check (bucket_id = 'media' and public.can_upload_media());
 
 create policy "media_staff_update"
 on storage.objects
 for update
-using (bucket_id = 'media' and public.is_admin_or_mod())
-with check (bucket_id = 'media' and public.is_admin_or_mod());
+using (bucket_id = 'media' and public.can_upload_media())
+with check (bucket_id = 'media' and public.can_upload_media());
 
 create policy "media_staff_delete"
 on storage.objects
 for delete
-using (bucket_id = 'media' and public.is_admin_or_mod());
+using (bucket_id = 'media' and public.can_upload_media());

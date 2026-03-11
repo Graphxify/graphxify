@@ -61,7 +61,7 @@ export const faqs = [
   },
   {
     q: "Do you support internal approval and role-based publishing?",
-    a: "Yes. Admin and moderator workflows are built into the CMS with audit trails for every mutation."
+    a: "Yes. Admin, editor, reviewer, and author workflows are built into the CMS with audit trails for every mutation."
   }
 ] as const;
 

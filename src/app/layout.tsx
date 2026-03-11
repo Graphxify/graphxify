@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Toaster } from "sonner";
 import { Providers } from "@/app/providers";
 import { MarketingFooter } from "@/components/marketing/footer";
 import { ChunkLoadRecovery } from "@/components/runtime/chunk-load-recovery";
@@ -22,6 +23,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ChunkLoadRecovery />
           {children}
           <MarketingFooter />
+          <Toaster
+            theme="dark"
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border) / 0.18)",
+                color: "hsl(var(--fg))"
+              }
+            }}
+          />
         </Providers>
       </body>
     </html>
