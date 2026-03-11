@@ -362,7 +362,7 @@ export function HomeSections({
       {/* ── About ── */}
       <SectionReveal className="container" effect="left">
         <SectionHeading eyebrow="About" title="About Graphxify" />
-        <FounderIntroSection showIntroLabel={false} animateFounderCopy={false} />
+        <FounderIntroSection showIntroLabel={false} />
       </SectionReveal>
 
       {/* ── Services (always-visible 2×2 card grid) ── */}
@@ -374,11 +374,11 @@ export function HomeSections({
             return (
               <motion.article
                 key={service.key}
-                initial={reducedMotion ? false : { opacity: 0, y: 24 }}
+                initial={reducedMotion ? false : { opacity: 0, y: 16 }}
                 whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                whileHover={reducedMotion ? undefined : { y: -5, scale: 1.008, transition: { duration: 0.3, ease: [0.23, 1, 0.32, 1] } }}
-                transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
+                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.004, transition: { duration: 0.26, ease: [0.16, 1, 0.3, 1] } }}
+                transition={{ duration: 0.56, delay: 0.08 * index, ease: [0.22, 1, 0.36, 1] }}
                 className="group relative overflow-hidden rounded-2xl border border-border/16 bg-card/72 p-6 shadow-[0_8px_20px_rgba(13,13,15,0.06)] backdrop-blur-sm md:p-7"
               >
                 {/* hover accent glow — bg-color alpha transitions correctly */}
@@ -387,12 +387,12 @@ export function HomeSections({
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/28 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
                 <div className="relative z-10">
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-accentA/28 bg-accentA/8 text-accentA transition-all duration-300 group-hover:border-accentA/44 group-hover:bg-accentA/14 group-hover:shadow-[0_0_0_4px_rgba(0,163,255,0.08)]">
+                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-accentA/28 bg-accentA/8 text-accentA transition-[border-color,background-color,box-shadow] duration-200 group-hover:border-accentA/44 group-hover:bg-accentA/14 group-hover:shadow-[0_0_0_4px_rgba(0,163,255,0.08)]">
                     <ServiceIcon className="h-5 w-5" strokeWidth={1.7} />
                   </span>
                   <h3 className="mt-4 text-[1.05rem] font-semibold text-fg/96 md:text-lg">{service.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-fg/62 md:text-[0.95rem]">{service.body}</p>
-                  <span className="mt-4 inline-flex items-center gap-1 text-[0.68rem] uppercase tracking-[0.16em] text-accentA/0 transition-all duration-300 group-hover:text-accentA/86">
+                  <span className="mt-4 inline-flex items-center gap-1 text-[0.68rem] uppercase tracking-[0.16em] text-accentA/0 transition-[color,opacity] duration-200 group-hover:text-accentA/86">
                     Learn more
                     <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
                   </span>
@@ -433,7 +433,7 @@ export function HomeSections({
                   <h3 className="text-base font-medium sm:text-lg md:text-[1.32rem]">{item.q}</h3>
                   <span
                     className={cn(
-                      "grid h-11 w-11 shrink-0 place-items-center rounded-full border p-[0.45rem] shadow-[0_8px_18px_rgba(13,13,15,0.08)] transition-all duration-300",
+                      "grid h-11 w-11 shrink-0 place-items-center rounded-full border p-[0.45rem] shadow-[0_8px_18px_rgba(13,13,15,0.08)] transition-[border-color,background-color,color] duration-150",
                       open
                         ? "border-accentA/40 bg-accent-gradient text-ivory"
                         : "border-border/22 bg-bg/76 text-fg/72 group-hover:border-border/34 group-hover:bg-card/92 group-hover:text-fg"

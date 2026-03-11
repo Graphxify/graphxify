@@ -1,3 +1,6 @@
+// ISR: re-fetch from Supabase at most once per minute; serve cache between revalidations
+export const revalidate = 60;
+
 import { HomeSections } from "@/components/marketing/home-sections";
 import { getTestimonialMetrics } from "@/db/queries/testimonial-metrics";
 import { getPublishedTestimonials } from "@/db/queries/testimonials";

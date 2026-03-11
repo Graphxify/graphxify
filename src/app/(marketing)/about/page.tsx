@@ -1,3 +1,5 @@
+export const revalidate = 60;
+
 import type { Metadata } from "next";
 import { AboutPageContent } from "@/components/marketing/about-page-content";
 import { getPublishedWorks } from "@/db/queries/works";
@@ -76,21 +78,23 @@ async function getWorkCards(): Promise<WorkCard[]> {
 }
 
 export default async function AboutPage() {
-  const works = await getWorkCards();
+  const [works, testimonialsResult] = await Promise.allSettled([
+    getWorkCards(),
+    getPublishedTestimonials()
+  ]);
 
-  let testimonials: { id: string; name: string; role: string; quote: string; image_url: string | null }[] = [];
-  try {
-    const raw = await getPublishedTestimonials();
-    testimonials = raw.slice(0, 3).map((t) => ({
-      id: t.id,
-      name: t.name,
-      role: t.role,
-      quote: t.quote,
-      image_url: t.image_url
-    }));
-  } catch {
-    // testimonials table may not exist — graceful fallback
-  }
+  const resolvedWorks = works.status === "fulfilled" ? works.value : [];
 
-  return <AboutPageContent works={works.slice(0, 3)} testimonials={testimonials} />;
+  const testimonials: { id: string; name: string; role: string; quote: string; image_url: string | null }[] =
+    testimonialsResult.status === "fulfilled"
+      ? testimonialsResult.value.slice(0, 3).map((t) => ({
+          id: t.id,
+          name: t.name,
+          role: t.role,
+          quote: t.quote,
+          image_url: t.image_url
+        }))
+      : [];
+
+  return <AboutPageContent works={resolvedWorks.slice(0, 3)} testimonials={testimonials} />;
 }

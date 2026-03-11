@@ -12,11 +12,10 @@ function withCanonicalWorkTitle<T extends { slug: string; title: string }>(item:
 }
 
 export async function getPublishedWorks() {
-  noStore();
   const supabase = createClient();
   const { data, error } = await supabase
     .from("works")
-    .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,content,cover_image_url,gallery_images,created_at,updated_at")
+    .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,cover_image_url,gallery_images,created_at,updated_at")
     .eq("status", "published")
     .order("year", { ascending: false });
 

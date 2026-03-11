@@ -773,36 +773,36 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
 
   return (
     <main className="relative -mt-28 sm:-mt-32 lg:-mt-40">
-      <section className="pointer-events-none sticky top-0 z-0 h-[100svh] overflow-hidden">
-        <Image src={project.coverImage} alt={project.title} fill className="object-cover" sizes="100vw" priority />
-        <div aria-hidden className="absolute inset-0 bg-black/48" />
-        <div className="absolute inset-0 flex items-center">
-          <div className="container">
-            <div className="relative mx-auto max-w-3xl text-center">
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-x-0 -inset-y-5 rounded-[1.65rem] border border-white/12 bg-black/20 backdrop-blur-md"
-              />
-              <h1 className="relative text-[clamp(2.2rem,5vw,4.8rem)] font-semibold leading-[0.96] text-ivory">{project.title}</h1>
-              <p className="relative mx-auto mt-4 max-w-2xl text-sm text-ivory md:text-base">{project.subtitle}</p>
+        <section className="pointer-events-none sticky top-0 z-0 h-[100svh] overflow-hidden">
+          <Image src={project.coverImage} alt={project.title} fill className="object-cover" sizes="100vw" priority />
+          <div aria-hidden className="absolute inset-0 bg-black/48" />
+          <div className="absolute inset-0 flex items-center">
+            <div className="container">
+              <div className="relative mx-auto max-w-3xl text-center">
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-x-0 -inset-y-5 rounded-[1.65rem] border border-white/12 bg-black/20 backdrop-blur-md"
+                />
+                <h1 className="relative text-[clamp(2.2rem,5vw,4.8rem)] font-semibold leading-[0.96] text-ivory">{project.title}</h1>
+                <p className="relative mx-auto mt-4 max-w-2xl text-sm text-ivory md:text-base">{project.subtitle}</p>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="relative z-20 -mt-[28svh] min-h-[120svh] rounded-t-[2.4rem] border-x border-border/18 bg-card px-0 pt-12 pb-20 shadow-[0_-16px_40px_rgba(13,13,15,0.08)] md:-mt-[26svh] md:rounded-t-[3.25rem] md:pt-16 md:pb-28">
-        <div className="container space-y-8">
-          <header className="space-y-2">
-            <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/56">{getVisualLayoutSectionTitle(project)}</p>
-            <p className="max-w-2xl text-sm text-fg/66">{getVisualLayoutNote(project)}</p>
-          </header>
+        <section className="relative z-20 -mt-[28svh] min-h-[120svh] rounded-t-[2.4rem] border-x border-border/18 bg-card px-0 pt-12 pb-20 shadow-[0_-16px_40px_rgba(13,13,15,0.08)] md:-mt-[26svh] md:rounded-t-[3.25rem] md:pt-16 md:pb-28">
+          <div className="container space-y-8">
+            <header className="space-y-2">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/56">{getVisualLayoutSectionTitle(project)}</p>
+              <p className="max-w-2xl text-sm text-fg/66">{getVisualLayoutNote(project)}</p>
+            </header>
 
-          <ProjectVisualGallery project={project} />
+            <ProjectVisualGallery project={project} />
 
-          <ProjectCtaSection />
-          <OtherProjectsSlider projects={otherProjects} />
-        </div>
-      </section>
+            <ProjectCtaSection />
+            <OtherProjectsSlider projects={otherProjects} />
+          </div>
+        </section>
     </main>
   );
 }

@@ -1,7 +1,7 @@
 import { MarketingHeader } from "@/components/marketing/header";
-import { CursorGlow } from "@/components/motion/cursor-glow";
-import { ParallaxGrid } from "@/components/motion/parallax-grid";
+import { DeferredEffects } from "@/components/motion/deferred-effects";
 import { PageTransition } from "@/components/motion/page-transition";
+import { SmoothScrollDriver } from "@/components/motion/smooth-scroll-driver";
 import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
 import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { JsonLd } from "@/components/seo/json-ld";
@@ -12,9 +12,9 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
     <div className="relative min-h-screen noise-overlay">
       <JsonLd data={organizationJsonLd()} />
       <JsonLd data={websiteJsonLd()} />
+      <SmoothScrollDriver />
       <ScrollProgress />
-      <ParallaxGrid />
-      <CursorGlow />
+      <DeferredEffects />
       <ContentRefreshListener pathPrefixes={["/works", "/blog"]} />
       <MarketingHeader />
       <PageTransition>

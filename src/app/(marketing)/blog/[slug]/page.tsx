@@ -574,7 +574,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
                   src={item.coverImage}
                   alt={item.title}
                   fill
-                  className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:brightness-[0.68]"
+                  className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.68]"
                   sizes="(max-width: 1280px) 100vw, 33vw"
                 />
                 <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-black/6 to-transparent" />
@@ -604,3 +604,4 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
     </article>
   );
 }
+

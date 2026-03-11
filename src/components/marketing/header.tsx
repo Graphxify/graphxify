@@ -22,7 +22,7 @@ export function MarketingHeader(): JSX.Element {
   const contactActive = isRouteActive("/contact");
   const mobileNavItemClass = (active: boolean): string =>
     cn(
-      "rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300",
+      "rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150",
       active ? "bg-accent-gradient text-ivory shadow-[0_10px_20px_rgba(0,128,255,0.2)]" : "text-fg/78 hover:bg-card/82 hover:text-fg"
     );
 
@@ -103,12 +103,12 @@ export function MarketingHeader(): JSX.Element {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "group relative rounded-full px-4 py-2.5 text-[0.9rem] font-medium text-fg/72 transition-all duration-300 hover:-translate-y-[1px] hover:text-fg",
+                    "group relative rounded-full px-4 py-2.5 text-[0.9rem] font-medium text-fg/72 transition-colors duration-150 hover:-translate-y-[1px] hover:text-fg",
                     active && "text-fg"
                   )}
                 >
-                  <span className="absolute inset-[1px] -z-10 scale-95 rounded-full bg-card/84 opacity-0 transition-all duration-300 group-hover:scale-100 group-hover:opacity-100" />
-                  <span className="absolute inset-x-4 bottom-[0.38rem] h-[1.5px] origin-left scale-x-0 rounded-full bg-accent-gradient transition-transform duration-300 group-hover:scale-x-100" />
+                  <span className="absolute inset-[1px] -z-10 scale-95 rounded-full bg-card/84 opacity-0 transition-[opacity,transform] duration-200 group-hover:scale-100 group-hover:opacity-100" />
+                  <span className="absolute inset-x-4 bottom-[0.38rem] h-[1.5px] origin-left scale-x-0 rounded-full bg-accent-gradient transition-transform duration-200 group-hover:scale-x-100" />
                   {active ? (
                     <motion.span
                       layoutId="marketing-nav-active-pill"
@@ -149,7 +149,7 @@ export function MarketingHeader(): JSX.Element {
               aria-controls="mobile-marketing-nav"
               aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
               className={cn(
-                "inline-flex h-9 w-9 items-center justify-center rounded-full border transition-all duration-300",
+                "inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors duration-150",
                 mobileOpen
                   ? "border-accentA/45 bg-accent-gradient text-ivory shadow-[0_12px_22px_rgba(0,128,255,0.24)]"
                   : "border-border/24 bg-card/82 text-fg/82 hover:bg-card"

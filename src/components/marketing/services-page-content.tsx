@@ -498,11 +498,11 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
             {processSteps.map((step, index) => (
               <motion.article
                 key={`services-process-${step.title}`}
-                initial={reducedMotion ? false : { opacity: 0, y: 24 }}
+                initial={reducedMotion ? false : { opacity: 0, y: 16 }}
                 whileInView={reducedMotion ? {} : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
-                className="group rounded-xl border border-border/16 bg-bg/44 px-4 py-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-border/28"
+                transition={{ duration: 0.56, delay: 0.08 * index, ease: [0.22, 1, 0.36, 1] }}
+                className="group rounded-xl border border-border/16 bg-bg/44 px-4 py-4 transition-[border-color,transform] duration-200 hover:-translate-y-0.5 hover:border-border/28"
               >
                 <div className="flex items-center justify-between">
                   <span className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-accentA/34 bg-accentA/10 text-accentA">
@@ -591,14 +591,14 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
                         src={work.coverImage}
                         alt={displayTitle}
                         fill
-                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[2px] group-hover:brightness-[0.55]"
+                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.55]"
                         sizes="(max-width: 1024px) 50vw, 33vw"
                       />
                     </div>
 
-                    <div className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
+                    <div className="absolute inset-0 bg-black/12 transition-colors duration-200 group-hover:bg-black/38" />
 
-                    <div className="absolute inset-x-4 bottom-4 z-10 transition-all duration-300 group-hover:translate-y-2 group-hover:opacity-0">
+                    <div className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
                       <h3 className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">{displayTitle}</h3>
                     </div>
 

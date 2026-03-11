@@ -127,7 +127,7 @@ export function SiteCtaSection({ className }: { className?: string }): JSX.Eleme
               reducedMotion
                 ? { opacity: 0 }
                 : isButtonHovered
-                  ? { opacity: 0.28, scale: 1.04 }
+                  ? { opacity: 0.2, scale: 1.02 }
                   : { opacity: 0 }
             }
             transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
@@ -139,13 +139,13 @@ export function SiteCtaSection({ className }: { className?: string }): JSX.Eleme
               reducedMotion
                 ? { y: 0, scale: 1, boxShadow: BASE_BUTTON_SHADOW }
                 : isButtonHovered
-                  ? { y: -5, scale: 1.05, boxShadow: HOVER_BUTTON_SHADOW }
+                  ? { y: -2, scale: 1.012, boxShadow: HOVER_BUTTON_SHADOW }
                   : { y: 0, scale: 1, boxShadow: BASE_BUTTON_SHADOW }
             }
             transition={{ duration: 0.28, ease: [0.23, 1, 0.32, 1] }}
             onHoverStart={() => { isButtonHoveredRef.current = true; setIsButtonHovered(true); }}
             onHoverEnd={() => { isButtonHoveredRef.current = false; setIsButtonHovered(false); }}
-            whileTap={reducedMotion ? undefined : { y: -1, scale: 1.01 }}
+            whileTap={reducedMotion ? undefined : { y: -1, scale: 0.995 }}
           >
             <motion.div className="inline-flex" style={reducedMotion ? undefined : { x: springMagneticX, y: springMagneticY }}>
               <Button asChild size="lg" className="px-6">

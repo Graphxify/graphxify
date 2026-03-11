@@ -117,7 +117,7 @@ export function BlogPageContent({ posts }: { posts: BlogPostItem[] }): JSX.Eleme
             className="group block rounded-[1.2rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             aria-label={`Open featured post ${featuredPost.title}`}
           >
-            <article className="section-shell relative overflow-hidden border-border/18 bg-card/74 p-5 transition-all duration-300 group-hover:border-border/32 md:p-7">
+            <article className="section-shell relative overflow-hidden border-border/18 bg-card/74 p-5 transition-[border-color] duration-150 group-hover:border-border/32 md:p-7">
               {/* Subtle gradient accent on hover */}
               <span className="pointer-events-none absolute -right-20 -top-20 z-0 h-60 w-60 rounded-full bg-accentA/6 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
 
@@ -160,7 +160,7 @@ export function BlogPageContent({ posts }: { posts: BlogPostItem[] }): JSX.Eleme
                     src={featuredPost.coverImage}
                     alt={featuredPost.title}
                     fill
-                    className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:brightness-[0.68]"
+                    className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.68]"
                     sizes="(max-width: 1024px) 100vw, 46vw"
                     priority
                   />
@@ -212,13 +212,13 @@ export function BlogPageContent({ posts }: { posts: BlogPostItem[] }): JSX.Eleme
             return (
               <motion.div
                 key={post.id}
-                initial={reducedMotion ? false : { opacity: 0, y: 24 }}
+                initial={reducedMotion ? false : { opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.08 * index, ease: [0.23, 1, 0.32, 1] }}
+                transition={{ duration: 0.45, delay: Math.min(0.05 * index, 0.2), ease: [0.23, 1, 0.32, 1] }}
               >
                 <Link
                   href={`/blog/${post.slug}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-[1.1rem] border border-border/18 bg-card/72 transition-all duration-300 hover:-translate-y-1 hover:border-border/34 hover:shadow-[0_8px_30px_rgba(0,0,0,0.24)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  className="group flex h-full flex-col overflow-hidden rounded-[1.1rem] border border-border/18 bg-card/72 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-border/34 hover:shadow-[0_8px_30px_rgba(0,0,0,0.24)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                   aria-label={`Open article ${post.title}`}
                 >
                   <div className="relative block aspect-[16/10] overflow-hidden border-b border-border/14">
@@ -226,7 +226,7 @@ export function BlogPageContent({ posts }: { posts: BlogPostItem[] }): JSX.Eleme
                       src={post.coverImage}
                       alt={post.title}
                       fill
-                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.04] group-hover:brightness-[0.65]"
+                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.65]"
                       sizes="(max-width: 1280px) 100vw, 33vw"
                     />
                     <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-black/6 to-transparent" />
@@ -322,3 +322,4 @@ export function BlogPageContent({ posts }: { posts: BlogPostItem[] }): JSX.Eleme
     </div>
   );
 }
+

@@ -1,3 +1,5 @@
+export const revalidate = 60;
+
 import type { Metadata } from "next";
 import { ServicesPageContent } from "@/components/marketing/services-page-content";
 import { getPublishedWorks } from "@/db/queries/works";

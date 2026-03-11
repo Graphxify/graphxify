@@ -155,13 +155,13 @@ export function MarketingFooter(): JSX.Element {
 
       <div className="hidden h-[8.5rem] items-end justify-center lg:flex">
         <p
-          className="select-none text-[clamp(4.5rem,15vw,10.5rem)] font-semibold uppercase leading-none tracking-[0.04em] text-transparent [background:linear-gradient(180deg,rgba(13,13,15,0.92)_0%,rgba(13,13,15,0.76)_42%,rgba(13,13,15,0.24)_74%,rgba(13,13,15,0)_100%)] [-webkit-background-clip:text] [background-clip:text] [-webkit-text-fill-color:transparent] [mask-image:linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.84)_60%,rgba(255,255,255,0.36)_84%,rgba(255,255,255,0)_100%)] [-webkit-mask-image:linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(255,255,255,0.84)_60%,rgba(255,255,255,0.36)_84%,rgba(255,255,255,0)_100%)] [-webkit-text-stroke:1px_rgba(13,13,15,0.16)] dark:[background:linear-gradient(180deg,rgba(255,255,255,0.92)_0%,rgba(255,255,255,0.78)_40%,rgba(255,255,255,0.24)_72%,rgba(255,255,255,0)_100%)] dark:[-webkit-text-stroke:1px_rgba(255,255,255,0.2)]"
+          className="select-none text-[clamp(4.5rem,15vw,10.5rem)] font-semibold uppercase leading-none tracking-[0.04em] text-transparent [background:linear-gradient(180deg,rgba(13,13,15,0.85)_0%,rgba(13,13,15,0.6)_40%,rgba(13,13,15,0.15)_70%,rgba(13,13,15,0)_90%)] [-webkit-background-clip:text] [background-clip:text] [-webkit-text-fill-color:transparent] [mask-image:linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.6)_40%,rgba(255,255,255,0.15)_70%,rgba(255,255,255,0)_90%)] [-webkit-mask-image:linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.6)_40%,rgba(255,255,255,0.15)_70%,rgba(255,255,255,0)_90%)] [-webkit-text-stroke:1px_rgba(13,13,15,0.12)] dark:[background:linear-gradient(180deg,rgba(255,255,255,0.85)_0%,rgba(255,255,255,0.6)_40%,rgba(255,255,255,0.15)_70%,rgba(255,255,255,0)_90%)] dark:[-webkit-text-stroke:1px_rgba(255,255,255,0.15)]"
           style={{
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             WebkitTextFillColor: "transparent",
-            WebkitMaskImage: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.92) 44%, rgba(255,255,255,0.45) 66%, rgba(255,255,255,0.14) 80%, rgba(255,255,255,0) 100%)",
-            maskImage: "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.92) 44%, rgba(255,255,255,0.45) 66%, rgba(255,255,255,0.14) 80%, rgba(255,255,255,0) 100%)"
+            WebkitMaskImage: "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.15) 70%, rgba(255,255,255,0) 90%)",
+            maskImage: "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.15) 70%, rgba(255,255,255,0) 90%)"
           }}
           aria-hidden="true"
         >

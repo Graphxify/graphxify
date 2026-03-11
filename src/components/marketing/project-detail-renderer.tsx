@@ -412,7 +412,7 @@ function RelatedProjects({ projects }: { projects: ProjectDetail[] }): JSX.Eleme
                   src={project.coverImage}
                   alt={project.title}
                   fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.025]"
                   sizes="(max-width: 1024px) 50vw, 33vw"
                 />
               </div>

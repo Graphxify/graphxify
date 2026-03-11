@@ -5,25 +5,40 @@ import { motion, useReducedMotion } from "framer-motion";
 
 export type SectionRevealEffect = "up" | "down" | "left" | "right" | "zoom";
 
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+function hiddenPose(effect: SectionRevealEffect): { opacity: number; x?: number; y?: number; scale?: number } {
+  if (effect === "down") {
+    return { opacity: 0, y: -10 };
+  }
+  if (effect === "left") {
+    return { opacity: 0, y: 16 };
+  }
+  if (effect === "right") {
+    return { opacity: 0, y: 16 };
+  }
+  if (effect === "zoom") {
+    return { opacity: 0, y: 14, scale: 0.995 };
+  }
+  return { opacity: 0, y: 18 };
+}
+
 /**
- * Section wrapper — fades and lifts each section into view as it scrolls
- * into the viewport. Matches the Agero/Framer smooth-reveal aesthetic:
- * opacity 0→1, y 30→0, 0.75s ease-out, once per mount.
- *
- * The `effect` and `once` props are kept in the signature so existing
- * call-sites don't need to be updated.
+ * Section wrapper with a restrained in-view reveal.
+ * Keeps motion language consistent across marketing pages while
+ * preserving existing call-site props.
  */
 export function SectionReveal({
   children,
   className = "",
-  effect: _effect = "up",
-  once: _once = true
+  effect = "up",
+  once = true
 }: {
   children: ReactNode;
   className?: string;
   effect?: SectionRevealEffect;
   once?: boolean;
-}) {
+}): JSX.Element {
   const reduced = useReducedMotion();
 
   if (reduced) {
@@ -33,10 +48,10 @@ export function SectionReveal({
   return (
     <motion.section
       className={className}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.75, ease: [0.23, 1, 0.32, 1] }}
+      initial={hiddenPose(effect)}
+      whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+      viewport={{ once, margin: "-8% 0px -8% 0px", amount: 0.22 }}
+      transition={{ duration: 0.62, ease: EASE }}
     >
       {children}
     </motion.section>

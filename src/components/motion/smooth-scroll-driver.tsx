@@ -37,10 +37,15 @@ export function SmoothScrollDriver(): null {
     }
 
     const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      duration: 1.05,
+      easing: (t: number) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
-      touchMultiplier: 1.5,
+      syncTouch: true,
+      syncTouchLerp: 0.1,
+      touchInertiaExponent: 1.7,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1.05,
+      autoRaf: false,
     });
 
     lenisRef.current = lenis;
@@ -48,7 +53,7 @@ export function SmoothScrollDriver(): null {
 
     // Expose smooth scroll helper for other components
     (window as SmoothWindow).__graphxifySmoothScrollTo = (top: number) => {
-      lenis.scrollTo(top, { duration: 1.2 });
+      lenis.scrollTo(top, { duration: 1 });
     };
 
     // Drive Lenis with rAF
@@ -77,7 +82,7 @@ export function SmoothScrollDriver(): null {
       if (!section) return;
 
       event.preventDefault();
-      lenis.scrollTo(section as HTMLElement, { offset: 0, duration: 1.2 });
+      lenis.scrollTo(section as HTMLElement, { offset: 0, duration: 1.05 });
     };
 
     document.addEventListener("click", onDocumentClick);

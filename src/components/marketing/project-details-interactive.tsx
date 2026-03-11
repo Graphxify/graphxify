@@ -411,13 +411,13 @@ export function GridFeatureTransform({ project }: { project: ProjectDetail }): J
               key={`${visual.src}-${index}`}
               type="button"
               className={cn(
-                "group relative aspect-square overflow-hidden rounded-[1.1rem] border border-border/18 text-left shadow-[0_8px_20px_rgba(13,13,15,0.08)] ring-1 ring-transparent transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55",
+                "group relative aspect-square overflow-hidden rounded-[1.1rem] border border-border/18 text-left shadow-[0_8px_20px_rgba(13,13,15,0.08)] ring-1 ring-transparent transition-[box-shadow,ring-color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55",
                 active ? "ring-accentA/45" : "hover:ring-accentA/34"
               )}
               onClick={() => scrollToVisual(index)}
               aria-label={`Jump to ${visual.alt}`}
             >
-              <Image src={visual.src} alt={visual.alt} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.03]" sizes="(max-width: 768px) 50vw, 260px" />
+              <Image src={visual.src} alt={visual.alt} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.02]" sizes="(max-width: 768px) 50vw, 260px" />
               <span aria-hidden className={cn("absolute inset-x-3 top-3 h-[2px] rounded-full bg-accent-gradient transition-opacity", active ? "opacity-100" : "opacity-0")} />
               <span className="absolute inset-x-0 bottom-0 bg-black/46 px-2 py-1 text-[0.56rem] uppercase tracking-[0.12em] text-ivory/72">
                 {brief(visual.caption, 4)}
@@ -437,11 +437,11 @@ export function GridFeatureTransform({ project }: { project: ProjectDetail }): J
                 refs.current[index] = node;
               }}
               data-index={index}
-              initial={{ opacity: 0, y: 22, scale: 0.985 }}
+              initial={{ opacity: 0, y: 16, scale: 0.995 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: false, margin: "-20% 0px -20% 0px" }}
               transition={{ duration: 0.44, ease: EASE }}
-              className={cn("transition-all duration-300", active ? "opacity-100" : "opacity-82")}
+              className={cn("transition-opacity duration-200", active ? "opacity-100" : "opacity-82")}
             >
               <ProjectLightboxImage
                 image={visual}
@@ -511,7 +511,7 @@ export function StoryboardLane({ project }: { project: ProjectDetail }): JSX.Ele
                   refs.current[index] = node;
                 }}
                 data-index={index}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-8%" }}
                 transition={{ duration: 0.44, ease: EASE, delay: index * 0.04 }}
@@ -527,7 +527,7 @@ export function StoryboardLane({ project }: { project: ProjectDetail }): JSX.Ele
 
               {index % 2 === 1 ? (
                 <motion.article
-                  initial={{ opacity: 0, y: 12 }}
+                  initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-12%" }}
                   transition={{ duration: 0.36, ease: EASE }}

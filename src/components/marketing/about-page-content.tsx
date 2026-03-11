@@ -157,11 +157,11 @@ export function AboutPageContent({
             return (
               <motion.article
                 key={item.label}
-                initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
+                initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
                 whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ duration: 0.65, delay: 0.08 * index, ease: [0.23, 1, 0.32, 1] }}
-                className="group flex items-center gap-4 rounded-xl border border-border/16 bg-card/72 px-5 py-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_8px_24px_rgba(0,82,204,0.06)]"
+                className="group flex items-center gap-4 rounded-xl border border-border/16 bg-card/72 px-5 py-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_8px_24px_rgba(0,82,204,0.06)]"
               >
                 <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accentA/25 bg-accentA/10 text-accentA transition-colors group-hover:bg-accentA/18">
                   <Icon className="h-4.5 w-4.5" />
@@ -193,7 +193,7 @@ export function AboutPageContent({
               return (
                 <motion.div
                   key={step.num}
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
                   whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
@@ -236,21 +236,21 @@ export function AboutPageContent({
             return (
               <motion.div
                 key={item.title}
-                initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
+                initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
                 whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
                 transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
               >
                 <Link
                   href={item.href}
-                  className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/16 bg-card/72 p-5 transition-all duration-300 hover:-translate-y-1 hover:border-accentA/30 hover:shadow-[0_16px_40px_rgba(0,82,204,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/16 bg-card/72 p-5 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-accentA/30 hover:shadow-[0_16px_40px_rgba(0,82,204,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                 >
-                  <span className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-accentA/[0.04] blur-xl transition-all duration-500 group-hover:scale-[2] group-hover:bg-accentA/[0.08]" />
+                  <span className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-accentA/[0.04] blur-xl" />
                   <div className="flex items-start justify-between gap-3">
                     <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-accentA/25 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16 group-hover:shadow-[0_4px_16px_rgba(0,82,204,0.15)]">
                       <Icon className="h-5 w-5" />
                     </span>
-                    <ArrowUpRight className="mt-1 h-4 w-4 text-fg/25 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accentA" />
+                    <ArrowUpRight className="mt-1 h-4 w-4 text-fg/25 transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accentA" />
                   </div>
                   <h3 className="mt-3 text-[1.12rem] font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-fg/60">{item.body}</p>
@@ -277,11 +277,11 @@ export function AboutPageContent({
               return (
                 <motion.li
                   key={item.text}
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 20 }}
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 14 }}
                   whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-40px" }}
                   transition={{ duration: 0.55, delay: 0.07 * index, ease: [0.23, 1, 0.32, 1] }}
-                  className="group flex items-center gap-3 rounded-lg border border-border/14 bg-bg/44 px-3.5 py-3 transition-all duration-200 hover:border-accentA/25 hover:bg-accentA/[0.03] hover:shadow-[0_4px_16px_rgba(0,82,204,0.04)]"
+                  className="group flex items-center gap-3 rounded-lg border border-border/14 bg-bg/44 px-3.5 py-3 transition-[border-color,background-color,box-shadow] duration-200 hover:border-accentA/25 hover:bg-accentA/[0.03] hover:shadow-[0_4px_16px_rgba(0,82,204,0.04)]"
                 >
                   <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-accentA/20 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16">
                     <Icon className="h-3.5 w-3.5" />
@@ -343,7 +343,7 @@ export function AboutPageContent({
                       viewBox="0 0 20 20"
                       className="h-4 w-4 text-amber-400"
                       fill="currentColor"
-                      initial={reducedMotion ? undefined : { opacity: 0, y: 12 }}
+                      initial={reducedMotion ? undefined : { opacity: 0, y: 10 }}
                       whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.5, delay: 0.07 * i, ease: [0.23, 1, 0.32, 1] }}
@@ -357,7 +357,7 @@ export function AboutPageContent({
               {/* Spotlight: First testimonial — hero card */}
               {featuredTestimonials.length > 0 && (
                 <motion.article
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
                   whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
@@ -395,13 +395,13 @@ export function AboutPageContent({
                   {featuredTestimonials.slice(1).map((t, index) => (
                     <motion.article
                       key={t.id}
-                      initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
+                      initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
                       whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                       viewport={{ once: true, margin: "-60px" }}
                       transition={{ duration: 0.65, delay: 0.1 * (index + 1), ease: [0.23, 1, 0.32, 1] }}
-                      className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/50 p-5 transition-all duration-300 hover:border-accentA/20 hover:shadow-[0_12px_40px_rgba(0,82,204,0.06)]"
+                      className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/50 p-5 transition-[border-color,box-shadow] duration-200 hover:border-accentA/20 hover:shadow-[0_12px_40px_rgba(0,82,204,0.06)]"
                     >
-                      <span className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-accentA/[0.03] blur-xl transition-all duration-500 group-hover:scale-[2.5] group-hover:bg-accentA/[0.06]" />
+                      <span className="pointer-events-none absolute -right-6 -top-6 h-16 w-16 rounded-full bg-accentA/[0.03] blur-xl" />
                       <div className="relative">
                         <Quote className="h-4 w-4 text-accentA/30" />
                         <p className="mt-2.5 text-sm leading-relaxed text-fg/66">&ldquo;{t.quote}&rdquo;</p>
@@ -438,13 +438,13 @@ export function AboutPageContent({
               return (
                 <motion.article
                   key={p.title}
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 24 }}
+                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
                   whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-60px" }}
                   transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
-                  className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/44 p-5 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_12px_32px_rgba(0,82,204,0.05)]"
+                  className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/44 p-5 text-center transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_12px_32px_rgba(0,82,204,0.05)]"
                 >
-                  <span className="pointer-events-none absolute -bottom-8 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full bg-accentA/[0.03] blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:bg-accentA/[0.06]" />
+                  <span className="pointer-events-none absolute -bottom-8 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full bg-accentA/[0.03] blur-2xl" />
                   <span className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-accentA/25 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16">
                     <Icon className="h-5 w-5" />
                   </span>
@@ -491,12 +491,12 @@ export function AboutPageContent({
                         src={work.coverImage}
                         alt={displayTitle}
                         fill
-                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[2px] group-hover:brightness-[0.55]"
+                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.55]"
                         sizes="(max-width: 1024px) 50vw, 33vw"
                       />
                     </div>
-                    <div className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
-                    <div className="absolute inset-x-4 bottom-4 z-10 transition-all duration-300 group-hover:translate-y-2 group-hover:opacity-0">
+                    <div className="absolute inset-0 bg-black/12 transition-colors duration-200 group-hover:bg-black/38" />
+                    <div className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
                       <h3 className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">{displayTitle}</h3>
                     </div>
                     <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
@@ -514,3 +514,4 @@ export function AboutPageContent({
     </div>
   );
 }
+

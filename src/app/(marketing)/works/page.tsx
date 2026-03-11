@@ -1,3 +1,5 @@
+export const revalidate = 60;
+
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -119,7 +121,7 @@ export default async function WorksPage() {
                       alt={displayTitle}
                       fill
                       priority={index < 3}
-                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:blur-[2px] group-hover:brightness-[0.55]"
+                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
                       sizes="(max-width: 767px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
