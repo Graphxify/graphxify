@@ -13,13 +13,17 @@ export async function updateProfileAction(
 
   const displayName = String(formData.get("display_name") || "").trim();
   const bio = String(formData.get("bio") || "").trim();
+  const avatarUrl = String(formData.get("avatar_url") || "").trim();
+  const phone = String(formData.get("phone") || "").trim();
 
   try {
     const { error } = await supabase
       .from("profiles")
       .update({
         display_name: displayName || null,
-        bio: bio || null
+        bio: bio || null,
+        avatar_url: avatarUrl || null,
+        phone: phone || null
       })
       .eq("id", profile.id);
 
@@ -40,7 +44,7 @@ export async function updateProfileAction(
         action: "profile.update",
         entityType: "profile",
         entityId: profile.id,
-        metadata: { fields: ["display_name", "bio"] }
+        metadata: { fields: ["display_name", "bio", "avatar_url", "phone"] }
       });
     } catch {
       // Audit log failure is non-critical

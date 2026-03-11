@@ -22,7 +22,9 @@ export type AuditAction =
   | "auth.signup"
   | "user.role_change"
   | "post.restore"
-  | "work.restore";
+  | "work.restore"
+  | "profile.update"
+  | "profile.password_change";
 
 export type AuditEntity = "post" | "work" | "testimonial" | "lead" | "profile" | "system";
 

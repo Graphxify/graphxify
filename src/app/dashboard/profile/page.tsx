@@ -45,6 +45,8 @@ export default async function DashboardProfilePage() {
         role: profile.role,
         displayName: (extendedProfile.display_name as string) ?? null,
         bio: (extendedProfile.bio as string) ?? null,
+        avatarUrl: (extendedProfile.avatar_url as string) ?? null,
+        phone: (extendedProfile.phone as string) ?? null,
         createdAt,
         lastSignIn
       }}

@@ -15,7 +15,8 @@ const commonLinks = [
   { href: "/dashboard/works", label: "Works" },
   { href: "/dashboard/testimonials", label: "Testimonials" },
   { href: "/dashboard/leads", label: "Leads" },
-  { href: "/dashboard/activity", label: "Activity" }
+  { href: "/dashboard/activity", label: "Activity" },
+  { href: "/dashboard/profile", label: "Profile" }
 ];
 
 const adminLinks = [
