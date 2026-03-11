@@ -3,40 +3,25 @@
 import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 
-export type SectionRevealEffect = "up" | "down" | "left" | "right" | "zoom";
-
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-function hiddenPose(effect: SectionRevealEffect): { opacity: number; x?: number; y?: number; scale?: number } {
-  if (effect === "down") {
-    return { opacity: 0, y: -10 };
-  }
-  if (effect === "left") {
-    return { opacity: 0, y: 16 };
-  }
-  if (effect === "right") {
-    return { opacity: 0, y: 16 };
-  }
-  if (effect === "zoom") {
-    return { opacity: 0, y: 14, scale: 0.995 };
-  }
-  return { opacity: 0, y: 18 };
-}
-
 /**
- * Section wrapper with a restrained in-view reveal.
- * Keeps motion language consistent across marketing pages while
- * preserving existing call-site props.
+ * Section wrapper with a soft fade-up in-view reveal.
+ * Unified to a single consistent "fade up from below" effect
+ * matching the Bungee Framer reference motion language.
+ *
+ * Uses a small initial Y offset and viewport trigger to create
+ * gentle, cinematic content reveals on scroll.
  */
 export function SectionReveal({
   children,
   className = "",
-  effect = "up",
-  once = true
+  effect: _effect = "up",
+  once = true,
 }: {
   children: ReactNode;
   className?: string;
-  effect?: SectionRevealEffect;
+  effect?: string;
   once?: boolean;
 }): JSX.Element {
   const reduced = useReducedMotion();
@@ -48,10 +33,10 @@ export function SectionReveal({
   return (
     <motion.section
       className={className}
-      initial={hiddenPose(effect)}
-      whileInView={{ opacity: 1, x: 0, y: 0, scale: 1 }}
-      viewport={{ once, margin: "-8% 0px -8% 0px", amount: 0.22 }}
-      transition={{ duration: 0.62, ease: EASE }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once, margin: "0px 0px -12% 0px", amount: 0.08 }}
+      transition={{ duration: 0.7, ease: EASE }}
     >
       {children}
     </motion.section>

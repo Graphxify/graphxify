@@ -12,8 +12,16 @@ type SupabaseCookieOptions = {
   sameSite?: "lax" | "strict" | "none" | boolean;
 };
 
-export async function middleware(request: NextRequest) {
-  const response = NextResponse.next({ request: { headers: request.headers } });
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get("code");
+  const next = searchParams.get("next") ?? "/dashboard";
+
+  if (!code) {
+    return NextResponse.redirect(new URL("/login?error=unknown", request.url));
+  }
+
+  const response = NextResponse.redirect(new URL(next, request.url));
   const publicKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   const supabase = createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, publicKey, {
@@ -30,27 +38,11 @@ export async function middleware(request: NextRequest) {
     }
   });
 
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
 
-  const pathname = request.nextUrl.pathname;
-
-  if (pathname.startsWith("/dashboard") && !user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
-  }
-
-  if (pathname === "/login" && user) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
+  if (error) {
+    return NextResponse.redirect(new URL("/login?error=unknown", request.url));
   }
 
   return response;
 }
-
-export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/login/:path*", "/auth/callback"]
-};

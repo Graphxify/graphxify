@@ -479,7 +479,7 @@ export function ContactPageContent(): JSX.Element {
                   </label>
                   <div className="relative">
                     <select id="contact-budget" name="budget" className={cn(FIELD_CLASS, "w-full appearance-none pr-10")} defaultValue="">
-                      <option value="">Select budget range</option>
+                      <option value="" disabled>Select budget range</option>
                       {BUDGET_OPTIONS.map((option) => (
                         <option key={option} value={option}>
                           {option}
@@ -496,7 +496,7 @@ export function ContactPageContent(): JSX.Element {
                   </label>
                   <div className="relative">
                     <select id="contact-timeline" name="timeline" className={cn(FIELD_CLASS, "w-full appearance-none pr-10")} defaultValue="">
-                      <option value="">Select timeline</option>
+                      <option value="" disabled>Select timeline</option>
                       {TIMELINE_OPTIONS.map((option) => (
                         <option key={option} value={option}>
                           {option}
@@ -568,7 +568,7 @@ export function ContactPageContent(): JSX.Element {
             </form>
           </div>
 
-          <div className="space-y-5 lg:sticky lg:top-24 lg:self-start">
+          <div className="space-y-5 lg:sticky lg:top-36 lg:self-start">
             <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
               <div className="flex items-center gap-2">
                 <Clock3 className="h-4 w-4 text-accentA" aria-hidden="true" />
@@ -628,7 +628,7 @@ export function ContactPageContent(): JSX.Element {
                         rel="noreferrer"
                         className="group inline-flex items-center gap-2 text-fg/72 transition-colors hover:text-fg"
                       >
-                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-black bg-transparent text-fg/74 transition group-hover:-translate-y-0.5 group-hover:border-transparent group-hover:bg-accent-gradient group-hover:text-ivory">
+                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/20 bg-transparent text-fg/74 transition group-hover:-translate-y-0.5 group-hover:border-transparent group-hover:bg-accent-gradient group-hover:text-ivory">
                           <link.Icon className="h-4 w-4" aria-hidden="true" />
                         </span>
                         <span>{link.label}</span>

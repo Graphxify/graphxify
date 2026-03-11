@@ -117,7 +117,7 @@ select:focus-visible {
 .lead-form-premium input,
 .lead-form-premium textarea,
 .lead-form-premium select {
-  border-color: rgb(var(--accent-a) / 0.38) !important;
+  border-color: rgb(var(--border) / 0.22) !important;
 }
 
 .dark .lead-form-premium input,
@@ -125,7 +125,7 @@ select:focus-visible {
 .dark .lead-form-premium select {
   background-color: rgb(18 18 22) !important;
   color: rgb(242 240 235) !important;
-  border-color: rgb(var(--accent-a) / 0.5) !important;
+  border-color: rgb(var(--border) / 0.22) !important;
 }
 
 .dark .lead-form-premium input::placeholder,
@@ -349,4 +349,9 @@ select:focus-visible {
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }

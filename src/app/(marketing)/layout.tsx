@@ -1,5 +1,6 @@
 import { MarketingHeader } from "@/components/marketing/header";
 import { DeferredEffects } from "@/components/motion/deferred-effects";
+import { CursorGlow } from "@/components/motion/cursor-glow";
 import { PageTransition } from "@/components/motion/page-transition";
 import { SmoothScrollDriver } from "@/components/motion/smooth-scroll-driver";
 import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
@@ -15,6 +16,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <SmoothScrollDriver />
       <ScrollProgress />
       <DeferredEffects />
+      <CursorGlow />
       <ContentRefreshListener pathPrefixes={["/works", "/blog"]} />
       <MarketingHeader />
       <PageTransition>

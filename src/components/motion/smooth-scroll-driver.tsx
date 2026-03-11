@@ -37,14 +37,14 @@ export function SmoothScrollDriver(): null {
     }
 
     const lenis = new Lenis({
-      duration: 1.05,
+      duration: 1.18,
       easing: (t: number) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
       syncTouch: true,
       syncTouchLerp: 0.1,
       touchInertiaExponent: 1.7,
-      wheelMultiplier: 0.9,
-      touchMultiplier: 1.05,
+      wheelMultiplier: 0.85,
+      touchMultiplier: 1.0,
       autoRaf: false,
     });
 

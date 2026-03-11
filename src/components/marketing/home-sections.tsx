@@ -227,7 +227,7 @@ export function HomeSections({
             From brand identity to CMS architecture — we build precise, scalable digital systems for ambitious founders and growth-stage companies who demand clarity, performance, and long-term value.
           </p>
 
-          <div className="mt-6 flex flex-col items-center justify-center gap-3">
+          <div className="mt-6 flex flex-row items-center justify-center gap-3">
             <Magnetic className="flex w-full justify-center sm:w-auto">
               <Button
                 asChild
@@ -307,50 +307,68 @@ export function HomeSections({
 
       {/* ── Mid-page CTA ── */}
       <SectionReveal className="container" effect="zoom">
-        <div className="section-shell relative overflow-hidden border-accentA/16 p-0">
+        <div className="section-shell relative overflow-hidden border-accentA/20 p-0">
 
-          {/* top accent hairline */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-accentA/40 to-transparent" />
+          {/* Ambient glow orbs */}
+          <div className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-accentA/8 blur-[100px]" />
+          <div className="pointer-events-none absolute -bottom-16 -right-16 h-48 w-48 rounded-full bg-accentB/6 blur-[80px]" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accentA/5 blur-[60px]" />
+
+          {/* Top accent hairline */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-accentA/50 to-transparent" />
+          {/* Bottom accent hairline */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px bg-gradient-to-r from-transparent via-accentA/25 to-transparent" />
+          {/* Left accent hairline */}
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-px bg-gradient-to-b from-transparent via-accentA/20 to-transparent" />
+          {/* Right accent hairline */}
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-px bg-gradient-to-b from-transparent via-accentA/20 to-transparent" />
 
           {/* ── Main content ── */}
-          <div className="relative z-10 px-6 py-6 text-center md:px-12 md:py-10 lg:py-12">
-            <p className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-fg/48">
-              <span className="h-px w-8 bg-fg/22" aria-hidden="true" />
-              Studio inquiry
-              <span className="h-px w-8 bg-fg/22" aria-hidden="true" />
+          <div className="relative z-10 px-6 py-10 text-center md:px-12 md:py-16 lg:py-20">
+            <p className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-accentA/80">
+              <span className="h-px w-10 bg-gradient-to-r from-transparent to-accentA/60" aria-hidden="true" />
+              Let&apos;s create together
+              <span className="h-px w-10 bg-gradient-to-l from-transparent to-accentA/60" aria-hidden="true" />
             </p>
 
-            <h2 className="mx-auto mt-5 max-w-3xl text-[clamp(1.9rem,5vw,3.5rem)] font-semibold leading-[1.04] tracking-tight">
-              Ready to build something<br className="hidden sm:block" />
-              <span className="gradient-text"> exceptional?</span>
+            <h2 className="mx-auto mt-6 max-w-3xl text-[clamp(2.2rem,5.5vw,4rem)] font-semibold leading-[1] tracking-tight">
+              Ready to build something{" "}
+              <span className="gradient-text">exceptional?</span>
             </h2>
 
-            <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-fg/56 md:text-[0.96rem]">
-              Share your vision. We handle the structure, craft, and execution —<br className="hidden md:block" />
+            {/* Animated accent line */}
+            <div className="mx-auto mt-5 h-[2px] w-24 overflow-hidden rounded-full bg-border/20">
+              <div className="h-full w-full animate-[shimmer_2.5s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-accentA/80 to-transparent" />
+            </div>
+
+            <p className="mx-auto mt-6 max-w-lg text-[0.95rem] leading-relaxed text-fg/60 md:text-base">
+              Share your vision. We handle the structure, craft, and execution —
               from first brief to launch day.
             </p>
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Magnetic>
-                <Button asChild size="lg">
-                  <Link href="/contact">Start your project</Link>
+                <Button asChild size="lg" className="relative overflow-hidden px-8 shadow-[0_0_30px_rgba(0,82,204,0.25)]">
+                  <Link href="/contact">
+                    <span className="relative z-10">Start your project</span>
+                  </Link>
                 </Button>
               </Magnetic>
-              <Link href="/works" className="link-sweep text-sm text-fg/60 sm:text-base">
+              <Link href="/works" className="link-sweep text-sm text-fg/60 transition-colors hover:text-fg/90 sm:text-base">
                 Browse our work
               </Link>
             </div>
 
             {/* ── Social proof micro-strip ── */}
-            <div className="mx-auto mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-2.5 border-t border-border/12 pt-6">
+            <div className="mx-auto mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-border/10 pt-7">
               {[
                 { stat: "26+", label: "projects delivered" },
                 { stat: "4–8 wks", label: "average turnaround" },
                 { stat: "24h", label: "response time" }
               ].map(({ stat, label }) => (
-                <span key={stat} className="inline-flex items-center gap-2 text-xs text-fg/46">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accentA/65" aria-hidden="true" />
-                  <strong className="font-semibold text-fg/72">{stat}</strong>
+                <span key={stat} className="inline-flex items-center gap-2.5 text-xs text-fg/44">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accentA/70 shadow-[0_0_6px_rgba(0,163,255,0.5)]" aria-hidden="true" />
+                  <strong className="font-semibold text-fg/78">{stat}</strong>
                   <span>{label}</span>
                 </span>
               ))}
@@ -377,7 +395,7 @@ export function HomeSections({
                 initial={reducedMotion ? false : { opacity: 0, y: 16 }}
                 whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-60px" }}
-                whileHover={reducedMotion ? undefined : { y: -2, scale: 1.004, transition: { duration: 0.26, ease: [0.16, 1, 0.3, 1] } }}
+                whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }}
                 transition={{ duration: 0.56, delay: 0.08 * index, ease: [0.22, 1, 0.36, 1] }}
                 className="group relative overflow-hidden rounded-2xl border border-border/16 bg-card/72 p-6 shadow-[0_8px_20px_rgba(13,13,15,0.06)] backdrop-blur-sm md:p-7"
               >

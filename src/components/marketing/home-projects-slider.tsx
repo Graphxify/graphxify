@@ -383,9 +383,9 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
                 key={`${project.slug}-${index}`}
                 className="relative origin-center will-change-transform"
                 style={{ flex: `0 0 ${cardBasis}` }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.985 }}
-                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -3, scale: 1.008 }}
+                whileTap={{ scale: 0.993 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Link
                   href={`/works/${pathSlug}`}
@@ -398,7 +398,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
                       src={project.coverImage}
                       alt={displayTitle}
                       fill
-                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.64]"
+                      className="object-cover transition-[transform,filter] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] group-hover:brightness-[0.7]"
                       sizes="(max-width: 1279px) 100vw, 50vw"
                     />
                     <span className="absolute inset-0 bg-gradient-to-b from-black/78 via-black/30 to-black/66" />

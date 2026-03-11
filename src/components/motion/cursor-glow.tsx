@@ -120,7 +120,7 @@ export function CursorGlow(): JSX.Element | null {
       <motion.div
         aria-hidden
         className={cn(
-          "pointer-events-none fixed z-[64] flex items-center justify-center border text-[0.56rem] font-semibold uppercase tracking-[0.18em] backdrop-blur-md transition-colors duration-200",
+          "pointer-events-none fixed z-[64] flex items-center justify-center border text-[0.56rem] font-semibold uppercase tracking-[0.18em] transition-colors duration-200",
           cursorLabel ? "border-accentA/55 bg-accent-gradient text-ivory" : "border-fg/32 bg-card/28 text-fg"
         )}
         style={{ x: shellX, y: shellY, translateX: "-50%", translateY: "-50%" }}

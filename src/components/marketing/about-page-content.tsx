@@ -325,9 +325,7 @@ export function AboutPageContent({
       {featuredTestimonials.length > 0 && (
         <SectionReveal className="container mt-14 md:mt-16" effect="up">
           <div className="section-shell relative overflow-hidden border-border/18 bg-gradient-to-br from-card/80 via-bg/60 to-card/80 p-6 md:p-8">
-            {/* Subtle background glow */}
-            <span className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-accentA/[0.05] blur-[80px]" />
-            <span className="pointer-events-none absolute -bottom-16 -left-16 h-48 w-48 rounded-full bg-accentB/[0.04] blur-[60px]" />
+
 
             <div className="relative">
               <div className="mb-6 flex items-center justify-between">
@@ -363,15 +361,7 @@ export function AboutPageContent({
                   transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1] }}
                   className="group relative overflow-hidden rounded-2xl border border-accentA/16 bg-gradient-to-r from-bg/80 via-card/60 to-bg/80 p-6 md:p-8"
                 >
-                  {/* Large decorative quote mark */}
-                  <svg
-                    className="pointer-events-none absolute -left-2 -top-3 h-28 w-28 text-accentA/[0.06] md:h-36 md:w-36"
-                    viewBox="0 0 100 100"
-                    fill="currentColor"
-                    aria-hidden="true"
-                  >
-                    <path d="M30 60c-8 0-15-7-15-15s7-15 15-15c2 0 4 0 6 1-2-10-10-18-20-21l4-8c18 4 30 20 30 38 0 11-9 20-20 20zm45 0c-8 0-15-7-15-15s7-15 15-15c2 0 4 0 6 1-2-10-10-18-20-21l4-8c18 4 30 20 30 38 0 11-9 20-20 20z" />
-                  </svg>
+
                   {/* Accent line */}
                   <span className="mb-5 block h-[2px] w-16 rounded-full bg-accent-gradient" />
                   <blockquote className="relative text-base leading-relaxed text-fg/76 md:text-lg md:leading-relaxed">

@@ -111,6 +111,14 @@ function LoginView({
                 required
                 placeholder="••••••••"
               />
+              <div className="flex justify-end">
+                <Link
+                  href="/login/forgot-password"
+                  className="text-xs text-fg/48 transition-colors hover:text-accentA"
+                >
+                  Forgot password?
+                </Link>
+              </div>
             </div>
             <Button type="submit" className="h-11 w-full rounded-xl text-sm font-medium">
               Sign In

@@ -18,7 +18,7 @@ const SERVICE_OPTIONS = [
   { key: "something-else", label: "Something Else" }
 ] as const;
 
-const QUICK_FIELD_CLASS = "h-12 rounded-xl border-border/18 bg-bg/62 px-4 text-sm placeholder:text-fg/45 placeholder:opacity-100";
+const QUICK_FIELD_CLASS = "h-12 rounded-xl border-border/18 bg-bg/62 px-4 text-sm placeholder:text-fg/32 placeholder:opacity-100";
 
 type ServiceKey = (typeof SERVICE_OPTIONS)[number]["key"];
 
@@ -141,7 +141,7 @@ export function LeadForm(): JSX.Element {
               aria-invalid={Boolean(serviceError)}
               className={cn(
                 QUICK_FIELD_CLASS,
-                "quick-service-select w-full appearance-none border pr-10 !border-accentA/45 focus-visible:!border-accentA/55",
+                "quick-service-select w-full appearance-none border pr-10 border-border/22 focus-visible:border-fg/30",
                 selectedService ? "!text-fg/88 dark:!text-ivory" : "!text-fg/45 dark:!text-ivory/72"
               )}
             >
