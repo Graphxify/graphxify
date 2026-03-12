@@ -19,7 +19,7 @@ type RawPost = {
   seo_description?: string;
 };
 
-const CATEGORY_VALUES: readonly BlogCategory[] = ["Brand Systems", "Web Design", "Development", "CMS"] as const;
+const CATEGORY_VALUES: readonly BlogCategory[] = ["Web Design", "Web Development", "Branding", "Business Growth", "Digital Strategy"] as const;
 
 function inferCategory(item: Pick<RawPost, "title" | "excerpt" | "category">, index = 0): BlogCategory {
   const raw = item.category?.trim();
@@ -28,10 +28,11 @@ function inferCategory(item: Pick<RawPost, "title" | "excerpt" | "category">, in
   }
 
   const source = `${item.title} ${item.excerpt}`.toLowerCase();
-  if (source.includes("brand") || source.includes("identity")) return "Brand Systems";
-  if (source.includes("design") || source.includes("ux") || source.includes("ui")) return "Web Design";
-  if (source.includes("cms") || source.includes("content")) return "CMS";
-  if (source.includes("development") || source.includes("engineering") || source.includes("performance") || source.includes("code")) return "Development";
+  if (source.includes("brand") || source.includes("identity") || source.includes("logo")) return "Branding";
+  if (source.includes("seo") || source.includes("digital strategy") || source.includes("marketing") || source.includes("google")) return "Digital Strategy";
+  if (source.includes("development") || source.includes("engineering") || source.includes("code") || source.includes("wordpress")) return "Web Development";
+  if (source.includes("growth") || source.includes("revenue") || source.includes("conversion") || source.includes("leads")) return "Business Growth";
+  if (source.includes("design") || source.includes("ux") || source.includes("ui") || source.includes("mobile")) return "Web Design";
   return CATEGORY_VALUES[index % CATEGORY_VALUES.length];
 }
 
@@ -55,8 +56,8 @@ function toBlogPost(item: Partial<RawPost>, index = 0): BlogPostItem | null {
 }
 
 export const metadata: Metadata = buildMetadata({
-  title: "Blog",
-  description: "Ideas, systems, and structured thinking on branding, web architecture, and scalable digital platforms.",
+  title: "Web Design, Branding & Digital Strategy Blog | Graphxify Canada",
+  description: "Practical guides on web design, web development, and branding for Canadian businesses. Insights from Graphxify — a web design and branding agency serving Toronto, Mississauga, and all of Canada.",
   path: "/blog"
 });
 

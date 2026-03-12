@@ -3,7 +3,6 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   Check,
-  CheckCircle2,
   ChevronDown,
   Clock3,
   Code2,
@@ -25,11 +24,12 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SubmissionModal } from "@/components/ui/submission-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { companyContact } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-type Status = { type: "success" | "error"; message: string } | null;
+type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
 
 type HelpOption = {
   key: string;
@@ -170,7 +170,7 @@ function formatOptional(value: string, fallback = "Not provided"): string {
 export function ContactPageContent(): JSX.Element {
   const reducedMotion = useReducedMotion();
   const [loading, setLoading] = useState(false);
-  const [status, setStatus] = useState<Status>(null);
+  const [modal, setModal] = useState<ModalState>({ open: false, type: "success", title: "", message: "" });
   const [selectedNeeds, setSelectedNeeds] = useState<string[]>([]);
   const [customNeed, setCustomNeed] = useState("");
   const [needError, setNeedError] = useState("");
@@ -187,7 +187,6 @@ export function ContactPageContent(): JSX.Element {
 
   function toggleNeed(key: string): void {
     setNeedError("");
-    setStatus(null);
 
     setSelectedNeeds((prev) => {
       if (prev.includes(key)) {
@@ -212,7 +211,6 @@ export function ContactPageContent(): JSX.Element {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    setStatus(null);
 
     let hasError = false;
 
@@ -250,11 +248,28 @@ export function ContactPageContent(): JSX.Element {
     const timeline = getTextValue(formData, "timeline");
     const message = getTextValue(formData, "message");
 
-    const attachmentNames = formData
+    const attachmentFiles = formData
       .getAll("briefFiles")
       .filter((item): item is File => item instanceof File)
-      .filter((file) => file.name.length > 0)
-      .map((file) => file.name);
+      .filter((file) => file.name.length > 0);
+
+    // Upload files in parallel — don't block on each one sequentially
+    const uploadPromises = attachmentFiles.map(async (file) => {
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      const res = await fetch("/api/uploads/public", { method: "POST", body: uploadData });
+      if (res.ok) {
+        const json = (await res.json()) as { url: string };
+        return json.url;
+      }
+      return null;
+    });
+
+    const uploadResults = await Promise.allSettled(uploadPromises);
+    const attachmentUrls = uploadResults
+      .filter((r): r is PromiseFulfilledResult<string | null> => r.status === "fulfilled")
+      .map((r) => r.value)
+      .filter((url): url is string => url !== null);
 
     const compiledMessage = [
       "Contact Inquiry",
@@ -265,7 +280,6 @@ export function ContactPageContent(): JSX.Element {
       `Website / Link: ${formatOptional(website)}`,
       `Budget range: ${formatOptional(budget, "Not selected")}`,
       `Timeline: ${formatOptional(timeline, "Not selected")}`,
-      `Attachments: ${attachmentNames.length > 0 ? attachmentNames.join(", ") : "None"}`,
       "",
       "Message:",
       message
@@ -288,7 +302,7 @@ export function ContactPageContent(): JSX.Element {
           website,
           budgetRange: budget,
           timeline,
-          attachments: attachmentNames
+          attachments: attachmentUrls
         })
       });
 
@@ -301,18 +315,34 @@ export function ContactPageContent(): JSX.Element {
         setNeedError("");
         setConsentChecked(false);
         setConsentError("");
-        setStatus({ type: "success", message: "Inquiry sent. We will reply within 24-48 hours." });
+        setModal({
+          open: true,
+          type: "success",
+          title: "Inquiry Sent Successfully",
+          message: "Thanks for reaching out. We received your inquiry and will reply within 24–48 hours."
+        });
       } else {
-        setStatus({ type: "error", message: payload.message || "Unable to submit your inquiry right now." });
+        setModal({
+          open: true,
+          type: "error",
+          title: "Something Went Wrong",
+          message: payload.message || "Unable to submit your inquiry right now."
+        });
       }
     } catch {
-      setStatus({ type: "error", message: "Unable to submit your inquiry right now." });
+      setModal({
+        open: true,
+        type: "error",
+        title: "Connection Error",
+        message: "Unable to submit your inquiry right now. Please check your connection and try again."
+      });
     } finally {
       setLoading(false);
     }
   }
 
   return (
+    <>
     <div className="pb-16 pt-10 md:pb-20 md:pt-12">
       <SectionReveal className="container" effect="up">
         <div className="mx-auto max-w-4xl">
@@ -332,27 +362,6 @@ export function ContactPageContent(): JSX.Element {
         <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="section-shell border-border/18 bg-card/76 p-5 md:p-7">
             <form onSubmit={onSubmit} className="lead-form-premium space-y-5" aria-label="Project inquiry form">
-              <AnimatePresence initial={false}>
-                {status ? (
-                  <motion.div
-                    initial={reducedMotion ? false : { opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={reducedMotion ? {} : { opacity: 0, y: -8 }}
-                    transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                    className={cn(
-                      "flex items-start gap-2 rounded-xl border px-3.5 py-3 text-sm",
-                      status.type === "success" ? "border-accentA/32 bg-accentA/8 text-fg/86" : "border-accentB/30 bg-accentB/10 text-fg/86"
-                    )}
-                  >
-                    {status.type === "success" ? (
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accentA" />
-                    ) : (
-                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accentB" />
-                    )}
-                    <span>{status.message}</span>
-                  </motion.div>
-                ) : null}
-              </AnimatePresence>
 
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="space-y-1.5">
@@ -697,5 +706,14 @@ export function ContactPageContent(): JSX.Element {
         </div>
       </SectionReveal>
     </div>
+
+      <SubmissionModal
+        open={modal.open}
+        onClose={() => setModal((prev) => ({ ...prev, open: false }))}
+        type={modal.type}
+        title={modal.title}
+        message={modal.message}
+      />
+    </>
   );
 }

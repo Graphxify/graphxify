@@ -100,7 +100,35 @@ export function leadNotificationTemplate(input: {
   email: string;
   message: string;
   createdAt: string;
+  attachments?: string[];
 }) {
+  const attachmentLinks = (input.attachments ?? [])
+    .map((url) => {
+      const fileName = decodeURIComponent(url.split("/").pop()?.replace(/^\d+-[a-z0-9]+-/, "") ?? "file");
+      const isImage = /\.(jpe?g|png|gif|webp|svg)$/i.test(url);
+
+      if (isImage) {
+        return `<div style="margin:6px 0;">
+          <a href="${escapeHtml(url)}" target="_blank" style="text-decoration:none;">
+            <img src="${escapeHtml(url)}" alt="${escapeHtml(fileName)}" style="max-width:200px;max-height:140px;border-radius:8px;border:1px solid ${BORDER_COLOR};" />
+          </a>
+          <br/><a href="${escapeHtml(url)}" target="_blank" style="font-size:12px;color:${BRAND_COLOR};text-decoration:none;">${escapeHtml(fileName)}</a>
+        </div>`;
+      }
+
+      return `<p style="margin:4px 0;font-size:13px;">
+        📎 <a href="${escapeHtml(url)}" target="_blank" style="color:${BRAND_COLOR};text-decoration:none;">${escapeHtml(fileName)}</a>
+      </p>`;
+    })
+    .join("");
+
+  const attachmentSection =
+    attachmentLinks.length > 0
+      ? `${divider()}
+         <p style="margin:0 0 8px;font-size:12px;color:${MUTED_COLOR};text-transform:uppercase;letter-spacing:0.05em;">Attachments</p>
+         ${attachmentLinks}`
+      : "";
+
   const body = `
     ${h2("New Contact Inquiry")}
     ${field("Name", input.name)}
@@ -108,13 +136,18 @@ export function leadNotificationTemplate(input: {
     ${divider()}
     <p style="margin:0 0 4px;font-size:12px;color:${MUTED_COLOR};text-transform:uppercase;letter-spacing:0.05em;">Message</p>
     <p style="margin:0;font-size:14px;color:${TEXT_COLOR};line-height:1.6;white-space:pre-wrap;">${escapeHtml(input.message)}</p>
+    ${attachmentSection}
     ${divider()}
     <p style="margin:0;font-size:12px;color:${MUTED_COLOR};">Submitted ${formatDate(input.createdAt)}</p>
   `;
 
+  const attachmentText = (input.attachments ?? []).length > 0
+    ? `\nAttachments:\n${(input.attachments ?? []).join("\n")}`
+    : "";
+
   return {
     subject: `New inquiry from ${input.name}`,
-    text: `New contact inquiry\nName: ${input.name}\nEmail: ${input.email}\nMessage: ${input.message}\nCreated: ${input.createdAt}`,
+    text: `New contact inquiry\nName: ${input.name}\nEmail: ${input.email}\nMessage: ${input.message}${attachmentText}\nCreated: ${input.createdAt}`,
     html: baseLayout("New Contact Inquiry", body)
   };
 }

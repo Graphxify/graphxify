@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile, hasPermission } from "@/lib/auth/requireRole";
 import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/provider";
+import { isNotificationEnabled } from "@/lib/email/notification-settings";
 import { publishNotificationTemplate } from "@/lib/email/templates";
 import { env } from "@/lib/env";
 import { getProjectPathSlug } from "@/lib/project-card-content";
@@ -146,10 +147,13 @@ function getWorkRevalidationPaths(slug: string): string[] {
   return ["/works", `/works/${getProjectPathSlug(slug)}`, `/works/${slug}`, "/dashboard/works"];
 }
 
-function notifyPublish(type: PublishContentType, title: string, slug: string): void {
+async function notifyPublish(type: PublishContentType, title: string, slug: string): Promise<void> {
   if (!env.OWNER_NOTIFY_EMAIL) {
     return;
   }
+
+  const enabled = await isNotificationEnabled("notify_contact_form");
+  if (!enabled) return;
 
   const template = publishNotificationTemplate({
     type,

@@ -1,6 +1,8 @@
 import "server-only";
 
+import { cache } from "react";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import {
   type AccountStatus,
@@ -30,12 +32,13 @@ export type AppProfile = {
 const DEFAULT_ROLE: AppRole = "editor";
 const DEFAULT_STATUS: AccountStatus = "active";
 
-export async function getSessionUser(supabase = createClient()) {
+export const getSessionUser = cache(async function getSessionUser() {
+  const supabase = createClient();
   const {
     data: { user }
   } = await supabase.auth.getUser();
   return user;
-}
+});
 
 function hasRequiredRole(profile: AppProfile, roles: readonly AppRole[]): boolean {
   return roles.includes(profile.role);
@@ -92,9 +95,44 @@ function toAppProfile(input: Record<string, unknown>, fallbackEmail: string): Ap
   };
 }
 
-export async function getCurrentProfile(): Promise<AppProfile | null> {
+export const getCurrentProfile = cache(async function getCurrentProfile(): Promise<AppProfile | null> {
+  // ── Fast path: use identity forwarded by middleware ──
+  // Middleware sets x-cms-uid and x-cms-role after validating the session and profile.
+  // Reading from headers + getSession() costs ~0ms vs getUser() (~50ms) + DB (~80ms).
+  // getSession() is safe here because middleware already ran getUser() on this same request.
+  const reqHeaders = await headers();
+  const fwdUid = reqHeaders.get("x-cms-uid");
+  const fwdRole = reqHeaders.get("x-cms-role");
+
+  if (fwdUid && fwdRole) {
+    const supabase = createClient();
+    const {
+      data: { session }
+    } = await supabase.auth.getSession();
+
+    if (session?.user?.id === fwdUid) {
+      return {
+        id: fwdUid,
+        email: session.user.email ?? "",
+        role: normalizeRole(fwdRole),
+        rawRole: fwdRole,
+        status: "active" as AccountStatus, // Middleware only sets headers for non-blocked users
+        displayName: (session.user.user_metadata?.full_name as string | undefined) ?? null,
+        avatarUrl: (session.user.user_metadata?.avatar_url as string | undefined) ?? null,
+        createdAt: null,
+        lastLogin: null,
+        lastActivity: null,
+        lastPasswordChange: null,
+        forcePasswordReset: false,
+        forceLogoutAt: null
+      };
+    }
+  }
+
+  // ── Fallback: full DB fetch ──
+  // Used when headers are absent (non-middleware routes, API routes, etc.)
   const supabase = createClient();
-  const user = await getSessionUser(supabase);
+  const user = await getSessionUser();
   if (!user) {
     return null;
   }
@@ -165,7 +203,7 @@ export async function getCurrentProfile(): Promise<AppProfile | null> {
   }
 
   return toAppProfile(data, user.email ?? "");
-}
+});
 
 export async function requireAuth(): Promise<AppProfile> {
   const profile = await getCurrentProfile();

@@ -8,8 +8,9 @@ import { ArrowUpRight, BookOpen, Clock, Mail, Sparkles } from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SubmissionModal } from "@/components/ui/submission-modal";
 
-export type BlogCategory = "Brand Systems" | "Web Design" | "Development" | "CMS";
+export type BlogCategory = "Web Design" | "Web Development" | "Branding" | "Business Growth" | "Digital Strategy";
 
 export type BlogPostItem = {
   id: string;
@@ -24,7 +25,7 @@ export type BlogPostItem = {
   seoDescription?: string;
 };
 
-const CATEGORY_FILTERS = ["All", "Brand Systems", "Web Design", "Development", "CMS"] as const;
+const CATEGORY_FILTERS = ["All", "Web Design", "Web Development", "Branding", "Business Growth", "Digital Strategy"] as const;
 const INITIAL_VISIBLE_COUNT = 6;
 const LOAD_MORE_STEP = 6;
 
@@ -36,10 +37,11 @@ function estimateReadTime(excerpt: string): string {
 }
 
 const CATEGORY_COLORS: Record<BlogCategory, { dot: string; pill: string }> = {
-  "Brand Systems": { dot: "bg-violet-400", pill: "border-violet-500/25 text-violet-300" },
   "Web Design": { dot: "bg-sky-400", pill: "border-sky-500/25 text-sky-300" },
-  Development: { dot: "bg-emerald-400", pill: "border-emerald-500/25 text-emerald-300" },
-  CMS: { dot: "bg-amber-400", pill: "border-amber-500/25 text-amber-300" }
+  "Web Development": { dot: "bg-emerald-400", pill: "border-emerald-500/25 text-emerald-300" },
+  Branding: { dot: "bg-violet-400", pill: "border-violet-500/25 text-violet-300" },
+  "Business Growth": { dot: "bg-amber-400", pill: "border-amber-500/25 text-amber-300" },
+  "Digital Strategy": { dot: "bg-rose-400", pill: "border-rose-500/25 text-rose-300" }
 };
 
 function formatDate(value?: string): string {
@@ -63,7 +65,7 @@ export function BlogPageContent({ posts }: { posts: BlogPostItem[] }): JSX.Eleme
   const reducedMotion = useReducedMotion();
   const [activeCategory, setActiveCategory] = useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
-  const [subscribeStatus, setSubscribeStatus] = useState<"idle" | "success">("idle");
+  const [subscribeModal, setSubscribeModal] = useState(false);
 
   const featuredPost = posts[0];
   const remainingPosts = posts.slice(1);
@@ -86,8 +88,7 @@ export function BlogPageContent({ posts }: { posts: BlogPostItem[] }): JSX.Eleme
   function onSubscribeSubmit(event: React.FormEvent<HTMLFormElement>): void {
     event.preventDefault();
     event.currentTarget.reset();
-    setSubscribeStatus("success");
-    window.setTimeout(() => setSubscribeStatus("idle"), 2400);
+    setSubscribeModal(true);
   }
 
   return (
@@ -100,11 +101,11 @@ export function BlogPageContent({ posts }: { posts: BlogPostItem[] }): JSX.Eleme
             Insights
           </p>
           <h1 className="mt-3 text-[clamp(2rem,5vw,4rem)] font-semibold leading-[0.96] tracking-tight">
-            Ideas, systems, and structured thinking.
+            Web design, branding, and digital strategy insights for Canadian businesses.
           </h1>
           <span className="mt-4 block h-px w-24 bg-accent-gradient" />
           <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.04rem]">
-            Thoughts on branding, web architecture, and building scalable digital platforms.
+            Practical guides to help Toronto, Mississauga, and Canadian businesses build better websites, stronger brands, and smarter digital strategy.
           </p>
         </div>
       </SectionReveal>
@@ -314,9 +315,14 @@ export function BlogPageContent({ posts }: { posts: BlogPostItem[] }): JSX.Eleme
             </form>
           </div>
 
-          {subscribeStatus === "success" ? (
-            <p className="relative z-10 mt-3 text-sm text-accentA">Subscribed. Thanks for joining.</p>
-          ) : null}
+          <SubmissionModal
+            open={subscribeModal}
+            onClose={() => setSubscribeModal(false)}
+            type="success"
+            title="You're In!"
+            message="Thanks for subscribing. You'll hear from us soon with insights on branding, design, and web architecture."
+            autoDismiss={6000}
+          />
         </div>
       </SectionReveal>
     </div>

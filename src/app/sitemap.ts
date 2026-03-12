@@ -1,22 +1,30 @@
 import type { MetadataRoute } from "next";
 import { getPublishedPosts } from "@/db/queries/posts";
 import { siteConfig } from "@/lib/constants";
+import { demoPosts } from "@/lib/demo-content";
 import { getProjectPathSlug } from "@/lib/project-card-content";
 import { graphxifyProjects } from "@/lib/project-details";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticRoutes = ["", "/works", "/services", "/about", "/blog", "/contact", "/privacy", "/terms"];
 
-  let posts: Array<{ slug: string; updated_at?: string }> = [];
+  // Default to demo posts so blog slugs are always indexed
+  let posts: Array<{ slug: string; updated_at?: string }> = demoPosts.map((p) => ({
+    slug: p.slug,
+    updated_at: p.created_at
+  }));
   const works: Array<{ slug: string; updated_at?: string }> = graphxifyProjects.map((project) => ({
     slug: project.slug,
     updated_at: `${project.year}-01-01`
   }));
 
   try {
-    posts = (await getPublishedPosts()) as Array<{ slug: string; updated_at?: string }>;
+    const dbPosts = (await getPublishedPosts()) as Array<{ slug: string; updated_at?: string }>;
+    if (dbPosts.length > 0) {
+      posts = dbPosts;
+    }
   } catch {
-    // degraded mode without DB
+    // degraded mode — demo posts already set as fallback
   }
 
   return [

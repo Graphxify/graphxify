@@ -17,7 +17,8 @@ const imageUrlSchema = z
 export const leadSchema = z.object({
   name: z.string().min(2).max(120),
   email: z.string().email().max(180),
-  message: z.string().min(8).max(2000)
+  message: z.string().min(8).max(2000),
+  attachments: z.array(z.string().url()).max(5).optional()
 });
 
 export const postSchema = z.object({

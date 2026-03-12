@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { publicReviewSchema } from "@/lib/validation/schemas";
 import { sendEmail } from "@/lib/email/provider";
+import { isNotificationEnabled } from "@/lib/email/notification-settings";
 import { reviewSubmissionTemplate } from "@/lib/email/templates";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Notify owner about new review submission
-    if (env.OWNER_NOTIFY_EMAIL) {
+    if (env.OWNER_NOTIFY_EMAIL && await isNotificationEnabled("notify_review_submissions")) {
       const template = reviewSubmissionTemplate({
         name,
         role: roleDisplay,

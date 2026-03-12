@@ -38,11 +38,44 @@ export function buildMetadata(input: {
 export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": ["LocalBusiness", "ProfessionalService"],
+    "@id": `${siteConfig.url}/#organization`,
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: `${siteConfig.url}/assets/logo-mark.svg`,
-    description: siteConfig.description
+    logo: {
+      "@type": "ImageObject",
+      url: `${siteConfig.url}/assets/logo-mark.svg`
+    },
+    description: siteConfig.description,
+    telephone: "+16475700334",
+    email: "info@graphxify.com",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Mississauga",
+      addressRegion: "Ontario",
+      addressCountry: "CA"
+    },
+    areaServed: [
+      { "@type": "City", name: "Toronto" },
+      { "@type": "City", name: "Mississauga" },
+      { "@type": "State", name: "Ontario" },
+      { "@type": "Country", name: "Canada" }
+    ],
+    knowsAbout: ["Web Design", "Web Development", "Brand Identity", "Branding", "Digital Strategy", "CMS Architecture"],
+    priceRange: "$$"
+  };
+}
+
+export function breadcrumbListJsonLd(items: Array<{ name: string; url: string }>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url
+    }))
   };
 }
 
@@ -61,18 +94,42 @@ export function blogPostingJsonLd(input: {
   description: string;
   path: string;
   datePublished: string;
+  dateModified?: string;
+  authorName?: string;
+  image?: string;
+  keywords?: string[];
+  section?: string;
 }) {
+  const url = `${siteConfig.url}${input.path}`;
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: input.title,
     description: input.description,
+    url,
     datePublished: input.datePublished,
+    ...(input.dateModified ? { dateModified: input.dateModified } : {}),
+    ...(input.image ? { image: input.image.startsWith("http") ? input.image : `${siteConfig.url}${input.image}` } : {}),
+    ...(input.keywords && input.keywords.length > 0 ? { keywords: input.keywords.join(", ") } : {}),
+    ...(input.section ? { articleSection: input.section } : {}),
+    author: {
+      "@type": "Organization",
+      name: input.authorName ?? siteConfig.name,
+      url: siteConfig.url
+    },
     publisher: {
       "@type": "Organization",
-      name: siteConfig.name
+      name: siteConfig.name,
+      url: siteConfig.url,
+      logo: {
+        "@type": "ImageObject",
+        url: `${siteConfig.url}/assets/logo-mark.svg`
+      }
     },
-    mainEntityOfPage: `${siteConfig.url}${input.path}`
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": url
+    }
   };
 }
 

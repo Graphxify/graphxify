@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { requireAuth } from "@/lib/auth/requireRole";
 import { ProfilePageContent } from "@/app/dashboard/profile/profile-page-content";
@@ -8,34 +9,27 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardProfilePage() {
-  const profile = await requireAuth();
   const supabase = createClient();
 
-  // Fetch extended profile data (may have extra columns)
-  let extendedProfile: Record<string, unknown> = {};
-  try {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", profile.id)
-      .maybeSingle();
-    if (data) {
-      extendedProfile = data as Record<string, unknown>;
-    }
-  } catch {
-    // Fallback to basic profile
-  }
+  // x-cms-uid is forwarded by middleware — lets us start the DB query
+  // before requireAuth() resolves, so all three run in parallel.
+  const uid = (await headers()).get("x-cms-uid");
 
-  // Fetch auth user metadata (created_at, last_sign_in_at)
-  let createdAt: string | null = null;
-  let lastSignIn: string | null = null;
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    createdAt = user?.created_at ?? null;
-    lastSignIn = user?.last_sign_in_at ?? null;
-  } catch {
-    // Non-critical
-  }
+  const [profile, extendedResult, authUserResult] = await Promise.all([
+    requireAuth(),
+    uid
+      ? Promise.resolve(
+          supabase.from("profiles").select("*").eq("id", uid).maybeSingle()
+        ).catch(() => ({ data: null }))
+      : Promise.resolve({ data: null }),
+    supabase.auth.getUser().catch(() => ({ data: { user: null } }))
+  ]);
+
+  const extendedProfile: Record<string, unknown> =
+    (extendedResult.data as Record<string, unknown> | null) ?? {};
+
+  const createdAt = authUserResult.data.user?.created_at ?? null;
+  const lastSignIn = authUserResult.data.user?.last_sign_in_at ?? null;
 
   return (
     <ProfilePageContent

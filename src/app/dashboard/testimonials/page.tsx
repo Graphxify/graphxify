@@ -12,7 +12,7 @@ import { getDashboardTestimonials } from "@/db/queries/testimonials";
 import { requirePermission } from "@/lib/auth/requireRole";
 import { hasPermission } from "@/lib/auth/roles";
 
-export const dynamic = "force-dynamic";
+
 
 const STATUS_TABS = [
   { value: "", label: "All" },
@@ -26,11 +26,8 @@ export default async function DashboardTestimonialsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const profile = await requirePermission("content.testimonials.view");
-  const canModerate = hasPermission(profile.role, "content.testimonials.moderate");
-  const canDelete = hasPermission(profile.role, "content.testimonials.delete");
-  const canCreate = hasPermission(profile.role, "content.testimonials.create");
-  const canEditMetrics = hasPermission(profile.role, "content.testimonial_metrics.edit");
+  // Start auth check immediately; parse params then run auth + data in parallel
+  const profilePromise = requirePermission("content.testimonials.view");
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
   const statusFilter = typeof resolvedSearchParams.status === "string" ? resolvedSearchParams.status : "";
@@ -45,9 +42,21 @@ export default async function DashboardTestimonialsPage({
   };
   let loadError = "";
 
-  try {
-    result = await getDashboardTestimonials(page, 12, statusFilter, search);
-  } catch (error) {
+  type DataOutcome =
+    | { ok: true; data: Awaited<ReturnType<typeof getDashboardTestimonials>> }
+    | { ok: false; error: unknown };
+
+  const [profile, dataOutcome] = await Promise.all([
+    profilePromise,
+    getDashboardTestimonials(page, 12, statusFilter, search)
+      .then((data): DataOutcome => ({ ok: true, data }))
+      .catch((error): DataOutcome => ({ ok: false, error }))
+  ]);
+
+  if (dataOutcome.ok) {
+    result = dataOutcome.data;
+  } else {
+    const error = dataOutcome.error;
     if (error && typeof error === "object" && "code" in error) {
       const code = String((error as { code?: string }).code || "");
       if (code === "42501") {
@@ -56,13 +65,17 @@ export default async function DashboardTestimonialsPage({
         loadError = "Testimonials schema is missing or outdated. Run supabase/testimonials.sql in Supabase SQL editor.";
       }
     }
-
     if (!loadError && error && typeof error === "object" && "message" in error) {
       loadError = String((error as { message?: string }).message || "Unable to load testimonials.");
     } else {
       loadError ||= "Unable to load testimonials.";
     }
   }
+
+  const canModerate = hasPermission(profile.role, "content.testimonials.moderate");
+  const canDelete = hasPermission(profile.role, "content.testimonials.delete");
+  const canCreate = hasPermission(profile.role, "content.testimonials.create");
+  const canEditMetrics = hasPermission(profile.role, "content.testimonial_metrics.edit");
 
   const filterParams: Record<string, string> = {};
   if (statusFilter) filterParams.status = statusFilter;

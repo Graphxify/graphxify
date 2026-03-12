@@ -51,7 +51,7 @@ export function DashboardNav({ items }: { items: NavItem[] }): JSX.Element {
               <motion.span
                 layoutId="dashboard-nav-active"
                 className="absolute inset-0 -z-10 rounded-xl bg-accent-gradient opacity-20"
-                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
               />
             ) : null}
             <span className="text-fg/72">{iconByLabel[item.label] ?? <LayoutDashboard className="h-4 w-4" />}</span>

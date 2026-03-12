@@ -45,7 +45,7 @@ const servicesData: ServicePillar[] = [
     title: "Brand Systems",
     description: "Positioning, identity, and scalable brand foundations.",
     icon: Compass,
-    body: "Structured brand identity systems designed to stay consistent across every touchpoint.",
+    body: "We build complete brand identity systems for Canadian businesses that need to look credible from day one — not patched together over time. Logo system, typography, colour palette, brand voice, and usage documentation are all delivered together so your brand stays consistent across your website, social, print, and pitch materials without needing a designer to referee every decision.",
     deliverables: ["Logo system", "Typography hierarchy", "Color + usage rules", "Brand guidelines", "Asset library", "Social templates"]
   },
   {
@@ -54,7 +54,7 @@ const servicesData: ServicePillar[] = [
     title: "Web Design",
     description: "Structured interfaces with clarity and hierarchy.",
     icon: Palette,
-    body: "Modern website interfaces built with clear structure and clean visual rhythm.",
+    body: "We design website interfaces built to communicate clearly and convert visitors into leads. Every layout prioritizes hierarchy — your main message, your differentiator, and your call to action are visible and accessible before the scroll. Designed mobile-first, responsive across all screen sizes, and built to meet AODA accessibility standards for Ontario businesses.",
     deliverables: ["UX structure", "UI components", "Responsive layouts", "Interaction patterns", "Design system", "Page templates"]
   },
   {
@@ -63,7 +63,7 @@ const servicesData: ServicePillar[] = [
     title: "Web Development",
     description: "Scalable builds engineered for performance.",
     icon: Code2,
-    body: "Custom-coded websites built for maintainability and long-term growth.",
+    body: "We build custom websites on modern frameworks like Next.js — not WordPress templates — delivering Lighthouse performance scores above 90 out of the box. You own the code outright, there are no recurring plugin subscriptions, and the architecture is built to scale with your business over the next five years. Optimized for Google's Core Web Vitals and Canadian accessibility requirements.",
     deliverables: ["Frontend build", "Component architecture", "Performance best practices", "Accessibility implementation", "Integrations", "Deployment setup"]
   },
   {
@@ -72,7 +72,7 @@ const servicesData: ServicePillar[] = [
     title: "CMS Architecture",
     description: "Structured content systems built for scale.",
     icon: Database,
-    body: "Content systems your team can edit confidently without breaking the design.",
+    body: "We design content management systems where your team can publish pages, blog posts, and updates without designer involvement — and without breaking the layout. Content models, user roles, and publishing workflows are defined before a line of code is written, so the CMS fits how your team actually works, not the other way around.",
     deliverables: ["Content modeling", "CMS setup", "Roles & permissions", "Collections structure", "Editing workflows", "Governance rules"]
   }
 ];

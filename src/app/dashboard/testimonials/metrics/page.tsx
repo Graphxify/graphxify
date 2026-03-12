@@ -6,8 +6,6 @@ import { getTestimonialMetrics } from "@/db/queries/testimonial-metrics";
 import { testimonialMetricsDefault } from "@/lib/constants";
 import { requirePermission } from "@/lib/auth/requireRole";
 
-export const dynamic = "force-dynamic";
-
 export default async function DashboardTestimonialMetricsPage() {
   await requirePermission("content.testimonial_metrics.edit");
 
@@ -55,4 +53,3 @@ export default async function DashboardTestimonialMetricsPage() {
     </section>
   );
 }
-

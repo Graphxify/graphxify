@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { logoutAction } from "@/app/login/actions";
 import { DashboardNav } from "@/app/dashboard/(components)/dashboard-nav";
 import { MobileSidebarToggle } from "@/app/dashboard/(components)/mobile-sidebar-toggle";
@@ -10,7 +11,8 @@ type SidebarProps = {
   role: AppRole;
 };
 
-async function buildNavLinks(role: AppRole) {
+/* ── Build nav links WITHOUT awaiting badge counts ── */
+function buildNavLinks(role: AppRole) {
   const links: { href: string; label: string; badge?: number }[] = [
     { href: "/dashboard", label: "Overview" }
   ];
@@ -40,25 +42,6 @@ async function buildNavLinks(role: AppRole) {
   }
 
   links.push({ href: "/dashboard/profile", label: "Profile" });
-
-  // Fetch pending counts for badges
-  try {
-    const pending = await getPendingCounts();
-    for (const link of links) {
-      if (link.href === "/dashboard/leads" && pending.newLeads > 0) {
-        link.badge = pending.newLeads;
-      }
-      if (link.href === "/dashboard/testimonials" && pending.pendingTestimonials > 0) {
-        link.badge = pending.pendingTestimonials;
-      }
-      if (link.href === "/dashboard/posts" && pending.postsInReview > 0) {
-        link.badge = pending.postsInReview;
-      }
-    }
-  } catch {
-    // Non-critical — badges just won't show
-  }
-
   return links;
 }
 
@@ -76,8 +59,32 @@ function buildAdminLinks(role: AppRole) {
   return links;
 }
 
-export async function DashboardSidebar({ role }: SidebarProps) {
-  const navLinks = await buildNavLinks(role);
+/* ── Async badge-enriched nav — loaded via Suspense ── */
+async function NavWithBadges({ role }: { role: AppRole }) {
+  const links = buildNavLinks(role);
+
+  try {
+    const pending = await getPendingCounts();
+    for (const link of links) {
+      if (link.href === "/dashboard/leads" && pending.newLeads > 0) {
+        link.badge = pending.newLeads;
+      }
+      if (link.href === "/dashboard/testimonials" && pending.pendingTestimonials > 0) {
+        link.badge = pending.pendingTestimonials;
+      }
+      if (link.href === "/dashboard/posts" && pending.postsInReview > 0) {
+        link.badge = pending.postsInReview;
+      }
+    }
+  } catch {
+    // Non-critical — badges just won't show
+  }
+
+  return <DashboardNav items={links} />;
+}
+
+export function DashboardSidebar({ role }: SidebarProps) {
+  const navLinks = buildNavLinks(role);
   const adminLinks = buildAdminLinks(role);
 
   return (
@@ -105,7 +112,10 @@ export async function DashboardSidebar({ role }: SidebarProps) {
           <ThemeToggle />
         </div>
 
-        <DashboardNav items={navLinks} />
+        {/* Sidebar nav: render instantly with plain links, then swap in badge-enriched version */}
+        <Suspense fallback={<DashboardNav items={navLinks} />}>
+          <NavWithBadges role={role} />
+        </Suspense>
 
         {adminLinks.length > 0 ? (
           <>

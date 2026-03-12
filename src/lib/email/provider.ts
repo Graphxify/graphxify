@@ -11,7 +11,7 @@ export type SendEmailInput = {
   html: string;
 };
 
-const DEFAULT_FROM = "Graphxify <info@graphxify.com>";
+const DEFAULT_FROM = "Graphxify Website <info@graphxify.com>";
 
 function getFrom(): string {
   return env.SMTP_FROM || DEFAULT_FROM;

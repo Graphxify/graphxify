@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Eye, MoreHorizontal, Search, UserPlus, Users } from "lucide-react";
+import { Eye, Search, UserPlus, Users } from "lucide-react";
 import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
 import {
   createUserInviteAction,
@@ -12,20 +12,14 @@ import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDashboardUsers } from "@/db/queries/admin";
 import { requireRole } from "@/lib/auth/requireRole";
 import { APP_ROLES } from "@/lib/auth/roles";
+import { UserActionsDropdown } from "@/app/dashboard/users/user-actions-dropdown";
 
-export const dynamic = "force-dynamic";
+
 
 /* ── Helpers ── */
 
@@ -237,56 +231,17 @@ export default async function DashboardUsersPage({
                                 View Profile
                               </Link>
                             </Button>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-60 group-hover:opacity-100 transition-opacity">
-                                  <MoreHorizontal className="h-4 w-4" />
-                                  <span className="sr-only">Actions</span>
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="w-48">
-                                <DropdownMenuItem asChild>
-                                  <Link href={`/dashboard/users/${user.id}`}>Edit user</Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                {/* Role change — inline form */}
-                                <form action={updateUserRoleAction}>
-                                  <input type="hidden" name="userId" value={user.id} />
-                                  {APP_ROLES.filter((r) => r !== user.role).map((r) => (
-                                    <DropdownMenuItem key={r} asChild>
-                                      <button type="submit" name="role" value={r} className="w-full text-left">
-                                        Set role → {roleLabel(r)}
-                                      </button>
-                                    </DropdownMenuItem>
-                                  ))}
-                                </form>
-                                <DropdownMenuSeparator />
-                                <form action={sendPasswordResetEmailAction}>
-                                  <input type="hidden" name="userId" value={user.id} />
-                                  <DropdownMenuItem asChild>
-                                    <button type="submit" className="w-full text-left">Reset password</button>
-                                  </DropdownMenuItem>
-                                </form>
-                                <form action={setUserStatusAction}>
-                                  <input type="hidden" name="userId" value={user.id} />
-                                  <input type="hidden" name="status" value={user.status === "disabled" ? "active" : "disabled"} />
-                                  <DropdownMenuItem asChild disabled={isSelf}>
-                                    <button type="submit" className="w-full text-left" disabled={isSelf}>
-                                      {user.status === "disabled" ? "Enable account" : "Disable account"}
-                                    </button>
-                                  </DropdownMenuItem>
-                                </form>
-                                <DropdownMenuSeparator />
-                                <form action={deleteUserAction}>
-                                  <input type="hidden" name="userId" value={user.id} />
-                                  <DropdownMenuItem asChild disabled={isSelf}>
-                                    <button type="submit" className="w-full text-left text-red-400" disabled={isSelf}>
-                                      Delete user
-                                    </button>
-                                  </DropdownMenuItem>
-                                </form>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
+                            <UserActionsDropdown
+                              userId={user.id}
+                              currentRole={user.role}
+                              currentStatus={user.status}
+                              isSelf={isSelf}
+                              roles={[...APP_ROLES]}
+                              updateRoleAction={updateUserRoleAction}
+                              sendPasswordResetAction={sendPasswordResetEmailAction}
+                              setStatusAction={setUserStatusAction}
+                              deleteAction={deleteUserAction}
+                            />
                           </div>
                         </TableCell>
                       </TableRow>

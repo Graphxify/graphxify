@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "GRAPHXIFY",
   description:
-    "Graphxify is a premium digital agency delivering enterprise-grade brand systems, performance websites, and growth-focused content operations.",
+    "Graphxify is a Canadian web design and branding agency serving Toronto, Mississauga, and Ontario businesses. We deliver brand systems, custom websites, and digital platforms built to perform.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
 };
 

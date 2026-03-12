@@ -2,9 +2,7 @@ import Link from "next/link";
 import { Plus, ExternalLink } from "lucide-react";
 import { DashboardSidebar } from "@/app/dashboard/(components)/sidebar";
 import { Breadcrumbs } from "@/app/dashboard/(components)/breadcrumbs";
-import { PageTransition } from "@/components/motion/page-transition";
 import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
-import { ScrollProgress } from "@/components/motion/scroll-progress";
 import { Button } from "@/components/ui/button";
 import { requireAuth } from "@/lib/auth/requireRole";
 import { hasPermission } from "@/lib/auth/roles";
@@ -14,7 +12,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="relative min-h-screen md:flex noise-overlay">
-      <ScrollProgress />
       <ContentRefreshListener pathPrefixes={["/dashboard/posts", "/dashboard/works", "/dashboard/testimonials"]} />
       <DashboardSidebar role={profile.role} />
 
@@ -60,9 +57,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
           <Breadcrumbs />
 
-          <PageTransition>
-            <div className="mx-auto max-w-6xl">{children}</div>
-          </PageTransition>
+          <div className="mx-auto max-w-6xl">{children}</div>
         </div>
       </div>
     </div>

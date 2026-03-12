@@ -1,7 +1,15 @@
 // ISR: re-fetch from Supabase at most once per minute; serve cache between revalidations
 export const revalidate = 60;
 
+import type { Metadata } from "next";
 import { HomeSections } from "@/components/marketing/home-sections";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Web Design & Branding Agency in Canada | Graphxify",
+  description: "Graphxify is a Canadian web design and branding agency serving Toronto, Mississauga, and Ontario. We build brand identities, custom websites, and performance digital platforms for businesses across Canada.",
+  path: "/"
+});
 import { getTestimonialMetrics } from "@/db/queries/testimonial-metrics";
 import { getPublishedTestimonials } from "@/db/queries/testimonials";
 import { getPublishedWorks } from "@/db/queries/works";

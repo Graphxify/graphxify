@@ -11,11 +11,11 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { getPublishedPostBySlug, getPublishedPosts } from "@/db/queries/posts";
 import { demoPosts } from "@/lib/demo-content";
 import { siteConfig } from "@/lib/constants";
-import { blogPostingJsonLd, buildMetadata } from "@/lib/seo";
+import { blogPostingJsonLd, breadcrumbListJsonLd, buildMetadata } from "@/lib/seo";
 
 type Params = { slug: string };
 
-type BlogCategory = "Brand Systems" | "Web Design" | "Development" | "CMS";
+type BlogCategory = "Web Design" | "Web Development" | "Branding" | "Business Growth" | "Digital Strategy";
 
 type RawPost = {
   id: string;
@@ -76,7 +76,7 @@ type ContentBlock =
   | { type: "code"; lang: string; code: string }
   | { type: "image"; src: string; alt: string; caption?: string };
 
-const CATEGORY_VALUES: readonly BlogCategory[] = ["Brand Systems", "Web Design", "Development", "CMS"] as const;
+const CATEGORY_VALUES: readonly BlogCategory[] = ["Web Design", "Web Development", "Branding", "Business Growth", "Digital Strategy"] as const;
 
 function getString(value: unknown): string | undefined {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
@@ -108,12 +108,11 @@ function inferCategory(input: { title?: string; excerpt?: string; content?: stri
   }
 
   const source = `${input.title ?? ""} ${input.excerpt ?? ""} ${input.content ?? ""}`.toLowerCase();
-  if (source.includes("brand") || source.includes("identity")) return "Brand Systems";
-  if (source.includes("design") || source.includes("ux") || source.includes("ui")) return "Web Design";
-  if (source.includes("cms") || source.includes("content")) return "CMS";
-  if (source.includes("development") || source.includes("engineering") || source.includes("performance") || source.includes("code")) {
-    return "Development";
-  }
+  if (source.includes("brand") || source.includes("identity") || source.includes("logo")) return "Branding";
+  if (source.includes("seo") || source.includes("digital strategy") || source.includes("marketing") || source.includes("google")) return "Digital Strategy";
+  if (source.includes("development") || source.includes("engineering") || source.includes("code") || source.includes("wordpress")) return "Web Development";
+  if (source.includes("growth") || source.includes("revenue") || source.includes("conversion") || source.includes("leads")) return "Business Growth";
+  if (source.includes("design") || source.includes("ux") || source.includes("ui") || source.includes("mobile")) return "Web Design";
   return CATEGORY_VALUES[index % CATEGORY_VALUES.length];
 }
 
@@ -314,6 +313,33 @@ function parseContentBlocks(content: string): ContentBlock[] {
   return blocks;
 }
 
+/** Renders **bold** and [label](href) inline markdown within a string. */
+function renderInline(text: string, keyPrefix: string): React.ReactNode {
+  const parts = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g);
+  if (parts.length === 1) return text;
+  return parts.map((part, i) => {
+    const boldMatch = part.match(/^\*\*([^*]+)\*\*$/);
+    if (boldMatch) {
+      return <strong key={`${keyPrefix}-b${i}`}>{boldMatch[1]}</strong>;
+    }
+    const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (linkMatch) {
+      const [, label, href] = linkMatch;
+      const isInternal = href.startsWith("/");
+      return isInternal ? (
+        <Link key={`${keyPrefix}-l${i}`} href={href} className="text-accentA underline-offset-2 hover:underline">
+          {label}
+        </Link>
+      ) : (
+        <a key={`${keyPrefix}-l${i}`} href={href} target="_blank" rel="noopener noreferrer" className="text-accentA underline-offset-2 hover:underline">
+          {label}
+        </a>
+      );
+    }
+    return part || null;
+  });
+}
+
 function PostContentRenderer({ content }: { content: string }): JSX.Element {
   const blocks = parseContentBlocks(content);
 
@@ -350,7 +376,7 @@ function PostContentRenderer({ content }: { content: string }): JSX.Element {
           return (
             <aside key={key} className="rounded-xl border border-accentA/30 bg-bg/52 px-4 py-3">
               <p className="text-[0.66rem] uppercase tracking-[0.14em] text-accentA">{block.label}</p>
-              <p className="mt-1 text-sm leading-relaxed text-fg/74 md:text-[0.98rem]">{block.text}</p>
+              <p className="mt-1 text-sm leading-relaxed text-fg/74 md:text-[0.98rem]">{renderInline(block.text, `${key}-callout`)}</p>
             </aside>
           );
         }
@@ -379,8 +405,8 @@ function PostContentRenderer({ content }: { content: string }): JSX.Element {
           const ListTag = block.ordered ? "ol" : "ul";
           return (
             <ListTag key={key} className={`space-y-1.5 pl-5 text-fg/76 ${block.ordered ? "list-decimal" : "list-disc"}`}>
-              {block.items.map((item) => (
-                <li key={`${key}-${item}`}>{item}</li>
+              {block.items.map((item, itemIndex) => (
+                <li key={`${key}-item${itemIndex}`}>{renderInline(item, `${key}-li${itemIndex}`)}</li>
               ))}
             </ListTag>
           );
@@ -388,7 +414,7 @@ function PostContentRenderer({ content }: { content: string }): JSX.Element {
 
         return (
           <p key={key} className="text-fg/76">
-            {block.text}
+            {renderInline(block.text, key)}
           </p>
         );
       })}
@@ -414,12 +440,24 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     return buildMetadata({ title: "Post Not Found", description: "Post item not found.", path: `/blog/${slug}` });
   }
 
-  return buildMetadata({
+  const base = buildMetadata({
     title: post.seoTitle ?? post.title,
     description: post.seoDescription ?? post.excerpt,
     path: `/blog/${post.slug}`,
     image: post.coverImage || "/assets/og-default.svg"
   });
+
+  return {
+    ...base,
+    openGraph: {
+      ...base.openGraph,
+      type: "article",
+      publishedTime: post.createdAt,
+      authors: [post.authorName],
+      section: post.category,
+      tags: post.tags.length > 0 ? post.tags : undefined
+    }
+  };
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<Params> }) {
@@ -475,8 +513,22 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
             title: post.title,
             description: post.excerpt,
             path: `/blog/${post.slug}`,
-            datePublished: post.createdAt || new Date().toISOString()
+            datePublished: post.createdAt || new Date().toISOString(),
+            dateModified: post.updatedAt || post.createdAt,
+            authorName: post.authorName,
+            image: post.coverImage,
+            keywords: post.tags,
+            section: post.category
           }) as Record<string, unknown>
+        }
+      />
+      <JsonLd
+        data={
+          breadcrumbListJsonLd([
+            { name: "Home", url: siteConfig.url },
+            { name: "Blog", url: `${siteConfig.url}/blog` },
+            { name: post.title, url: `${siteConfig.url}/blog/${post.slug}` }
+          ]) as Record<string, unknown>
         }
       />
 

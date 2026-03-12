@@ -6,8 +6,10 @@ import { requirePermission } from "@/lib/auth/requireRole";
 import AnalyticsClient from "./analytics-client";
 
 export default async function DashboardAnalyticsPage() {
-  await requirePermission("analytics.view");
-  const summary = await getAnalyticsSummary();
+  const [, summary] = await Promise.all([
+    requirePermission("analytics.view"),
+    getAnalyticsSummary()
+  ]);
 
   const stats = [
     {

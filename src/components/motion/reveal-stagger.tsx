@@ -6,8 +6,8 @@ import { motion, useReducedMotion } from "framer-motion";
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 /**
- * Stagger container with gentle in-view entrance.
- * Unified to a single fade-up pose matching the Bungee Framer reference.
+ * Stagger container — fast, snappy entrance for CMS pages.
+ * Reduced from 600ms/28px to 180ms/8px for instant-feeling navigation.
  */
 export function RevealStagger({
   children,
@@ -30,21 +30,21 @@ export function RevealStagger({
     <motion.div
       className={className}
       variants={{
-        hidden: { opacity: 0, y: 28 },
+        hidden: { opacity: 0, y: 8 },
         visible: {
           opacity: 1,
           y: 0,
           transition: {
-            duration: 0.6,
+            duration: 0.18,
             ease: EASE,
-            staggerChildren: 0.08,
-            delayChildren: 0.02,
+            staggerChildren: 0.03,
+            delayChildren: 0,
           },
         },
       }}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once, margin: "-6% 0px -6% 0px", amount: 0.18 }}
+      viewport={{ once, margin: "0px", amount: 0.05 }}
     >
       {children}
     </motion.div>
@@ -52,7 +52,8 @@ export function RevealStagger({
 }
 
 /**
- * Child reveal item for use inside `RevealStagger`.
+ * Child reveal item — fast fade-in.
+ * Reduced from 520ms/28px to 150ms/6px.
  */
 export function RevealItem({
   children,
@@ -73,11 +74,11 @@ export function RevealItem({
     <motion.div
       className={className}
       variants={{
-        hidden: { opacity: 0, y: 28 },
+        hidden: { opacity: 0, y: 6 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.52, ease: EASE },
+          transition: { duration: 0.15, ease: EASE },
         },
       }}
     >

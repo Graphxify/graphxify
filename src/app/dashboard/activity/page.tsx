@@ -14,7 +14,8 @@ export default async function DashboardActivityPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requirePermission("activity.view");
+  // Start permission check immediately, parse params in parallel (params resolve instantly)
+  const permissionCheck = requirePermission("activity.view");
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
   const action = typeof resolvedSearchParams.action === "string" ? resolvedSearchParams.action : "";
@@ -23,7 +24,11 @@ export default async function DashboardActivityPage({
   const from = typeof resolvedSearchParams.from === "string" ? resolvedSearchParams.from : "";
   const to = typeof resolvedSearchParams.to === "string" ? resolvedSearchParams.to : "";
 
-  const result = await listAuditLogs({ page, pageSize: 20, action, entity, actor, from, to });
+  // Run permission check and data fetch in parallel
+  const [, result] = await Promise.all([
+    permissionCheck,
+    listAuditLogs({ page, pageSize: 20, action, entity, actor, from, to })
+  ]);
 
   const filterParams: Record<string, string> = {};
   if (action) filterParams.action = action;

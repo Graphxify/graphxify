@@ -10,8 +10,8 @@ import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "About",
-  description: "Learn how Graphxify designs and develops structured brand, website, and CMS systems that scale.",
+  title: "About Graphxify — Canadian Web Design & Branding Agency",
+  description: "Graphxify is a Canadian web design and branding agency delivering custom websites, brand identity systems, and digital platforms for businesses in Toronto, Mississauga, and across Ontario.",
   path: "/about"
 });
 

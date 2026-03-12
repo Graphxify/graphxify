@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getDashboardWorks } from "@/db/queries/works";
 import { requirePermission } from "@/lib/auth/requireRole";
 
-export const dynamic = "force-dynamic";
+
 
 function statusVariant(status: string) {
   if (status === "published") return "success" as const;
@@ -30,12 +30,15 @@ export default async function DashboardWorksPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requirePermission("content.works.edit_any");
+  const permissionCheck = requirePermission("content.works.edit_any");
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
   const search = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : "";
   const status = typeof resolvedSearchParams.status === "string" ? resolvedSearchParams.status : "";
-  const result = await getDashboardWorks(page, 10, search, status);
+  const [, result] = await Promise.all([
+    permissionCheck,
+    getDashboardWorks(page, 10, search, status)
+  ]);
 
   const filterParams: Record<string, string> = {};
   if (search) filterParams.q = search;

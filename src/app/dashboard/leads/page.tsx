@@ -18,7 +18,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getDashboardLeads, getLeadStatusCounts } from "@/db/queries/admin";
 import { requirePermission } from "@/lib/auth/requireRole";
 
-export const dynamic = "force-dynamic";
+
 
 const STATUS_TABS = [
   { value: "", label: "All", color: "" },
@@ -51,13 +51,14 @@ export default async function DashboardLeadsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  await requirePermission("leads.view");
+  const permissionCheck = requirePermission("leads.view");
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
   const search = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : "";
   const status = typeof resolvedSearchParams.status === "string" ? resolvedSearchParams.status : "";
 
-  const [result, statusCounts] = await Promise.all([
+  const [, result, statusCounts] = await Promise.all([
+    permissionCheck,
     getDashboardLeads(page, 20, search, status),
     getLeadStatusCounts()
   ]);

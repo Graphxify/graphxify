@@ -4,7 +4,7 @@ import { env } from "@/lib/env";
 import { SettingsClient } from "./settings-client";
 import { loadAllSettings } from "./settings-actions";
 
-export const dynamic = "force-dynamic";
+
 
 export default async function DashboardSettingsPage() {
   await requireRole(["admin"]);
