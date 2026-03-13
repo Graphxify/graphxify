@@ -28,6 +28,7 @@ import {
   Workflow,
   type LucideIcon
 } from "lucide-react";
+import aboutGraphxifyVisual from "../../../public/images/about/about-graphxify-visual.png";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { TestimonialsSection } from "@/components/marketing/testimonials-section";
@@ -93,7 +94,7 @@ function HeroVisualPanel(): JSX.Element {
     <div className="section-shell relative h-full min-h-[16rem] overflow-hidden border-border/18 bg-card/74 p-2.5 md:p-3">
       <div className="relative h-full min-h-[15rem] overflow-hidden rounded-[1.1rem] border border-border/16">
         <Image
-          src="/assets/work-2.svg"
+          src={aboutGraphxifyVisual}
           alt="Graphxify brand and web system preview"
           fill
           priority

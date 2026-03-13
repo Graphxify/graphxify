@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Database, Layers3, LayoutTemplate } from "lucide-react";
+import aboutGraphxifyVisual from "../../../public/images/about/about-graphxify-visual.png";
 import { cn } from "@/lib/utils";
 
 const focusItems = [
@@ -38,7 +39,7 @@ export function FounderIntroSection({
         <div className="relative overflow-hidden rounded-[2rem] border border-border/20 bg-card/78 p-2.5">
           <div className="relative h-[19rem] overflow-hidden rounded-[1.65rem] sm:h-[22rem] md:h-[32rem]">
             <Image
-              src="/assets/work-1.svg"
+              src={aboutGraphxifyVisual}
               alt="Graphxify brand and web systems preview"
               fill
               loading="lazy"

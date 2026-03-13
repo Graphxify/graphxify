@@ -22,11 +22,6 @@ export function MarketingHeader(): JSX.Element {
   const isRouteActive = (href: string): boolean =>
     href === "/" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
   const contactActive = isRouteActive("/contact");
-  const mobileNavItemClass = (active: boolean): string =>
-    cn(
-      "rounded-xl px-3 py-2.5 text-sm font-medium transition-colors duration-150",
-      active ? "bg-accent-gradient text-ivory shadow-[0_10px_20px_rgba(0,128,255,0.2)]" : "text-fg/78 hover:bg-card/82 hover:text-fg"
-    );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -180,10 +175,10 @@ export function MarketingHeader(): JSX.Element {
               aria-controls="mobile-marketing-nav"
               aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
               className={cn(
-                "inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors duration-150",
+                "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-200",
                 mobileOpen
-                  ? "border-accentA/45 bg-accent-gradient text-ivory shadow-[0_12px_22px_rgba(0,128,255,0.24)]"
-                  : "border-border/24 bg-card/82 text-fg/82 hover:bg-card"
+                  ? "border-accentA/50 bg-accent-gradient text-ivory shadow-[0_0_0_3px_rgba(0,163,255,0.12),0_8px_20px_rgba(0,100,220,0.28)]"
+                  : "border-border/28 bg-card/82 text-fg/75 hover:border-border/45 hover:bg-card hover:text-fg"
               )}
             >
               <motion.span
@@ -203,55 +198,91 @@ export function MarketingHeader(): JSX.Element {
         <AnimatePresence initial={false}>
           {mobileOpen ? (
             <>
-              <motion.button
-                type="button"
-                aria-label="Close navigation menu"
+              {/* Dark backdrop overlay */}
+              <motion.div
+                aria-hidden="true"
                 onClick={() => setMobileOpen(false)}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="fixed inset-0 z-40 bg-transparent lg:hidden"
+                transition={{ duration: 0.2 }}
+                className="fixed inset-0 z-40 bg-graphite/60 backdrop-blur-[3px] lg:hidden"
               />
+
+              {/* Premium menu panel */}
               <motion.div
                 id="mobile-marketing-nav"
-                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                initial={{ opacity: 0, y: -14, scale: 0.96 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute left-4 right-4 top-full z-[60] mt-3 overflow-hidden rounded-2xl border border-border/20 bg-bg p-3 shadow-[0_18px_36px_rgba(13,13,15,0.2)] lg:hidden"
+                exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute left-3 right-3 top-full z-[60] mt-2.5 overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-graphite/[0.97] p-2 shadow-[0_0_0_1px_rgba(0,163,255,0.05),0_32px_64px_rgba(13,13,15,0.65)] backdrop-blur-2xl lg:hidden"
               >
-                <nav className="grid gap-1.5">
-                  {centerNav.map((item) => {
+                {/* Subtle top glow stripe */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.13] to-transparent" />
+
+                <nav className="grid gap-px p-1">
+                  {centerNav.map((item, i) => {
                     const active = isRouteActive(item.href);
                     return (
-                      <Link
+                      <motion.div
                         key={item.href}
-                        href={item.href}
-                        className={mobileNavItemClass(active)}
+                        initial={{ opacity: 0, y: 7 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.04 + 0.06, duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
                       >
-                        {item.label}
-                      </Link>
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            "flex items-center gap-2.5 rounded-[0.875rem] px-4 py-3.5 text-[0.9375rem] font-medium transition-colors duration-150",
+                            active
+                              ? "bg-white/[0.08] text-ivory"
+                              : "text-ivory/50 hover:bg-white/[0.05] hover:text-ivory/85"
+                          )}
+                        >
+                          {active && (
+                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accentA shadow-[0_0_6px_rgba(0,163,255,0.7)]" />
+                          )}
+                          {item.label}
+                        </Link>
+                      </motion.div>
                     );
                   })}
-
-                  <Link href="/contact" className={mobileNavItemClass(contactActive)}>
-                    Contact
-                  </Link>
-
-                  {isAuthenticated ? (
-                    <>
-                      <div className="my-1 border-t border-border/12" />
-                      <Link
-                        href="/dashboard"
-                        className="flex items-center gap-2 rounded-xl bg-accentA/10 px-3 py-2.5 text-sm font-medium text-accentA transition-colors duration-150 hover:bg-accentA/18"
-                      >
-                        <LayoutDashboard className="h-4 w-4" />
-                        CMS Dashboard
-                      </Link>
-                    </>
-                  ) : null}
                 </nav>
+
+                <div className="mx-3 my-1.5 h-px bg-white/[0.07]" />
+
+                {/* Contact CTA */}
+                <motion.div
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: centerNav.length * 0.04 + 0.06, duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                  className="p-1"
+                >
+                  <Link
+                    href="/contact"
+                    className="flex w-full items-center justify-center rounded-[0.875rem] bg-accent-gradient px-4 py-3.5 text-[0.9375rem] font-semibold text-ivory shadow-[0_6px_20px_rgba(0,100,220,0.28)] transition-shadow duration-200 hover:shadow-[0_10px_28px_rgba(0,100,220,0.38)]"
+                  >
+                    Start a Project
+                  </Link>
+                </motion.div>
+
+                {isAuthenticated ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: centerNav.length * 0.04 + 0.14, duration: 0.2 }}
+                    className="p-1 pt-0"
+                  >
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center gap-2 rounded-[0.875rem] px-4 py-2.5 text-sm font-medium text-accentA/70 transition-colors duration-150 hover:bg-accentA/[0.08] hover:text-accentA"
+                    >
+                      <LayoutDashboard className="h-4 w-4" />
+                      CMS Dashboard
+                    </Link>
+                  </motion.div>
+                ) : null}
               </motion.div>
             </>
           ) : null}

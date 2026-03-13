@@ -138,5 +138,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/login/:path*", "/auth/callback"]
+  matcher: ["/dashboard/:path*", "/login", "/login/:path*", "/auth/callback"],
+  // Note: /monitoring (Sentry tunnel route) is excluded by default since it's not listed here
 };

@@ -10,6 +10,11 @@ const extraImageHosts = (process.env.NEXT_PUBLIC_IMAGE_DOMAINS || "")
 
 const nextConfig = {
   images: {
+    localPatterns: [
+      {
+        pathname: "/**"
+      }
+    ],
     remotePatterns: [
       { protocol: "https", hostname: supabaseHost, pathname: "/storage/v1/object/**" },
       ...extraImageHosts.map((hostname) => ({ protocol: "https", hostname, pathname: "/**" }))

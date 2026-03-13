@@ -1,10 +1,12 @@
 "use client";
 
-import Image from "next/image";
+import Image, { type StaticImageData } from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Code2, Compass, Database, Mail, Minus, Palette, Phone, Plus, Sparkles, type LucideIcon } from "lucide-react";
 import { useState } from "react";
+import heroOrbBusiness from "../../../public/images/hero/hero-orb-business.png";
+import heroOrbDesign from "../../../public/images/hero/hero-orb-design.png";
 import { Button } from "@/components/ui/button";
 import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
 import { HomeProjectsSlider } from "@/components/marketing/home-projects-slider";
@@ -136,25 +138,40 @@ const homeFaqs: HomeFaq[] = [
 function HeroChip({
   src,
   alt,
+  priority = false,
   tint,
   className
 }: {
-  src: string;
+  src: string | StaticImageData;
   alt: string;
+  priority?: boolean;
   tint: "accent" | "muted";
   className?: string;
 }): JSX.Element {
   return (
     <span
       className={cn(
-        "mx-2 inline-flex h-[0.95em] w-[0.95em] translate-y-[0.08em] items-center justify-center overflow-hidden rounded-full border align-baseline shadow-[0_6px_14px_rgba(13,13,15,0.18)] ring-1 ring-inset",
-        tint === "accent"
-          ? "border-accentA/45 bg-accentA/18 ring-accentA/26"
-          : "border-border/24 bg-fg/10 ring-border/22",
+        "mx-2 inline-flex h-[0.95em] w-[0.95em] shrink-0 translate-y-[0.05em] items-center justify-center align-middle",
         className
       )}
     >
-      <Image src={src} alt={alt} width={84} height={84} priority className="h-full w-full object-cover" />
+      <span
+        className={cn(
+          "relative flex h-full w-full shrink-0 items-center justify-center overflow-hidden rounded-full border shadow-[0_6px_14px_rgba(13,13,15,0.18)] ring-1 ring-inset",
+          tint === "accent"
+            ? "border-accentA/45 bg-accentA/18 ring-accentA/26"
+            : "border-border/24 bg-fg/10 ring-border/22"
+        )}
+      >
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          priority={priority}
+          sizes="(min-width: 1024px) 72px, (min-width: 768px) 56px, 32px"
+          className="pointer-events-none select-none object-contain"
+        />
+      </span>
     </span>
   );
 }
@@ -208,13 +225,24 @@ export function HomeSections({
             <h1 className="mx-auto max-w-[940px] text-center text-[clamp(1.75rem,7.6vw,5.1rem)] font-semibold leading-[0.96] tracking-tight text-black dark:text-white">
               <span className="block">
                 Designing
-                <HeroChip src="/assets/work-1.svg" alt="Design token" tint="accent" className="mx-1.5 !h-[0.9em] !w-[0.9em]" />
+                <HeroChip
+                  src={heroOrbDesign}
+                  alt=""
+                  priority
+                  tint="accent"
+                  className="mx-1.5 !h-[0.9em] !w-[0.9em]"
+                />
                 <span className="gradient-text">brands</span> and
               </span>
               <span className="mt-1.5 block md:mt-2">websites that make</span>
               <span className="mt-1.5 block md:mt-2">
                 <span className="gradient-text">businesses</span>
-                <HeroChip src="/assets/work-2.svg" alt="Workflow token" tint="muted" className="mx-1.5 !h-[0.9em] !w-[0.9em]" />
+                <HeroChip
+                  src={heroOrbBusiness}
+                  alt=""
+                  tint="muted"
+                  className="mx-1.5 !h-[0.9em] !w-[0.9em]"
+                />
                 <span className="relative inline-flex items-center">
                   <span className="text-black dark:text-white">stand out</span>
                 </span>
