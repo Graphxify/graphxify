@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
+import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { Magnetic } from "@/components/motion/magnetic";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -93,21 +93,12 @@ export function MarketingHeader(): JSX.Element {
 
           <div className="relative z-10 w-40 shrink-0 sm:w-48 lg:w-[13.5rem]">
             <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
-              <Image
-                src="/assets/Graphxify-Logo-Black.webp"
+              <GraphxifyLogo
                 alt="Graphxify"
                 width={246}
                 height={68}
                 priority
-                className="h-auto w-[8rem] dark:hidden sm:w-[8.9rem] lg:w-[9.8rem]"
-              />
-              <Image
-                src="/assets/Graphxify-Logo-white.webp"
-                alt="Graphxify"
-                width={246}
-                height={68}
-                priority
-                className="hidden h-auto w-[8rem] dark:block sm:w-[8.9rem] lg:w-[9.8rem]"
+                className="h-auto w-[8rem] sm:w-[8.9rem] lg:w-[9.8rem]"
               />
             </Link>
           </div>
@@ -119,6 +110,7 @@ export function MarketingHeader(): JSX.Element {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={true}
                   className={cn(
                     "group relative rounded-full px-4 py-2.5 text-[0.9rem] font-medium text-fg/72 transition-colors duration-150 hover:-translate-y-[1px] hover:text-fg",
                     active && "text-fg"
@@ -161,7 +153,7 @@ export function MarketingHeader(): JSX.Element {
                     : "border-border/24 bg-accent-gradient shadow-[0_10px_22px_rgba(13,13,15,0.18)]"
                 )}
               >
-                <Link href="/contact">Contact</Link>
+                <Link href="/contact" prefetch={true}>Contact</Link>
               </Button>
             </Magnetic>
           </div>
@@ -233,6 +225,7 @@ export function MarketingHeader(): JSX.Element {
                       >
                         <Link
                           href={item.href}
+                          prefetch={true}
                           className={cn(
                             "flex items-center gap-2.5 rounded-[0.875rem] px-4 py-3.5 text-[0.9375rem] font-medium transition-colors duration-150",
                             active
@@ -261,6 +254,7 @@ export function MarketingHeader(): JSX.Element {
                 >
                   <Link
                     href="/contact"
+                    prefetch={true}
                     className="flex w-full items-center justify-center rounded-[0.875rem] bg-accent-gradient px-4 py-3.5 text-[0.9375rem] font-semibold text-ivory shadow-[0_6px_20px_rgba(0,100,220,0.28)] transition-shadow duration-200 hover:shadow-[0_10px_28px_rgba(0,100,220,0.38)]"
                   >
                     Start a Project

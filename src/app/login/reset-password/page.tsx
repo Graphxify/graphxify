@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, AlertTriangle } from "lucide-react";
+import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { createClient } from "@/lib/supabase/browser";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
@@ -89,20 +89,11 @@ export default function ResetPasswordPage() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <Link href="/" className="group inline-block">
-            <Image
-              src="/assets/Graphxify-Logo-Black.webp"
+            <GraphxifyLogo
               alt="Graphxify"
               width={246}
               height={68}
-              className="h-auto w-[9rem] dark:hidden"
-              priority
-            />
-            <Image
-              src="/assets/Graphxify-Logo-white.webp"
-              alt="Graphxify"
-              width={246}
-              height={68}
-              className="hidden h-auto w-[9rem] dark:block"
+              className="h-auto w-[9rem]"
               priority
             />
           </Link>

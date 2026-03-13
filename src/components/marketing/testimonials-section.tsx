@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import { Star } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { testimonials as fallbackTestimonials } from "@/lib/constants";
 
 type TestimonialInput = {
@@ -85,23 +85,156 @@ function MarqueeRow({
   reverse?: boolean;
   speed?: number;
 }): JSX.Element {
-  /* Duplicate items enough times for seamless loop */
-  const duped = [...items, ...items, ...items];
+  const prefersReducedMotion = useReducedMotion();
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const firstGroupRef = useRef<HTMLDivElement | null>(null);
+  const hoveredRef = useRef(false);
+  const frameRef = useRef<number | null>(null);
+  const lastTimeRef = useRef<number | null>(null);
+  const loopDistanceRef = useRef(0);
+  const offsetRef = useRef(0);
+  const velocityRef = useRef<number | null>(null);
+  const initializedRef = useRef(false);
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      if (trackRef.current) {
+        trackRef.current.style.transform = "translate3d(0, 0, 0)";
+      }
+      return;
+    }
+
+    const track = trackRef.current;
+    const firstGroup = firstGroupRef.current;
+
+    if (!track || !firstGroup) {
+      return;
+    }
+
+    const hoverDuration = speed * 1.8;
+
+    const normalizeOffset = (offset: number, distance: number): number => {
+      if (distance <= 0) {
+        return 0;
+      }
+
+      if (reverse) {
+        while (offset >= 0) {
+          offset -= distance;
+        }
+        while (offset < -distance) {
+          offset += distance;
+        }
+        return offset;
+      }
+
+      while (offset <= -distance) {
+        offset += distance;
+      }
+      while (offset > 0) {
+        offset -= distance;
+      }
+      return offset;
+    };
+
+    const updateMetrics = () => {
+      const computedTrack = window.getComputedStyle(track);
+      const gap = Number.parseFloat(computedTrack.columnGap || computedTrack.gap || "0") || 0;
+      const nextDistance = firstGroup.offsetWidth + gap;
+
+      if (!nextDistance) {
+        return;
+      }
+
+      const previousDistance = loopDistanceRef.current;
+      loopDistanceRef.current = nextDistance;
+
+      if (!initializedRef.current) {
+        offsetRef.current = reverse ? -nextDistance : 0;
+        velocityRef.current = nextDistance / speed;
+        initializedRef.current = true;
+      } else if (previousDistance > 0) {
+        if (reverse) {
+          const progress = (offsetRef.current + previousDistance) / previousDistance;
+          offsetRef.current = -nextDistance + progress * nextDistance;
+        } else {
+          const progress = -offsetRef.current / previousDistance;
+          offsetRef.current = -progress * nextDistance;
+        }
+        offsetRef.current = normalizeOffset(offsetRef.current, nextDistance);
+      }
+
+      track.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+    };
+
+    updateMetrics();
+
+    const resizeObserver = new ResizeObserver(() => {
+      updateMetrics();
+    });
+
+    resizeObserver.observe(firstGroup);
+
+    const animate = (time: number) => {
+      if (lastTimeRef.current === null) {
+        lastTimeRef.current = time;
+      }
+
+      const dt = (time - lastTimeRef.current) / 1000;
+      lastTimeRef.current = time;
+
+      if (loopDistanceRef.current > 0) {
+        const targetVelocity = loopDistanceRef.current / (hoveredRef.current ? hoverDuration : speed);
+        const currentVelocity = velocityRef.current ?? targetVelocity;
+        velocityRef.current = currentVelocity + (targetVelocity - currentVelocity) * Math.min(1, dt * 6);
+        offsetRef.current += (reverse ? 1 : -1) * velocityRef.current * dt;
+        offsetRef.current = normalizeOffset(offsetRef.current, loopDistanceRef.current);
+        track.style.transform = `translate3d(${offsetRef.current}px, 0, 0)`;
+      }
+
+      frameRef.current = window.requestAnimationFrame(animate);
+    };
+
+    frameRef.current = window.requestAnimationFrame(animate);
+
+    return () => {
+      if (frameRef.current !== null) {
+        window.cancelAnimationFrame(frameRef.current);
+      }
+      resizeObserver.disconnect();
+      frameRef.current = null;
+      lastTimeRef.current = null;
+      loopDistanceRef.current = 0;
+      velocityRef.current = null;
+      initializedRef.current = false;
+    };
+  }, [items, prefersReducedMotion, reverse, speed]);
 
   return (
-    <div className="group relative overflow-hidden">
+    <div
+      className="relative overflow-hidden"
+      onPointerEnter={() => {
+        hoveredRef.current = true;
+      }}
+      onPointerLeave={() => {
+        hoveredRef.current = false;
+      }}
+    >
       {/* Edge fades */}
       <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-bg to-transparent md:w-28" />
       <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-bg to-transparent md:w-28" />
 
-      <div
-        className={`flex w-max gap-4 will-change-transform ${
-          reverse ? "animate-marquee-reverse" : "animate-marquee"
-        } group-hover:[animation-play-state:paused] motion-reduce:animate-none`}
-        style={{ animationDuration: `${speed}s` }}
-      >
-        {duped.map((item, i) => (
-          <TestimonialCard key={`${item.id}-${i}`} item={item} />
+      <div ref={trackRef} className="flex w-max gap-4 will-change-transform">
+        {Array.from({ length: 3 }).map((_, groupIndex) => (
+          <div
+            key={`group-${groupIndex}`}
+            ref={groupIndex === 0 ? firstGroupRef : null}
+            className="flex shrink-0 gap-4"
+          >
+            {items.map((item) => (
+              <TestimonialCard key={`${groupIndex}-${item.id}`} item={item} />
+            ))}
+          </div>
         ))}
       </div>
     </div>

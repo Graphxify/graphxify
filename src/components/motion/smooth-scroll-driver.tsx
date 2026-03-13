@@ -37,7 +37,7 @@ export function SmoothScrollDriver(): null {
     }
 
     const lenis = new Lenis({
-      duration: 1.18,
+      duration: 0.85,
       easing: (t: number) => 1 - Math.pow(1 - t, 3),
       smoothWheel: true,
       syncTouch: true,
@@ -53,7 +53,7 @@ export function SmoothScrollDriver(): null {
 
     // Expose smooth scroll helper for other components
     (window as SmoothWindow).__graphxifySmoothScrollTo = (top: number) => {
-      lenis.scrollTo(top, { duration: 1 });
+      lenis.scrollTo(top, { duration: 0.75 });
     };
 
     // Drive Lenis with rAF

@@ -15,6 +15,11 @@ export function buildMetadata(input: {
     title,
     description: input.description,
     metadataBase: new URL(siteConfig.url),
+    icons: {
+      icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+      shortcut: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+      apple: [{ url: "/apple-icon.svg", type: "image/svg+xml" }]
+    },
     alternates: {
       canonical
     },

@@ -4,7 +4,7 @@ import { getPublishedPosts } from "@/db/queries/posts";
 import { demoPosts } from "@/lib/demo-content";
 import { buildMetadata } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 30;
 
 type RawPost = {
   id: string;

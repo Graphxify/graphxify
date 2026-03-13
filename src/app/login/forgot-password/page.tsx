@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
 import { forgotPasswordAction } from "@/app/login/forgot-password/actions";
+import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,20 +46,11 @@ export default function ForgotPasswordPage() {
         {/* Logo */}
         <div className="mb-8 text-center">
           <Link href="/" className="group inline-block">
-            <Image
-              src="/assets/Graphxify-Logo-Black.webp"
+            <GraphxifyLogo
               alt="Graphxify"
               width={246}
               height={68}
-              className="h-auto w-[9rem] dark:hidden"
-              priority
-            />
-            <Image
-              src="/assets/Graphxify-Logo-white.webp"
-              alt="Graphxify"
-              width={246}
-              height={68}
-              className="hidden h-auto w-[9rem] dark:block"
+              className="h-auto w-[9rem]"
               priority
             />
           </Link>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <style>
+    :root { color-scheme: light dark; }
+    .bg { fill: #F2F0EB; }
+    .fg { fill: #0D0D0F; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #0D0D0F; }
+      .fg { fill: #F2F0EB; }
+    }
+  </style>
+  <rect class="bg" x="32" y="32" width="448" height="448" rx="112"/>
+  <path class="fg" d="M134 350L204 162h52L186 350H134Z"/>
+  <path class="fg" d="M286 162H324V350H286V162Z"/>
+  <path class="fg" d="M356 162H394V350H356V162Z"/>
+  <rect x="214" y="216" width="178" height="80" rx="40" fill="url(#graphxify-gradient)"/>
+  <defs>
+    <linearGradient id="graphxify-gradient" x1="214" y1="256" x2="392" y2="256" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#00A3FF"/>
+      <stop offset="1" stop-color="#0052CC"/>
+    </linearGradient>
+  </defs>
+</svg>

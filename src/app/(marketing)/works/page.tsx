@@ -144,7 +144,7 @@ export default async function WorksPage() {
                 data-cursor-label="View"
               >
                 <article
-                  className={`relative overflow-hidden rounded-2xl border border-border/14 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1 group-hover:border-border/28 group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)] ${
+                  className={`relative overflow-hidden rounded-2xl border border-border/14 transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1 group-hover:border-border/28 group-hover:shadow-[0_20px_60px_rgba(0,0,0,0.25)] ${
                     isFeatured ? "h-[24rem] md:h-[28rem]" : "h-[20rem] md:h-[24rem]"
                   }`}
                 >

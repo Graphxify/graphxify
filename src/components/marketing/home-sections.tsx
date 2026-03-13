@@ -42,66 +42,45 @@ type HomeProjectCard = {
 type StripLogo = {
   key: string;
   alt: string;
-  lightSrc: string;
-  darkSrc?: string;
-  width: number;
-  height: number;
-  className: string;
+  baseName: string;
 };
 
 const stripLogos: StripLogo[] = [
   {
-    key: "wordmark-1",
-    alt: "Graphxify wordmark",
-    lightSrc: "/assets/Graphxify-Logo-Black.webp",
-    darkSrc: "/assets/Graphxify-Logo-white.webp",
-    width: 246,
-    height: 68,
-    className: "w-[6.2rem] sm:w-[7rem] md:w-[8.8rem]"
+    key: "marquee-logo-01",
+    alt: "Marquee logo 01",
+    baseName: "marquee-logo-01"
   },
   {
-    key: "mark-1",
-    alt: "Graphxify logo mark",
-    lightSrc: "/assets/logo-mark.svg",
-    width: 128,
-    height: 32,
-    className: "w-[4.8rem] sm:w-[5.6rem] md:w-[7.1rem]"
+    key: "marquee-logo-02",
+    alt: "Marquee logo 02",
+    baseName: "marquee-logo-02"
   },
   {
-    key: "wordmark-2",
-    alt: "Graphxify wordmark",
-    lightSrc: "/assets/Graphxify-Logo-Black.webp",
-    darkSrc: "/assets/Graphxify-Logo-white.webp",
-    width: 246,
-    height: 68,
-    className: "w-[6.2rem] sm:w-[7rem] md:w-[8.8rem]"
+    key: "marquee-logo-03",
+    alt: "Marquee logo 03",
+    baseName: "marquee-logo-03"
   },
   {
-    key: "mark-2",
-    alt: "Graphxify logo mark",
-    lightSrc: "/assets/logo-mark.svg",
-    width: 128,
-    height: 32,
-    className: "w-[4.8rem] sm:w-[5.6rem] md:w-[7.1rem]"
+    key: "marquee-logo-04",
+    alt: "Marquee logo 04",
+    baseName: "marquee-logo-04"
   },
   {
-    key: "wordmark-3",
-    alt: "Graphxify wordmark",
-    lightSrc: "/assets/Graphxify-Logo-Black.webp",
-    darkSrc: "/assets/Graphxify-Logo-white.webp",
-    width: 246,
-    height: 68,
-    className: "w-[6.2rem] sm:w-[7rem] md:w-[8.8rem]"
+    key: "marquee-logo-05",
+    alt: "Marquee logo 05",
+    baseName: "marquee-logo-05"
   },
   {
-    key: "mark-3",
-    alt: "Graphxify logo mark",
-    lightSrc: "/assets/logo-mark.svg",
-    width: 128,
-    height: 32,
-    className: "w-[4.8rem] sm:w-[5.6rem] md:w-[7.1rem]"
+    key: "marquee-logo-06",
+    alt: "Marquee logo 06",
+    baseName: "marquee-logo-06"
   }
 ];
+
+function getMarqueeLogoSrc(baseName: string, tone: "light" | "dark"): string {
+  return `/images/marquee/${baseName}-${tone}.svg`;
+}
 
 const serviceIcons: Record<string, LucideIcon> = {
   "brand-systems": Compass,
@@ -211,7 +190,7 @@ export function HomeSections({
     <div className="space-y-16 pb-16 pt-4 md:space-y-20 md:pb-20 md:pt-8 lg:space-y-24 lg:pt-10">
 
       {/* ── Hero ── */}
-      <SectionReveal className="container pt-0 md:pt-2" effect="zoom">
+      <section className="container pt-0 md:pt-2">
         <div className="mx-auto max-w-[940px]">
           <div className="mx-auto flex w-fit items-center justify-center rounded-full border border-border/18 bg-card/72 px-3.5 py-1.5 text-center shadow-[0_8px_22px_rgba(13,13,15,0.08)]">
             <p className="text-sm text-fg/66">Trusted by founders</p>
@@ -222,7 +201,7 @@ export function HomeSections({
               aria-hidden="true"
               className="pointer-events-none absolute left-1/2 top-[48%] -z-10 h-28 w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accentA/14 blur-3xl md:h-36"
             />
-            <h1 className="mx-auto max-w-[940px] text-center text-[clamp(1.75rem,7.6vw,5.1rem)] font-semibold leading-[0.96] tracking-tight text-black dark:text-white">
+            <h1 className="mx-auto max-w-[940px] text-center text-[clamp(1.4rem,7vw,5.1rem)] font-semibold leading-[1.0] tracking-tight text-black dark:text-white sm:leading-[0.96]">
               <span className="block">
                 Designing
                 <HeroChip
@@ -254,17 +233,17 @@ export function HomeSections({
             From brand identity to CMS architecture — we build precise, scalable digital systems for ambitious founders and growth-stage companies who demand clarity, performance, and long-term value.
           </p>
 
-          <div className="mt-6 flex flex-row items-center justify-center gap-3">
-            <Magnetic className="flex w-full justify-center sm:w-auto">
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Magnetic>
               <Button
                 asChild
                 size="lg"
-                className="w-full max-w-[18rem] rounded-lg border border-border/26 px-6 text-sm !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92 sm:w-auto sm:text-base"
+                className="w-full rounded-lg border border-border/26 px-6 text-sm !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92 sm:w-auto sm:text-base"
               >
                 <Link href="/contact">Start a project inquiry</Link>
               </Button>
             </Magnetic>
-            <Link href="/works" className="link-sweep text-center text-sm text-fg/72 sm:text-base">
+            <Link href="/works" className="link-sweep text-sm text-fg/72 sm:text-base">
               View selected work
             </Link>
           </div>
@@ -285,23 +264,23 @@ export function HomeSections({
                     key={`${loopIndex}-${logo.key}`}
                     className="inline-flex h-8 items-center justify-center opacity-56 transition duration-300 hover:opacity-92 sm:h-9"
                   >
-                    <span className={cn("relative inline-flex items-center justify-center", logo.className)}>
+                    <span className="relative inline-flex h-full w-[6.2rem] items-center justify-center sm:w-[7rem] md:w-[8.2rem]">
                       <Image
-                        src={logo.lightSrc}
+                        src={getMarqueeLogoSrc(logo.baseName, "dark")}
                         alt={logo.alt}
-                        width={logo.width}
-                        height={logo.height}
-                        className={cn("h-auto w-full object-contain", logo.darkSrc ? "dark:hidden" : "")}
+                        width={176}
+                        height={48}
+                        className="h-full w-full object-contain dark:hidden"
+                        sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
                       />
-                      {logo.darkSrc ? (
-                        <Image
-                          src={logo.darkSrc}
-                          alt={logo.alt}
-                          width={logo.width}
-                          height={logo.height}
-                          className="hidden h-auto w-full object-contain dark:block"
-                        />
-                      ) : null}
+                      <Image
+                        src={getMarqueeLogoSrc(logo.baseName, "light")}
+                        alt={logo.alt}
+                        width={176}
+                        height={48}
+                        className="hidden h-full w-full object-contain dark:block"
+                        sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
+                      />
                     </span>
                   </li>
                 ))}
@@ -309,7 +288,7 @@ export function HomeSections({
             ))}
           </div>
         </div>
-      </SectionReveal>
+      </section>
 
       {/* ── Selected Work (moved up — leads with proof) ── */}
       <SectionReveal className="container" effect="zoom">

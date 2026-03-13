@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { FooterBackgroundGradient } from "@/components/ui/hover-footer";
 import { companyContact } from "@/lib/constants";
 
@@ -86,8 +86,12 @@ export function MarketingFooter(): JSX.Element {
         <div className="grid grid-cols-1 gap-10 pb-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.85fr_0.85fr_1fr] lg:gap-14">
           <div className="space-y-4">
             <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
-              <Image src="/assets/Graphxify-Logo-Black.webp" alt="Graphxify" width={246} height={68} className="h-auto w-[8.9rem] dark:hidden md:w-[9.8rem]" />
-              <Image src="/assets/Graphxify-Logo-white.webp" alt="Graphxify" width={246} height={68} className="hidden h-auto w-[8.9rem] dark:block md:w-[9.8rem]" />
+              <GraphxifyLogo
+                alt="Graphxify"
+                width={246}
+                height={68}
+                className="h-auto w-[8.9rem] md:w-[9.8rem]"
+              />
             </Link>
             <h3 className="text-2xl font-semibold text-fg md:text-[1.8rem]">Built on structure. Designed to scale.</h3>
             <p className="max-w-md text-sm leading-relaxed text-fg/72">
