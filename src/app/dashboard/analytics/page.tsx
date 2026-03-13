@@ -13,7 +13,7 @@ export default async function DashboardAnalyticsPage() {
 
   const stats = [
     {
-      label: "Published posts",
+      label: "Published blogs",
       value: summary.publishedPosts,
       icon: <FileText className="h-4 w-4" />,
       color: "text-sky-400",

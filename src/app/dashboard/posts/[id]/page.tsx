@@ -29,7 +29,7 @@ export default async function DashboardPostEditorPage({ params }: { params: Prom
       <RevealStagger className="space-y-6">
         <RevealItem className="space-y-1">
           <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Editor</p>
-          <h1 className="text-3xl font-semibold">{isNew ? "Create post" : "Edit post"}</h1>
+          <h1 className="text-3xl font-semibold">{isNew ? "Create blog" : "Edit blog"}</h1>
           {!isNew && versions.length > 0 ? (
             <p className="text-sm text-fg/62">
               Version #{versions[0].version} - Last edited by {versions[0].editor_id || "unknown"}

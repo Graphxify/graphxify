@@ -8,6 +8,7 @@ import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/provider";
 import { isNotificationEnabled } from "@/lib/email/notification-settings";
 import { publishNotificationTemplate } from "@/lib/email/templates";
+import { normalizeBlogCategory } from "@/lib/blog";
 import { env } from "@/lib/env";
 import { getProjectPathSlug } from "@/lib/project-card-content";
 import { postSchema, workSchema } from "@/lib/validation/schemas";
@@ -15,6 +16,7 @@ import { postSchema, workSchema } from "@/lib/validation/schemas";
 type ContentClient = ReturnType<typeof createClient> | NonNullable<ReturnType<typeof createAdminClient>>;
 type ContentProfile = NonNullable<Awaited<ReturnType<typeof getCurrentProfile>>>;
 type PublishContentType = "post" | "work";
+type ParsedPostInput = ReturnType<typeof postSchema.parse>;
 
 async function nextPostVersion(postId: string, supabase: ContentClient): Promise<number> {
   const { data } = await supabase
@@ -118,8 +120,150 @@ function parseGalleryImagesInput(rawValues: FormDataEntryValue[]): string[] {
       rawValues
         .map((value) => String(value).trim())
         .filter(Boolean)
-    )
+      )
   );
+}
+
+function parseTagsInput(raw: FormDataEntryValue | null): string[] {
+  return Array.from(
+    new Set(
+      String(raw ?? "")
+        .split(",")
+        .map((segment) => segment.trim())
+        .filter(Boolean)
+    )
+  ).slice(0, 8);
+}
+
+function isMissingColumnError(error: { code?: string } | null | undefined): boolean {
+  return error?.code === "42703";
+}
+
+function buildPostBasePayload(parsed: ParsedPostInput, authorId: string | null, updatedAt?: string) {
+  return {
+    title: parsed.title,
+    slug: parsed.slug,
+    excerpt: parsed.excerpt,
+    content: parsed.content,
+    cover_image_url: parsed.coverImageUrl || null,
+    status: parsed.status,
+    author_id: authorId,
+    ...(updatedAt ? { updated_at: updatedAt } : {})
+  };
+}
+
+function buildPostMetadataPayload(parsed: ParsedPostInput, tags: string[]) {
+  return {
+    category: parsed.category,
+    author: parsed.author,
+    author_role: parsed.authorRole || null,
+    author_bio: parsed.authorBio || null,
+    tags,
+    seo_title: parsed.seoTitle || null,
+    seo_description: parsed.seoDescription || null
+  };
+}
+
+function buildStoredPostMetadataPayload(version: Record<string, unknown>): ReturnType<typeof buildPostMetadataPayload> {
+  return {
+    category: normalizeBlogCategory(version.category),
+    author: typeof version.author === "string" ? version.author : "Graphxify Team",
+    author_role: typeof version.author_role === "string" ? version.author_role : "Editorial Team",
+    author_bio:
+      typeof version.author_bio === "string"
+        ? version.author_bio
+        : "Graphxify shares practical guidance on brand systems, websites, and content operations.",
+    tags: Array.isArray(version.tags) ? version.tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
+    seo_title: typeof version.seo_title === "string" ? version.seo_title : null,
+    seo_description: typeof version.seo_description === "string" ? version.seo_description : null
+  };
+}
+
+async function createPostRecord(
+  supabase: ContentClient,
+  basePayload: ReturnType<typeof buildPostBasePayload>,
+  metadataPayload: ReturnType<typeof buildPostMetadataPayload>
+) {
+  const primary = await supabase
+    .from("posts")
+    .insert({ ...basePayload, ...metadataPayload })
+    .select("id")
+    .single();
+
+  if (primary.error && !isMissingColumnError(primary.error)) {
+    throw primary.error;
+  }
+
+  if (!primary.error) {
+    return primary.data;
+  }
+
+  const fallback = await supabase
+    .from("posts")
+    .insert(basePayload)
+    .select("id")
+    .single();
+
+  if (fallback.error) {
+    throw fallback.error;
+  }
+
+  return fallback.data;
+}
+
+async function updatePostRecord(
+  supabase: ContentClient,
+  postId: string,
+  basePayload: ReturnType<typeof buildPostBasePayload>,
+  metadataPayload: ReturnType<typeof buildPostMetadataPayload>
+) {
+  const primary = await supabase
+    .from("posts")
+    .update({ ...basePayload, ...metadataPayload })
+    .eq("id", postId);
+
+  if (primary.error && !isMissingColumnError(primary.error)) {
+    throw primary.error;
+  }
+
+  if (!primary.error) {
+    return;
+  }
+
+  const fallback = await supabase
+    .from("posts")
+    .update(basePayload)
+    .eq("id", postId);
+
+  if (fallback.error) {
+    throw fallback.error;
+  }
+}
+
+async function insertPostVersionRecord(
+  supabase: ContentClient,
+  basePayload: Record<string, unknown>,
+  metadataPayload: Record<string, unknown>
+) {
+  const primary = await supabase
+    .from("post_versions")
+    .insert({ ...basePayload, ...metadataPayload });
+
+  if (primary.error && !isMissingColumnError(primary.error)) {
+    throw primary.error;
+  }
+
+  if (!primary.error) {
+    return;
+  }
+
+  const fallback = await supabase
+    .from("post_versions")
+    .insert(basePayload);
+
+  if (fallback.error) {
+    throw fallback.error;
+  }
 }
 
 function sanitizeGalleryImages(galleryImages: string[], coverImageUrl?: string): string[] {
@@ -171,46 +315,43 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
     slug: params.formData.get("slug"),
     excerpt: params.formData.get("excerpt"),
     content: params.formData.get("content"),
+    category: params.formData.get("category"),
+    author: params.formData.get("author"),
+    authorRole: params.formData.get("authorRole"),
+    authorBio: params.formData.get("authorBio"),
+    tags: params.formData.get("tags"),
+    seoTitle: params.formData.get("seoTitle"),
+    seoDescription: params.formData.get("seoDescription"),
     coverImageUrl: params.formData.get("coverImageUrl"),
     status: params.formData.get("status")
   });
+  const tags = parseTagsInput(params.formData.get("tags"));
 
   const supabase = getWriteClient();
   const id = params.id;
+  const metadataPayload = buildPostMetadataPayload(parsed, tags);
 
   if (!id) {
     assertCanCreatePost(profile);
     assertCanPublishPost(profile, parsed.status);
+    const basePayload = buildPostBasePayload(parsed, profile.id);
+    const data = await createPostRecord(supabase, basePayload, metadataPayload);
 
-    const { data, error } = await supabase
-      .from("posts")
-      .insert({
+    await insertPostVersionRecord(
+      supabase,
+      {
+        post_id: data.id,
+        version: 1,
         title: parsed.title,
         slug: parsed.slug,
         excerpt: parsed.excerpt,
         content: parsed.content,
         cover_image_url: parsed.coverImageUrl || null,
         status: parsed.status,
-        author_id: profile.id
-      })
-      .select("id")
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    await supabase.from("post_versions").insert({
-      post_id: data.id,
-      version: 1,
-      title: parsed.title,
-      slug: parsed.slug,
-      excerpt: parsed.excerpt,
-      content: parsed.content,
-      cover_image_url: parsed.coverImageUrl || null,
-      status: parsed.status,
-      editor_id: profile.id
-    });
+        editor_id: profile.id
+      },
+      metadataPayload
+    );
 
     await logAuditEvent({
       actorId: profile.id,
@@ -241,38 +382,27 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
 
   assertCanEditPost(profile, existing.author_id);
   assertCanPublishPost(profile, parsed.status);
-
-  const { error } = await supabase
-    .from("posts")
-    .update({
-      title: parsed.title,
-      slug: parsed.slug,
-      excerpt: parsed.excerpt,
-      content: parsed.content,
-      cover_image_url: parsed.coverImageUrl || null,
-      status: parsed.status,
-      author_id: existing.author_id ?? profile.id,
-      updated_at: new Date().toISOString()
-    })
-    .eq("id", id);
-
-  if (error) {
-    throw error;
-  }
+  const updateTimestamp = new Date().toISOString();
+  const basePayload = buildPostBasePayload(parsed, existing.author_id ?? profile.id, updateTimestamp);
+  await updatePostRecord(supabase, id, basePayload, metadataPayload);
 
   const version = await nextPostVersion(id, supabase);
   await Promise.all([
-    supabase.from("post_versions").insert({
-      post_id: id,
-      version,
-      title: parsed.title,
-      slug: parsed.slug,
-      excerpt: parsed.excerpt,
-      content: parsed.content,
-      cover_image_url: parsed.coverImageUrl || null,
-      status: parsed.status,
-      editor_id: profile.id
-    }),
+    insertPostVersionRecord(
+      supabase,
+      {
+        post_id: id,
+        version,
+        title: parsed.title,
+        slug: parsed.slug,
+        excerpt: parsed.excerpt,
+        content: parsed.content,
+        cover_image_url: parsed.coverImageUrl || null,
+        status: parsed.status,
+        editor_id: profile.id
+      },
+      metadataPayload
+    ),
     logAuditEvent({
       actorId: profile.id,
       actorEmail: profile.email,
@@ -489,37 +619,39 @@ export async function restorePostVersion(postId: string, versionId: string): Pro
     throw versionError;
   }
   assertCanPublishPost(profile, String(version.status));
+  const versionRecord = version as Record<string, unknown>;
+  await updatePostRecord(
+    supabase,
+    postId,
+    {
+      title: String(version.title ?? ""),
+      slug: String(version.slug ?? ""),
+      excerpt: String(version.excerpt ?? ""),
+      content: String(version.content ?? version.excerpt ?? ""),
+      cover_image_url: typeof version.cover_image_url === "string" ? version.cover_image_url : null,
+      status: String(version.status ?? "draft") as ParsedPostInput["status"],
+      author_id: postMeta.author_id ?? profile.id,
+      updated_at: new Date().toISOString()
+    },
+    buildStoredPostMetadataPayload(versionRecord)
+  );
 
-  const { error: updateError } = await supabase
-    .from("posts")
-    .update({
+  const nextVersion = await nextPostVersion(postId, supabase);
+  await insertPostVersionRecord(
+    supabase,
+    {
+      post_id: postId,
+      version: nextVersion,
       title: version.title,
       slug: version.slug,
       excerpt: version.excerpt,
       content: version.content,
       cover_image_url: version.cover_image_url,
       status: version.status,
-      author_id: postMeta.author_id ?? profile.id,
-      updated_at: new Date().toISOString()
-    })
-    .eq("id", postId);
-
-  if (updateError) {
-    throw updateError;
-  }
-
-  const nextVersion = await nextPostVersion(postId, supabase);
-  await supabase.from("post_versions").insert({
-    post_id: postId,
-    version: nextVersion,
-    title: version.title,
-    slug: version.slug,
-    excerpt: version.excerpt,
-    content: version.content,
-    cover_image_url: version.cover_image_url,
-    status: version.status,
-    editor_id: profile.id
-  });
+      editor_id: profile.id
+    },
+    buildStoredPostMetadataPayload(versionRecord)
+  );
 
   await logAuditEvent({
     actorId: profile.id,

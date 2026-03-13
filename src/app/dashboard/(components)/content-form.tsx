@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { emitCmsContentChanged } from "@/lib/client/cms-sync";
+import { BLOG_CATEGORIES, formatBlogTagInput } from "@/lib/blog";
 
 function slugify(text: string): string {
   return text
@@ -32,6 +33,7 @@ function uniqueGalleryValues(values: string[]): string[] {
 export function ContentForm({ type, item, canPublish = true }: ContentFormProps): JSX.Element {
   const router = useRouter();
   const isWork = type === "work";
+  const isBlog = type === "post";
   const parsedWorkYear = Number.parseInt(String(item?.year ?? ""), 10);
   const workYearValue = String(Number.isFinite(parsedWorkYear) ? parsedWorkYear : new Date().getFullYear());
   const workServicesValue = Array.isArray(item?.services)
@@ -68,6 +70,15 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
   const slugManuallyEdited = useRef(Boolean(item?.slug));
   const [showPreview, setShowPreview] = useState(false);
   const [contentValue, setContentValue] = useState(String(item?.content ?? ""));
+  const blogCategoryValue = String(item?.category ?? BLOG_CATEGORIES[0]);
+  const blogAuthorValue = String(item?.author ?? "Graphxify Team");
+  const blogAuthorRoleValue = String(item?.author_role ?? "Editorial Team");
+  const blogAuthorBioValue = String(
+    item?.author_bio ?? "Graphxify shares practical guidance on brand systems, websites, and content operations."
+  );
+  const blogTagsValue = formatBlogTagInput(item?.tags);
+  const blogSeoTitleValue = String(item?.seo_title ?? "");
+  const blogSeoDescriptionValue = String(item?.seo_description ?? "");
 
   const updateGalleryImage = (index: number, value: string) => {
     setGalleryImages((prev) => prev.map((entry, entryIndex) => (entryIndex === index ? value : entry)));
@@ -120,15 +131,15 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
 
       const payload = (await response.json()) as { id?: string; message?: string };
       if (!response.ok || !payload.id) {
-        setError(payload.message || "Save failed");
+        setError(payload.message || `Unable to save ${isBlog ? "blog" : "work"}.`);
         return;
       }
 
       emitCmsContentChanged(`${type}.saved`);
-      setNotice("Saved successfully.");
+      setNotice(`${isBlog ? "Blog" : "Work"} saved successfully.`);
       router.push(`/dashboard/${type}s/${payload.id}`);
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Request failed");
+      setError(submitError instanceof Error ? submitError.message : `Unable to save ${isBlog ? "blog" : "work"}.`);
     } finally {
       clearTimeout(timeout);
       setSaving(false);
@@ -136,7 +147,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5" aria-label={`${type} editor`}>
+    <form onSubmit={onSubmit} className="space-y-5" aria-label={`${isBlog ? "blog" : type} editor`}>
       <input type="hidden" name="id" defaultValue={String(item?.id ?? "")} />
       {isWork ? (
         <>
@@ -271,7 +282,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">Blog title</Label>
           </div>
           <div className="space-y-2">
             <Input
@@ -279,12 +290,68 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
               name="title"
               required
               defaultValue={String(item?.title ?? "")}
-              placeholder="Shown on blog cards and the blog article title"
+              placeholder="Shown on blog cards and the blog detail page title"
               onChange={(e) => {
                 if (!slugManuallyEdited.current) {
                   setSlug(slugify(e.target.value));
                 }
               }}
+            />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <select
+                id="category"
+                name="category"
+                className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm text-fg"
+                defaultValue={blogCategoryValue}
+              >
+                {BLOG_CATEGORIES.map((category) => (
+                  <option key={category} value={category}>
+                    {category}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="author">Author</Label>
+              <Input
+                id="author"
+                name="author"
+                required
+                defaultValue={blogAuthorValue}
+                placeholder="Shown on the blog listing and detail page"
+              />
+            </div>
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="authorRole">Author role</Label>
+              <Input
+                id="authorRole"
+                name="authorRole"
+                defaultValue={blogAuthorRoleValue}
+                placeholder="Shown in the author card on the blog detail page"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="tags">Tags</Label>
+              <Input
+                id="tags"
+                name="tags"
+                defaultValue={blogTagsValue}
+                placeholder="Comma-separated tags used on the blog detail page"
+              />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="authorBio">Author bio</Label>
+            <Textarea
+              id="authorBio"
+              name="authorBio"
+              defaultValue={blogAuthorBioValue}
+              placeholder="Short author description shown on the blog detail page"
             />
           </div>
           <div className="space-y-2">
@@ -308,7 +375,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
               name="excerpt"
               required
               defaultValue={String(item?.excerpt ?? "")}
-              placeholder="Shown on blog cards and used for page SEO description"
+              placeholder="Shown on blog cards, in the blog hero, and used as fallback SEO description"
             />
           </div>
           <div className="space-y-2">
@@ -348,10 +415,30 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
                 className="min-h-[220px]"
                 value={contentValue}
                 onChange={(e) => setContentValue(e.target.value)}
-                placeholder="Main blog article body shown on the blog detail page"
+                placeholder="Main blog body shown on the public blog detail page"
               />
             )}
             {showPreview ? <input type="hidden" name="content" value={contentValue} /> : null}
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="seoTitle">SEO title</Label>
+              <Input
+                id="seoTitle"
+                name="seoTitle"
+                defaultValue={blogSeoTitleValue}
+                placeholder="Optional custom title tag for the blog detail page"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="seoDescription">SEO description</Label>
+              <Textarea
+                id="seoDescription"
+                name="seoDescription"
+                defaultValue={blogSeoDescriptionValue}
+                placeholder="Optional custom meta description for the blog detail page"
+              />
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
@@ -367,13 +454,13 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
             </select>
           </div>
           <div className="space-y-2">
-            <Label>Hero background image</Label>
+            <Label>Featured image</Label>
             <UploadMedia onUploaded={setCover} currentUrl={cover} />
             <Input
               name="coverImageUrl"
               value={cover}
               onChange={(e) => setCover(e.target.value)}
-              placeholder="Shown as blog card image and blog article hero image"
+              placeholder="Shown on the blog listing and blog detail hero"
             />
           </div>
         </>

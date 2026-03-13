@@ -6,65 +6,13 @@ import { ArrowUpRight } from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { CopyLinkButton } from "@/components/marketing/copy-link-button";
-import { Button } from "@/components/ui/button";
 import { JsonLd } from "@/components/seo/json-ld";
-import { getPublishedPostBySlug, getPublishedPosts } from "@/db/queries/posts";
-import { demoPosts } from "@/lib/demo-content";
+import { selectRelatedBlogPosts } from "@/lib/blog";
+import { getPublishedBlogBySlug, getPublishedBlogSummaries } from "@/lib/blog-data";
 import { siteConfig } from "@/lib/constants";
 import { blogPostingJsonLd, breadcrumbListJsonLd, buildMetadata } from "@/lib/seo";
 
 type Params = { slug: string };
-
-type BlogCategory = "Web Design" | "Web Development" | "Branding" | "Business Growth" | "Digital Strategy";
-
-type RawPost = {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  cover_image_url: string | null;
-  created_at?: string;
-  updated_at?: string;
-  category?: string;
-  author?: string;
-  author_name?: string;
-  author_role?: string;
-  author_bio?: string;
-  tags?: string[] | string | null;
-  tag_list?: string[] | string | null;
-  keywords?: string[] | string | null;
-  seo_title?: string;
-  seo_description?: string;
-};
-
-type PostDetails = {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  coverImage: string;
-  createdAt?: string;
-  updatedAt?: string;
-  category: BlogCategory;
-  authorName: string;
-  authorRole: string;
-  authorBio: string;
-  tags: string[];
-  seoTitle?: string;
-  seoDescription?: string;
-};
-
-type RelatedPost = {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  coverImage: string;
-  createdAt?: string;
-  category: BlogCategory;
-};
 
 type ContentBlock =
   | { type: "h2"; text: string }
@@ -75,46 +23,6 @@ type ContentBlock =
   | { type: "callout"; label: "Note" | "Tip" | "Key Insight"; text: string }
   | { type: "code"; lang: string; code: string }
   | { type: "image"; src: string; alt: string; caption?: string };
-
-const CATEGORY_VALUES: readonly BlogCategory[] = ["Web Design", "Web Development", "Branding", "Business Growth", "Digital Strategy"] as const;
-
-function getString(value: unknown): string | undefined {
-  return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
-}
-
-function parseTags(value: unknown): string[] {
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => (typeof item === "string" ? item.trim() : ""))
-      .filter((item) => item.length > 0)
-      .slice(0, 6);
-  }
-
-  if (typeof value === "string") {
-    return value
-      .split(",")
-      .map((item) => item.trim())
-      .filter((item) => item.length > 0)
-      .slice(0, 6);
-  }
-
-  return [];
-}
-
-function inferCategory(input: { title?: string; excerpt?: string; content?: string; category?: string }, index = 0): BlogCategory {
-  const explicit = getString(input.category);
-  if (explicit && CATEGORY_VALUES.includes(explicit as BlogCategory)) {
-    return explicit as BlogCategory;
-  }
-
-  const source = `${input.title ?? ""} ${input.excerpt ?? ""} ${input.content ?? ""}`.toLowerCase();
-  if (source.includes("brand") || source.includes("identity") || source.includes("logo")) return "Branding";
-  if (source.includes("seo") || source.includes("digital strategy") || source.includes("marketing") || source.includes("google")) return "Digital Strategy";
-  if (source.includes("development") || source.includes("engineering") || source.includes("code") || source.includes("wordpress")) return "Web Development";
-  if (source.includes("growth") || source.includes("revenue") || source.includes("conversion") || source.includes("leads")) return "Business Growth";
-  if (source.includes("design") || source.includes("ux") || source.includes("ui") || source.includes("mobile")) return "Web Design";
-  return CATEGORY_VALUES[index % CATEGORY_VALUES.length];
-}
 
 function formatDate(value?: string): string {
   if (!value) return "Latest";
@@ -134,55 +42,6 @@ function estimateReadingTime(content: string): string {
     .filter(Boolean).length;
   const minutes = Math.max(1, Math.round(words / 220));
   return `${minutes} min read`;
-}
-
-function normalizePostDetails(input: Partial<RawPost>, index = 0): PostDetails | null {
-  if (!input.id || !input.title || !input.slug || !input.excerpt) {
-    return null;
-  }
-
-  const content = getString(input.content) ?? input.excerpt;
-
-  return {
-    id: input.id,
-    title: input.title,
-    slug: input.slug,
-    excerpt: input.excerpt.trim(),
-    content,
-    coverImage: getString(input.cover_image_url) ?? "/assets/post-fallback.svg",
-    createdAt: getString(input.created_at),
-    updatedAt: getString(input.updated_at),
-    category: inferCategory(input, index),
-    authorName: getString(input.author_name) ?? getString(input.author) ?? "Graphxify Team",
-    authorRole: getString(input.author_role) ?? "Editorial / Platform",
-    authorBio: getString(input.author_bio) ?? "Shares practical insights on brand systems, web architecture, and CMS delivery.",
-    tags: parseTags(input.tags).length > 0 ? parseTags(input.tags) : parseTags(input.tag_list).length > 0 ? parseTags(input.tag_list) : parseTags(input.keywords),
-    seoTitle: getString(input.seo_title),
-    seoDescription: getString(input.seo_description)
-  };
-}
-
-function normalizeRelatedPost(input: Partial<RawPost>, index = 0): RelatedPost | null {
-  if (!input.id || !input.title || !input.slug || !input.excerpt) {
-    return null;
-  }
-
-  return {
-    id: input.id,
-    title: input.title,
-    slug: input.slug,
-    excerpt: input.excerpt.trim(),
-    coverImage: getString(input.cover_image_url) ?? "/assets/post-fallback.svg",
-    createdAt: getString(input.created_at),
-    category: inferCategory(input, index)
-  };
-}
-
-function selectRelatedPosts(posts: RelatedPost[], currentSlug: string, category: BlogCategory): RelatedPost[] {
-  const filtered = posts.filter((post) => post.slug !== currentSlug);
-  const sameCategory = filtered.filter((post) => post.category === category);
-  const fallback = filtered.filter((post) => post.category !== category);
-  return [...sameCategory, ...fallback].slice(0, 3);
 }
 
 function parseContentBlocks(content: string): ContentBlock[] {
@@ -215,7 +74,7 @@ function parseContentBlocks(content: string): ContentBlock[] {
     const imageMatch = line.match(/^!\[(.*?)\]\((\S+?)(?:\s+"(.*?)")?\)$/);
     if (imageMatch) {
       const [, alt, src, caption] = imageMatch;
-      blocks.push({ type: "image", src, alt: alt || "Post visual", caption });
+      blocks.push({ type: "image", src, alt: alt || "Blog visual", caption });
       i += 1;
       continue;
     }
@@ -424,20 +283,9 @@ function PostContentRenderer({ content }: { content: string }): JSX.Element {
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { slug } = await params;
-  let rawPost: Partial<RawPost> | null = demoPosts.find((item) => item.slug === slug) as Partial<RawPost> | null;
-
-  try {
-    const dbPost = await getPublishedPostBySlug(slug);
-    if (dbPost) {
-      rawPost = dbPost as Partial<RawPost>;
-    }
-  } catch {
-    // fallback
-  }
-
-  const post = rawPost ? normalizePostDetails(rawPost) : null;
+  const post = await getPublishedBlogBySlug(slug);
   if (!post) {
-    return buildMetadata({ title: "Post Not Found", description: "Post item not found.", path: `/blog/${slug}` });
+    return buildMetadata({ title: "Blog Not Found", description: "Blog item not found.", path: `/blog/${slug}` });
   }
 
   const base = buildMetadata({
@@ -452,7 +300,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     openGraph: {
       ...base.openGraph,
       type: "article",
-      publishedTime: post.createdAt,
+      publishedTime: post.publishedAt,
       authors: [post.authorName],
       section: post.category,
       tags: post.tags.length > 0 ? post.tags : undefined
@@ -462,40 +310,15 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function BlogPostPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
-  let rawPost: Partial<RawPost> | null = demoPosts.find((item) => item.slug === slug) as Partial<RawPost> | null;
-
-  try {
-    const dbPost = await getPublishedPostBySlug(slug);
-    if (dbPost) {
-      rawPost = dbPost as Partial<RawPost>;
-    }
-  } catch {
-    // fallback
-  }
-
-  const post = rawPost ? normalizePostDetails(rawPost) : null;
+  const post = await getPublishedBlogBySlug(slug);
 
   if (!post) {
     notFound();
   }
 
-  let relatedSource: RelatedPost[] = demoPosts
-    .map((item, index) => normalizeRelatedPost(item as Partial<RawPost>, index))
-    .filter((item): item is RelatedPost => item !== null);
-
-  try {
-    const dbPosts = await getPublishedPosts();
-    if (dbPosts.length > 0) {
-      relatedSource = dbPosts
-        .map((item, index) => normalizeRelatedPost(item as Partial<RawPost>, index))
-        .filter((item): item is RelatedPost => item !== null);
-    }
-  } catch {
-    // fallback
-  }
-
-  const relatedPosts = selectRelatedPosts(relatedSource, post.slug, post.category);
-  const publishedAt = formatDate(post.createdAt);
+  const relatedSource = await getPublishedBlogSummaries();
+  const relatedPosts = selectRelatedBlogPosts(relatedSource, post.slug, post.category);
+  const publishedAt = formatDate(post.publishedAt);
   const readingTime = estimateReadingTime(post.content);
   const shareUrl = new URL(`/blog/${post.slug}`, siteConfig.url).toString();
   const authorInitials = post.authorName
@@ -513,8 +336,8 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
             title: post.title,
             description: post.excerpt,
             path: `/blog/${post.slug}`,
-            datePublished: post.createdAt || new Date().toISOString(),
-            dateModified: post.updatedAt || post.createdAt,
+            datePublished: post.publishedAt || new Date().toISOString(),
+            dateModified: post.updatedAt || post.publishedAt,
             authorName: post.authorName,
             image: post.coverImage,
             keywords: post.tags,
@@ -606,9 +429,9 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
 
       <SectionReveal className="container mt-10 md:mt-12" effect="up">
         <div className="mb-5 flex items-end justify-between gap-4">
-          <h2 className="text-2xl font-semibold md:text-3xl">Related Posts</h2>
+          <h2 className="text-2xl font-semibold md:text-3xl">Related Blogs</h2>
           <Link href="/blog" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-fg/72 hover:text-fg">
-            All insights
+            All blogs
             <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>
@@ -619,7 +442,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
               key={item.id}
               href={`/blog/${item.slug}`}
               className="group flex h-full flex-col overflow-hidden rounded-[1.1rem] border border-border/18 bg-card/72 transition-all duration-200 hover:-translate-y-0.5 hover:border-border/34 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              aria-label={`Open article ${item.title}`}
+              aria-label={`Open blog ${item.title}`}
             >
               <div className="relative aspect-[16/10] overflow-hidden border-b border-border/14">
                 <Image
@@ -638,7 +461,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
                 <h3 className="mt-2 line-clamp-2 text-lg font-semibold leading-tight">{item.title}</h3>
                 <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-fg/64">{item.excerpt}</p>
                 <div className="mt-auto flex items-center justify-between gap-2 pt-4">
-                  <p className="text-xs uppercase tracking-[0.14em] text-fg/56">{formatDate(item.createdAt)}</p>
+                  <p className="text-xs uppercase tracking-[0.14em] text-fg/56">{formatDate(item.publishedAt)}</p>
                   <span className="link-sweep inline-flex items-center gap-1.5 text-sm text-fg/82">
                     Read more
                     <ArrowUpRight className="h-3.5 w-3.5" />

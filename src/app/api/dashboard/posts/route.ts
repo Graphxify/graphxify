@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const result = await createOrUpdatePost({ formData });
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
-    const message = errorMessage(error, "Unable to create post");
+    const message = errorMessage(error, "Unable to create blog");
     logger.error("Post create failed", { error: message });
     return NextResponse.json({ message }, { status: 400 });
   }
@@ -23,12 +23,12 @@ export async function PUT(request: NextRequest) {
     const formData = await request.formData();
     const id = String(formData.get("id") || "");
     if (!id) {
-      return NextResponse.json({ message: "Missing post id" }, { status: 400 });
+      return NextResponse.json({ message: "Missing blog id" }, { status: 400 });
     }
     const result = await createOrUpdatePost({ id, formData });
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
-    const message = errorMessage(error, "Unable to update post");
+    const message = errorMessage(error, "Unable to update blog");
     logger.error("Post update failed", { error: message });
     return NextResponse.json({ message }, { status: 400 });
   }
@@ -39,12 +39,12 @@ export async function DELETE(request: NextRequest) {
     await requireApiPermission("content.posts.delete");
     const id = request.nextUrl.searchParams.get("id");
     if (!id) {
-      return NextResponse.json({ message: "Missing post id" }, { status: 400 });
+      return NextResponse.json({ message: "Missing blog id" }, { status: 400 });
     }
     await deletePost(id);
     return NextResponse.json({ ok: true });
   } catch (error) {
-    const message = errorMessage(error, "Unable to delete post");
+    const message = errorMessage(error, "Unable to delete blog");
     logger.error("Post delete failed", { error: message });
     return NextResponse.json({ message }, { status: 400 });
   }

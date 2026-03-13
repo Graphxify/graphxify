@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 const labelMap: Record<string, string> = {
     dashboard: "Dashboard",
-    posts: "Posts",
+    posts: "Blog",
     works: "Works",
     testimonials: "Testimonials",
     leads: "Leads",

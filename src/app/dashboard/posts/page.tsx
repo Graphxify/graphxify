@@ -51,10 +51,10 @@ export default async function DashboardPostsPage({
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Content</p>
-              <h1 className="text-3xl font-semibold">Posts</h1>
+              <h1 className="text-3xl font-semibold">Blog</h1>
             </div>
             <Button asChild size="sm">
-              <Link href="/dashboard/posts/new">New post</Link>
+              <Link href="/dashboard/posts/new">New blog</Link>
             </Button>
           </div>
         </RevealItem>
@@ -67,7 +67,7 @@ export default async function DashboardPostsPage({
               <Input
                 name="q"
                 defaultValue={search}
-                placeholder="Search posts by title..."
+                placeholder="Search blogs by title..."
                 className="pl-9 h-9"
               />
             </div>
@@ -96,9 +96,9 @@ export default async function DashboardPostsPage({
             {result.rows.length === 0 ? (
               <EmptyState
                 icon={<FileText className="h-8 w-8 text-fg/32" />}
-                title={search || status ? "No posts match your filters" : "No posts yet"}
-                description={search || status ? "Try different search terms or filters." : "Create your first blog post to get started."}
-                actionLabel={search || status ? undefined : "New post"}
+                title={search || status ? "No blogs match your filters" : "No blogs yet"}
+                description={search || status ? "Try different search terms or filters." : "Create your first blog to get started."}
+                actionLabel={search || status ? undefined : "New blog"}
                 actionHref={search || status ? undefined : "/dashboard/posts/new"}
               />
             ) : (

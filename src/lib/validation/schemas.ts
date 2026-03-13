@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BLOG_CATEGORIES } from "@/lib/blog";
 
 const imageUrlSchema = z
   .string()
@@ -30,6 +31,13 @@ export const postSchema = z.object({
     .regex(/^[a-z0-9-]+$/),
   excerpt: z.string().min(1).max(320),
   content: z.string().min(1),
+  category: z.enum(BLOG_CATEGORIES),
+  author: z.string().trim().min(2).max(120),
+  authorRole: z.string().trim().max(120).optional().or(z.literal("")),
+  authorBio: z.string().trim().max(320).optional().or(z.literal("")),
+  tags: z.string().trim().max(240).optional().or(z.literal("")),
+  seoTitle: z.string().trim().max(180).optional().or(z.literal("")),
+  seoDescription: z.string().trim().max(320).optional().or(z.literal("")),
   coverImageUrl: imageUrlSchema.optional().or(z.literal("")),
   status: z.enum(["draft", "review", "published"])
 }).superRefine((value, ctx) => {
@@ -48,6 +56,13 @@ export const postSchema = z.object({
       code: z.ZodIssueCode.custom,
       path: ["content"],
       message: "Content must contain at least 20 characters to publish."
+    });
+  }
+  if (value.author.trim().length < 2) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["author"],
+      message: "Author must contain at least 2 characters to publish."
     });
   }
 });

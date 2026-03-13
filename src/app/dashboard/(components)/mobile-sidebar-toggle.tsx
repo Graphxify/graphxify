@@ -12,7 +12,7 @@ export function MobileSidebarToggle({ children }: { children: React.ReactNode })
             <button
                 type="button"
                 onClick={() => setOpen((prev) => !prev)}
-                className="fixed right-4 top-4 z-50 grid h-10 w-10 place-items-center rounded-xl border border-border/20 bg-card/90 backdrop-blur md:hidden"
+                className="fixed right-4 top-4 z-50 grid h-10 w-10 place-items-center rounded-xl border border-border/20 bg-card/90 backdrop-blur transition-[transform,border-color,background-color,box-shadow] duration-200 hover:-translate-y-0.5 hover:border-accentA/24 hover:bg-card hover:shadow-[0_12px_24px_rgba(9,18,37,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:translate-y-0 active:scale-[0.97] md:hidden"
                 aria-label={open ? "Close menu" : "Open menu"}
             >
                 {open ? <X className="h-5 w-5 text-fg" /> : <Menu className="h-5 w-5 text-fg" />}

@@ -1,12 +1,10 @@
 "use client";
 
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, Code2, Compass, Database, Mail, Minus, Palette, Phone, Plus, Sparkles, type LucideIcon } from "lucide-react";
 import { useState } from "react";
-import heroOrbBusiness from "../../../public/images/hero/hero-orb-business.png";
-import heroOrbDesign from "../../../public/images/hero/hero-orb-design.png";
 import { Button } from "@/components/ui/button";
 import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
 import { HomeProjectsSlider } from "@/components/marketing/home-projects-slider";
@@ -114,47 +112,6 @@ const homeFaqs: HomeFaq[] = [
   }
 ];
 
-function HeroChip({
-  src,
-  alt,
-  priority = false,
-  tint,
-  className
-}: {
-  src: string | StaticImageData;
-  alt: string;
-  priority?: boolean;
-  tint: "accent" | "muted";
-  className?: string;
-}): JSX.Element {
-  return (
-    <span
-      className={cn(
-        "mx-2 inline-flex h-[0.95em] w-[0.95em] shrink-0 translate-y-[0.05em] items-center justify-center align-middle",
-        className
-      )}
-    >
-      <span
-        className={cn(
-          "relative flex h-full w-full shrink-0 items-center justify-center overflow-hidden rounded-full border shadow-[0_6px_14px_rgba(13,13,15,0.18)] ring-1 ring-inset",
-          tint === "accent"
-            ? "border-accentA/45 bg-accentA/18 ring-accentA/26"
-            : "border-border/24 bg-fg/10 ring-border/22"
-        )}
-      >
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          priority={priority}
-          sizes="(min-width: 1024px) 72px, (min-width: 768px) 56px, 32px"
-          className="pointer-events-none select-none object-contain"
-        />
-      </span>
-    </span>
-  );
-}
-
 function SectionHeading({
   eyebrow,
   title
@@ -201,36 +158,21 @@ export function HomeSections({
               aria-hidden="true"
               className="pointer-events-none absolute left-1/2 top-[48%] -z-10 h-28 w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accentA/14 blur-3xl md:h-36"
             />
-            <h1 className="mx-auto max-w-[940px] text-center text-[clamp(1.4rem,7vw,5.1rem)] font-semibold leading-[1.0] tracking-tight text-black dark:text-white sm:leading-[0.96]">
-              <span className="block">
-                Designing
-                <HeroChip
-                  src={heroOrbDesign}
-                  alt=""
-                  priority
-                  tint="accent"
-                  className="mx-1.5 !h-[0.9em] !w-[0.9em]"
-                />
-                <span className="gradient-text">brands</span> and
+            <h1 className="mx-auto flex max-w-full flex-col items-center text-center text-[clamp(1.32rem,7vw,5.1rem)] font-semibold leading-[0.98] tracking-[-0.035em] text-black dark:text-white sm:leading-[0.95]">
+              <span className="block whitespace-nowrap">
+                Designing <span className="gradient-text">brands</span> and
               </span>
-              <span className="mt-1.5 block md:mt-2">websites that make</span>
-              <span className="mt-1.5 block md:mt-2">
-                <span className="gradient-text">businesses</span>
-                <HeroChip
-                  src={heroOrbBusiness}
-                  alt=""
-                  tint="muted"
-                  className="mx-1.5 !h-[0.9em] !w-[0.9em]"
-                />
-                <span className="relative inline-flex items-center">
-                  <span className="text-black dark:text-white">stand out</span>
-                </span>
+              <span className="mt-1.5 block whitespace-nowrap md:mt-2">
+                websites that make
+              </span>
+              <span className="mt-1.5 block whitespace-nowrap md:mt-2">
+                <span className="gradient-text">businesses</span> stand out
               </span>
             </h1>
           </div>
 
           <p className="mx-auto mt-5 max-w-3xl text-center text-[0.96rem] text-black dark:text-white md:text-[1.14rem]">
-            From brand identity to CMS architecture — we build precise, scalable digital systems for ambitious founders and growth-stage companies who demand clarity, performance, and long-term value.
+            We design brands and build high-performance websites for ambitious companies.
           </p>
 
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">

@@ -1,4 +1,5 @@
--- Seed posts and works as published
+-- Seed works, testimonials, and auxiliary content.
+-- Original public blog articles are synced into the CMS with `npm run sync:blog`.
 
 with seed_author as (
   select id from public.profiles order by created_at asc limit 1
@@ -126,43 +127,16 @@ values
   ('00000000-0000-0000-0000-000000000203', '10M', 'Gross Revenue', 2, (select id from seed_author))
 on conflict (id) do nothing;
 
-with seed_author as (
-  select id from public.profiles order by created_at asc limit 1
-)
-insert into public.posts (title, slug, excerpt, content, cover_image_url, status, author_id)
-values
-  (
-    'Enterprise Website Governance in 2026',
-    'enterprise-website-governance-2026',
-    'A practical model for balancing delivery speed with content quality at scale.',
-    'In this guide, we break down governance foundations for enterprise content pipelines.',
-    '/assets/post-1.svg',
-    'published',
-    (select id from seed_author)
-  ),
-  (
-    'How to Design an Audit-Ready CMS',
-    'how-to-design-an-audit-ready-cms',
-    'Auditability is a product feature. Here is how to implement it cleanly.',
-    'From role boundaries to event metadata, this article covers implementation details.',
-    '/assets/post-2.svg',
-    'published',
-    (select id from seed_author)
-  ),
-  (
-    'Performance Patterns for Premium Agency Sites',
-    'performance-patterns-premium-agency-sites',
-    'A concise set of patterns that push Lighthouse scores into production-safe territory.',
-    'Server components, selective hydration, and query discipline.',
-    '/assets/post-3.svg',
-    'published',
-    (select id from seed_author)
-  )
-on conflict (slug) do nothing;
+delete from public.posts
+where slug in (
+  'enterprise-website-governance-2026',
+  'how-to-design-an-audit-ready-cms',
+  'performance-patterns-premium-agency-sites'
+);
 
 -- Initial version rows for seeded records
-insert into public.post_versions (post_id, version, title, slug, excerpt, content, cover_image_url, status, editor_id)
-select p.id, 1, p.title, p.slug, p.excerpt, p.content, p.cover_image_url, p.status, p.author_id
+insert into public.post_versions (post_id, version, title, slug, excerpt, content, category, author, author_role, author_bio, tags, seo_title, seo_description, cover_image_url, status, editor_id, created_at)
+select p.id, 1, p.title, p.slug, p.excerpt, p.content, p.category, p.author, p.author_role, p.author_bio, p.tags, p.seo_title, p.seo_description, p.cover_image_url, p.status, p.author_id, p.created_at
 from public.posts p
 where not exists (select 1 from public.post_versions v where v.post_id = p.id);
 

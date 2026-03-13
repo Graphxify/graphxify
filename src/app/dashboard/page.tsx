@@ -34,7 +34,7 @@ export default async function DashboardHomePage() {
       dot: "bg-amber-400"
     } : null,
     pending.postsInReview > 0 ? {
-      label: `${pending.postsInReview} ${pending.postsInReview === 1 ? "post" : "posts"} in review`,
+      label: `${pending.postsInReview} ${pending.postsInReview === 1 ? "blog" : "blogs"} in review`,
       href: "/dashboard/posts?status=review",
       icon: <FileText className="h-4 w-4" />,
       color: "text-violet-400",
@@ -45,7 +45,7 @@ export default async function DashboardHomePage() {
 
   const stats = [
     {
-      label: "Published posts",
+      label: "Published blogs",
       value: summary.publishedPosts,
       icon: <FileText className="h-5 w-5" />,
       color: "text-sky-400",
@@ -79,7 +79,7 @@ export default async function DashboardHomePage() {
   ];
 
   const quickLinks = [
-    hasPermission(profile.role, "content.posts.edit_own") ? { href: "/dashboard/posts", label: "Manage posts" } : null,
+    hasPermission(profile.role, "content.posts.edit_own") ? { href: "/dashboard/posts", label: "Manage blog" } : null,
     hasPermission(profile.role, "content.works.edit_any") ? { href: "/dashboard/works", label: "Manage works" } : null,
     hasPermission(profile.role, "leads.view") ? { href: "/dashboard/leads", label: "View leads" } : null,
     hasPermission(profile.role, "activity.view") ? { href: "/dashboard/activity", label: "Activity logs" } : null

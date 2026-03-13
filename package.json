@@ -7,7 +7,8 @@
     "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint . --ext .js,.cjs,.mjs",
-    "typecheck": "next typegen && tsc --noEmit --incremental false"
+    "typecheck": "next typegen && tsc --noEmit --incremental false",
+    "sync:blog": "node scripts/sync-original-blog-to-cms.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.2",

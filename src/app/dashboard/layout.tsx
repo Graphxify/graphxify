@@ -22,22 +22,37 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <span className="font-medium text-fg/72">{profile.email}</span>
             </p>
             <div className="flex items-center gap-2">
-              <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
+              <Button
+                asChild
+                size="sm"
+                variant="ghost"
+                className="h-8 gap-1.5 rounded-lg border border-transparent px-2.5 text-xs text-fg/62 transition-[transform,border-color,background-color,color] duration-200 hover:-translate-y-0.5 hover:border-border/18 hover:bg-card/82 hover:text-fg active:translate-y-0 active:scale-[0.98]"
+              >
                 <Link href="/">
                   <ExternalLink className="h-3 w-3" />
                   Site
                 </Link>
               </Button>
               {hasPermission(profile.role, "content.posts.create") ? (
-                <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 gap-1.5 rounded-lg border border-transparent px-2.5 text-xs text-fg/62 transition-[transform,border-color,background-color,color] duration-200 hover:-translate-y-0.5 hover:border-border/18 hover:bg-card/82 hover:text-fg active:translate-y-0 active:scale-[0.98]"
+                >
                   <Link href="/dashboard/posts/new">
                     <Plus className="h-3 w-3" />
-                    Post
+                    Blog
                   </Link>
                 </Button>
               ) : null}
               {hasPermission(profile.role, "content.works.create") ? (
-                <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 gap-1.5 rounded-lg border border-transparent px-2.5 text-xs text-fg/62 transition-[transform,border-color,background-color,color] duration-200 hover:-translate-y-0.5 hover:border-border/18 hover:bg-card/82 hover:text-fg active:translate-y-0 active:scale-[0.98]"
+                >
                   <Link href="/dashboard/works/new">
                     <Plus className="h-3 w-3" />
                     Work
@@ -45,7 +60,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 </Button>
               ) : null}
               {hasPermission(profile.role, "content.testimonials.create") ? (
-                <Button asChild size="sm" variant="ghost" className="h-8 gap-1.5 px-2.5 text-xs text-fg/62 hover:text-fg">
+                <Button
+                  asChild
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 gap-1.5 rounded-lg border border-transparent px-2.5 text-xs text-fg/62 transition-[transform,border-color,background-color,color] duration-200 hover:-translate-y-0.5 hover:border-border/18 hover:bg-card/82 hover:text-fg active:translate-y-0 active:scale-[0.98]"
+                >
                   <Link href="/dashboard/testimonials/new">
                     <Plus className="h-3 w-3" />
                     Testimonial

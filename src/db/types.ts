@@ -24,8 +24,15 @@ export type Post = {
   excerpt: string;
   content: string;
   cover_image_url: string | null;
+  category: string;
+  author: string | null;
+  author_role: string | null;
+  author_bio: string | null;
+  tags: string[];
+  seo_title: string | null;
+  seo_description: string | null;
   status: ContentStatus;
-  author_id: string;
+  author_id: string | null;
   created_at: string;
   updated_at: string;
 };

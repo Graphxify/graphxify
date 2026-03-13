@@ -10,12 +10,12 @@ export async function POST(request: NextRequest) {
     const postId = String(formData.get("postId") || "");
     const versionId = String(formData.get("versionId") || "");
     if (!postId || !versionId) {
-      return NextResponse.json({ message: "Missing fields" }, { status: 400 });
+      return NextResponse.json({ message: "Missing blog restore fields" }, { status: 400 });
     }
     await restorePostVersion(postId, versionId);
     return NextResponse.json({ ok: true });
   } catch (error) {
     logger.error("Post restore failed", { error: error instanceof Error ? error.message : "unknown" });
-    return NextResponse.json({ message: "Unable to restore post version" }, { status: 400 });
+    return NextResponse.json({ message: "Unable to restore blog version" }, { status: 400 });
   }
 }

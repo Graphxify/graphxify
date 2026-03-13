@@ -119,7 +119,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
     permissions: ["content.works.create", "content.works.edit_any", "content.works.publish", "content.works.delete"]
   },
   {
-    label: "Blog Posts",
+    label: "Blog",
     permissions: [
       "content.posts.create",
       "content.posts.edit_any",

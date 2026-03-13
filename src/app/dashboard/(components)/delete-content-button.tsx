@@ -18,11 +18,18 @@ type DeleteContentButtonProps = {
   id: string;
 };
 
+function getContentLabel(type: DeleteContentButtonProps["type"]): string {
+  if (type === "post") return "blog";
+  if (type === "work") return "work";
+  return "testimonial";
+}
+
 export function DeleteContentButton({ type, id }: DeleteContentButtonProps): JSX.Element {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const label = getContentLabel(type);
 
   async function onDelete() {
     if (pending) return;
@@ -38,7 +45,7 @@ export function DeleteContentButton({ type, id }: DeleteContentButtonProps): JSX
       });
       const payload = (await response.json()) as { message?: string };
       if (!response.ok) {
-        setError(payload.message || `Unable to delete ${type}`);
+        setError(payload.message || `Unable to delete ${label}.`);
         return;
       }
 
@@ -47,7 +54,7 @@ export function DeleteContentButton({ type, id }: DeleteContentButtonProps): JSX
       router.push(`/dashboard/${type}s`);
       router.refresh();
     } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : `Unable to delete ${type}`);
+      setError(deleteError instanceof Error ? deleteError.message : `Unable to delete ${label}.`);
     } finally {
       setPending(false);
     }
@@ -56,13 +63,13 @@ export function DeleteContentButton({ type, id }: DeleteContentButtonProps): JSX
   return (
     <div className="space-y-2">
       <Button type="button" variant="destructive" onClick={() => setOpen(true)}>
-        {`Delete ${type}`}
+        {`Delete ${label}`}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{`Delete ${type}?`}</DialogTitle>
+            <DialogTitle>{`Delete ${label}?`}</DialogTitle>
             <DialogDescription>This action cannot be undone.</DialogDescription>
           </DialogHeader>
 
