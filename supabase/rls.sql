@@ -5,6 +5,7 @@ alter table public.works enable row level security;
 alter table public.testimonials enable row level security;
 alter table public.testimonial_metrics enable row level security;
 alter table public.leads enable row level security;
+alter table public.newsletter_subscribers enable row level security;
 alter table public.audit_logs enable row level security;
 alter table public.post_versions enable row level security;
 alter table public.work_versions enable row level security;
@@ -300,6 +301,7 @@ using (public.is_admin());
 
 -- Testimonials policies
 drop policy if exists "testimonials_public_read_published" on public.testimonials;
+drop policy if exists "testimonials_public_insert_pending_review" on public.testimonials;
 drop policy if exists "testimonials_staff_read_all" on public.testimonials;
 drop policy if exists "testimonials_insert_staff" on public.testimonials;
 drop policy if exists "testimonials_update_staff_owned" on public.testimonials;
@@ -309,6 +311,16 @@ create policy "testimonials_public_read_published"
 on public.testimonials
 for select
 using (status = 'published');
+
+create policy "testimonials_public_insert_pending_review"
+on public.testimonials
+for insert
+with check (
+  status = 'pending'
+  and sort_order = 0
+  and author_id is null
+  and rating between 1 and 5
+);
 
 create policy "testimonials_staff_read_all"
 on public.testimonials
@@ -421,6 +433,20 @@ create policy "leads_delete_admin"
 on public.leads
 for delete
 using (public.is_admin());
+
+-- Newsletter policies
+drop policy if exists "newsletter_public_insert" on public.newsletter_subscribers;
+drop policy if exists "newsletter_staff_select" on public.newsletter_subscribers;
+
+create policy "newsletter_public_insert"
+on public.newsletter_subscribers
+for insert
+with check (true);
+
+create policy "newsletter_staff_select"
+on public.newsletter_subscribers
+for select
+using (public.is_admin() or public.is_editor());
 
 -- Audit policies
 drop policy if exists "audit_logs_staff_select" on public.audit_logs;

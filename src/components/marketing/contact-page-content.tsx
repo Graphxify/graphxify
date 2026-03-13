@@ -10,24 +10,27 @@ import {
   Copy,
   Database,
   FileText,
+  Loader2,
   Mail,
   Palette,
   Phone,
   ShieldCheck,
   Sparkles,
   Upload,
-  AlertTriangle,
   type LucideIcon
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
 import { Textarea } from "@/components/ui/textarea";
+import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
 import { companyContact } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { publicLeadSchema } from "@/lib/validation/schemas";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
 
@@ -163,35 +166,40 @@ function getTextValue(formData: FormData, key: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
-function formatOptional(value: string, fallback = "Not provided"): string {
-  return value.length > 0 ? value : fallback;
-}
-
 export function ContactPageContent(): JSX.Element {
   const reducedMotion = useReducedMotion();
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState<ModalState>({ open: false, type: "success", title: "", message: "" });
   const [selectedNeeds, setSelectedNeeds] = useState<string[]>([]);
   const [customNeed, setCustomNeed] = useState("");
-  const [needError, setNeedError] = useState("");
   const [consentChecked, setConsentChecked] = useState(false);
-  const [consentError, setConsentError] = useState("");
   const [copied, setCopied] = useState(false);
-
-  const selectedTitles = useMemo(
-    () => HELP_OPTIONS.filter((option) => selectedNeeds.includes(option.key)).map((option) => option.title),
-    [selectedNeeds]
-  );
+  const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
+  const [submitError, setSubmitError] = useState("");
+  const [attachmentNotice, setAttachmentNotice] = useState("");
 
   const somethingElseSelected = selectedNeeds.includes(SOMETHING_ELSE_KEY);
 
+  function clearFieldError(field: keyof FormFieldErrors): void {
+    setFieldErrors((current) => {
+      if (!current[field]) {
+        return current;
+      }
+
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  }
+
   function toggleNeed(key: string): void {
-    setNeedError("");
+    clearFieldError("intakeNeeds");
 
     setSelectedNeeds((prev) => {
       if (prev.includes(key)) {
         if (key === SOMETHING_ELSE_KEY) {
           setCustomNeed("");
+          clearFieldError("customRequest");
         }
         return prev.filter((item) => item !== key);
       }
@@ -211,31 +219,9 @@ export function ContactPageContent(): JSX.Element {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-
-    let hasError = false;
-
-    if (selectedNeeds.length === 0) {
-      setNeedError("Select at least one option.");
-      hasError = true;
-    }
-
-    if (somethingElseSelected && customNeed.trim().length < 3) {
-      setNeedError("Add a short custom request.");
-      hasError = true;
-    }
-
-    if (!consentChecked) {
-      setConsentError("Consent is required before sending.");
-      hasError = true;
-    } else {
-      setConsentError("");
-    }
-
-    if (hasError) {
-      return;
-    }
-
-    setLoading(true);
+    setFieldErrors({});
+    setSubmitError("");
+    setAttachmentNotice("");
 
     const form = event.currentTarget;
     const formData = new FormData(form);
@@ -247,95 +233,97 @@ export function ContactPageContent(): JSX.Element {
     const budget = getTextValue(formData, "budget");
     const timeline = getTextValue(formData, "timeline");
     const message = getTextValue(formData, "message");
+    const payload = {
+      source: "contact" as const,
+      name,
+      email,
+      company,
+      website,
+      budgetRange: budget,
+      timeline,
+      message,
+      intakeNeeds: selectedNeeds,
+      customRequest: somethingElseSelected ? customNeed.trim() : "",
+      attachments: [],
+      consent: consentChecked
+    };
+
+    const parsed = publicLeadSchema.safeParse(payload);
+    if (!parsed.success) {
+      setFieldErrors(fieldErrorsFromZod(parsed.error));
+      return;
+    }
+
+    setLoading(true);
 
     const attachmentFiles = formData
       .getAll("briefFiles")
       .filter((item): item is File => item instanceof File)
       .filter((file) => file.name.length > 0);
 
-    // Upload files in parallel — don't block on each one sequentially
     const uploadPromises = attachmentFiles.map(async (file) => {
       const uploadData = new FormData();
       uploadData.append("file", file);
       const res = await fetch("/api/uploads/public", { method: "POST", body: uploadData });
       if (res.ok) {
         const json = (await res.json()) as { url: string };
-        return json.url;
+        return { ok: true as const, url: json.url };
       }
-      return null;
+      return { ok: false as const };
     });
 
     const uploadResults = await Promise.allSettled(uploadPromises);
-    const attachmentUrls = uploadResults
-      .filter((r): r is PromiseFulfilledResult<string | null> => r.status === "fulfilled")
-      .map((r) => r.value)
-      .filter((url): url is string => url !== null);
+    const attachmentUrls = uploadResults.flatMap((result) => {
+      if (result.status !== "fulfilled" || !result.value.ok || !result.value.url) {
+        return [];
+      }
 
-    const compiledMessage = [
-      "Contact Inquiry",
-      "",
-      `Services: ${selectedTitles.join(", ")}`,
-      somethingElseSelected ? `Custom request: ${customNeed.trim()}` : null,
-      `Company / Brand: ${formatOptional(company)}`,
-      `Website / Link: ${formatOptional(website)}`,
-      `Budget range: ${formatOptional(budget, "Not selected")}`,
-      `Timeline: ${formatOptional(timeline, "Not selected")}`,
-      "",
-      "Message:",
-      message
-    ]
-      .filter((line): line is string => Boolean(line))
-      .join("\n")
-      .slice(0, 1950);
+      return [result.value.url];
+    });
+
+    const failedUploads = uploadResults.length - attachmentUrls.length;
+    const uploadNotice =
+      failedUploads === 0
+        ? ""
+        : failedUploads === 1
+          ? "One attachment could not be uploaded. Your inquiry was sent without it."
+          : `${failedUploads} attachments could not be uploaded. Your inquiry was sent without them.`;
+
+    if (failedUploads > 0) {
+      setAttachmentNotice(uploadNotice);
+    }
 
     try {
-      const response = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          message: compiledMessage,
-          intakeNeeds: selectedNeeds,
-          customRequest: somethingElseSelected ? customNeed.trim() : undefined,
-          company,
-          website,
-          budgetRange: budget,
-          timeline,
-          attachments: attachmentUrls
-        })
+      const result = await submitJsonForm<{ id: string }>("/api/leads", {
+        ...parsed.data,
+        attachments: attachmentUrls
       });
 
-      const payload = (await response.json()) as { message?: string };
-
-      if (response.ok) {
+      if (result.success) {
         form.reset();
         setSelectedNeeds([]);
         setCustomNeed("");
-        setNeedError("");
         setConsentChecked(false);
-        setConsentError("");
+        setAttachmentNotice("");
         setModal({
           open: true,
           type: "success",
           title: "Inquiry Sent Successfully",
-          message: "Thanks for reaching out. We received your inquiry and will reply within 24–48 hours."
+          message: uploadNotice ? `${result.message} ${uploadNotice}` : result.message
         });
+      } else if (result.fieldErrors && Object.keys(result.fieldErrors).length > 0) {
+        // Validation errors — show inline so the user can fix specific fields
+        setFieldErrors(result.fieldErrors);
+        setSubmitError(result.message);
       } else {
+        // Server / network error — show error modal with a clear message
         setModal({
           open: true,
           type: "error",
           title: "Something Went Wrong",
-          message: payload.message || "Unable to submit your inquiry right now."
+          message: result.message || "We couldn't send your inquiry. Please try again in a moment."
         });
       }
-    } catch {
-      setModal({
-        open: true,
-        type: "error",
-        title: "Connection Error",
-        message: "Unable to submit your inquiry right now. Please check your connection and try again."
-      });
     } finally {
       setLoading(false);
     }
@@ -362,19 +350,42 @@ export function ContactPageContent(): JSX.Element {
         <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
           <div className="section-shell border-border/18 bg-card/76 p-5 md:p-7">
             <form onSubmit={onSubmit} className="lead-form-premium space-y-5" aria-label="Project inquiry form">
+              <FormAlert message={submitError} />
+              <FormAlert message={attachmentNotice} type="info" />
 
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="space-y-1.5">
                   <label htmlFor="contact-name" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
                     Full Name
                   </label>
-                  <Input id="contact-name" name="name" required autoComplete="name" placeholder="Your full name" className={FIELD_CLASS} />
+                  <Input
+                    id="contact-name"
+                    name="name"
+                    required
+                    autoComplete="name"
+                    placeholder="Your full name"
+                    className={FIELD_CLASS}
+                    aria-invalid={Boolean(fieldErrors.name)}
+                    onChange={() => clearFieldError("name")}
+                  />
+                  <FieldErrorText id="contact-name-error" message={fieldErrors.name} />
                 </div>
                 <div className="space-y-1.5">
                   <label htmlFor="contact-email" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
                     Email
                   </label>
-                  <Input id="contact-email" name="email" type="email" required autoComplete="email" placeholder="you@company.com" className={FIELD_CLASS} />
+                  <Input
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    required
+                    autoComplete="email"
+                    placeholder="you@company.com"
+                    className={FIELD_CLASS}
+                    aria-invalid={Boolean(fieldErrors.email)}
+                    onChange={() => clearFieldError("email")}
+                  />
+                  <FieldErrorText id="contact-email-error" message={fieldErrors.email} />
                 </div>
               </div>
 
@@ -383,13 +394,29 @@ export function ContactPageContent(): JSX.Element {
                   <label htmlFor="contact-company" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
                     Company / Brand
                   </label>
-                  <Input id="contact-company" name="company" autoComplete="organization" placeholder="Optional" className={FIELD_CLASS} />
+                  <Input
+                    id="contact-company"
+                    name="company"
+                    autoComplete="organization"
+                    placeholder="Optional"
+                    className={FIELD_CLASS}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <label htmlFor="contact-website" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
                     Website / Link
                   </label>
-                  <Input id="contact-website" name="website" type="url" inputMode="url" placeholder="Optional" className={FIELD_CLASS} />
+                  <Input
+                    id="contact-website"
+                    name="website"
+                    type="url"
+                    inputMode="url"
+                    placeholder="Optional"
+                    className={FIELD_CLASS}
+                    aria-invalid={Boolean(fieldErrors.website)}
+                    onChange={() => clearFieldError("website")}
+                  />
+                  <FieldErrorText id="contact-website-error" message={fieldErrors.website} />
                 </div>
               </div>
 
@@ -446,9 +473,9 @@ export function ContactPageContent(): JSX.Element {
                 <p
                   id="contact-help-error"
                   aria-live="polite"
-                  className={cn("text-xs text-accentB transition-opacity duration-200", needError ? "opacity-100" : "opacity-0")}
+                  className={cn("text-xs text-accentB transition-opacity duration-200", fieldErrors.intakeNeeds ? "opacity-100" : "opacity-0")}
                 >
-                  {needError || " "}
+                  {fieldErrors.intakeNeeds || " "}
                 </p>
 
                 <AnimatePresence initial={false} mode="wait">
@@ -469,13 +496,14 @@ export function ContactPageContent(): JSX.Element {
                         name="customNeed"
                         value={customNeed}
                         onChange={(event) => {
-                          setNeedError("");
+                          clearFieldError("customRequest");
                           setCustomNeed(event.target.value);
                         }}
                         placeholder="Tell us what you need"
                         className={FIELD_CLASS}
-                        aria-invalid={Boolean(needError)}
+                        aria-invalid={Boolean(fieldErrors.customRequest)}
                       />
+                      <FieldErrorText id="contact-custom-need-error" message={fieldErrors.customRequest} />
                     </motion.div>
                   ) : null}
                 </AnimatePresence>
@@ -524,11 +552,13 @@ export function ContactPageContent(): JSX.Element {
                 <Textarea
                   id="contact-message"
                   name="message"
-                  required
                   maxLength={1200}
                   placeholder="Share goals, scope, and timeline in a few lines."
                   className="min-h-[9.5rem] rounded-xl border-border/22 bg-card/75 px-4 py-3 text-sm"
+                  aria-invalid={Boolean(fieldErrors.message)}
+                  onChange={() => clearFieldError("message")}
                 />
+                <FieldErrorText id="contact-message-error" message={fieldErrors.message} />
               </div>
 
               <div className="space-y-2">
@@ -556,23 +586,24 @@ export function ContactPageContent(): JSX.Element {
                     checked={consentChecked}
                     onChange={(event) => {
                       setConsentChecked(event.target.checked);
-                      if (event.target.checked) {
-                        setConsentError("");
-                      }
+                      if (event.target.checked) clearFieldError("consent");
                     }}
                     className="mt-0.5 h-4 w-4 rounded border-border/30 text-accentA focus:ring-accentA/70"
-                    aria-invalid={Boolean(consentError)}
+                    aria-invalid={Boolean(fieldErrors.consent)}
                     required
                   />
                   <span>I agree to be contacted about my inquiry.</span>
                 </label>
-                <p className={cn("mt-1 text-xs text-accentB transition-opacity duration-200", consentError ? "opacity-100" : "opacity-0")} aria-live="polite">
-                  {consentError || " "}
-                </p>
+                <FieldErrorText id="contact-consent-error" message={fieldErrors.consent} />
               </div>
 
               <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                {loading ? "Sending..." : "Send Inquiry"}
+                {loading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Sending...
+                  </span>
+                ) : "Send Inquiry"}
               </Button>
             </form>
           </div>

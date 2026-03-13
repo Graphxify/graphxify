@@ -4,10 +4,12 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { UploadMedia } from "@/app/dashboard/(components)/upload-media";
 import { Button } from "@/components/ui/button";
+import { FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { emitCmsContentChanged } from "@/lib/client/cms-sync";
+import { submitFormDataRequest } from "@/lib/forms/shared";
 import { BLOG_CATEGORIES, formatBlogTagInput } from "@/lib/blog";
 
 function slugify(text: string): string {
@@ -117,31 +119,24 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
 
     const endpoint = type === "post" ? "/api/dashboard/posts" : "/api/dashboard/works";
     const method = item?.id ? "PUT" : "POST";
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
 
     try {
-      const response = await fetch(endpoint, {
-        method,
-        body: formData,
-        credentials: "include",
-        cache: "no-store",
-        signal: controller.signal
-      });
+      const result = await submitFormDataRequest<{ id: string }>(endpoint, formData, method);
+      const savedId = result.data && typeof result.data === "object" && "id" in result.data
+        ? String((result.data as { id?: string }).id || "")
+        : "";
 
-      const payload = (await response.json()) as { id?: string; message?: string };
-      if (!response.ok || !payload.id) {
-        setError(payload.message || `Unable to save ${isBlog ? "blog" : "work"}.`);
+      if (!result.success || !savedId) {
+        setError(result.message || `Unable to save ${isBlog ? "blog" : "work"}.`);
         return;
       }
 
       emitCmsContentChanged(`${type}.saved`);
-      setNotice(`${isBlog ? "Blog" : "Work"} saved successfully.`);
-      router.push(`/dashboard/${type}s/${payload.id}`);
+      setNotice(result.message || `${isBlog ? "Blog" : "Work"} saved successfully.`);
+      router.push(`/dashboard/${type}s/${savedId}`);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : `Unable to save ${isBlog ? "blog" : "work"}.`);
     } finally {
-      clearTimeout(timeout);
       setSaving(false);
     }
   }
@@ -465,8 +460,8 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
         </>
       )}
-      {error ? <p className="text-sm font-medium text-red-400">{error}</p> : null}
-      {notice ? <p className="text-sm font-medium text-emerald-400">{notice}</p> : null}
+      <FormAlert message={error} />
+      <FormAlert message={notice} type="success" />
       <Button type="submit" disabled={saving}>
         {saving ? "Saving..." : "Save"}
       </Button>

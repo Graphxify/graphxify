@@ -4,12 +4,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, BookOpen, Clock, Mail, Sparkles } from "lucide-react";
+import { ArrowUpRight, BookOpen, Clock, Loader2, Mail, Sparkles } from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { Button } from "@/components/ui/button";
+import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
+import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
 import { BLOG_CATEGORIES, type BlogCategory, type BlogPostSummary } from "@/lib/blog";
+import { newsletterSubscriptionSchema } from "@/lib/validation/schemas";
 
 const CATEGORY_FILTERS = ["All", ...BLOG_CATEGORIES] as const;
 const INITIAL_VISIBLE_COUNT = 6;
@@ -51,6 +54,11 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
   const [activeCategory, setActiveCategory] = useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
   const [subscribeModal, setSubscribeModal] = useState(false);
+  const [subscribeMessage, setSubscribeMessage] = useState("Thanks for subscribing. You'll hear from us soon with insights on branding, design, and web architecture.");
+  const [subscribeEmail, setSubscribeEmail] = useState("");
+  const [subscribeLoading, setSubscribeLoading] = useState(false);
+  const [subscribeError, setSubscribeError] = useState("");
+  const [subscribeFieldErrors, setSubscribeFieldErrors] = useState<FormFieldErrors>({});
 
   const featuredBlog = blogs[0];
   const remainingBlogs = blogs.slice(1);
@@ -70,10 +78,33 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
     setVisibleCount(INITIAL_VISIBLE_COUNT);
   }
 
-  function onSubscribeSubmit(event: React.FormEvent<HTMLFormElement>): void {
+  async function onSubscribeSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
-    event.currentTarget.reset();
-    setSubscribeModal(true);
+    setSubscribeError("");
+    setSubscribeFieldErrors({});
+
+    const payload = { email: subscribeEmail.trim() };
+    const parsed = newsletterSubscriptionSchema.safeParse(payload);
+    if (!parsed.success) {
+      setSubscribeFieldErrors(fieldErrorsFromZod(parsed.error));
+      return;
+    }
+
+    setSubscribeLoading(true);
+
+    try {
+      const result = await submitJsonForm("/api/newsletter", parsed.data);
+      if (result.success) {
+        setSubscribeEmail("");
+        setSubscribeMessage(result.message);
+        setSubscribeModal(true);
+      } else {
+        setSubscribeFieldErrors(result.fieldErrors ?? {});
+        setSubscribeError(result.message);
+      }
+    } finally {
+      setSubscribeLoading(false);
+    }
   }
 
   return (
@@ -275,15 +306,36 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
             </div>
 
             <form onSubmit={onSubscribeSubmit} className="grid gap-3 md:grid-cols-[1fr_auto]" aria-label="Blog subscribe form">
-              <Input
-                type="email"
-                required
-                placeholder="Email address"
-                className="h-12 rounded-xl border-border/18 bg-bg/62 px-4 text-sm placeholder:text-fg/45 placeholder:opacity-100"
-                aria-label="Email address"
-              />
-              <Button type="submit" size="lg" className="h-12 px-6">
-                Subscribe
+              <div className="space-y-2 md:col-span-1">
+                <FormAlert message={subscribeError} />
+                <Input
+                  type="email"
+                  required
+                  value={subscribeEmail}
+                  onChange={(event) => {
+                    setSubscribeEmail(event.target.value);
+                    setSubscribeError("");
+                    setSubscribeFieldErrors((current) => {
+                      if (!current.email) return current;
+                      const next = { ...current };
+                      delete next.email;
+                      return next;
+                    });
+                  }}
+                  placeholder="Email address"
+                  className="h-12 rounded-xl border-border/18 bg-bg/62 px-4 text-sm placeholder:text-fg/45 placeholder:opacity-100"
+                  aria-label="Email address"
+                  aria-invalid={Boolean(subscribeFieldErrors.email)}
+                />
+                <FieldErrorText id="blog-subscribe-email-error" message={subscribeFieldErrors.email} />
+              </div>
+              <Button type="submit" size="lg" className="h-12 px-6" disabled={subscribeLoading}>
+                {subscribeLoading ? (
+                  <span className="inline-flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Subscribing...
+                  </span>
+                ) : "Subscribe"}
               </Button>
             </form>
           </div>
@@ -293,7 +345,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
             onClose={() => setSubscribeModal(false)}
             type="success"
             title="You're In!"
-            message="Thanks for subscribing. You'll hear from us soon with insights on branding, design, and web architecture."
+            message={subscribeMessage}
             autoDismiss={6000}
           />
         </div>

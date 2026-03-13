@@ -62,6 +62,7 @@ $$;
 grant execute on function public.can_edit_testimonial(uuid) to anon, authenticated, service_role;
 
 drop policy if exists "testimonials_public_read_published" on public.testimonials;
+drop policy if exists "testimonials_public_insert_pending_review" on public.testimonials;
 drop policy if exists "testimonials_staff_read_all" on public.testimonials;
 drop policy if exists "testimonials_insert_staff" on public.testimonials;
 drop policy if exists "testimonials_update_staff_owned" on public.testimonials;
@@ -71,6 +72,16 @@ create policy "testimonials_public_read_published"
 on public.testimonials
 for select
 using (status = 'published');
+
+create policy "testimonials_public_insert_pending_review"
+on public.testimonials
+for insert
+with check (
+  status = 'pending'
+  and sort_order = 0
+  and author_id is null
+  and rating between 1 and 5
+);
 
 create policy "testimonials_staff_read_all"
 on public.testimonials

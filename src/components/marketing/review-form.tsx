@@ -1,11 +1,14 @@
 "use client";
 
-import { Send, Star } from "lucide-react";
+import { Loader2, Send, Star } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
 import { Textarea } from "@/components/ui/textarea";
+import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
+import { publicReviewSchema } from "@/lib/validation/schemas";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
 
@@ -58,30 +61,48 @@ export function ReviewForm(): JSX.Element {
   const [modal, setModal] = useState<ModalState>({ open: false, type: "success", title: "", message: "" });
   const [charCount, setCharCount] = useState(0);
   const [rating, setRating] = useState(5);
+  const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
+  const [submitError, setSubmitError] = useState("");
+
+  function clearFieldError(field: keyof FormFieldErrors): void {
+    setFieldErrors((current) => {
+      if (!current[field]) {
+        return current;
+      }
+
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setLoading(true);
+    setFieldErrors({});
+    setSubmitError("");
 
     const form = event.currentTarget;
     const formData = new FormData(form);
+    const payload = {
+      name: String(formData.get("name") || "").trim(),
+      role: String(formData.get("role") || "").trim(),
+      quote: String(formData.get("quote") || "").trim(),
+      company: String(formData.get("company") || "").trim(),
+      rating
+    };
+
+    const parsed = publicReviewSchema.safeParse(payload);
+    if (!parsed.success) {
+      setFieldErrors(fieldErrorsFromZod(parsed.error));
+      return;
+    }
+
+    setLoading(true);
 
     try {
-      const response = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.get("name"),
-          role: formData.get("role"),
-          quote: formData.get("quote"),
-          company: formData.get("company"),
-          rating
-        })
-      });
+      const result = await submitJsonForm("/api/reviews", parsed.data);
 
-      const payload = (await response.json()) as { message?: string };
-
-      if (response.ok) {
+      if (result.success) {
         form.reset();
         setCharCount(0);
         setRating(5);
@@ -89,23 +110,21 @@ export function ReviewForm(): JSX.Element {
           open: true,
           type: "success",
           title: "Review Submitted",
-          message: "Thank you for sharing your feedback. Your review has been received and is pending approval."
+          message: result.message
         });
+      } else if (result.fieldErrors && Object.keys(result.fieldErrors).length > 0) {
+        // Validation errors — show inline
+        setFieldErrors(result.fieldErrors);
+        setSubmitError(result.message);
       } else {
+        // Server / network error — show error modal
         setModal({
           open: true,
           type: "error",
-          title: "Submission Failed",
-          message: payload.message || "Something went wrong. Please try again."
+          title: "Something Went Wrong",
+          message: result.message || "We couldn't submit your review. Please try again in a moment."
         });
       }
-    } catch {
-      setModal({
-        open: true,
-        type: "error",
-        title: "Connection Error",
-        message: "Something went wrong. Please check your connection and try again."
-      });
     } finally {
       setLoading(false);
     }
@@ -114,6 +133,8 @@ export function ReviewForm(): JSX.Element {
   return (
     <>
       <form onSubmit={onSubmit} className="review-form space-y-4" aria-label="Submit a review">
+        <FormAlert message={submitError} />
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
             <label htmlFor="review-name" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/56">
@@ -128,7 +149,10 @@ export function ReviewForm(): JSX.Element {
               maxLength={120}
               placeholder="Your full name"
               className={FIELD_CLASS}
+              aria-invalid={Boolean(fieldErrors.name)}
+              onChange={() => clearFieldError("name")}
             />
+            <FieldErrorText id="review-name-error" message={fieldErrors.name} />
           </div>
 
           <div className="space-y-1.5">
@@ -143,7 +167,10 @@ export function ReviewForm(): JSX.Element {
               maxLength={160}
               placeholder="e.g. CEO, Founder, Manager"
               className={FIELD_CLASS}
+              aria-invalid={Boolean(fieldErrors.role)}
+              onChange={() => clearFieldError("role")}
             />
+            <FieldErrorText id="review-role-error" message={fieldErrors.role} />
           </div>
         </div>
 
@@ -158,7 +185,9 @@ export function ReviewForm(): JSX.Element {
             maxLength={120}
             placeholder="Company name"
             className={FIELD_CLASS}
+            onChange={() => clearFieldError("company")}
           />
+          <FieldErrorText id="review-company-error" message={fieldErrors.company} />
         </div>
 
         {/* Star rating */}
@@ -166,7 +195,11 @@ export function ReviewForm(): JSX.Element {
           <label className="text-xs font-medium uppercase tracking-[0.14em] text-fg/56">
             Rating <span className="text-fg/36">*</span>
           </label>
-          <StarRating value={rating} onChange={setRating} />
+          <StarRating value={rating} onChange={(value) => {
+            clearFieldError("rating");
+            setRating(value);
+          }} />
+          <FieldErrorText id="review-rating-error" message={fieldErrors.rating} />
         </div>
 
         <div className="space-y-1.5">
@@ -185,8 +218,13 @@ export function ReviewForm(): JSX.Element {
             rows={4}
             placeholder="Share your experience working with Graphxify..."
             className={`${FIELD_CLASS} min-h-[7rem] resize-none py-3`}
-            onChange={(e) => setCharCount(e.target.value.length)}
+            aria-invalid={Boolean(fieldErrors.quote)}
+            onChange={(e) => {
+              clearFieldError("quote");
+              setCharCount(e.target.value.length);
+            }}
           />
+          <FieldErrorText id="review-quote-error" message={fieldErrors.quote} />
         </div>
 
         <Button
@@ -194,8 +232,17 @@ export function ReviewForm(): JSX.Element {
           disabled={loading}
           className="h-12 w-full rounded-xl border border-accentA/45 bg-accent-gradient px-6 text-ivory shadow-[0_10px_22px_rgba(0,82,204,0.22)] hover:border-accentA/55 hover:brightness-105 focus-visible:border-accentA/55 focus-visible:text-ivory focus-visible:ring-accentA/70 sm:w-auto"
         >
-          <Send className="mr-2 h-4 w-4" />
-          {loading ? "Submitting..." : "Submit Review"}
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            <>
+              <Send className="mr-2 h-4 w-4" />
+              Submit Review
+            </>
+          )}
         </Button>
 
         <p className="text-[11px] leading-relaxed text-fg/32">

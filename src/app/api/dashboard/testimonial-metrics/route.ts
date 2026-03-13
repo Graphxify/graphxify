@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireApiPermission } from "@/lib/auth/requireRole";
+import { formError, formSuccess } from "@/lib/forms/shared";
 import { logger } from "@/lib/logger";
 import { saveTestimonialMetrics } from "@/services/testimonial-metric-service";
 
@@ -33,11 +34,10 @@ export async function PUT(request: NextRequest) {
     await requireApiPermission("content.testimonial_metrics.edit");
     const body = (await request.json()) as unknown;
     const result = await saveTestimonialMetrics(body);
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json(formSuccess("Testimonial metrics saved.", { count: result.count }), { status: 200 });
   } catch (error) {
     const message = mapError(error);
     logger.error("Testimonial metrics save failed", { error: message });
-    return NextResponse.json({ message }, { status: 400 });
+    return NextResponse.json(formError(message), { status: 400 });
   }
 }
-

@@ -1,13 +1,15 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { AlertTriangle, ChevronDown } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
 import { Textarea } from "@/components/ui/textarea";
+import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
 import { cn } from "@/lib/utils";
+import { publicLeadSchema } from "@/lib/validation/schemas";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
 
@@ -27,77 +29,70 @@ export function LeadForm(): JSX.Element {
   const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState<ModalState>({ open: false, type: "success", title: "", message: "" });
   const [selectedService, setSelectedService] = useState<ServiceKey | "">("");
-  const [serviceError, setServiceError] = useState("");
-  const [messageError, setMessageError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
+  const [submitError, setSubmitError] = useState("");
+
+  function clearFieldError(field: keyof FormFieldErrors): void {
+    setFieldErrors((current) => {
+      if (!current[field]) {
+        return current;
+      }
+
+      const next = { ...current };
+      delete next[field];
+      return next;
+    });
+  }
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setServiceError("");
-    setMessageError("");
+    setFieldErrors({});
+    setSubmitError("");
 
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const message = String(formData.get("message") || "").trim();
+    const payload = {
+      source: "quick_start" as const,
+      name: String(formData.get("name") || "").trim(),
+      email: String(formData.get("email") || "").trim(),
+      message: String(formData.get("message") || "").trim(),
+      intakeNeeds: selectedService ? [selectedService] : [],
+      attachments: []
+    };
 
-    let hasError = false;
-
-    if (!selectedService) {
-      setServiceError("Select a service.");
-      hasError = true;
-    }
-
-    if (message.length < 8) {
-      setMessageError("Add a short project summary (at least 8 characters).");
-      hasError = true;
-    }
-
-    if (hasError) {
+    const parsed = publicLeadSchema.safeParse(payload);
+    if (!parsed.success) {
+      setFieldErrors(fieldErrorsFromZod(parsed.error));
       return;
     }
-
-    const selectedServiceLabel = SERVICE_OPTIONS.find((item) => item.key === selectedService)?.label ?? "Not specified";
-    const builtMessage = ["Quick Start Inquiry", `Service: ${selectedServiceLabel}`, "", message].join("\n");
 
     setLoading(true);
 
     try {
-      const response = await fetch("/api/leads", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.get("name"),
-          email: formData.get("email"),
-          message: builtMessage,
-          intakeNeeds: selectedService ? [selectedService] : []
-        })
-      });
+      const result = await submitJsonForm<{ id: string }>("/api/leads", parsed.data);
 
-      const payload = (await response.json()) as { message?: string };
-
-      if (response.ok) {
+      if (result.success) {
         form.reset();
         setSelectedService("");
         setModal({
           open: true,
           type: "success",
           title: "Message Sent Successfully",
-          message: "Thanks for reaching out. We've received your message and will get back to you soon."
+          message: result.message
         });
+      } else if (result.fieldErrors && Object.keys(result.fieldErrors).length > 0) {
+        // Validation errors — show inline so the user can fix specific fields
+        setFieldErrors(result.fieldErrors);
+        setSubmitError(result.message);
       } else {
+        // Server / network error — show error modal
         setModal({
           open: true,
           type: "error",
           title: "Something Went Wrong",
-          message: payload.message || "Could not submit your request. Please try again."
+          message: result.message || "We couldn't send your message. Please try again in a moment."
         });
       }
-    } catch {
-      setModal({
-        open: true,
-        type: "error",
-        title: "Connection Error",
-        message: "Could not submit your request. Please check your connection and try again."
-      });
     } finally {
       setLoading(false);
     }
@@ -106,33 +101,42 @@ export function LeadForm(): JSX.Element {
   return (
     <>
       <form onSubmit={onSubmit} className="lead-form-premium space-y-3" aria-label="Quick start lead form">
-        <AnimatePresence initial={false}>
-          {serviceError || messageError ? (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              className="flex items-start gap-2 rounded-lg border border-border/20 bg-card/72 px-3 py-2 text-sm"
-            >
-              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-accentB" />
-              <span className="text-fg/78">{serviceError || messageError}</span>
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+        <FormAlert message={submitError} />
 
         <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
           <div className="space-y-1">
             <label htmlFor="quick-lead-name" className="sr-only">
               Full Name
             </label>
-            <Input id="quick-lead-name" name="name" autoComplete="name" required placeholder="Full Name" className={QUICK_FIELD_CLASS} />
+            <Input
+              id="quick-lead-name"
+              name="name"
+              autoComplete="name"
+              required
+              placeholder="Full Name"
+              className={QUICK_FIELD_CLASS}
+              aria-invalid={Boolean(fieldErrors.name)}
+              onChange={() => clearFieldError("name")}
+            />
+            <FieldErrorText id="quick-lead-name-error" message={fieldErrors.name} />
           </div>
 
           <div className="space-y-1">
             <label htmlFor="quick-lead-email" className="sr-only">
               Email
             </label>
-            <Input id="quick-lead-email" name="email" type="email" autoComplete="email" required placeholder="Email" className={QUICK_FIELD_CLASS} />
+            <Input
+              id="quick-lead-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              placeholder="Email"
+              className={QUICK_FIELD_CLASS}
+              aria-invalid={Boolean(fieldErrors.email)}
+              onChange={() => clearFieldError("email")}
+            />
+            <FieldErrorText id="quick-lead-email-error" message={fieldErrors.email} />
           </div>
 
           <div className="space-y-1 md:col-span-2 lg:col-span-1">
@@ -146,11 +150,11 @@ export function LeadForm(): JSX.Element {
                 value={selectedService}
                 data-empty={selectedService ? "false" : "true"}
                 onChange={(event) => {
-                  setServiceError("");
+                  clearFieldError("intakeNeeds");
                   setSelectedService(event.target.value as ServiceKey | "");
                 }}
                 aria-required="true"
-                aria-invalid={Boolean(serviceError)}
+                aria-invalid={Boolean(fieldErrors.intakeNeeds)}
                 className={cn(
                   QUICK_FIELD_CLASS,
                   "quick-service-select w-full appearance-none border pr-10 border-border/22 focus-visible:border-fg/30",
@@ -166,7 +170,7 @@ export function LeadForm(): JSX.Element {
               </select>
               <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/48" aria-hidden="true" />
             </div>
-            {serviceError ? <p className="text-xs text-accentB">{serviceError}</p> : null}
+            <FieldErrorText id="quick-lead-service-error" message={fieldErrors.intakeNeeds} />
           </div>
         </div>
 
@@ -178,12 +182,13 @@ export function LeadForm(): JSX.Element {
             <Textarea
               id="quick-lead-message"
               name="message"
-              required
               maxLength={320}
               placeholder="Short message (1-2 lines)"
               className={cn(QUICK_FIELD_CLASS, "h-12 min-h-[3rem] resize-none py-3")}
+              aria-invalid={Boolean(fieldErrors.message)}
+              onChange={() => clearFieldError("message")}
             />
-            {messageError ? <p className="text-xs text-accentB">{messageError}</p> : null}
+            <FieldErrorText id="quick-lead-message-error" message={fieldErrors.message} />
           </div>
 
           <Button
@@ -193,7 +198,12 @@ export function LeadForm(): JSX.Element {
             disabled={loading}
             className="h-12 w-full rounded-xl border border-accentA/45 bg-accent-gradient px-6 text-ivory shadow-[0_10px_22px_rgba(0,82,204,0.22)] hover:border-accentA/55 hover:brightness-105 focus-visible:border-accentA/55 focus-visible:text-ivory focus-visible:ring-accentA/70"
           >
-            {loading ? "Sending..." : "Send Inquiry"}
+            {loading ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Sending...
+              </span>
+            ) : "Send Inquiry"}
           </Button>
         </div>
       </form>

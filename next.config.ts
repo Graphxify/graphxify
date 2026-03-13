@@ -1,5 +1,4 @@
 import type { NextConfig } from "next";
-import { withSentryConfig } from "@sentry/nextjs";
 
 const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
@@ -37,19 +36,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  org: "gx-0n",
-  project: "graphxify",
-
-  // Source map upload auth token
-  authToken: process.env.SENTRY_AUTH_TOKEN,
-
-  // Upload wider set of client source files for better stack trace resolution
-  widenClientFileUpload: true,
-
-  // Create a proxy API route to bypass ad-blockers
-  tunnelRoute: "/monitoring",
-
-  // Suppress non-CI output
-  silent: !process.env.CI,
-});
+export default nextConfig;

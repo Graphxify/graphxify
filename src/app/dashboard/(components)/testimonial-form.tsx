@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { emitCmsContentChanged } from "@/lib/client/cms-sync";
+import { submitFormDataRequest } from "@/lib/forms/shared";
 
 type TestimonialItem = {
   id?: string;
@@ -36,22 +38,19 @@ export function TestimonialForm({ item }: { item?: TestimonialItem | null }): JS
     const method = item?.id ? "PUT" : "POST";
 
     try {
-      const response = await fetch(endpoint, {
-        method,
-        body: formData,
-        credentials: "include",
-        cache: "no-store"
-      });
+      const result = await submitFormDataRequest<{ id: string }>(endpoint, formData, method);
+      const savedId = result.data && typeof result.data === "object" && "id" in result.data
+        ? String((result.data as { id?: string }).id || "")
+        : "";
 
-      const payload = (await response.json()) as { id?: string; message?: string };
-      if (!response.ok || !payload.id) {
-        setError(payload.message || "Save failed");
+      if (!result.success || !savedId) {
+        setError(result.message || "Save failed");
         return;
       }
 
       emitCmsContentChanged("testimonial.saved");
-      setNotice("Saved successfully.");
-      router.push(`/dashboard/testimonials/${payload.id}`);
+      setNotice(result.message || "Saved successfully.");
+      router.push(`/dashboard/testimonials/${savedId}`);
       router.refresh();
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Request failed");
@@ -115,8 +114,8 @@ export function TestimonialForm({ item }: { item?: TestimonialItem | null }): JS
         </div>
       </div>
 
-      {error ? <p className="text-sm font-medium text-red-400">{error}</p> : null}
-      {notice ? <p className="text-sm font-medium text-emerald-400">{notice}</p> : null}
+      <FormAlert message={error} />
+      <FormAlert message={notice} type="success" />
 
       <Button type="submit" disabled={saving}>
         {saving ? "Saving..." : "Save"}

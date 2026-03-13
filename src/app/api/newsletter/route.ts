@@ -1,24 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createLead } from "@/services/lead-service";
 import { formError, formSuccess, fieldErrorsFromZod } from "@/lib/forms/shared";
-import { rateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
-import { publicLeadSchema } from "@/lib/validation/schemas";
+import { rateLimit } from "@/lib/rate-limit";
+import { subscribeToNewsletter } from "@/services/newsletter-service";
+import { newsletterSubscriptionSchema } from "@/lib/validation/schemas";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
 
   try {
-    const limit = await rateLimit({ key: ip, route: "api-leads", limit: 10, windowSec: 60 });
+    const limit = await rateLimit({ key: ip, route: "api-newsletter", limit: 6, windowSec: 60 });
     if (!limit.allowed) {
       return NextResponse.json(
-        formError("Too many requests. Please try again shortly."),
+        formError("Too many subscription attempts. Please try again shortly."),
         { status: 429, headers: { "Retry-After": String(limit.retryAfter) } }
       );
     }
 
     const body = await request.json();
-    const parsed = publicLeadSchema.safeParse(body);
+    const parsed = newsletterSubscriptionSchema.safeParse(body);
 
     if (!parsed.success) {
       return NextResponse.json(
@@ -27,18 +27,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await createLead(parsed.data);
+    const result = await subscribeToNewsletter({ email: parsed.data.email, source: "blog" });
     return NextResponse.json(
-      formSuccess("Thanks for reaching out. Your inquiry has been received.", { id: result.id }),
+      formSuccess(
+        result.alreadySubscribed
+          ? "You're already subscribed. We'll keep you on the list."
+          : "You're subscribed. We'll send occasional insights when there's something worth reading."
+      ),
       { status: 201 }
     );
   } catch (error) {
-    logger.error("Lead create failed", {
-      route: "api/leads",
+    logger.error("Newsletter subscription failed", {
+      route: "api/newsletter",
       error: error instanceof Error ? error.message : "unknown"
     });
     return NextResponse.json(
-      formError("We couldn't send your inquiry right now. Please try again in a moment."),
+      formError("We couldn't complete your subscription right now. Please try again in a moment."),
       { status: 500 }
     );
   }

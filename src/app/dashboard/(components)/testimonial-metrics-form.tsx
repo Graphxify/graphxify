@@ -3,9 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { emitCmsContentChanged } from "@/lib/client/cms-sync";
+import { submitJsonForm } from "@/lib/forms/shared";
 
 type MetricRow = {
   id?: string;
@@ -57,21 +59,13 @@ export function TestimonialMetricsForm({ initialRows }: { initialRows: MetricRow
     };
 
     try {
-      const response = await fetch("/api/dashboard/testimonial-metrics", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        credentials: "include",
-        cache: "no-store"
-      });
-
-      const result = (await response.json()) as { message?: string };
-      if (!response.ok) {
+      const result = await submitJsonForm<{ count: number }>("/api/dashboard/testimonial-metrics", payload, "PUT");
+      if (!result.success) {
         setError(result.message || "Save failed");
         return;
       }
 
-      setNotice("Metrics saved.");
+      setNotice(result.message || "Metrics saved.");
       emitCmsContentChanged("testimonial-metrics.saved");
       router.refresh();
     } catch (submitError) {
@@ -130,9 +124,8 @@ export function TestimonialMetricsForm({ initialRows }: { initialRows: MetricRow
         </Button>
       </div>
 
-      {error ? <p className="text-sm text-fg/74">{error}</p> : null}
-      {notice ? <p className="text-sm text-fg/74">{notice}</p> : null}
+      <FormAlert message={error} />
+      <FormAlert message={notice} type="success" />
     </form>
   );
 }
-
