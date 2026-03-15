@@ -1,9 +1,18 @@
-export const projectCardContent = [
+type ProjectCardContentItem = {
+  slug: string;
+  pathSlug: string;
+  industry: string;
+  title: string;
+  liveUrl?: string;
+};
+
+export const projectCardContent: readonly ProjectCardContentItem[] = [
   {
     slug: "northline-enterprise-replatform",
     pathSlug: "flyup-line",
     industry: "Digital Platform",
-    title: "FlyUp Line"
+    title: "Flyup Line",
+    liveUrl: "https://flyupline.com/"
   },
   {
     slug: "vertex-brand-operations",
@@ -15,13 +24,15 @@ export const projectCardContent = [
     slug: "axis-growth-platform",
     pathSlug: "boss-raam-pharmacy",
     industry: "Brand Identity + Website",
-    title: "BOSS RAAM Pharmacy"
+    title: "Boss Raam Pharmacy",
+    liveUrl: "https://www.bossmedclinic.com/"
   },
   {
     slug: "lumen-commerce-redesign",
     pathSlug: "pharmacy-on-king",
     industry: "Brand Identity + Website",
-    title: "Pharmacy On King"
+    title: "Pharmacy on King",
+    liveUrl: "https://pharmacyonking.ca/"
   },
   {
     slug: "atlas-fintech-experience-hub",
@@ -33,9 +44,10 @@ export const projectCardContent = [
     slug: "meridian-health-network-portal",
     pathSlug: "king-medical-art-pharmacy",
     industry: "Web Designer & Developer",
-    title: "King Medical Art Pharmacy"
+    title: "King Medical Arts",
+    liveUrl: "https://www.kingmedicalartspharmacy.ca/"
   }
-] as const;
+];
 
 export const projectCardSlugs = projectCardContent.map((item) => item.slug);
 export const projectCardPathSlugs = projectCardContent.map((item) => item.pathSlug);
@@ -76,7 +88,7 @@ export function getProjectDisplayTitle(slug: string, fallbackTitle: string) {
   return getProjectCardContent(slug)?.title ?? fallbackTitle;
 }
 
-export function withProjectCardContent<T extends { slug: string; title: string; industry?: string }>(item: T): T {
+export function withProjectCardContent<T extends { slug: string; title: string; industry?: string; liveUrl?: string }>(item: T): T {
   const content = getProjectCardContent(item.slug);
   if (!content) {
     return item;
@@ -85,6 +97,7 @@ export function withProjectCardContent<T extends { slug: string; title: string; 
   return {
     ...item,
     title: content.title,
-    ...(typeof item.industry === "string" ? { industry: content.industry } : {})
+    ...(typeof item.industry === "string" ? { industry: content.industry } : {}),
+    liveUrl: content.liveUrl ?? item.liveUrl
   } as T;
 }

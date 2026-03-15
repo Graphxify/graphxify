@@ -23,23 +23,34 @@ export const marketingNav = [
 export const testimonials = [
   {
     id: "01",
-    quote: "Graphxify turned our ideas into a sharp, clean brand. Fast, easy, and right on point.",
-    name: "Ethan Moore",
-    role: "Co-founder, NovaTech",
+    quote: "Graphxify completely transformed our online presence. The new website feels modern, fast, and perfectly aligned with our brand. The process from design to launch was smooth and professional.",
+    name: "Carlos M",
+    role: "Founder, FlyUp Line",
+    rating: 5,
     image_url: null
   },
   {
     id: "02",
-    quote: "The design and build loop was seamless. We launched with clarity, speed, and a system our team can manage.",
-    name: "Leah Mendez",
-    role: "Head of Digital, Northline",
+    quote: "Working with Graphxify was a great experience. The branding and website design elevated our business and helped us present a more premium image to our clients.",
+    name: "Luka",
+    role: "Founder, Luka Hair Salon",
+    rating: 5,
     image_url: null
   },
   {
     id: "03",
-    quote: "Our site feels premium now, and the CMS structure means we can publish confidently without design drift.",
-    name: "Omar Rahim",
-    role: "Operations Director, Axis Group",
+    quote: "Graphxify delivered a clean, modern website that feels both professional and easy for our customers to navigate. The final result reflects our brand perfectly.",
+    name: "Sam",
+    role: "Founder, King Medical Arts Pharmacy",
+    rating: 5,
+    image_url: null
+  },
+  {
+    id: "04",
+    quote: "The attention to detail throughout the project was impressive. Graphxify translated our vision into a strong brand and website that truly represents our business.",
+    name: "Sarah H",
+    role: "Founder, Maven Brand",
+    rating: 5,
     image_url: null
   }
 ] as const;

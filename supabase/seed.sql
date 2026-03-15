@@ -83,39 +83,60 @@ on conflict (slug) do nothing;
 with seed_author as (
   select id from public.profiles order by created_at asc limit 1
 )
-insert into public.testimonials (id, quote, name, role, image_url, status, sort_order, author_id)
+insert into public.testimonials (id, quote, name, role, image_url, rating, status, sort_order, author_id)
 values
   (
     '00000000-0000-0000-0000-000000000101',
-    'Graphxify turned our ideas into a sharp, clean brand. Fast, easy, and right on point.',
-    'Ethan Moore',
-    'Co-founder, NovaTech',
-    '/assets/work-1.svg',
+    'Graphxify completely transformed our online presence. The new website feels modern, fast, and perfectly aligned with our brand. The process from design to launch was smooth and professional.',
+    'Carlos M',
+    'Founder, FlyUp Line',
+    null,
+    5,
     'published',
     0,
     (select id from seed_author)
   ),
   (
     '00000000-0000-0000-0000-000000000102',
-    'The design and build loop was seamless. We launched with clarity, speed, and a system our team can manage.',
-    'Leah Mendez',
-    'Head of Digital, Northline',
-    '/assets/work-2.svg',
+    'Working with Graphxify was a great experience. The branding and website design elevated our business and helped us present a more premium image to our clients.',
+    'Luka',
+    'Founder, Luka Hair Salon',
+    null,
+    5,
     'published',
     1,
     (select id from seed_author)
   ),
   (
     '00000000-0000-0000-0000-000000000103',
-    'Our site feels premium now, and the CMS structure means we can publish confidently without design drift.',
-    'Omar Rahim',
-    'Operations Director, Axis Group',
-    '/assets/work-3.svg',
+    'Graphxify delivered a clean, modern website that feels both professional and easy for our customers to navigate. The final result reflects our brand perfectly.',
+    'Sam',
+    'Founder, King Medical Arts Pharmacy',
+    null,
+    5,
     'published',
     2,
     (select id from seed_author)
+  ),
+  (
+    '00000000-0000-0000-0000-000000000104',
+    'The attention to detail throughout the project was impressive. Graphxify translated our vision into a strong brand and website that truly represents our business.',
+    'Sarah H',
+    'Founder, Maven Brand',
+    null,
+    5,
+    'published',
+    3,
+    (select id from seed_author)
   )
-on conflict (id) do nothing;
+on conflict (id) do update set
+  quote = excluded.quote,
+  name = excluded.name,
+  role = excluded.role,
+  image_url = excluded.image_url,
+  rating = excluded.rating,
+  status = excluded.status,
+  sort_order = excluded.sort_order;
 
 with seed_author as (
   select id from public.profiles order by created_at asc limit 1

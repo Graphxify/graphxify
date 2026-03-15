@@ -11,26 +11,11 @@ export default async function DashboardSettingsPage() {
 
   const settings = await loadAllSettings();
 
-  const systemChecks = [
-    { label: "Supabase", ok: Boolean(env.NEXT_PUBLIC_SUPABASE_URL) },
-    { label: "SMTP Connection", ok: Boolean(env.SMTP_HOST && env.SMTP_USER) },
-    { label: "SMTP Sender", ok: Boolean(env.SMTP_FROM) },
-    { label: "Owner Email", ok: Boolean(env.OWNER_NOTIFY_EMAIL) },
-    { label: "Rate Limiting", ok: Boolean(env.UPSTASH_REDIS_REST_URL) },
-    { label: "Service Role Key", ok: Boolean(env.SUPABASE_SERVICE_ROLE_KEY) }
-  ];
-
   const smtpDisplay = {
     host: env.SMTP_HOST || "",
     port: env.SMTP_PORT || "",
     from: env.SMTP_FROM || "",
     owner: env.OWNER_NOTIFY_EMAIL || ""
-  };
-
-  const environmentInfo = {
-    env: process.env.NODE_ENV === "production" ? "Production" : "Development",
-    version: "1.0.0",
-    supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL?.replace(/https?:\/\//, "").split(".")[0] || "–"
   };
 
   return (
@@ -45,9 +30,7 @@ export default async function DashboardSettingsPage() {
         <RevealItem>
           <SettingsClient
             settings={settings}
-            systemChecks={systemChecks}
             smtpDisplay={smtpDisplay}
-            environmentInfo={environmentInfo}
           />
         </RevealItem>
       </RevealStagger>

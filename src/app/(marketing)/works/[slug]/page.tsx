@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { ProjectLightboxImage } from "@/components/marketing/project-details-interactive";
 import { OtherProjectsSlider } from "@/components/marketing/other-projects-slider";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
+import { Button } from "@/components/ui/button";
 import { getPublishedWorks } from "@/db/queries/works";
 import {
   getProjectDisplayTitle,
@@ -757,6 +758,22 @@ function ProjectCtaSection(): JSX.Element {
   return <SiteCtaSection />;
 }
 
+function ProjectLiveLinkAction({ project }: { project: ProjectDetail }): JSX.Element | null {
+  if (!project.liveUrl) {
+    return null;
+  }
+
+  return (
+    <div className="w-full md:w-auto md:shrink-0">
+      <Button asChild className="w-full md:w-auto">
+        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+          Visit Site
+        </a>
+      </Button>
+    </div>
+  );
+}
+
 export default async function WorkDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const project = await getResolvedProjectBySlug(slug);
@@ -792,9 +809,12 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
 
         <section className="relative z-20 -mt-[28svh] min-h-[120svh] rounded-t-[2.4rem] border-x border-border/18 bg-card px-0 pt-12 pb-20 shadow-[0_-16px_40px_rgba(13,13,15,0.08)] md:-mt-[26svh] md:rounded-t-[3.25rem] md:pt-16 md:pb-28">
           <div className="container space-y-8">
-            <header className="space-y-2">
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/56">{getVisualLayoutSectionTitle(project)}</p>
-              <p className="max-w-2xl text-sm text-fg/66">{getVisualLayoutNote(project)}</p>
+            <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div className="space-y-2">
+                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/56">{getVisualLayoutSectionTitle(project)}</p>
+                <p className="max-w-2xl text-sm text-fg/66">{getVisualLayoutNote(project)}</p>
+              </div>
+              <ProjectLiveLinkAction project={project} />
             </header>
 
             <ProjectVisualGallery project={project} />

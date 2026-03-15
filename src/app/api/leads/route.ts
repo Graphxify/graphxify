@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { createLead } from "@/services/lead-service";
 import { formError, formSuccess, fieldErrorsFromZod } from "@/lib/forms/shared";
 import { rateLimit } from "@/lib/rate-limit";
@@ -28,6 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await createLead(parsed.data);
+    revalidatePath("/dashboard/leads");
     return NextResponse.json(
       formSuccess("Thanks for reaching out. Your inquiry has been received.", { id: result.id }),
       { status: 201 }

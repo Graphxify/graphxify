@@ -6,13 +6,10 @@ import {
   Bell,
   BellOff,
   CheckCircle,
-  Code2,
   Globe,
   Key,
   Loader2,
   Mail,
-  Monitor,
-  Server,
   Settings2,
   Shield,
   Trash2,
@@ -23,7 +20,6 @@ import {
   dangerResetSettingsAction,
   saveEmailNotificationsAction,
   saveGeneralSettingsAction,
-  saveIntegrationsAction,
   saveSecuritySettingsAction,
   saveSocialLinksAction,
   testSmtpAction
@@ -31,23 +27,17 @@ import {
 
 /* ── Types ── */
 
-type SystemCheck = { label: string; ok: boolean };
-
 type Props = {
   settings: Record<string, Record<string, unknown>>;
-  systemChecks: SystemCheck[];
   smtpDisplay: { host: string; port: string; from: string; owner: string };
-  environmentInfo: { env: string; version: string; supabaseUrl: string };
 };
 
-type Tab = "general" | "email" | "security" | "integrations" | "system" | "danger";
+type Tab = "general" | "email" | "security" | "danger";
 
 const TABS: { key: Tab; label: string; icon: typeof Settings2 }[] = [
   { key: "general", label: "General", icon: Settings2 },
   { key: "email", label: "Email", icon: Mail },
   { key: "security", label: "Security", icon: Shield },
-  { key: "integrations", label: "Integrations", icon: Code2 },
-  { key: "system", label: "System", icon: Server },
   { key: "danger", label: "Danger Zone", icon: AlertTriangle }
 ];
 
@@ -378,79 +368,6 @@ function SecurityTab({ settings }: { settings: Record<string, Record<string, unk
   );
 }
 
-function IntegrationsTab({ settings }: { settings: Record<string, Record<string, unknown>> }) {
-  const [pending, startTransition] = useTransition();
-  const [msg, setMsg] = useState("");
-  const integrations = settings.integrations ?? {};
-
-  return (
-    <div className="space-y-5">
-      <SectionCard title="Analytics & Tracking" icon={Monitor} description="Paste your tracking IDs to integrate third-party analytics.">
-        <form
-          action={(fd) => startTransition(async () => {
-            const r = await saveIntegrationsAction(fd);
-            setMsg(r.ok ? "Saved" : r.error || "Error");
-            setTimeout(() => setMsg(""), 3000);
-          })}
-          className="space-y-4"
-        >
-          <FieldRow label="Google Analytics"><FieldInput name="google_analytics_id" defaultValue={String(integrations.google_analytics_id ?? "")} placeholder="G-XXXXXXXXXX" /></FieldRow>
-          <FieldRow label="Tag Manager"><FieldInput name="google_tag_manager_id" defaultValue={String(integrations.google_tag_manager_id ?? "")} placeholder="GTM-XXXXXXX" /></FieldRow>
-          <FieldRow label="Meta Pixel"><FieldInput name="meta_pixel_id" defaultValue={String(integrations.meta_pixel_id ?? "")} placeholder="Pixel ID" /></FieldRow>
-          <FieldRow label="Hotjar"><FieldInput name="hotjar_id" defaultValue={String(integrations.hotjar_id ?? "")} placeholder="Hotjar Site ID" /></FieldRow>
-          <div className="flex items-center gap-3 pt-2">
-            <SaveButton pending={pending} />
-            {msg && <span className="text-xs text-emerald-400">{msg}</span>}
-          </div>
-        </form>
-      </SectionCard>
-
-      <SectionCard title="Email Provider" description="SMTP credentials are managed via environment variables for security.">
-        <div className="rounded-lg border border-border/10 px-4 py-3">
-          <p className="text-sm font-medium text-fg">Hostinger SMTP</p>
-          <p className="mt-0.5 text-xs text-fg/48">smtp.hostinger.com:465 (SSL)</p>
-        </div>
-      </SectionCard>
-    </div>
-  );
-}
-
-function SystemTab({ systemChecks, environmentInfo }: { systemChecks: SystemCheck[]; environmentInfo: Props["environmentInfo"] }) {
-  return (
-    <div className="space-y-5">
-      <SectionCard title="System Health" icon={Server}>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {systemChecks.map((check) => (
-            <div key={check.label} className="flex items-center gap-3 rounded-lg border border-border/10 px-4 py-3">
-              <StatusDot ok={check.ok} />
-              <div>
-                <p className="text-sm font-medium">{check.label}</p>
-                <p className="text-xs text-fg/48">{check.ok ? "Connected" : "Not configured"}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </SectionCard>
-
-      <SectionCard title="Environment" icon={Globe}>
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-lg border border-border/10 px-4 py-3">
-            <p className="text-xs text-fg/48">Environment</p>
-            <p className="mt-0.5 text-sm font-medium">{environmentInfo.env}</p>
-          </div>
-          <div className="rounded-lg border border-border/10 px-4 py-3">
-            <p className="text-xs text-fg/48">Project Version</p>
-            <p className="mt-0.5 text-sm font-medium">{environmentInfo.version}</p>
-          </div>
-          <div className="rounded-lg border border-border/10 px-4 py-3">
-            <p className="text-xs text-fg/48">Supabase</p>
-            <p className="mt-0.5 truncate text-sm font-medium">{environmentInfo.supabaseUrl}</p>
-          </div>
-        </div>
-      </SectionCard>
-    </div>
-  );
-}
 
 function DangerZoneTab() {
   const [deletePending, startDeleteTransition] = useTransition();
@@ -492,7 +409,7 @@ function DangerZoneTab() {
 
 /* ── Main Component ── */
 
-export function SettingsClient({ settings, systemChecks, smtpDisplay, environmentInfo }: Props) {
+export function SettingsClient({ settings, smtpDisplay }: Props) {
   const [tab, setTab] = useState<Tab>("general");
 
   return (
@@ -528,8 +445,6 @@ export function SettingsClient({ settings, systemChecks, smtpDisplay, environmen
         {tab === "general" && <GeneralTab settings={settings} />}
         {tab === "email" && <EmailTab settings={settings} smtpDisplay={smtpDisplay} />}
         {tab === "security" && <SecurityTab settings={settings} />}
-        {tab === "integrations" && <IntegrationsTab settings={settings} />}
-        {tab === "system" && <SystemTab systemChecks={systemChecks} environmentInfo={environmentInfo} />}
         {tab === "danger" && <DangerZoneTab />}
       </div>
     </div>
