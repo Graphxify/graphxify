@@ -10,7 +10,7 @@ const POST_EXTENDED_SELECT = `${POST_BASE_SELECT},category,author,author_role,au
 type PostQueryRow = Post & { __legacySchema?: boolean };
 
 function isMissingColumnError(error: { code?: string } | null): boolean {
-  return error?.code === "42703";
+  return error?.code === "42703" || error?.code === "PGRST204";
 }
 
 function mergeOriginalBlogMetadata(row: Partial<Post>): Partial<Post> {

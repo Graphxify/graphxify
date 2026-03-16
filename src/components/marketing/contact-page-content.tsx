@@ -2,20 +2,20 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
+  Blocks,
   Check,
   ChevronDown,
   Clock3,
-  Code2,
-  Compass,
   Copy,
-  Database,
   FileText,
+  Fingerprint,
+  Layout,
   Loader2,
   Mail,
-  Palette,
   Phone,
   ShieldCheck,
   Sparkles,
+  Terminal,
   Upload,
   type LucideIcon
 } from "lucide-react";
@@ -46,25 +46,25 @@ const HELP_OPTIONS: HelpOption[] = [
     key: "brand-systems",
     title: "Brand Systems",
     description: "Identity foundations that scale.",
-    icon: Compass
+    icon: Fingerprint
   },
   {
     key: "web-design",
     title: "Web Design",
     description: "Structured UI and layouts.",
-    icon: Palette
+    icon: Layout
   },
   {
     key: "web-development",
     title: "Web Development",
     description: "Built with custom code.",
-    icon: Code2
+    icon: Terminal
   },
   {
     key: "cms-architecture",
     title: "CMS Architecture",
     description: "Structured content systems.",
-    icon: Database
+    icon: Blocks
   },
   {
     key: "something-else",

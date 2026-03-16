@@ -42,7 +42,7 @@ export async function getPublishedWorks(): Promise<Work[]> {
 
   // If any column doesn't exist yet (migration not run), retry with base columns so
   // public pages continue to show CMS cover images and gallery images.
-  if (fullResult.error.code === "42703") {
+  if (fullResult.error.code === "42703" || fullResult.error.code === "PGRST204") {
     const baseResult = await supabase
       .from("works")
       .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,cover_image_url,gallery_images,created_at,updated_at")

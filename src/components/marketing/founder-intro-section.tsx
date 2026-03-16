@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Database, Layers3, LayoutTemplate } from "lucide-react";
+import { Database, Fingerprint, PenTool } from "lucide-react";
 import aboutGraphxifyVisual from "../../../public/images/about/about-graphxify-visual.png";
 import { cn } from "@/lib/utils";
 
@@ -7,12 +7,12 @@ const focusItems = [
   {
     title: "Brand & Identity",
     description: "Everything from logo to messaging.",
-    Icon: Layers3
+    Icon: Fingerprint
   },
   {
     title: "Design & Development",
     description: "One team. No handoff gaps.",
-    Icon: LayoutTemplate
+    Icon: PenTool
   },
   {
     title: "Content Management",

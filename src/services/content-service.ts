@@ -136,7 +136,8 @@ function parseTagsInput(raw: FormDataEntryValue | null): string[] {
 }
 
 function isMissingColumnError(error: { code?: string } | null | undefined): boolean {
-  return error?.code === "42703";
+  // 42703 = PostgreSQL "undefined_column"; PGRST204 = PostgREST schema cache miss
+  return error?.code === "42703" || error?.code === "PGRST204";
 }
 
 function buildPostBasePayload(parsed: ParsedPostInput, authorId: string | null, updatedAt?: string) {

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, Clock, Code2, Compass, Database, Mail, Minus, Package, Palette, Phone, Plus, Sparkles, Zap, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Blocks, Fingerprint, Layout, Mail, Minus, PackageCheck, Phone, Plus, Sparkles, Terminal, Timer, Zap, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
@@ -81,10 +81,10 @@ function getMarqueeLogoSrc(baseName: string, tone: "light" | "dark"): string {
 }
 
 const serviceIcons: Record<string, LucideIcon> = {
-  "brand-systems": Compass,
-  "web-design": Palette,
-  "web-development": Code2,
-  "cms-architecture": Database
+  "brand-systems": Fingerprint,
+  "web-design": Layout,
+  "web-development": Terminal,
+  "cms-architecture": Blocks
 };
 
 type HomeFaq = {
@@ -194,8 +194,8 @@ export function HomeSections({
           <div className="mt-9 flex justify-center">
             <div className="inline-grid grid-cols-3 divide-x divide-border/12 overflow-hidden rounded-2xl border border-border/14 bg-card/60 shadow-[0_8px_28px_rgba(13,13,15,0.07)] backdrop-blur-sm">
               {([
-                { icon: Package, stat: "26+", label: "Projects delivered" },
-                { icon: Clock, stat: "4 to 8 wks", label: "Average launch" },
+                { icon: PackageCheck, stat: "26+", label: "Projects delivered" },
+                { icon: Timer, stat: "4 to 8 wks", label: "Average launch" },
                 { icon: Zap, stat: "24h", label: "Response time" }
               ] as const).map(({ icon: Icon, stat, label }) => (
                 <div key={stat} className="flex flex-col items-center gap-2 px-5 py-4 sm:px-7">

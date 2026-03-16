@@ -6,26 +6,26 @@ import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowUpRight,
   Blocks,
-  Brush,
-  Cable,
   Clock,
-  Code2,
-  Compass,
-  Database,
+  Cpu,
+  Diamond,
   Eye,
   Feather,
-  FolderTree,
-  Globe,
-  LayoutGrid,
-  Lightbulb,
+  FileCode,
+  Fingerprint,
+  GitBranch,
+  GitMerge,
+  Layers,
+  Layers2,
+  Layout,
   MessageSquare,
-  Milestone,
-  Puzzle,
-  Search,
-  Send,
-  Sparkles,
+  Network,
+  PenTool,
+  Rocket,
+  Route,
+  ScanSearch,
+  Target,
   Terminal,
-  Workflow,
   type LucideIcon
 } from "lucide-react";
 import aboutGraphxifyVisual from "../../../public/images/about/about-graphxify-visual.png";
@@ -54,38 +54,38 @@ type AboutTestimonial = {
 
 /* ── Data — every icon is unique across ALL sections ── */
 const snapshotItems = [
-  { label: "Focus", value: "Brand · Websites · CMS", icon: Eye },
-  { label: "Delivery", value: "Design + Dev aligned", icon: Workflow },
+  { label: "Focus", value: "Brand · Websites · CMS", icon: Target },
+  { label: "Delivery", value: "Design + Dev aligned", icon: GitMerge },
   { label: "Response", value: "within 24 hours", icon: Clock }
 ] as const;
 
 const approachSteps = [
-  { num: "01", title: "Discover", body: "Research your goals, audience, and competitive landscape to build a clear strategic foundation.", icon: Search },
-  { num: "02", title: "Structure", body: "Map content architecture, define systems, and establish the information hierarchy.", icon: FolderTree },
-  { num: "03", title: "Design", body: "Craft a visual identity and interface system that communicates with clarity and purpose.", icon: Brush },
-  { num: "04", title: "Build & Ship", body: "Develop, test, and deploy a performant product ready for real-world scale.", icon: Send }
+  { num: "01", title: "Discover", body: "Research your goals, audience, and competitive landscape to build a clear strategic foundation.", icon: ScanSearch },
+  { num: "02", title: "Structure", body: "Map content architecture, define systems, and establish the information hierarchy.", icon: Layers2 },
+  { num: "03", title: "Design", body: "Craft a visual identity and interface system that communicates with clarity and purpose.", icon: PenTool },
+  { num: "04", title: "Build & Ship", body: "Develop, test, and deploy a performant product ready for real-world scale.", icon: Rocket }
 ] as const;
 
 const capabilities: { title: string; body: string; href: string; icon: LucideIcon }[] = [
-  { title: "Brand Systems", body: "Positioning, visual language, and usage standards that keep your brand consistent as content scales.", href: "/services#service-brand-systems", icon: Compass },
-  { title: "Web Design", body: "Clear, conversion-focused interfaces built with responsive behavior and reusable design patterns.", href: "/services#service-web-design", icon: LayoutGrid },
+  { title: "Brand Systems", body: "Positioning, visual language, and usage standards that keep your brand consistent as content scales.", href: "/services#service-brand-systems", icon: Fingerprint },
+  { title: "Web Design", body: "Clear, conversion-focused interfaces built with responsive behavior and reusable design patterns.", href: "/services#service-web-design", icon: Layout },
   { title: "Web Development", body: "Performant, maintainable websites with clean architecture, accessibility, and production quality.", href: "/services#service-web-development", icon: Terminal },
-  { title: "CMS Architecture", body: "Content models and editor workflows so your team can publish confidently without breaking consistency.", href: "/services#service-cms-architecture", icon: Database }
+  { title: "CMS Architecture", body: "Content models and editor workflows so your team can publish confidently without breaking consistency.", href: "/services#service-cms-architecture", icon: Blocks }
 ];
 
 const differentiators = [
-  { text: "System-driven identity + web design", icon: Puzzle },
-  { text: "Clean, maintainable development", icon: Code2 },
-  { text: "Structured CMS architecture", icon: Blocks },
-  { text: "Consistent components and documentation", icon: Cable },
-  { text: "Clear process and predictable delivery", icon: Milestone },
+  { text: "System-driven identity + web design", icon: Layers },
+  { text: "Clean, maintainable development", icon: GitBranch },
+  { text: "Structured CMS architecture", icon: Network },
+  { text: "Consistent components and documentation", icon: FileCode },
+  { text: "Clear process and predictable delivery", icon: Route },
   { text: "Transparent communication, kickoff to launch", icon: MessageSquare }
 ] as const;
 
 const principles = [
-  { title: "Systems First", body: "Every decision is made through the lens of scalable, reusable systems, not isolated one-off deliverables.", icon: Globe },
-  { title: "Quality as Standard", body: "Accessibility, performance, and clean code aren't extras. They're the baseline of every project.", icon: Sparkles },
-  { title: "Transparent Process", body: "Clear timelines, predictable delivery, and open communication from the first call to final launch.", icon: Lightbulb }
+  { title: "Systems First", body: "Every decision is made through the lens of scalable, reusable systems, not isolated one-off deliverables.", icon: Cpu },
+  { title: "Quality as Standard", body: "Accessibility, performance, and clean code aren't extras. They're the baseline of every project.", icon: Diamond },
+  { title: "Transparent Process", body: "Clear timelines, predictable delivery, and open communication from the first call to final launch.", icon: Eye }
 ];
 
 /* ── Hero Visual — clean, no overlays ── */

@@ -5,13 +5,16 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   ArrowUpRight,
+  Blocks,
   Check,
-  Code2,
-  Compass,
   Database,
-  LayoutTemplate,
-  Palette,
+  Fingerprint,
+  Layout,
+  PenTool,
   Rocket,
+  Ruler,
+  ScanSearch,
+  Terminal,
   X,
   type LucideIcon
 } from "lucide-react";
@@ -48,7 +51,7 @@ const servicesData: ServicePillar[] = [
     sectionId: "service-brand-systems",
     title: "Brand Systems",
     description: "Positioning, identity, and scalable brand foundations.",
-    icon: Compass,
+    icon: Fingerprint,
     body: "We build complete brand identity systems for Canadian businesses that need to look credible from day one. Logo suite, typography, colour palette, brand voice, and usage documentation are all delivered together so your brand stays consistent across your website, social, print, and pitch materials without needing a designer to make every decision.",
     deliverables: [
       "Logo suite (primary, secondary, icon)",
@@ -68,7 +71,7 @@ const servicesData: ServicePillar[] = [
     sectionId: "service-web-design",
     title: "Web Design",
     description: "Structured interfaces with clarity and hierarchy.",
-    icon: Palette,
+    icon: Layout,
     body: "We design website interfaces built to communicate clearly and convert visitors into leads. Every layout prioritises hierarchy so your main message, your differentiator, and your call to action are visible before the scroll. Designed mobile-first, responsive across all screen sizes, and built with accessibility in mind so your website is usable by the widest possible audience.",
     deliverables: [
       "UX wireframes for each key page",
@@ -88,7 +91,7 @@ const servicesData: ServicePillar[] = [
     sectionId: "service-web-development",
     title: "Web Development",
     description: "Scalable builds engineered for performance.",
-    icon: Code2,
+    icon: Terminal,
     body: "We build custom websites on Next.js, not WordPress templates, delivering Lighthouse performance scores above 90 out of the box. You own the code outright with no recurring plugin subscriptions, and the architecture is built to scale with your business over the next five years. Optimised for Google Core Web Vitals and Canadian accessibility requirements.",
     deliverables: [
       "Custom Next.js codebase (you own it outright)",
@@ -108,7 +111,7 @@ const servicesData: ServicePillar[] = [
     sectionId: "service-cms-architecture",
     title: "CMS Architecture",
     description: "Structured content systems built for scale.",
-    icon: Database,
+    icon: Blocks,
     body: "We design content management systems where your team can publish pages, blog posts, and updates without designer involvement and without breaking the layout. Content models, user roles, and publishing workflows are defined before a line of code is written, so the CMS fits how your team actually works.",
     deliverables: [
       "Content model design and documentation",
@@ -130,19 +133,19 @@ const processSteps = [
     phase: "Goal Mapping",
     title: "Discover",
     body: "align goals + scope",
-    icon: Compass
+    icon: ScanSearch
   },
   {
     phase: "System Blueprint",
     title: "Define",
     body: "structure the system",
-    icon: LayoutTemplate
+    icon: Ruler
   },
   {
     phase: "Interface Craft",
     title: "Design",
     body: "craft the interface",
-    icon: Palette
+    icon: PenTool
   },
   {
     phase: "Launch Engineering",
