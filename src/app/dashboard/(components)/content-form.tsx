@@ -45,6 +45,12 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
       .join(", ")
     : "";
   const workServicesDefault = workServicesValue.length > 0 ? workServicesValue : "General";
+  const workCardServicesValue = Array.isArray(item?.card_services)
+    ? (item.card_services as unknown[])
+      .map((value) => String(value).trim())
+      .filter((value) => value.length > 0)
+      .join(", ")
+    : "";
   const workLayoutVariantValue = String(item?.layout_variant ?? "A");
   const workDescriptionValue = String(item?.excerpt ?? "").trim();
   const workContentValue = String(item?.content ?? "").trim() || workDescriptionValue || "Project details";
@@ -151,14 +157,17 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           <input type="hidden" name="layoutVariant" defaultValue={workLayoutVariantValue} />
           <input type="hidden" name="content" defaultValue={workContentValue} />
 
+          {/* ── SECTION: Core ── */}
+          <p className="text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Core</p>
+
           <div className="space-y-2">
-            <Label>Hero background image</Label>
+            <Label>Cover image</Label>
             <UploadMedia onUploaded={setCover} currentUrl={cover} />
             <Input
               name="coverImageUrl"
               value={cover}
               onChange={(e) => setCover(e.target.value)}
-              placeholder="Shown as project cover (cards) and project detail hero background"
+              placeholder="Shown on project cards and as the project detail hero background"
             />
           </div>
 
@@ -169,7 +178,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
               name="title"
               required
               defaultValue={String(item?.title ?? "")}
-              placeholder="Shown on project cards and the project detail hero title"
+              placeholder="Shown on project cards and the project detail hero"
               onChange={(e) => {
                 if (!slugManuallyEdited.current) {
                   setSlug(slugify(e.target.value));
@@ -184,7 +193,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
               id="subtitle"
               name="subtitle"
               defaultValue={String(item?.subtitle ?? item?.excerpt ?? "")}
-              placeholder="Shown under the project title in the project detail hero"
+              placeholder="Shown under the project title in the detail page hero"
             />
           </div>
 
@@ -199,56 +208,204 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
                 slugManuallyEdited.current = true;
                 setSlug(e.target.value);
               }}
-              placeholder="Used in the URL (/works/...) - lowercase letters, numbers, hyphens only"
+              placeholder="URL path: /works/your-slug — lowercase, numbers, hyphens only"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">Title</Label>
+            <Label htmlFor="role">Layout label</Label>
             <Input
               id="role"
               name="role"
               required
               defaultValue={String(item?.role ?? "")}
-              placeholder='Shown in the highlighted label above the image layout section (before "Template X")'
+              placeholder="Label shown above the image gallery section on the project detail page"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="excerpt">Description</Label>
+            <Label htmlFor="excerpt">Short description</Label>
             <Textarea
               id="excerpt"
               name="excerpt"
               required
               defaultValue={String(item?.excerpt ?? "")}
-              placeholder='Shown under "Title" above the image layout section and used for page SEO description'
+              placeholder="Shown above the image gallery and used as fallback SEO description"
+            />
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="status">Status</Label>
+              <select
+                id="status"
+                name="status"
+                className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm text-fg"
+                defaultValue={String(item?.status ?? "draft")}
+              >
+                <option value="draft">Draft</option>
+                <option value="review">Review</option>
+                {canPublish ? <option value="published">Published</option> : null}
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sortOrder">Sort order</Label>
+              <Input
+                id="sortOrder"
+                name="sortOrder"
+                type="number"
+                min="0"
+                max="9999"
+                defaultValue={String(item?.sort_order ?? "0")}
+                placeholder="Controls position on the Works page (lower = first)"
+              />
+            </div>
+          </div>
+
+          {/* ── SECTION: Portfolio Card ── */}
+          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Portfolio Card</p>
+
+          <div className="space-y-2">
+            <Label htmlFor="industry">Industry tag</Label>
+            <Input
+              id="industry"
+              name="industry"
+              defaultValue={String(item?.industry ?? "")}
+              placeholder="e.g. Healthcare, Travel Platform, Beauty — shown as a badge on the card"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
-            <select
-              id="status"
-              name="status"
-              className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm text-fg"
-              defaultValue={String(item?.status ?? "draft")}
-            >
-              <option value="draft">Draft</option>
-              <option value="review">Review</option>
-              {canPublish ? <option value="published">Published</option> : null}
-            </select>
+            <Label htmlFor="cardServices">Card service tags</Label>
+            <Input
+              id="cardServices"
+              name="cardServices"
+              defaultValue={workCardServicesValue}
+              placeholder="Comma-separated: Brand Identity, Web Design, Development — shown on card hover"
+            />
           </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cardOutcome">Card context line</Label>
+            <Textarea
+              id="cardOutcome"
+              name="cardOutcome"
+              defaultValue={String(item?.card_outcome ?? "")}
+              placeholder="One sentence shown under the title on card hover"
+            />
+          </div>
+
+          {/* ── SECTION: Project Info Panel ── */}
+          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Project Info Panel</p>
+          <p className="text-xs text-fg/50">These fields populate the info rail shown at the top of each project page.</p>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="platform">Platform</Label>
+              <Input
+                id="platform"
+                name="platform"
+                defaultValue={String(item?.platform ?? "")}
+                placeholder="e.g. Business Website, Brand Identity System"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="timeline">Timeline</Label>
+              <Input
+                id="timeline"
+                name="timeline"
+                defaultValue={String(item?.timeline ?? "")}
+                placeholder="e.g. 4 Weeks"
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                name="location"
+                defaultValue={String(item?.location ?? "Canada")}
+                placeholder="e.g. Canada"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="liveUrl">Live site URL</Label>
+              <Input
+                id="liveUrl"
+                name="liveUrl"
+                type="url"
+                defaultValue={String(item?.live_url ?? "")}
+                placeholder="https://example.com — enables the Visit Site button"
+              />
+            </div>
+          </div>
+
+          {/* ── SECTION: Case Study ── */}
+          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Case Study</p>
+          <p className="text-xs text-fg/50">These sections appear in the case study block on the project page. Aim for 1 to 2 sentences per section.</p>
+
+          <div className="space-y-2">
+            <Label htmlFor="overview">Overview</Label>
+            <Textarea
+              id="overview"
+              name="overview"
+              defaultValue={String(item?.overview ?? "")}
+              placeholder="A brief summary of the project and what Graphxify was brought in to do"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="challenge">Challenge</Label>
+            <Textarea
+              id="challenge"
+              name="challenge"
+              defaultValue={String(item?.challenge ?? "")}
+              placeholder="What problem or constraint the client was facing before the project"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="approach">Approach</Label>
+            <Textarea
+              id="approach"
+              name="approach"
+              defaultValue={String(item?.approach ?? "")}
+              placeholder="How Graphxify approached solving the problem"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="solution">Solution</Label>
+            <Textarea
+              id="solution"
+              name="solution"
+              defaultValue={String(item?.solution ?? "")}
+              placeholder="What Graphxify delivered — specific outputs and design decisions"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="result">Result</Label>
+            <Textarea
+              id="result"
+              name="result"
+              defaultValue={String(item?.result ?? "")}
+              placeholder="The outcome for the client after the project launched"
+            />
+          </div>
+
+          {/* ── SECTION: Gallery Images ── */}
+          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Gallery Images</p>
 
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <Label>Project details gallery images</Label>
+              <p className="text-xs text-fg/62">Images shown in the visual gallery on the project detail page. Add up to 24.</p>
               <Button type="button" variant="secondary" size="sm" onClick={addGalleryImage} disabled={galleryImages.length >= 24}>
                 Add image slot
               </Button>
             </div>
-            <p className="text-xs text-fg/62">
-              These images control the visuals on each project detail page. Slot count matches saved images; you can add up to 24.
-            </p>
             <div className="space-y-3">
               {galleryImages.map((imageUrl, index) => (
                 <div key={`gallery-image-${index}`} className="space-y-2 rounded-lg border border-border/20 bg-card/56 p-3">
@@ -267,11 +424,34 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
                     name="galleryImages"
                     value={imageUrl}
                     onChange={(event) => updateGalleryImage(index, event.target.value)}
-                    placeholder="Shown in the project detail visual gallery block"
+                    placeholder="Shown in the project detail visual gallery"
                   />
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* ── SECTION: SEO ── */}
+          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">SEO</p>
+
+          <div className="space-y-2">
+            <Label htmlFor="metaTitle">Meta title</Label>
+            <Input
+              id="metaTitle"
+              name="metaTitle"
+              defaultValue={String(item?.meta_title ?? "")}
+              placeholder="Custom page title tag — falls back to project title if empty"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="metaDescription">Meta description</Label>
+            <Textarea
+              id="metaDescription"
+              name="metaDescription"
+              defaultValue={String(item?.meta_description ?? "")}
+              placeholder="Custom meta description — falls back to excerpt if empty"
+            />
           </div>
         </>
       ) : (

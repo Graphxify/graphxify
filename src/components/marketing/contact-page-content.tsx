@@ -57,7 +57,7 @@ const HELP_OPTIONS: HelpOption[] = [
   {
     key: "web-development",
     title: "Web Development",
-    description: "Custom-coded builds.",
+    description: "Built with custom code.",
     icon: Code2
   },
   {
@@ -74,8 +74,8 @@ const HELP_OPTIONS: HelpOption[] = [
   }
 ];
 
-const BUDGET_OPTIONS = ["Under $2k", "$2k-$5k", "$5k-$10k", "$10k-$25k", "$25k+", "Not sure yet"] as const;
-const TIMELINE_OPTIONS = ["ASAP", "2-4 weeks", "1-2 months", "3+ months", "Flexible"] as const;
+const BUDGET_OPTIONS = ["Brand Identity", "Starter Website", "Professional Website", "Full Brand and Website", "Not sure yet"] as const;
+const TIMELINE_OPTIONS = ["ASAP", "2 to 4 weeks", "1 to 2 months", "3+ months", "Flexible"] as const;
 
 const FAQ_ITEMS = [
   {
@@ -100,7 +100,7 @@ const FAQ_ITEMS = [
   },
   {
     id: "faq-redesign-only",
-    question: "Do you take redesign-only projects?",
+    question: "Do you take website redesign projects?",
     answer: "Yes, if the redesign has clear business goals and a defined implementation scope."
   }
 ] as const;
@@ -341,7 +341,8 @@ export function ContactPageContent(): JSX.Element {
           <h1 className="mt-4 text-[clamp(2rem,5vw,4rem)] font-semibold leading-[0.96] tracking-tight">Start a Project</h1>
           <span className="mt-3 block h-px w-20 bg-accent-gradient" />
           <p className="mt-4 max-w-2xl text-base text-fg/68 md:text-[1.04rem]">
-            Tell us what you&apos;re building. We&apos;ll reply with next steps.
+            Tell us about your business and what you are working towards.
+            We review every inquiry personally and respond with a clear recommendation.
           </p>
         </div>
       </SectionReveal>
@@ -512,11 +513,11 @@ export function ContactPageContent(): JSX.Element {
               <div className="grid gap-3 md:grid-cols-2">
                 <div className="space-y-1.5">
                   <label htmlFor="contact-budget" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                    Budget Range
+                    Project Scope
                   </label>
                   <div className="relative">
                     <select id="contact-budget" name="budget" className={cn(FIELD_CLASS, "w-full appearance-none pr-10")} defaultValue="">
-                      <option value="" disabled>Select budget range</option>
+                      <option value="" disabled>Select project type</option>
                       {BUDGET_OPTIONS.map((option) => (
                         <option key={option} value={option}>
                           {option}
@@ -605,6 +606,10 @@ export function ContactPageContent(): JSX.Element {
                   </span>
                 ) : "Send Inquiry"}
               </Button>
+
+              <p className="text-center text-[0.7rem] leading-relaxed text-fg/40">
+                No sales pressure. Just a straightforward conversation about your project.
+              </p>
             </form>
           </div>
 
@@ -612,9 +617,11 @@ export function ContactPageContent(): JSX.Element {
             <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
               <div className="flex items-center gap-2">
                 <Clock3 className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <h2 className="text-lg font-semibold">Response time</h2>
+                <h2 className="text-lg font-semibold">We respond within 24 hours</h2>
               </div>
-              <p className="mt-2 text-sm text-fg/66">Typically within 24-48 hours.</p>
+              <p className="mt-2 text-sm text-fg/66">
+                You will hear back from a real person, not an automated reply. We review every inquiry and respond with a clear next step.
+              </p>
             </article>
 
             <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
@@ -680,9 +687,26 @@ export function ContactPageContent(): JSX.Element {
             </article>
 
             <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
+                <h2 className="text-base font-semibold">Prefer to talk first?</h2>
+              </div>
+              <p className="mt-2 text-sm text-fg/62">
+                Happy to answer questions before you fill out the form. A quick call is always an option.
+              </p>
+              <a
+                href={`tel:${companyContact.phoneHref}`}
+                className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-accentA transition-colors hover:text-accentA/78"
+              >
+                <Phone className="h-3.5 w-3.5" aria-hidden="true" />
+                {companyContact.phoneDisplay}
+              </a>
+            </article>
+
+            <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
               <div className="flex items-center gap-2 text-sm text-fg/74">
                 <ShieldCheck className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <span>We keep inquiries confidential and scoped.</span>
+                <span>All inquiries are kept strictly confidential.</span>
               </div>
             </article>
           </div>

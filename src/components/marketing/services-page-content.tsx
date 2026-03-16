@@ -36,6 +36,10 @@ type ServicePillar = {
   icon: LucideIcon;
   body: string;
   deliverables: string[];
+  bestFor: string;
+  typicalProject: string;
+  businessOutcome: string;
+  microProof?: string;
 };
 
 const servicesData: ServicePillar[] = [
@@ -45,8 +49,19 @@ const servicesData: ServicePillar[] = [
     title: "Brand Systems",
     description: "Positioning, identity, and scalable brand foundations.",
     icon: Compass,
-    body: "We build complete brand identity systems for Canadian businesses that need to look credible from day one — not patched together over time. Logo system, typography, colour palette, brand voice, and usage documentation are all delivered together so your brand stays consistent across your website, social, print, and pitch materials without needing a designer to referee every decision.",
-    deliverables: ["Logo system", "Typography hierarchy", "Color + usage rules", "Brand guidelines", "Asset library", "Social templates"]
+    body: "We build complete brand identity systems for Canadian businesses that need to look credible from day one. Logo suite, typography, colour palette, brand voice, and usage documentation are all delivered together so your brand stays consistent across your website, social, print, and pitch materials without needing a designer to make every decision.",
+    deliverables: [
+      "Logo suite (primary, secondary, icon)",
+      "Typography system with font files",
+      "Colour palette with hex, RGB, and CMYK",
+      "Brand guidelines document (PDF)",
+      "Social media templates",
+      "Full asset export package"
+    ],
+    bestFor: "New businesses or companies that have outgrown a DIY logo",
+    typicalProject: "Full brand identity from scratch in 2 to 3 weeks",
+    businessOutcome: "Look credible and consistent everywhere your business appears",
+    microProof: "Every brand system includes a guidelines document your team can use day-to-day. No designer required to stay on-brand."
   },
   {
     key: "web-design",
@@ -54,8 +69,19 @@ const servicesData: ServicePillar[] = [
     title: "Web Design",
     description: "Structured interfaces with clarity and hierarchy.",
     icon: Palette,
-    body: "We design website interfaces built to communicate clearly and convert visitors into leads. Every layout prioritizes hierarchy — your main message, your differentiator, and your call to action are visible and accessible before the scroll. Designed mobile-first, responsive across all screen sizes, and built to meet AODA accessibility standards for Ontario businesses.",
-    deliverables: ["UX structure", "UI components", "Responsive layouts", "Interaction patterns", "Design system", "Page templates"]
+    body: "We design website interfaces built to communicate clearly and convert visitors into leads. Every layout prioritises hierarchy so your main message, your differentiator, and your call to action are visible before the scroll. Designed mobile-first, responsive across all screen sizes, and built to meet AODA accessibility standards for Ontario businesses.",
+    deliverables: [
+      "UX wireframes for each key page",
+      "High-fidelity desktop and mobile designs",
+      "Interactive prototype for client review",
+      "Component design system",
+      "Responsive layout specifications",
+      "Accessibility audit (WCAG 2.1 AA)"
+    ],
+    bestFor: "Businesses with a clear brand ready to build or redesign their website",
+    typicalProject: "4 to 8 pages across a 2 to 4 week design phase",
+    businessOutcome: "A website visitors understand and engage with from the first scroll",
+    microProof: "All interfaces are designed to WCAG 2.1 AA standards, required for Ontario public-facing businesses under AODA."
   },
   {
     key: "web-development",
@@ -63,8 +89,19 @@ const servicesData: ServicePillar[] = [
     title: "Web Development",
     description: "Scalable builds engineered for performance.",
     icon: Code2,
-    body: "We build custom websites on modern frameworks like Next.js — not WordPress templates — delivering Lighthouse performance scores above 90 out of the box. You own the code outright, there are no recurring plugin subscriptions, and the architecture is built to scale with your business over the next five years. Optimized for Google's Core Web Vitals and Canadian accessibility requirements.",
-    deliverables: ["Frontend build", "Component architecture", "Performance best practices", "Accessibility implementation", "Integrations", "Deployment setup"]
+    body: "We build custom websites on Next.js, not WordPress templates, delivering Lighthouse performance scores above 90 out of the box. You own the code outright with no recurring plugin subscriptions, and the architecture is built to scale with your business over the next five years. Optimised for Google Core Web Vitals and Canadian accessibility requirements.",
+    deliverables: [
+      "Custom Next.js codebase (you own it outright)",
+      "Lighthouse scores above 90 across all metrics",
+      "Core Web Vitals optimisation",
+      "Deployment to Vercel or your preferred host",
+      "Integrations (CRM, forms, analytics)",
+      "Post-launch handover and documentation"
+    ],
+    bestFor: "Companies ready to move off WordPress, page builders, or outdated custom sites",
+    typicalProject: "4 to 8 week build depending on scope",
+    businessOutcome: "A site that loads fast, ranks better, and doesn't need a developer for routine updates",
+    microProof: "Built on Next.js 15 with server components, static generation, and edge caching. No plugin subscriptions. No recurring platform fees."
   },
   {
     key: "cms-architecture",
@@ -72,8 +109,19 @@ const servicesData: ServicePillar[] = [
     title: "CMS Architecture",
     description: "Structured content systems built for scale.",
     icon: Database,
-    body: "We design content management systems where your team can publish pages, blog posts, and updates without designer involvement — and without breaking the layout. Content models, user roles, and publishing workflows are defined before a line of code is written, so the CMS fits how your team actually works, not the other way around.",
-    deliverables: ["Content modeling", "CMS setup", "Roles & permissions", "Collections structure", "Editing workflows", "Governance rules"]
+    body: "We design content management systems where your team can publish pages, blog posts, and updates without designer involvement and without breaking the layout. Content models, user roles, and publishing workflows are defined before a line of code is written, so the CMS fits how your team actually works.",
+    deliverables: [
+      "Content model design and documentation",
+      "CMS platform setup and configuration",
+      "User roles and permissions structure",
+      "Custom editing workflows",
+      "Editor training guide",
+      "Governance documentation"
+    ],
+    bestFor: "Teams who need to update their site regularly without developer help",
+    typicalProject: "Delivered as part of a web development engagement or as a standalone CMS migration",
+    businessOutcome: "Your team publishes confidently. Your site stays on-brand without constant developer involvement.",
+    microProof: "Content models are designed before a line of code is written, so the CMS fits how your team works, not the other way around."
   }
 ];
 
@@ -413,12 +461,12 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
             Services
           </p>
           <h1 className="mt-3 text-[clamp(2rem,5vw,4.5rem)] font-semibold leading-[0.96] tracking-tight">
-            <span className="block">Brand Systems. Websites.</span>
-            <span className="mt-3 block md:mt-4">Built to Scale.</span>
+            <span className="block">Branding and websites.</span>
+            <span className="mt-3 block md:mt-4">Built as one system.</span>
           </h1>
           <span className="mt-4 block h-px w-24 bg-accent-gradient" />
           <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.08rem]">
-            Graphxify builds structured brand identity and modern websites - designed and developed as one cohesive system.
+            We handle brand identity, web design, and development as a complete, connected system. No handoffs, no gaps, no version mismatch between what was designed and what was built.
           </p>
           <div className="mt-7 flex flex-wrap items-center gap-3">
             <Button asChild size="lg" className="px-6">
@@ -431,50 +479,96 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
         </div>
       </SectionReveal>
 
-      <SectionReveal className="container mt-11 md:mt-14" effect="up">
-        <div className="grid gap-4 md:grid-cols-2">
-          {servicesData.map((service) => {
+      <SectionReveal className="container mt-14 md:mt-16 lg:mt-20" effect="up">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {servicesData.map((service, index) => {
             const Icon = service.icon;
             return (
               <button
                 key={`service-pillars-${service.key}`}
                 type="button"
                 onClick={() => scrollToService(service.sectionId)}
-                className="group rounded-[1.2rem] border border-border/18 bg-card/72 p-5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg hover:-translate-y-0.5 hover:border-border/34"
+                className="group flex flex-col rounded-[1.2rem] border border-border/18 bg-card/72 p-5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg hover:-translate-y-0.5 hover:border-accentA/22 hover:bg-card/85"
               >
-                <div className="flex items-start justify-between gap-4">
-                  <h2 className="text-[1.2rem] font-semibold leading-tight md:text-[1.38rem]">{service.title}</h2>
-                  <Icon className="mt-0.5 h-4 w-4 shrink-0 text-accentA" />
+                <div className="flex items-start justify-between gap-3">
+                  <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-accentA/24 bg-accentA/8 text-accentA transition-colors duration-200 group-hover:border-accentA/38 group-hover:bg-accentA/14">
+                    <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                  <span className="text-[0.62rem] font-medium tabular-nums text-fg/36 group-hover:text-fg/52 transition-colors duration-200">
+                    0{index + 1}
+                  </span>
                 </div>
-                <p className="mt-3 max-w-[42ch] text-sm text-fg/64">{service.description}</p>
+                <h2 className="mt-4 text-[1.05rem] font-semibold leading-tight">{service.title}</h2>
+                <p className="mt-2 text-xs leading-relaxed text-fg/54">{service.description}</p>
               </button>
             );
           })}
         </div>
       </SectionReveal>
 
-      <div className="container mt-8 space-y-5 md:mt-10 md:space-y-6">
-        {servicesData.map((service, index) => (
-          <SectionReveal key={`service-deep-dive-${service.key}`} effect={index % 2 === 0 ? "left" : "right"}>
-            <article id={service.sectionId} className="section-shell scroll-mt-28 border-border/18 bg-card/74 p-5 md:p-7 lg:p-9">
-              <div className="grid gap-6 lg:grid-cols-[1fr_0.95fr] lg:gap-9">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="h-1.5 w-1.5 rounded-full bg-accentA" />
-                    <p className="text-xs uppercase tracking-[0.18em] text-fg/58">{service.title}</p>
-                  </div>
-                  <h3 className="mt-2 text-2xl font-semibold md:text-3xl">{service.title}</h3>
-                  <span className="mt-3 block h-px w-20 bg-accent-gradient" />
-                  <p className="mt-4 max-w-2xl text-fg/68 md:text-[1.02rem]">{service.body}</p>
+      <div className="container mt-12 space-y-[3.75rem] md:mt-16 md:space-y-20 lg:space-y-[7.5rem]">
+        {servicesData.map((service, index) => {
+          const textFirst = index % 2 === 0;
+          return (
+            <SectionReveal key={`service-deep-dive-${service.key}`} effect={textFirst ? "left" : "right"}>
+              <article id={service.sectionId} className="section-shell scroll-mt-28 border-border/18 bg-card/74 p-7 md:p-10 lg:p-14">
 
-                  <div className="mt-6">
-                    <div className="flex items-center gap-2">
-                      <p className="text-[0.68rem] uppercase tracking-[0.16em] text-fg/58">Deliverables</p>
-                      {index === 2 ? <span className="h-px w-10 bg-accent-gradient" /> : null}
-                    </div>
-                    <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                {/* ── Section header ───────────────────────────────────── */}
+                <div className="flex items-center gap-2.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-accentA" aria-hidden="true" />
+                  <p className="text-xs uppercase tracking-[0.2em] text-fg/52">{service.title}</p>
+                </div>
+                <h3 className="mt-4 text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold leading-[1.05] tracking-tight">
+                  {service.title}
+                </h3>
+                <span className="mt-3 block h-px w-20 bg-accent-gradient" />
+
+                {/* ── Visual + body text — alternating columns ─────────── */}
+                <div className="mt-10 grid items-center gap-8 lg:mt-12 lg:grid-cols-2 lg:gap-14 xl:gap-20">
+
+                  {/* Body column */}
+                  <div className={`flex flex-col gap-5 ${!textFirst ? "lg:order-2" : ""}`}>
+                    <p className="text-[1.01rem] leading-[1.78] text-fg/68">{service.body}</p>
+                    {service.microProof ? (
+                      <p className="rounded-xl border border-accentA/14 bg-accentA/[0.045] px-5 py-4 text-sm italic leading-relaxed text-fg/60">
+                        {service.microProof}
+                      </p>
+                    ) : null}
+                  </div>
+
+                  {/* Visual column */}
+                  <div className={!textFirst ? "lg:order-1" : ""}>
+                    <ServiceVisual serviceKey={service.key} />
+                  </div>
+                </div>
+
+                {/* ── Bottom split: guidance + deliverables ─────────────── */}
+                <div className="mt-10 grid gap-8 border-t border-border/10 pt-10 md:mt-12 md:pt-12 lg:grid-cols-2 lg:gap-0">
+
+                  {/* Guidance metadata */}
+                  <div className="space-y-5 lg:pr-12">
+                    {[
+                      { label: "Best for", value: service.bestFor },
+                      { label: "Typical project", value: service.typicalProject },
+                      { label: "Business outcome", value: service.businessOutcome },
+                    ].map(({ label, value }) => (
+                      <div key={label} className="grid grid-cols-[7.5rem_1fr] gap-4">
+                        <p className="pt-0.5 text-[0.61rem] uppercase tracking-[0.17em] text-fg/42 leading-tight">{label}</p>
+                        <p className="text-sm leading-relaxed text-fg/74">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Deliverables */}
+                  <div className="lg:border-l lg:border-border/10 lg:pl-12">
+                    <p className="mb-4 text-[0.67rem] uppercase tracking-[0.18em] text-fg/52">Deliverables</p>
+                    <ul className="grid gap-2 sm:grid-cols-2">
                       {service.deliverables.map((item) => (
-                        <li key={`${service.key}-${item}`} className="rounded-lg border border-border/16 bg-bg/45 px-3 py-2 text-sm text-fg/72">
+                        <li
+                          key={`${service.key}-${item}`}
+                          className="flex items-start gap-2.5 rounded-lg border border-border/16 bg-bg/45 px-3.5 py-2.5 text-sm text-fg/70"
+                        >
+                          <span className="mt-[0.3rem] h-1.5 w-1.5 shrink-0 rounded-full bg-accentA/45" aria-hidden="true" />
                           {item}
                         </li>
                       ))}
@@ -482,13 +576,10 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
                   </div>
                 </div>
 
-                <div className="relative">
-                  <ServiceVisual serviceKey={service.key} />
-                </div>
-              </div>
-            </article>
-          </SectionReveal>
-        ))}
+              </article>
+            </SectionReveal>
+          );
+        })}
       </div>
 
       <SectionReveal className="container mt-8 md:mt-10" effect="up">
@@ -559,6 +650,54 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
               ))}
             </ul>
           </article>
+        </div>
+      </SectionReveal>
+
+      <SectionReveal className="container mt-10 md:mt-14" effect="up">
+        <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="text-xs uppercase tracking-[0.2em] text-fg/50">Where to Start</p>
+            <h2 className="mt-3 text-2xl font-semibold md:text-3xl">Not sure which service you need?</h2>
+            <p className="mt-3 text-base text-fg/64">Most projects combine two or three services. Here is a quick guide.</p>
+          </div>
+          <div className="mt-7 grid gap-4 md:grid-cols-3">
+            {([
+              {
+                scenario: "Starting from scratch",
+                recommendation: "Begin with Brand Systems to establish your identity, then move into Web Design and Development.",
+                sectionId: "service-brand-systems"
+              },
+              {
+                scenario: "You have a brand but need a new website",
+                recommendation: "Web Design and Web Development using your existing brand assets.",
+                sectionId: "service-web-design"
+              },
+              {
+                scenario: "Your site is live but your team can't update it",
+                recommendation: "CMS Architecture as a standalone engagement to restructure your content management.",
+                sectionId: "service-cms-architecture"
+              }
+            ] as const).map((item) => (
+              <div key={item.scenario} className="flex flex-col rounded-xl border border-border/16 bg-bg/45 p-5">
+                <p className="text-sm font-semibold text-fg/90">{item.scenario}</p>
+                <p className="mt-2 flex-1 text-sm text-fg/62">{item.recommendation}</p>
+                <button
+                  type="button"
+                  onClick={() => scrollToService(item.sectionId)}
+                  className="mt-4 self-start text-xs uppercase tracking-[0.14em] text-accentA transition-colors hover:text-accentA/72"
+                >
+                  See the service
+                </button>
+              </div>
+            ))}
+          </div>
+          <p className="mt-7 text-center text-sm text-fg/54">
+            Still not sure?{" "}
+            <Link href="/contact" className="link-sweep text-accentA hover:text-accentA/80">
+              Tell us about your project
+            </Link>{" "}
+            and we will recommend the right path.
+          </p>
         </div>
       </SectionReveal>
 

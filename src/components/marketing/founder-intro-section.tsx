@@ -5,24 +5,24 @@ import { cn } from "@/lib/utils";
 
 const focusItems = [
   {
-    title: "Brand Systems",
-    description: "Identity frameworks built to scale.",
+    title: "Brand & Identity",
+    description: "Everything from logo to messaging.",
     Icon: Layers3
   },
   {
-    title: "Web Platforms",
-    description: "Design and development aligned.",
+    title: "Design & Development",
+    description: "One team. No handoff gaps.",
     Icon: LayoutTemplate
   },
   {
-    title: "Structured CMS",
-    description: "Content systems with long-term flexibility.",
+    title: "Content Management",
+    description: "Your team stays in control.",
     Icon: Database
   }
 ] as const;
 
 const founderCopy =
-  "Graphxify is a design and development studio focused on structured brand and web systems. We align identity, interface, and architecture into one cohesive platform - built for clarity, consistency, and long-term growth.";
+  "Graphxify is a Toronto-based studio led by a designer who also builds, which means your project is never passed between people who do not communicate. We handle brand identity, web design, and development in one place, so what gets designed is exactly what gets built. No handoffs, no gaps, no surprises.";
 
 export function FounderIntroSection({
   className,
@@ -51,7 +51,7 @@ export function FounderIntroSection({
         </div>
 
         <div className="section-shell border-border/20 bg-card/72 p-5 sm:p-6 md:p-8 lg:p-10">
-          <h2 className="text-2xl font-semibold md:text-4xl">Built on Structure. Designed to Scale.</h2>
+          <h2 className="text-2xl font-semibold md:text-4xl">A studio that understands both sides.</h2>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-fg/68 md:text-[1.18rem] md:leading-[1.5]">
             {founderCopy}
           </p>

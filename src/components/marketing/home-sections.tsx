@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, Code2, Compass, Database, Mail, Minus, Palette, Phone, Plus, Sparkles, type LucideIcon } from "lucide-react";
+import { ArrowUpRight, Clock, Code2, Compass, Database, Mail, Minus, Package, Palette, Phone, Plus, Sparkles, Zap, type LucideIcon } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
@@ -97,18 +97,18 @@ const homeFaqs: HomeFaq[] = [
   ...faqs.map((item, index) => ({ id: `faq-${index + 1}`, q: item.q, a: item.a })),
   {
     id: "faq-4",
-    q: "How long does a full project usually take?",
-    a: "Most projects run between 4 and 8 weeks depending on scope, review speed, and content readiness."
+    q: "How long does a typical website project take?",
+    a: "Most projects take between 4 and 8 weeks from kickoff to launch. The exact timeline depends on scope, how quickly you can review work, and whether content is ready when we start."
   },
   {
     id: "faq-5",
-    q: "Can we keep iterating after launch?",
-    a: "Yes. We can continue with optimization sprints for new pages, content modules, and UI refinements."
+    q: "What do you need from me to get started?",
+    a: "Not much. A brief call or a few sentences about your goals is enough to get us moving. We handle the questions, structure, and direction from there."
   },
   {
     id: "faq-6",
-    q: "Will our team be able to manage content easily?",
-    a: "Absolutely. We structure the CMS with clear fields and reusable blocks, then provide handover guidance."
+    q: "Do you offer support after the website launches?",
+    a: "Yes. We can set up hosting and offer post-launch support for content updates, new pages, and feature additions. We'll outline what makes sense for your project during the scoping call."
   }
 ];
 
@@ -150,7 +150,7 @@ export function HomeSections({
       <section className="container pt-0 md:pt-2">
         <div className="mx-auto max-w-[940px]">
           <div className="mx-auto flex w-fit items-center justify-center rounded-full border border-border/18 bg-card/72 px-3.5 py-1.5 text-center shadow-[0_8px_22px_rgba(13,13,15,0.08)]">
-            <p className="text-sm text-fg/66">Trusted by founders</p>
+            <p className="text-sm text-fg/66">Canadian Design Studio</p>
           </div>
 
           <div className="relative mt-6">
@@ -160,19 +160,19 @@ export function HomeSections({
             />
             <h1 className="mx-auto flex max-w-full flex-col items-center text-center text-[clamp(1.32rem,7vw,5.1rem)] font-semibold leading-[0.98] tracking-[-0.035em] text-black dark:text-white sm:leading-[0.95]">
               <span className="block whitespace-nowrap">
-                Designing <span className="gradient-text">brands</span> and
+                <span className="gradient-text">Brands</span> and websites
               </span>
               <span className="mt-1.5 block whitespace-nowrap md:mt-2">
-                websites that make
+                built for Canadian
               </span>
               <span className="mt-1.5 block whitespace-nowrap md:mt-2">
-                <span className="gradient-text">businesses</span> stand out
+                <span className="gradient-text">businesses</span> ready to grow
               </span>
             </h1>
           </div>
 
           <p className="mx-auto mt-5 max-w-3xl text-center text-[0.96rem] text-black dark:text-white md:text-[1.14rem]">
-            We design brands and build high-performance websites for ambitious companies.
+            Graphxify is a Toronto-based design studio. We help small businesses and founders launch with a brand and website that looks credible, loads fast, and converts.
           </p>
 
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -182,12 +182,31 @@ export function HomeSections({
                 size="lg"
                 className="w-full rounded-lg border border-border/26 px-6 text-sm !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92 sm:w-auto sm:text-base"
               >
-                <Link href="/contact">Start a project inquiry</Link>
+                <Link href="/contact">Start a Project</Link>
               </Button>
             </Magnetic>
             <Link href="/works" className="link-sweep text-sm text-fg/72 sm:text-base">
-              View selected work
+              View Our Work
             </Link>
+          </div>
+
+          {/* ── Proof bar ── */}
+          <div className="mt-9 flex justify-center">
+            <div className="inline-grid grid-cols-3 divide-x divide-border/12 overflow-hidden rounded-2xl border border-border/14 bg-card/60 shadow-[0_8px_28px_rgba(13,13,15,0.07)] backdrop-blur-sm">
+              {([
+                { icon: Package, stat: "26+", label: "Projects delivered" },
+                { icon: Clock, stat: "4 to 8 wks", label: "Average launch" },
+                { icon: Zap, stat: "24h", label: "Response time" }
+              ] as const).map(({ icon: Icon, stat, label }) => (
+                <div key={stat} className="flex flex-col items-center gap-2 px-5 py-4 sm:px-7">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-accentA/24 bg-accentA/8 text-accentA">
+                    <Icon className="h-3.5 w-3.5" aria-hidden="true" />
+                  </span>
+                  <p className="text-sm font-semibold text-fg/88 sm:text-[0.95rem]">{stat}</p>
+                  <p className="text-center text-[0.65rem] leading-tight text-fg/50">{label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -234,14 +253,14 @@ export function HomeSections({
 
       {/* ── Selected Work (moved up — leads with proof) ── */}
       <SectionReveal className="container" effect="zoom">
-        <SectionHeading eyebrow="Projects" title="Selected Work" />
+        <SectionHeading eyebrow="Selected Work" title="Strategic work, delivered." />
         <div className="section-shell relative overflow-hidden border-white/14 bg-[#0d0d0f]/94 p-4 md:p-6">
           <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/35 to-transparent" />
           <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-accentA/12 blur-3xl" />
 
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-white/12 pb-4">
             <p className="max-w-xl text-sm text-ivory/66 md:text-base">
-              A selection of brands and websites we&apos;ve designed and built with a focus on clarity, structure, and performance.
+              Every project starts with a problem and ends with a platform. Here&apos;s a selection of brands and websites we&apos;ve designed and built for Canadian businesses.
             </p>
             <Link href="/works" className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-ivory/74 transition-colors duration-300 hover:text-ivory">
               View all projects
@@ -275,13 +294,13 @@ export function HomeSections({
           <div className="relative z-10 px-6 py-10 text-center md:px-12 md:py-16 lg:py-20">
             <p className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-accentA/80">
               <span className="h-px w-10 bg-gradient-to-r from-transparent to-accentA/60" aria-hidden="true" />
-              Let&apos;s create together
+              Ready to start?
               <span className="h-px w-10 bg-gradient-to-l from-transparent to-accentA/60" aria-hidden="true" />
             </p>
 
-            <h2 className="mx-auto mt-6 max-w-3xl text-[clamp(2.2rem,5.5vw,4rem)] font-semibold leading-[1] tracking-tight">
-              Ready to build something{" "}
-              <span className="gradient-text">exceptional?</span>
+            <h2 className="mx-auto mt-6 max-w-3xl text-[clamp(2.2rem,5.5vw,4rem)] font-semibold leading-[1.1] tracking-tight">
+              Let&apos;s build your brand and website{" "}
+              <span className="gradient-text">the right way.</span>
             </h2>
 
             {/* Animated accent line */}
@@ -290,50 +309,35 @@ export function HomeSections({
             </div>
 
             <p className="mx-auto mt-6 max-w-lg text-[0.95rem] leading-relaxed text-fg/60 md:text-base">
-              Share your vision. We handle the structure, craft, and execution —
-              from first brief to launch day.
+              Tell us what you&apos;re working on. We handle the strategy, design, and development from first brief to launch day.
             </p>
 
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Magnetic>
                 <Button asChild size="lg" className="relative overflow-hidden px-8 shadow-[0_0_30px_rgba(0,82,204,0.25)]">
                   <Link href="/contact">
-                    <span className="relative z-10">Start your project</span>
+                    <span className="relative z-10">Start a Project</span>
                   </Link>
                 </Button>
               </Magnetic>
               <Link href="/works" className="link-sweep text-sm text-fg/60 transition-colors hover:text-fg/90 sm:text-base">
-                Browse our work
+                View Our Work
               </Link>
             </div>
 
-            {/* ── Social proof micro-strip ── */}
-            <div className="mx-auto mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-border/10 pt-7">
-              {[
-                { stat: "26+", label: "projects delivered" },
-                { stat: "4–8 wks", label: "average turnaround" },
-                { stat: "24h", label: "response time" }
-              ].map(({ stat, label }) => (
-                <span key={stat} className="inline-flex items-center gap-2.5 text-xs text-fg/44">
-                  <span className="h-1.5 w-1.5 rounded-full bg-accentA/70 shadow-[0_0_6px_rgba(0,163,255,0.5)]" aria-hidden="true" />
-                  <strong className="font-semibold text-fg/78">{stat}</strong>
-                  <span>{label}</span>
-                </span>
-              ))}
-            </div>
           </div>
         </div>
       </SectionReveal>
 
       {/* ── About ── */}
       <SectionReveal className="container" effect="left">
-        <SectionHeading eyebrow="About" title="About Graphxify" />
+        <SectionHeading eyebrow="About" title="A studio that does both." />
         <FounderIntroSection showIntroLabel={false} />
       </SectionReveal>
 
       {/* ── Services (always-visible 2×2 card grid) ── */}
       <SectionReveal className="container" effect="right">
-        <SectionHeading eyebrow="Services" title="Everything you need to build a strong digital foundation." />
+        <SectionHeading eyebrow="Services" title="Everything you need to build a strong digital presence." />
         <div className="grid gap-4 sm:grid-cols-2">
           {services.map((service, index) => {
             const ServiceIcon = serviceIcons[service.key] ?? Sparkles;
@@ -358,6 +362,11 @@ export function HomeSections({
                   </span>
                   <h3 className="mt-4 text-[1.05rem] font-semibold text-fg/96 md:text-lg">{service.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-fg/62 md:text-[0.95rem]">{service.body}</p>
+                  {"outcome" in service && service.outcome ? (
+                    <p className="mt-3 border-t border-border/10 pt-3 text-xs text-fg/50">
+                      <span className="font-medium text-accentA/80">Result: </span>{service.outcome}
+                    </p>
+                  ) : null}
                   <span className="mt-4 inline-flex items-center gap-1 text-[0.68rem] uppercase tracking-[0.16em] text-accentA/0 transition-[color,opacity] duration-200 group-hover:text-accentA/86">
                     Learn more
                     <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -432,22 +441,22 @@ export function HomeSections({
 
       {/* ── Contact ── */}
       <SectionReveal className="container" effect="zoom">
-        <SectionHeading eyebrow="Contact" title="Start Your Project" />
+        <SectionHeading eyebrow="Contact" title="Let's Build Something You're Proud Of" />
         <div className="section-shell relative overflow-hidden border-border/14 bg-bg/62 p-4 md:p-5">
           <div className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-accentA/12 blur-3xl" />
           <div className="relative z-10 space-y-3">
-            <h3 className="text-lg font-semibold md:text-xl">Tell us what you&apos;re building.</h3>
+            <h3 className="text-lg font-semibold md:text-xl">Tell us what you&apos;re working on.</h3>
             <p className="max-w-[46rem] text-sm leading-relaxed text-fg/64">
-              Share a few details about your brand, website, or CMS needs.
+              A new brand, a website redesign, or a CMS setup. Whatever stage you are at, we would love to hear about it.
               <br />
-              We&apos;ll review your inquiry and respond with clear next steps.
+              We respond within 24 hours with clear next steps. No jargon, no pressure.
             </p>
 
             <LeadForm />
 
             <div className="border-t border-border/14 pt-3">
               <div className="flex flex-col gap-2.5 md:flex-row md:items-end md:justify-between">
-                <p className="text-[0.72rem] text-fg/56">Response time: 24-48 hours</p>
+                <p className="text-[0.72rem] text-fg/56">Response time: within 48 hours</p>
                 <div className="flex flex-wrap items-center gap-4 text-sm md:justify-end">
                   <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex w-fit items-center gap-2 text-fg/74">
                     <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />

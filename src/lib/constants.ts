@@ -63,16 +63,16 @@ export const testimonialMetricsDefault = [
 
 export const faqs = [
   {
-    q: "How quickly can Graphxify launch an enterprise website?",
-    a: "Typical timeline is 3 to 6 weeks depending on content complexity and stakeholder workflows."
+    q: "Do you work with small businesses and startups?",
+    a: "Yes. Most of our clients are small to midsize businesses, local service companies, and founders building their first serious brand or website. We are built for exactly this kind of work."
   },
   {
-    q: "Can your team migrate existing blog and work archives?",
-    a: "Yes. We provide migration mapping, QA checks, and structured redirects for SEO continuity."
+    q: "Can you redesign my existing website?",
+    a: "Absolutely. We handle full redesigns and rebuilds regularly. Whether you want a fresh look, faster load times, or a better CMS setup, we'll scope the right solution for your situation."
   },
   {
-    q: "Do you support internal approval and role-based publishing?",
-    a: "Yes. Admin, editor, reviewer, and author workflows are built into the CMS with audit trails for every mutation."
+    q: "Do you build custom websites or use templates?",
+    a: "Everything we build is custom. No page builders, no off-the-shelf templates. Your website is designed and developed from scratch to match your brand and your goals."
   }
 ] as const;
 
@@ -80,21 +80,25 @@ export const services = [
   {
     key: "brand-systems",
     title: "Brand Systems",
-    body: "We define your positioning, messaging, and visual identity into a structured brand system that stays consistent across every platform."
+    body: "We build your visual identity and messaging from the ground up: logo, colours, typography, and positioning that work together across every touchpoint.",
+    outcome: "You show up looking credible and consistent from day one."
   },
   {
     key: "web-design",
     title: "Web Design",
-    body: "We design modern, high-end websites with clear hierarchy, strong UX, and layouts built to guide users toward action."
+    body: "We design modern, conversion-focused websites with clear hierarchy and layouts built to guide visitors toward action, not just look good on a portfolio.",
+    outcome: "A website that works as hard for you as you do."
   },
   {
     key: "web-development",
     title: "Web Development",
-    body: "We develop fast, scalable websites using modern frameworks - engineered for performance, accessibility, and long-term growth."
+    body: "We build fast, reliable websites using Next.js, engineered for performance, SEO, and long-term maintainability without unnecessary complexity.",
+    outcome: "Loads instantly, ranks better, and scales without friction."
   },
   {
     key: "cms-architecture",
     title: "CMS Architecture",
-    body: "We implement structured CMS systems so your team can publish, update, and scale content without breaking the design or workflow."
+    body: "We structure your CMS so your team can update pages, publish content, and manage the site confidently, without touching code or calling a developer.",
+    outcome: "Your team stays in control. No developer needed for day-to-day updates."
   }
 ] as const;

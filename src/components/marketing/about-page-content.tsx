@@ -56,7 +56,7 @@ type AboutTestimonial = {
 const snapshotItems = [
   { label: "Focus", value: "Brand · Websites · CMS", icon: Eye },
   { label: "Delivery", value: "Design + Dev aligned", icon: Workflow },
-  { label: "Response", value: "24–48 hours", icon: Clock }
+  { label: "Response", value: "within 48 hours", icon: Clock }
 ] as const;
 
 const approachSteps = [
@@ -68,7 +68,7 @@ const approachSteps = [
 
 const capabilities: { title: string; body: string; href: string; icon: LucideIcon }[] = [
   { title: "Brand Systems", body: "Positioning, visual language, and usage standards that keep your brand consistent as content scales.", href: "/services#service-brand-systems", icon: Compass },
-  { title: "Web Design", body: "Clear, conversion-focused interfaces with responsive behavior and reusable design patterns.", href: "/services#service-web-design", icon: LayoutGrid },
+  { title: "Web Design", body: "Clear, conversion-focused interfaces built with responsive behavior and reusable design patterns.", href: "/services#service-web-design", icon: LayoutGrid },
   { title: "Web Development", body: "Performant, maintainable websites with clean architecture, accessibility, and production quality.", href: "/services#service-web-development", icon: Terminal },
   { title: "CMS Architecture", body: "Content models and editor workflows so your team can publish confidently without breaking consistency.", href: "/services#service-cms-architecture", icon: Database }
 ];
@@ -83,7 +83,7 @@ const differentiators = [
 ] as const;
 
 const principles = [
-  { title: "Systems First", body: "Every decision is made through the lens of scalable, reusable systems — not one-off deliverables.", icon: Globe },
+  { title: "Systems First", body: "Every decision is made through the lens of scalable, reusable systems, not isolated one-off deliverables.", icon: Globe },
   { title: "Quality as Standard", body: "Accessibility, performance, and clean code aren't extras. They're the baseline of every project.", icon: Sparkles },
   { title: "Transparent Process", body: "Clear timelines, predictable delivery, and open communication from the first call to final launch.", icon: Lightbulb }
 ];
@@ -135,7 +135,7 @@ export function AboutPageContent({
             <span className="mt-4 block h-px w-24 bg-accent-gradient" />
             <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.04rem]">
               Graphxify is a design and development studio focused on structured brand and web systems. We align identity, interface, and
-              architecture into one cohesive platform — built for clarity, consistency, and long-term growth.
+              architecture into one cohesive platform, built for clarity, consistency, and long-term growth.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">
               <Button asChild size="lg" className="px-6">
@@ -313,9 +313,9 @@ export function AboutPageContent({
               <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/50">Behind the Studio</p>
               <h2 className="mt-1 text-xl font-semibold md:text-2xl">Built by a designer who <span className="gradient-text">codes</span>.</h2>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-fg/62">
-                Graphxify was founded on the belief that brand, design, and development should operate as one unified system — not three
+                Graphxify was founded on the belief that brand, design, and development should operate as one unified system, not three
                 disconnected services. Every project is approached with a builder&apos;s mindset: structured, intentional, and engineered
-                for long-term growth. No handoff friction, no misalignment — just cohesive systems from concept to launch.
+                for long-term growth. No handoff friction, no misalignment. Just cohesive systems from concept to launch.
               </p>
             </div>
           </div>

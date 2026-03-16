@@ -40,6 +40,19 @@ type CmsWorkLike = {
   cover_image_url: string | null;
   gallery_images?: string[] | null;
   updated_at?: string | null;
+  // CMS-managed fields
+  industry?: string | null;
+  platform?: string | null;
+  timeline?: string | null;
+  location?: string | null;
+  live_url?: string | null;
+  overview?: string | null;
+  challenge?: string | null;
+  approach?: string | null;
+  solution?: string | null;
+  result?: string | null;
+  meta_title?: string | null;
+  meta_description?: string | null;
 };
 
 const galleryNotes: Record<LayoutVariant, string> = {
@@ -291,7 +304,13 @@ function mapCmsWorkToProject(
   const coverImageBase =
     normalizeImageSrc(work.cover_image_url) ?? normalizedCmsGallerySources[0] ?? fallbackProject?.coverImage ?? "/assets/work-1.svg";
   const cmsGallerySources = normalizedCmsGallerySources.filter((src) => src !== coverImageBase);
-  const fallbackSources = uniqueStrings((fallbackProject?.images ?? []).map((image) => image.src)).filter((src) => src !== coverImageBase);
+  // Only use hardcoded project images to pad the gallery when CMS provides none.
+  // When CMS has gallery images, repeat only those (plus the SVG placeholders as a last resort)
+  // so the hardcoded images from a previous project version never bleed through.
+  const fallbackSources =
+    cmsGallerySources.length === 0
+      ? uniqueStrings((fallbackProject?.images ?? []).map((image) => image.src)).filter((src) => src !== coverImageBase)
+      : [];
   const gallerySources = ensureExactGallerySources(cmsGallerySources, fallbackSources, coverImageBase);
 
   const images: ProjectImage[] =
@@ -315,6 +334,23 @@ function mapCmsWorkToProject(
     fallbackProject?.layoutVariant ??
     variantForSlug(work.slug, index);
 
+  // Build scope from CMS fields with local fallback
+  const fallbackScope = fallbackProject?.scope ?? [];
+  const cmsScope: Array<{ label: string; value: string }> = [];
+  const cmsPlatform = work.platform?.trim() || fallbackScope.find(({ label }) => label.toLowerCase() === "platform")?.value;
+  const cmsTimeline = work.timeline?.trim() || fallbackScope.find(({ label }) => label.toLowerCase() === "timeline")?.value || String(work.year);
+  const cmsLocation = work.location?.trim() || "Canada";
+  if (cmsPlatform) cmsScope.push({ label: "Platform", value: cmsPlatform });
+  cmsScope.push({ label: "Timeline", value: cmsTimeline });
+  cmsScope.push({ label: "Location", value: cmsLocation });
+
+  // Case study content: CMS fields first, local fallback second
+  const cmsOverview = work.overview?.trim() || fallbackProject?.overview || content;
+  const cmsChallenge = work.challenge?.trim() || fallbackProject?.proof?.problem || excerpt;
+  const cmsApproach = work.approach?.trim() || fallbackProject?.proof?.approach || "";
+  const cmsSolution = work.solution?.trim() || fallbackProject?.proof?.solution || content;
+  const cmsResult = work.result?.trim() || fallbackProject?.proof?.outcome || "";
+
   return {
     id: work.id,
     slug: work.slug,
@@ -323,14 +359,15 @@ function mapCmsWorkToProject(
     title: displayTitle,
     subtitle,
     year: Number.isFinite(work.year) ? work.year : fallbackProject?.year ?? new Date().getFullYear(),
-    industry: fallbackProject?.industry ?? "Digital Product",
+    industry: work.industry?.trim() || fallbackProject?.industry || "Digital Product",
     services,
     tools: fallbackProject?.tools ?? [],
     roles: fallbackProject?.roles ?? ["Delivery Partner"],
-    overview: fallbackProject?.overview ?? content,
+    overview: cmsOverview,
     excerpt,
     content,
     coverImage,
+    liveUrl: work.live_url?.trim() || fallbackProject?.liveUrl,
     timelineSteps: fallbackProject?.timelineSteps ?? [],
     metrics: fallbackProject?.metrics ?? [],
     images,
@@ -345,7 +382,7 @@ function mapCmsWorkToProject(
       { label: "View all works", href: "/works" }
     ],
     chapters: fallbackProject?.chapters ?? [],
-    scope: fallbackProject?.scope ?? [],
+    scope: cmsScope,
     tabPanels: fallbackProject?.tabPanels ?? {
       story: {
         heading: "Project Story",
@@ -366,10 +403,11 @@ function mapCmsWorkToProject(
         images: images.map((image) => image.src).slice(0, 3)
       }
     },
-    proof: fallbackProject?.proof ?? {
-      problem: excerpt,
-      solution: content,
-      outcome: "Published via Graphxify CMS."
+    proof: {
+      problem: cmsChallenge,
+      approach: cmsApproach,
+      solution: cmsSolution,
+      outcome: cmsResult
     }
   };
 }
@@ -475,9 +513,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   const canonicalPathSlug = getProjectPathSlug(project.slug);
 
+  const cmsWork = project as ProjectDetail & { meta_title?: string | null; meta_description?: string | null };
+
   return buildMetadata({
-    title: project.title,
-    description: project.excerpt,
+    title: cmsWork.meta_title?.trim() || project.title,
+    description: cmsWork.meta_description?.trim() || project.excerpt,
     path: `/works/${canonicalPathSlug}`,
     image: project.coverImage
   });
@@ -754,6 +794,102 @@ function getVisualLayoutSectionTitle(project: ProjectDetail): string {
   return title && title.length > 0 ? title : "Visual Layout";
 }
 
+function getProjectTimeline(project: ProjectDetail): string {
+  const found = project.scope.find(({ label }) => label.toLowerCase() === "timeline");
+  return found?.value ?? String(project.year);
+}
+
+function ProjectInfoRail({ project }: { project: ProjectDetail }): JSX.Element {
+  const platformValue =
+    project.scope.find(({ label }) => label.toLowerCase() === "platform")?.value ??
+    (project.tools.length > 0 ? project.tools[0] : "Web");
+
+  const infoItems = [
+    { label: "Industry", value: project.industry },
+    {
+      label: "Services",
+      value:
+        project.services.length > 0
+          ? project.services.slice(0, 3).join(", ")
+          : "Brand and Web"
+    },
+    { label: "Platform", value: platformValue },
+    { label: "Timeline", value: getProjectTimeline(project) },
+    { label: "Location", value: "Canada" }
+  ];
+
+  return (
+    <div className="grid grid-cols-2 gap-x-5 gap-y-5 rounded-xl border border-border/14 bg-bg/42 px-5 py-5 sm:grid-cols-3 md:px-7 md:py-6 lg:grid-cols-5">
+      {infoItems.map(({ label, value }) => (
+        <div key={label}>
+          <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">{label}</p>
+          <p className="mt-1.5 text-sm leading-snug text-fg/76">{value}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ProjectNarrative({ project }: { project: ProjectDetail }): JSX.Element | null {
+  const hasRichContent =
+    project.overview.length > 40 &&
+    project.proof.problem.length > 40;
+
+  if (!hasRichContent) {
+    return null;
+  }
+
+  type NarrativeItem = { title: string; body: string };
+
+  function pairRow(items: Array<NarrativeItem | null>): JSX.Element | null {
+    const filtered = items.filter((item): item is NarrativeItem => Boolean(item?.body?.trim()));
+    if (filtered.length === 0) return null;
+    return (
+      <div className={cn("grid gap-4", filtered.length > 1 ? "md:grid-cols-2" : "")}>
+        {filtered.map(({ title, body }) => (
+          <div key={title} className="rounded-xl border border-border/10 bg-card/40 px-6 py-7 md:px-8 md:py-8">
+            <p className="mb-3.5 text-[0.57rem] uppercase tracking-[0.2em] text-fg/36">{title}</p>
+            <p className="text-sm leading-[1.78] text-fg/62">{body}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const row2 = pairRow([
+    { title: "Challenge", body: project.proof.problem },
+    project.proof.approach ? { title: "Approach", body: project.proof.approach } : null
+  ]);
+
+  const row3 = pairRow([
+    { title: "Solution", body: project.proof.solution },
+    { title: "Result", body: project.proof.outcome }
+  ]);
+
+  return (
+    <div className="space-y-4">
+      {/* Section label */}
+      <div className="flex items-center gap-2.5">
+        <span className="h-1.5 w-1.5 rounded-full bg-accentA" aria-hidden="true" />
+        <p className="text-xs uppercase tracking-[0.2em] text-fg/50">Case Study</p>
+      </div>
+
+      {/* Row 1 — Overview: full-width dominant card */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/14 bg-card/60 px-7 py-9 md:px-10 md:py-11">
+        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/40 to-transparent" />
+        <p className="mb-4 text-[0.57rem] uppercase tracking-[0.2em] text-fg/36">Overview</p>
+        <p className="max-w-[64ch] text-[0.96rem] leading-[1.8] text-fg/70">{project.overview}</p>
+      </div>
+
+      {/* Row 2 — Challenge + Approach */}
+      {row2}
+
+      {/* Row 3 — Solution + Result */}
+      {row3}
+    </div>
+  );
+}
+
 function ProjectCtaSection(): JSX.Element {
   return <SiteCtaSection />;
 }
@@ -809,6 +945,11 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
 
         <section className="relative z-20 -mt-[28svh] min-h-[120svh] rounded-t-[2.4rem] border-x border-border/18 bg-card px-0 pt-12 pb-20 shadow-[0_-16px_40px_rgba(13,13,15,0.08)] md:-mt-[26svh] md:rounded-t-[3.25rem] md:pt-16 md:pb-28">
           <div className="container space-y-8">
+
+            {/* ── Project metadata rail ── */}
+            <ProjectInfoRail project={project} />
+
+            {/* ── Gallery section header ── */}
             <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div className="space-y-2">
                 <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/56">{getVisualLayoutSectionTitle(project)}</p>
@@ -818,6 +959,9 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
             </header>
 
             <ProjectVisualGallery project={project} />
+
+            {/* ── Case study narrative ── */}
+            <ProjectNarrative project={project} />
 
             <ProjectCtaSection />
             <OtherProjectsSlider projects={otherProjects} />

@@ -54,6 +54,26 @@ export type Work = {
   author_id: string;
   created_at: string;
   updated_at: string;
+  // Portfolio card
+  card_outcome: string | null;
+  card_services: string[];
+  sort_order: number;
+  featured: boolean;
+  // Info panel
+  industry: string | null;
+  platform: string | null;
+  timeline: string | null;
+  location: string | null;
+  live_url: string | null;
+  // Case study
+  overview: string | null;
+  challenge: string | null;
+  approach: string | null;
+  solution: string | null;
+  result: string | null;
+  // SEO
+  meta_title: string | null;
+  meta_description: string | null;
 };
 
 export type Lead = {

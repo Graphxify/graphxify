@@ -54,7 +54,27 @@ create table if not exists public.works (
   status text not null default 'draft' check (status in ('draft', 'review', 'published')),
   author_id uuid references public.profiles(id) on delete set null,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  -- Portfolio card fields
+  card_outcome text,
+  card_services text[] not null default '{}',
+  sort_order integer not null default 0,
+  featured boolean not null default false,
+  -- Project info panel
+  industry text,
+  platform text,
+  timeline text,
+  location text default 'Canada',
+  live_url text,
+  -- Case study narrative
+  overview text,
+  challenge text,
+  approach text,
+  solution text,
+  result text,
+  -- SEO
+  meta_title text,
+  meta_description text
 );
 
 create table if not exists public.testimonials (

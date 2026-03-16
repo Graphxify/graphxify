@@ -144,7 +144,27 @@ export const workSchema = z.object({
   content: z.string().min(1),
   coverImageUrl: imageUrlSchema.optional().or(z.literal("")),
   galleryImages: z.array(imageUrlSchema).max(24).default([]),
-  status: z.enum(["draft", "review", "published"])
+  status: z.enum(["draft", "review", "published"]),
+  // Portfolio card
+  cardOutcome: z.string().trim().max(400).optional().or(z.literal("")),
+  cardServices: z.array(z.string().min(1).max(80)).max(10).default([]),
+  sortOrder: z.coerce.number().int().min(0).max(9999).default(0),
+  featured: z.coerce.boolean().default(false),
+  // Info panel
+  industry: z.string().trim().max(120).optional().or(z.literal("")),
+  platform: z.string().trim().max(120).optional().or(z.literal("")),
+  timeline: z.string().trim().max(120).optional().or(z.literal("")),
+  location: z.string().trim().max(120).optional().or(z.literal("")),
+  liveUrl: z.string().trim().max(500).optional().or(z.literal("")),
+  // Case study
+  overview: z.string().trim().max(2000).optional().or(z.literal("")),
+  challenge: z.string().trim().max(2000).optional().or(z.literal("")),
+  approach: z.string().trim().max(2000).optional().or(z.literal("")),
+  solution: z.string().trim().max(2000).optional().or(z.literal("")),
+  result: z.string().trim().max(2000).optional().or(z.literal("")),
+  // SEO
+  metaTitle: z.string().trim().max(220).optional().or(z.literal("")),
+  metaDescription: z.string().trim().max(400).optional().or(z.literal(""))
 }).superRefine((value, ctx) => {
   if (value.status !== "published") {
     return;

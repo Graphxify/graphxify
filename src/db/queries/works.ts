@@ -11,28 +11,51 @@ function withCanonicalWorkTitle<T extends { slug: string; title: string }>(item:
   };
 }
 
-export async function getPublishedWorks() {
-  const supabase = createClient();
-  const { data, error } = await supabase
-    .from("works")
-    .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,cover_image_url,gallery_images,created_at,updated_at")
-    .eq("status", "published")
-    .order("year", { ascending: false });
-
-  if (error) {
-    throw error;
-  }
-
-  const rows = data ?? [];
-  const uniqueBySlug = new Map<string, (typeof rows)[number]>();
-
+function deduplicateWorksBySlug<T extends { slug: string }>(rows: T[]): T[] {
+  const uniqueBySlug = new Map<string, T>();
   for (const row of rows) {
     if (!uniqueBySlug.has(row.slug)) {
       uniqueBySlug.set(row.slug, row);
     }
   }
-
   return Array.from(uniqueBySlug.values());
+}
+
+export async function getPublishedWorks() {
+  const supabase = createClient();
+
+  // Try the full column list (requires migration work-cms-fields.sql to have been run).
+  const { data, error } = await supabase
+    .from("works")
+    .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,cover_image_url,gallery_images,created_at,updated_at,card_outcome,card_services,sort_order,featured,industry,platform,timeline,location,live_url,overview,challenge,approach,solution,result,meta_title,meta_description")
+    .eq("status", "published")
+    .order("sort_order", { ascending: true })
+    .order("year", { ascending: false });
+
+  if (!error) {
+    return deduplicateWorksBySlug(data ?? []);
+  }
+
+  // If any column doesn't exist yet (migration not run), fall back to base columns so
+  // public pages continue to function with CMS cover images and gallery images.
+  if (error.code === "42703") {
+    const { data: baseData, error: baseError } = await supabase
+      .from("works")
+      .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,cover_image_url,gallery_images,created_at,updated_at")
+      .eq("status", "published")
+      .order("year", { ascending: false });
+
+    if (baseError) {
+      throw baseError;
+    }
+
+    // Cast to the full type so callers don't see a narrowed row shape.
+    // Extended fields (industry, overview, etc.) will be undefined at runtime
+    // until the migration is run, and all callers already guard against that.
+    return deduplicateWorksBySlug((baseData ?? []) as NonNullable<typeof data>);
+  }
+
+  throw error;
 }
 
 export async function getPublishedWorkBySlug(slug: string) {

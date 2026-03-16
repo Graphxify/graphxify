@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Terms & Conditions",
-  description: "The terms that govern how Graphxify works with clients — project agreements, IP ownership, payment, and everything in between.",
+  description: "The terms that govern how Graphxify works with clients, covering project agreements, IP ownership, payment, and everything in between.",
   path: "/terms"
 });
 
@@ -46,7 +46,7 @@ export default function TermsPage(): JSX.Element {
           Terms &amp; Conditions
         </h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-fg/62">
-          Clear terms for how we work together — no surprises, no fine print designed to confuse you. Read this before we start a project.
+          Clear terms for how we work together. No surprises, no fine print designed to confuse you. Read this before we start a project.
         </p>
         <p className="mt-5 inline-block rounded-full border border-border/30 bg-card/60 px-4 py-1.5 text-xs text-fg/50">
           Last updated: {LAST_UPDATED}
@@ -58,7 +58,7 @@ export default function TermsPage(): JSX.Element {
 
         <SectionShell num="01" title="Acceptance of Terms">
           <p>
-            By engaging Graphxify for any service — whether through our contact form, a signed proposal, a verbal agreement, or a project invoice — you agree to these Terms &amp; Conditions. These terms apply to all clients, regardless of project size or scope.
+            By engaging Graphxify for any service, whether through our contact form, a signed proposal, a verbal agreement, or a project invoice, you agree to these Terms &amp; Conditions. These terms apply to all clients, regardless of project size or scope.
           </p>
           <p className="mt-3">
             If you&rsquo;re engaging on behalf of a company or organisation, you confirm that you have the authority to accept these terms on their behalf.
@@ -97,7 +97,7 @@ export default function TermsPage(): JSX.Element {
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Scope changes</p>
-              <p className="mt-1">If the project scope changes after work has begun — new pages, additional features, expanded brand deliverables, or other additions — we will provide a change order documenting the updated scope and any additional fees. Work on scope additions does not begin until the change order is approved.</p>
+              <p className="mt-1">If the project scope changes after work has begun, such as new pages, additional features, or expanded brand deliverables, we will provide a change order documenting the updated scope and any additional fees. Work on scope additions does not begin until the change order is approved.</p>
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Timelines</p>
@@ -140,7 +140,7 @@ export default function TermsPage(): JSX.Element {
           <p>Ownership of work depends on what it is and when it&rsquo;s paid for. Here&rsquo;s the breakdown:</p>
           <div className="mt-4 space-y-4">
             <div className="border-l-2 border-accentA/25 pl-4">
-              <p className="font-semibold text-fg/90">Final deliverables — yours after full payment</p>
+              <p className="font-semibold text-fg/90">Final deliverables: yours after full payment</p>
               <p className="mt-1">Once you&rsquo;ve paid in full, ownership of the final deliverables transfers to you. This includes final logo files, brand assets, design files, website code, and other deliverables explicitly listed in your project scope.</p>
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
@@ -149,7 +149,7 @@ export default function TermsPage(): JSX.Element {
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Work in progress</p>
-              <p className="mt-1">Until final payment is received, all work in progress — including drafts, concepts, prototypes, and code — remains the intellectual property of Graphxify.</p>
+              <p className="mt-1">Until final payment is received, all work in progress, including drafts, concepts, prototypes, and code, remains the intellectual property of Graphxify.</p>
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Portfolio rights</p>
@@ -162,13 +162,13 @@ export default function TermsPage(): JSX.Element {
           <p>We build revision rounds into every project so you have meaningful opportunity to refine the work. Here&rsquo;s how it works:</p>
           <ul className="mt-4 space-y-2.5">
             <Bullet>Each phase of work includes a set number of revision rounds as specified in your project proposal</Bullet>
-            <Bullet>A revision round means a consolidated batch of feedback on a single version of the deliverable — not multiple separate rounds for the same version</Bullet>
+            <Bullet>A revision round means a consolidated batch of feedback on a single version of the deliverable, not multiple separate rounds for the same version</Bullet>
             <Bullet>Revision requests should be provided in writing (email or project management tool) so we can track and address everything clearly</Bullet>
-            <Bullet>Feedback that changes the fundamental direction of the work — new concept requests, major strategic pivots — is treated as a scope change, not a revision</Bullet>
+            <Bullet>Feedback that changes the fundamental direction of the work, such as new concept requests or major strategic pivots, is treated as a scope change, not a revision</Bullet>
             <Bullet>Additional revision rounds beyond what&rsquo;s included in scope are available at our standard hourly rate</Bullet>
           </ul>
           <p className="mt-4">
-            We want you to love what we build. We&rsquo;ll always work with you to get there — we just need clear, consolidated feedback and mutual respect for the scope we agreed on.
+            We want you to love what we build. We&rsquo;ll always work with you to get there. We just need clear, consolidated feedback and mutual respect for the scope we agreed on.
           </p>
         </SectionShell>
 
@@ -198,7 +198,7 @@ export default function TermsPage(): JSX.Element {
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">No liability for indirect losses</p>
-              <p className="mt-0.5">Graphxify is not liable for indirect, incidental, or consequential losses — including lost revenue, lost data, or lost business — arising from our work, even if we were advised of the possibility of such losses.</p>
+              <p className="mt-0.5">Graphxify is not liable for indirect, incidental, or consequential losses including lost revenue, lost data, or lost business arising from our work, even if we were advised of the possibility of such losses.</p>
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Third-party services</p>
@@ -219,7 +219,7 @@ export default function TermsPage(): JSX.Element {
             <Bullet>Graphxify will not disclose your confidential business information to any third party without your written consent</Bullet>
             <Bullet>Confidential information includes business strategy, unreleased products, financials, client lists, and any materials marked as confidential</Bullet>
             <Bullet>This obligation survives the end of the project engagement</Bullet>
-            <Bullet>If you require a formal NDA before sharing sensitive information, we are happy to sign one — let us know before the project kick-off</Bullet>
+            <Bullet>If you require a formal NDA before sharing sensitive information, we are happy to sign one. Let us know before the project kick-off</Bullet>
           </ul>
         </SectionShell>
 
@@ -228,7 +228,7 @@ export default function TermsPage(): JSX.Element {
             Graphxify will not accept projects that involve illegal activity, hate speech, harassment, deceptive marketing, or content that causes harm to others. We reserve the right to decline or discontinue any engagement that violates these standards, without refund of fees already earned.
           </p>
           <p className="mt-3">
-            If you commission work for a website, campaign, or brand that is later used in a way that is illegal or harmful, that is your responsibility — not ours.
+            If you commission work for a website, campaign, or brand that is later used in a way that is illegal or harmful, that is your responsibility, not ours.
           </p>
         </SectionShell>
 
@@ -270,7 +270,7 @@ export default function TermsPage(): JSX.Element {
 
         <SectionShell num="14" title="Questions & Contact">
           <p>
-            Questions about how something in here applies to your project? Ask before you sign — we&rsquo;d rather clarify upfront than deal with confusion later.
+            Questions about how something in here applies to your project? Ask before you sign. We&rsquo;d rather clarify upfront than deal with confusion later.
           </p>
           <div className="mt-4 space-y-2">
             <p>

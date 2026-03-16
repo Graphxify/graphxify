@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Privacy Policy",
-  description: "How Graphxify collects, handles, and protects your data — written plainly so you actually know what's going on.",
+  description: "How Graphxify collects, handles, and protects your data, written plainly so you actually know what's going on.",
   path: "/privacy"
 });
 
@@ -46,7 +46,7 @@ export default function PrivacyPage(): JSX.Element {
           Privacy Policy
         </h1>
         <p className="mt-4 max-w-xl text-base leading-relaxed text-fg/62">
-          We collect only what we need, handle it carefully, and never sell it. Here&rsquo;s exactly how it works — in plain language.
+          We collect only what we need, handle it carefully, and never sell it. Here&rsquo;s exactly how it works, in plain language.
         </p>
         <p className="mt-5 inline-block rounded-full border border-border/30 bg-card/60 px-4 py-1.5 text-xs text-fg/50">
           Last updated: {LAST_UPDATED}
@@ -81,11 +81,11 @@ export default function PrivacyPage(): JSX.Element {
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Email correspondence</p>
-              <p className="mt-1">If you email us directly, we receive and retain that conversation — your name, email address, and the content of your messages.</p>
+              <p className="mt-1">If you email us directly, we receive and retain that conversation: your name, email address, and the content of your messages.</p>
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Analytics data</p>
-              <p className="mt-1">We use analytics tools to understand how visitors use our site — which pages are visited, general geographic regions, and how people navigate through the content. This data is aggregated and anonymised. We do not build individual user profiles.</p>
+              <p className="mt-1">We use analytics tools to understand how visitors use our site: which pages are visited, general geographic regions, and how people navigate through the content. This data is aggregated and anonymised. We do not build individual user profiles.</p>
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Technical data</p>
@@ -106,7 +106,7 @@ export default function PrivacyPage(): JSX.Element {
           </ul>
           <p className="mt-4">
             We do not sell your data. We do not use it for advertising. We do not share it with third parties for their
-            own marketing purposes. Your information exists in our systems to serve your project — nothing else.
+            own marketing purposes. Your information exists in our systems to serve your project. Nothing else.
           </p>
         </SectionShell>
 
@@ -115,11 +115,11 @@ export default function PrivacyPage(): JSX.Element {
           <div className="mt-4 space-y-4">
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Essential cookies</p>
-              <p className="mt-1">Required for basic site functionality — things like session state and security. These don&rsquo;t collect personal data and can&rsquo;t be opted out of without breaking the site.</p>
+              <p className="mt-1">Required for basic site functionality, including session state and security. These don&rsquo;t collect personal data and can&rsquo;t be opted out of without breaking the site.</p>
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Analytics cookies</p>
-              <p className="mt-1">Used to understand traffic patterns and page performance. We configure our analytics to anonymise IP addresses and avoid individual user tracking. We see patterns across many users — not individual profiles.</p>
+              <p className="mt-1">Used to understand traffic patterns and page performance. We configure our analytics to anonymise IP addresses and avoid individual user tracking. We see patterns across many users, not individual profiles.</p>
             </div>
             <div className="border-l-2 border-accentA/25 pl-4">
               <p className="font-semibold text-fg/90">Preference cookies</p>
@@ -156,7 +156,7 @@ export default function PrivacyPage(): JSX.Element {
 
         <SectionShell num="06" title="Client Project Data">
           <p>
-            When we work together, you&rsquo;ll share materials with us — brand assets, content, copy, login credentials, and sensitive business information.
+            When we work together, you&rsquo;ll share materials with us: brand assets, content, copy, login credentials, and sensitive business information.
             Here&rsquo;s how we treat it:
           </p>
           <ul className="mt-4 space-y-2.5">
@@ -232,12 +232,12 @@ export default function PrivacyPage(): JSX.Element {
             we&rsquo;ll update the &ldquo;Last Updated&rdquo; date at the top of this page.
           </p>
           <p className="mt-3">
-            For minor changes, we won&rsquo;t notify you individually — but the current version is always available here. If a change meaningfully affects how we handle client data, we&rsquo;ll make an effort to notify active clients directly.
+            For minor changes, we won&rsquo;t notify you individually. The current version is always available here. If a change meaningfully affects how we handle client data, we&rsquo;ll make an effort to notify active clients directly.
           </p>
         </SectionShell>
 
         <SectionShell num="11" title="Contact">
-          <p>Questions, requests, or concerns about this policy? We&rsquo;re real people — reach out and we&rsquo;ll respond properly.</p>
+          <p>Questions, requests, or concerns about this policy? We&rsquo;re real people. Reach out and we&rsquo;ll respond properly.</p>
           <div className="mt-4 space-y-2">
             <p>
               <span className="text-fg/56">Privacy inquiries: </span>

@@ -84,6 +84,7 @@ export type ProjectDetail = {
   };
   proof: {
     problem: string;
+    approach?: string;
     solution: string;
     outcome: string;
   };
@@ -95,17 +96,17 @@ export const graphxifyProjects: ProjectDetail[] = [
     slug: "northline-enterprise-replatform",
     layoutVariant: "A",
     title: "FlyUp Line",
-    subtitle: "A premium marketing and CMS rebuild that unified brand, speed, and publishing control.",
+    subtitle: "A complete brand identity and website built to simplify flight discovery for Canadian travellers.",
     year: 2025,
-    industry: "Enterprise Software",
-    services: ["Research", "UX Strategy", "Web Engineering", "CMS Architecture"],
-    tools: ["Next.js", "Supabase", "Figma", "Vercel"],
-    roles: ["Lead Product Partner", "Design Lead", "Technical Director"],
+    industry: "Travel Platform",
+    services: ["Brand Identity", "Web Design", "Web Development"],
+    tools: ["Next.js", "Figma", "Vercel"],
+    roles: ["Brand Designer", "Web Designer", "Frontend Developer"],
     overview:
-      "Northline needed one platform that could serve sales, marketing, and content teams without sacrificing visual polish. We rebuilt the full experience from IA to publishing workflows.",
-    excerpt: "Unified marketing and CMS stack with measurable conversion lift.",
+      "FlyUp Line is a Canadian travel platform built around one goal: helping users find affordable flights quickly, without friction. Graphxify was brought in to create the full brand identity and website from the ground up, building a digital presence that communicates clarity, speed, and reliability from the first interaction.",
+    excerpt: "A brand identity and website built to simplify flight discovery and build traveller trust.",
     content:
-      "The project replaced disconnected campaign pages with a scalable architecture where brand consistency, performance, and governance are built into every template.",
+      "Graphxify designed the brand system and interface architecture to support a smooth, intuitive travel browsing experience from first visit to search results.",
     coverImage: "/assets/work-1.svg",
     timelineSteps: [
       {
@@ -181,10 +182,9 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     ],
     scope: [
-      { label: "Team", value: "6 people" },
-      { label: "Timeline", value: "14 weeks" },
-      { label: "Markets", value: "North America + EMEA" },
-      { label: "Templates", value: "12 core templates" }
+      { label: "Platform", value: "Modern Web Platform" },
+      { label: "Timeline", value: "6 Weeks" },
+      { label: "Location", value: "Canada" }
     ],
     tabPanels: {
       story: {
@@ -207,9 +207,10 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     },
     proof: {
-      problem: "Disconnected properties and inconsistent UX were reducing trust and slowing publishing.",
-      solution: "A full replatform centered on reusable templates, clear governance, and performance-first engineering.",
-      outcome: "Higher conversion, faster execution, and a scalable publishing model."
+      problem: "The travel booking space is crowded and most platforms overwhelm users with feature density before they even begin searching. FlyUp Line needed an identity and interface that stood apart through simplicity, built to feel fast, trustworthy, and easy to navigate for every type of traveller.",
+      approach: "We established the core brand positioning around accessible travel, made simple. The visual identity was built around motion, clarity, and a modern digital aesthetic, with the interface focused on getting users to results with minimal friction at every step.",
+      solution: "Graphxify delivered a complete brand identity system including logo, colour palette, and typography direction built for digital environments. The website was designed with a clean, structured layout that guides users intuitively from landing to search results, with visual hierarchy keeping focus on the core action throughout.",
+      outcome: "FlyUp Line launched with a cohesive brand presence and a website built to convert. The platform communicates professionalism and ease of use immediately, positioning FlyUp Line competitively in the Canadian travel market with a strong foundation for long-term growth."
     }
   },
   {
@@ -217,17 +218,17 @@ export const graphxifyProjects: ProjectDetail[] = [
     slug: "vertex-brand-operations",
     layoutVariant: "B",
     title: "Maven",
-    subtitle: "Editorial-first brand governance for global campaign teams.",
+    subtitle: "A complete brand identity and visual system built for a minimalist streetwear concept.",
     year: 2025,
-    industry: "B2B Platform",
-    services: ["Brand Systems", "Editorial UX", "Web Design", "Governance"],
-    tools: ["Figma", "Next.js", "Notion", "Supabase"],
-    roles: ["Design Systems Partner", "Content Architect", "Frontend Lead"],
+    industry: "Fashion and Streetwear",
+    services: ["Brand Identity", "Visual System", "Brand Direction"],
+    tools: ["Figma"],
+    roles: ["Brand Designer", "Art Director"],
     overview:
-      "Vertex needed premium consistency across distributed campaign teams. We built an editorial operating system that balances freedom with standards.",
-    excerpt: "Brand governance toolkit for multi-team campaign delivery.",
+      "Maven is a minimalist streetwear concept built around bold typography, restrained colour, and a strong editorial point of view. Graphxify was engaged to develop the full brand identity and visual system, creating a foundation that would carry across apparel, packaging, and digital marketing from day one.",
+    excerpt: "A premium brand identity system built for a minimalist streetwear concept.",
     content:
-      "The new ecosystem introduced chapter-based storytelling templates, clear governance, and visual rigor across all marketing outputs.",
+      "The identity system was designed to work across apparel, packaging, social media, and marketing materials, built on simplicity, strong visual hierarchy, and modern typography.",
     coverImage: "/assets/work-2.svg",
     timelineSteps: [
       {
@@ -303,10 +304,9 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     ],
     scope: [
-      { label: "Team", value: "5 people" },
-      { label: "Timeline", value: "12 weeks" },
-      { label: "Campaign Types", value: "7 standardized formats" },
-      { label: "Localization", value: "9 regions" }
+      { label: "Platform", value: "Brand Identity System" },
+      { label: "Timeline", value: "4 Weeks" },
+      { label: "Location", value: "Canada" }
     ],
     tabPanels: {
       story: {
@@ -329,9 +329,10 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     },
     proof: {
-      problem: "Distributed teams were publishing inconsistent campaign pages with long review cycles.",
-      solution: "An editorial-first brand system with governance rules and reusable chapter templates.",
-      outcome: "Faster output with premium, consistent execution across every region."
+      problem: "The streetwear category demands authenticity, and brands that feel generic or overdesigned are quickly dismissed. Maven needed a brand system that reads as premium and original while remaining flexible enough to scale across apparel, packaging, and digital formats.",
+      approach: "We led with typography as the primary brand element, selecting a typographic voice that communicates modernity and authority. Every other visual decision was built around that foundation, with colour kept deliberately minimal to keep attention on form and composition.",
+      solution: "Graphxify delivered a complete brand identity system including primary logo, typographic lockups, colour palette, and visual guidelines for physical and digital formats. The system was built to work at every scale, from apparel to full-bleed campaign graphics.",
+      outcome: "Maven launched with a brand identity that reads as established and premium. The visual system gives the brand room to grow while maintaining a distinct and consistent point of view across every format it occupies."
     }
   },
   {
@@ -339,17 +340,17 @@ export const graphxifyProjects: ProjectDetail[] = [
     slug: "axis-growth-platform",
     layoutVariant: "C",
     title: "BOSS RAAM Pharmacy",
-    subtitle: "A proof-first case study platform focused on outcomes, not noise.",
+    subtitle: "A professional pharmacy website built to communicate trust and accessibility to patients.",
     year: 2024,
-    industry: "SaaS Growth",
-    services: ["Web Development", "CMS", "Analytics", "Optimization"],
-    tools: ["Next.js", "TypeScript", "Supabase", "Looker Studio"],
-    roles: ["Full-Stack Delivery", "Analytics Lead", "UX Strategist"],
+    industry: "Healthcare",
+    services: ["Web Design", "Web Development"],
+    tools: ["Next.js", "Figma"],
+    roles: ["Web Designer", "Frontend Developer"],
     overview:
-      "Axis needed a platform where business proof appears early and clearly. We designed a structure that foregrounds metrics, outcomes, and governance.",
-    excerpt: "Performance-first website and publishing model for growth teams.",
+      "BOSS RAAM Pharmacy needed a modern website that would clearly present its services and build trust with patients. The existing digital presence did not reflect the quality of care the pharmacy provides. Graphxify was engaged to design and develop a professional website that communicates reliability, accessibility, and expertise.",
+    excerpt: "A modern, trustworthy website built for a Canadian pharmacy.",
     content:
-      "The platform reframed storytelling around measurable outcomes with structured proof blocks, cleaner conversion paths, and analytics-ready components.",
+      "The structure focused on making services, contact information, and pharmacy details easy to find, communicating professionalism and accessibility throughout.",
     coverImage: "/assets/work-3.svg",
     timelineSteps: [
       {
@@ -425,10 +426,9 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     ],
     scope: [
-      { label: "Team", value: "7 people" },
-      { label: "Timeline", value: "16 weeks" },
-      { label: "Tracking Events", value: "43 tracked events" },
-      { label: "Templates", value: "15 conversion templates" }
+      { label: "Platform", value: "Business Website" },
+      { label: "Timeline", value: "4 Weeks" },
+      { label: "Location", value: "Canada" }
     ],
     tabPanels: {
       story: {
@@ -451,9 +451,10 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     },
     proof: {
-      problem: "Axis pages buried proof below long narrative sections and underperformed in conversion.",
-      solution: "A structured problem-solution-outcome layout with immediate metric visibility.",
-      outcome: "Higher-quality pipeline and stronger performance across critical conversion journeys."
+      problem: "In healthcare, trust is the primary currency. A website that feels outdated or confusing creates doubt before a patient ever walks through the door, and BOSS RAAM needed a clean digital presence that gave patients confidence and made essential information easy to find.",
+      approach: "The design process began with structure. We mapped what patients actually need from a pharmacy website and built the interface to surface those answers immediately, without requiring users to search through unnecessary content.",
+      solution: "Graphxify designed and developed a professional website with a clean layout, clear service presentation, and straightforward navigation. The visual design communicates professionalism and care without feeling clinical or impersonal.",
+      outcome: "BOSS RAAM Pharmacy now has a digital presence that matches the standard of its in-person service. Patients can find what they need quickly, and the site reinforces confidence in the pharmacy before any direct interaction takes place."
     }
   },
   {
@@ -461,17 +462,17 @@ export const graphxifyProjects: ProjectDetail[] = [
     slug: "lumen-commerce-redesign",
     layoutVariant: "D",
     title: "Pharmacy On King",
-    subtitle: "A design-showcase case study centered on visual credibility and conversion clarity.",
+    subtitle: "A clear, accessible website built to serve a community pharmacy and its local patients.",
     year: 2025,
-    industry: "Commerce Enablement",
-    services: ["Visual Direction", "Experience Design", "Frontend Build"],
-    tools: ["Figma", "Framer Motion", "Next.js", "Tailwind"],
-    roles: ["Design Director", "Frontend Engineer", "UX Writer"],
+    industry: "Healthcare",
+    services: ["Web Design", "Web Development"],
+    tools: ["Next.js", "Figma"],
+    roles: ["Web Designer", "Frontend Developer"],
     overview:
-      "Lumen needed a premium redesign that looked distinctive without compromising product clarity. We led with visuals, then layered concise narrative and proof.",
-    excerpt: "Design-forward redesign balancing premium visuals with conversion outcomes.",
+      "Pharmacy On King is a community pharmacy with a loyal local patient base. The pharmacy needed a website that would make it easier for existing and new patients to access services, find location information, and connect with the team. Graphxify was engaged to design and build a clean, accessible digital presence for the business.",
+    excerpt: "A clean, community-focused website built for a trusted downtown pharmacy.",
     content:
-      "The final experience uses curated visual pacing and subtle interactions to deliver trust and sophistication while preserving commercial intent.",
+      "The design focused on accessibility, clarity, and trust, helping visitors find services, location details, and contact information without friction.",
     coverImage: "/assets/work-1.svg",
     timelineSteps: [
       {
@@ -547,10 +548,9 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     ],
     scope: [
-      { label: "Team", value: "4 people" },
-      { label: "Timeline", value: "10 weeks" },
-      { label: "Visual Concepts", value: "5 approved routes" },
-      { label: "Launch Pages", value: "18 pages refreshed" }
+      { label: "Platform", value: "Business Website" },
+      { label: "Timeline", value: "4 Weeks" },
+      { label: "Location", value: "Canada" }
     ],
     tabPanels: {
       story: {
@@ -573,9 +573,10 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     },
     proof: {
-      problem: "Lumen's previous site looked generic and failed to communicate premium value.",
-      solution: "A design-showcase-first framework with curated media sequencing and subtle interaction depth.",
-      outcome: "Higher perceived quality, stronger engagement, and improved conversion behavior."
+      problem: "Community pharmacies serve a broad range of patients, including many who are not highly comfortable with technology. The website needed to be clear and welcoming for first-time visitors while reinforcing the pharmacy's reputation as a trusted community resource.",
+      approach: "Accessibility and clarity guided every decision. The information architecture was structured to answer the most common patient questions directly, with clean typography and strong contrast to support a wide range of users.",
+      solution: "Graphxify delivered a fully responsive website with a clear, welcoming layout that keeps services, location, and contact details prominent. The design communicates community trust while meeting the visual standard expected of a modern healthcare business.",
+      outcome: "Pharmacy On King now has a website that works as a genuine patient resource. The site helps new visitors understand what the pharmacy offers and makes it easy for the existing community to stay connected with the business."
     }
   },
   {
@@ -583,17 +584,17 @@ export const graphxifyProjects: ProjectDetail[] = [
     slug: "atlas-fintech-experience-hub",
     layoutVariant: "E",
     title: "Luka Hair Salon",
-    subtitle: "An interactive project experience with switchable story, system, and result views.",
+    subtitle: "A refined brand identity and website designed to reflect the studio's premium positioning.",
     year: 2026,
-    industry: "Fintech",
-    services: ["Brand Systems", "Web UX", "Frontend Engineering", "Content Strategy"],
-    tools: ["Next.js", "TypeScript", "Figma", "Framer Motion"],
-    roles: ["Engagement Lead", "Product Designer", "Frontend Architect"],
+    industry: "Beauty",
+    services: ["Brand Identity", "Web Design"],
+    tools: ["Figma", "Next.js"],
+    roles: ["Brand Designer", "Web Designer"],
     overview:
-      "Atlas needed a high-trust project narrative for enterprise buyers. We built a tabbed, interactive case-study system that keeps complexity organized.",
-    excerpt: "Interactive case-study hub with premium transitions and structured storytelling.",
+      "Luka Hair Salon is a modern salon focused on delivering a refined client experience. Graphxify was brought in to create a visual identity and website that would reflect the quality of the work happening inside the studio, giving the brand a presence that matches its positioning in the market.",
+    excerpt: "A clean visual identity and website built to reflect a premium salon experience.",
     content:
-      "The experience framework lets Atlas surface narrative, design rationale, and outcomes in focused views while preserving a consistent premium aesthetic.",
+      "The design focused on simplicity, clarity, and a modern beauty aesthetic, creating an identity and site that communicates elegance and professionalism from the first impression.",
     coverImage: "/assets/work-2.svg",
     timelineSteps: [
       {
@@ -669,10 +670,9 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     ],
     scope: [
-      { label: "Team", value: "5 people" },
-      { label: "Timeline", value: "11 weeks" },
-      { label: "Content Lanes", value: "3 structured lanes" },
-      { label: "Reusable Blocks", value: "24 content blocks" }
+      { label: "Platform", value: "Business Website" },
+      { label: "Timeline", value: "3 Weeks" },
+      { label: "Location", value: "Canada" }
     ],
     tabPanels: {
       story: {
@@ -695,27 +695,28 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     },
     proof: {
-      problem: "Atlas case studies mixed too many narratives into one long format, reducing clarity for decision-makers.",
-      solution: "A premium segmented switcher with dedicated lanes for story, system rationale, and results.",
-      outcome: "Higher engagement depth and stronger commercial conversion from enterprise buyers."
+      problem: "Many salons rely on generic templates that fail to communicate what makes their experience different. Luka needed a brand and website that felt genuinely premium without being cold, balancing elegance with warmth and clarity with personality.",
+      approach: "We defined the visual tone as clean, modern, and quietly confident, designed to feel like it belongs in a premium retail context. The website structure was kept intentionally simple to let the brand and services speak clearly without distraction.",
+      solution: "Graphxify delivered a brand identity system and a website designed around ease of use and visual clarity. The site presents services, booking information, and the salon's personality in a refined layout that is easy to navigate on any device.",
+      outcome: "Luka launched with a brand and digital presence that accurately represents the quality of its service offering. The identity gives the salon a professional foundation to grow from, and the website makes it straightforward for new and returning clients to engage with the business."
     }
   },
   {
     id: "gp-6",
     slug: "meridian-health-network-portal",
     layoutVariant: "F",
-    title: "King Medical Art Pharmacy",
-    subtitle: "A split-screen storytelling format for complex program communication.",
+    title: "King Medical Arts Pharmacy",
+    subtitle: "A modern pharmacy website designed to serve patients with clarity and professionalism.",
     year: 2026,
-    industry: "Healthcare Network",
-    services: ["Platform Strategy", "UX Architecture", "Web Engineering", "Content Governance"],
-    tools: ["Next.js", "TypeScript", "Supabase", "Figma"],
-    roles: ["Principal Strategist", "UX Lead", "Engineering Lead"],
+    industry: "Healthcare",
+    services: ["Web Design", "Web Development"],
+    tools: ["Next.js", "Figma"],
+    roles: ["Web Designer", "Frontend Developer"],
     overview:
-      "Meridian needed to explain a complex multi-audience portal in a way that felt premium and easy to scan. We designed a split-screen narrative with sticky context and scroll-driven storytelling.",
-    excerpt: "Split-screen project narrative balancing healthcare complexity with premium clarity.",
+      "King Medical Arts Pharmacy required a modern website to improve how patients access pharmacy information and services online. The existing digital presence did not adequately reflect the professionalism of the practice. Graphxify was engaged to design and develop a clean, well-structured website that would serve both the pharmacy and its patients effectively.",
+    excerpt: "A professional website built to present pharmacy services with clarity and confidence.",
     content:
-      "The final experience keeps key project context persistent while detailed sections progress on the right, helping readers move through strategy, metrics, and implementation with confidence.",
+      "The project focused on building a clean structure that helps visitors quickly access services, contact details, and pharmacy information, aligned with the professional medical arts environment.",
     coverImage: "/assets/work-3.svg",
     timelineSteps: [
       {
@@ -791,10 +792,9 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     ],
     scope: [
-      { label: "Team", value: "8 people" },
-      { label: "Timeline", value: "18 weeks" },
-      { label: "Stakeholder Groups", value: "6 primary groups" },
-      { label: "Accessible Templates", value: "14 templates" }
+      { label: "Platform", value: "Business Website" },
+      { label: "Timeline", value: "4 Weeks" },
+      { label: "Location", value: "Canada" }
     ],
     tabPanels: {
       story: {
@@ -817,9 +817,10 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     },
     proof: {
-      problem: "Meridian's legacy portal was difficult to navigate and hard to communicate across stakeholder groups.",
-      solution: "A split-screen narrative architecture with persistent context and structured scroll sections.",
-      outcome: "Higher clarity, improved task completion, and reduced support friction."
+      problem: "The pharmacy operates in a professional medical arts context, setting a higher standard for its digital presence. Outdated design was creating a gap between the quality of the service and the impression it made online.",
+      approach: "Every design decision was evaluated against a single question: does this make it easier for a patient to access what they need? We established clear content hierarchy and a clean visual language that reflects the professional medical environment.",
+      solution: "Graphxify designed and developed a fully responsive website with a clean structure and clear service presentation. The layout allows patients to quickly locate services, contact details, and relevant information, aligned with the standard expected in a medical arts environment.",
+      outcome: "King Medical Arts Pharmacy now has a website that accurately represents the quality and professionalism of its operation. The new digital presence serves as a reliable resource for patients and reinforces the pharmacy's standing within its professional medical community."
     }
   }
 ];

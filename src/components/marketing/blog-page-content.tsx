@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, BookOpen, Clock, Loader2, Mail, Sparkles } from "lucide-react";
+import { ArrowUpRight, BookOpen, Check, Clock, ListChecks, Loader2, Mail, Sparkles } from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { Button } from "@/components/ui/button";
 import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
@@ -54,7 +54,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
   const [activeCategory, setActiveCategory] = useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
   const [subscribeModal, setSubscribeModal] = useState(false);
-  const [subscribeMessage, setSubscribeMessage] = useState("Thanks for subscribing. You'll hear from us soon with insights on branding, design, and web architecture.");
+  const [subscribeMessage, setSubscribeMessage] = useState("Your checklist is on its way. You will also receive practical insights on web design, branding, and digital strategy for Canadian businesses.");
   const [subscribeEmail, setSubscribeEmail] = useState("");
   const [subscribeLoading, setSubscribeLoading] = useState(false);
   const [subscribeError, setSubscribeError] = useState("");
@@ -291,23 +291,54 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
       </SectionReveal>
 
       <SectionReveal className="container mt-10 md:mt-14" effect="zoom">
-        <div className="section-shell relative overflow-hidden border-border/18 bg-card/76 p-6 md:p-8">
-          <span className="pointer-events-none absolute -left-16 -top-16 h-48 w-48 rounded-full bg-accentA/6 blur-3xl" />
-          <span className="pointer-events-none absolute -bottom-12 -right-12 h-36 w-36 rounded-full bg-accentB/6 blur-3xl" />
+        <div className="section-shell relative overflow-hidden border-accentA/16 bg-card/82 p-7 md:p-10 lg:p-12">
 
-          <div className="relative z-10 grid items-center gap-6 lg:grid-cols-[1fr_1.2fr]">
+          {/* Ambient glows */}
+          <span className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-accentA/9 blur-[80px]" />
+          <span className="pointer-events-none absolute -bottom-16 -right-16 h-48 w-48 rounded-full bg-accentB/7 blur-[70px]" />
+
+          {/* Top shimmer accent */}
+          <span className="absolute inset-x-0 top-0 h-px bg-accent-gradient opacity-50" />
+
+          <div className="relative z-10 grid items-start gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+
+            {/* ── Left: value proposition ── */}
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-accentA/20 bg-accentA/8 px-3 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-accentA">
-                <Mail className="h-3 w-3" />
-                Newsletter
+              <div className="inline-flex items-center gap-2 rounded-full border border-accentA/26 bg-accentA/10 px-3 py-1.5 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-accentA">
+                <ListChecks className="h-3 w-3" />
+                Free Resource
               </div>
-              <h2 className="mt-3 text-2xl font-semibold md:text-3xl">Stay Updated</h2>
-              <p className="mt-2 text-sm text-fg/60">Occasional insights on building better brands and websites. No spam, ever.</p>
+
+              <h2 className="mt-4 text-2xl font-semibold leading-[1.1] md:text-[1.8rem]">
+                Free Website Growth Checklist
+              </h2>
+
+              <p className="mt-3 max-w-sm text-sm leading-relaxed text-fg/60">
+                Subscribe to the Graphxify newsletter and receive a practical checklist covering the essential elements every Canadian business website needs to attract customers and convert visitors.
+              </p>
+
+              {/* Benefit bullets — hint at the resource without giving it away */}
+              <ul className="mt-5 space-y-2.5" aria-label="Checklist includes">
+                {[
+                  "Web design, branding, and local SEO essentials",
+                  "Written specifically for Canadian business owners",
+                  "Practical steps you can act on right away"
+                ].map((item) => (
+                  <li key={item} className="flex items-start gap-3 text-sm text-fg/62">
+                    <span className="mt-[0.2rem] flex h-4 w-4 shrink-0 items-center justify-center rounded border border-accentA/30 bg-accentA/10 text-accentA">
+                      <Check className="h-2.5 w-2.5" aria-hidden="true" />
+                    </span>
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            <form onSubmit={onSubscribeSubmit} className="grid gap-3 md:grid-cols-[1fr_auto]" aria-label="Blog subscribe form">
-              <div className="space-y-2 md:col-span-1">
+            {/* ── Right: form ── */}
+            <div className="lg:pt-2">
+              <form onSubmit={onSubscribeSubmit} className="space-y-3" aria-label="Newsletter signup form">
                 <FormAlert message={subscribeError} />
+
                 <Input
                   type="email"
                   required
@@ -322,29 +353,46 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
                       return next;
                     });
                   }}
-                  placeholder="Email address"
-                  className="h-12 rounded-xl border-border/18 bg-bg/62 px-4 text-sm placeholder:text-fg/45 placeholder:opacity-100"
+                  placeholder="Your email address"
+                  className="h-12 rounded-xl border-border/22 bg-bg/64 px-4 text-sm placeholder:text-fg/40 placeholder:opacity-100 focus:border-accentA/40"
                   aria-label="Email address"
                   aria-invalid={Boolean(subscribeFieldErrors.email)}
                 />
                 <FieldErrorText id="blog-subscribe-email-error" message={subscribeFieldErrors.email} />
-              </div>
-              <Button type="submit" size="lg" className="h-12 px-6" disabled={subscribeLoading}>
-                {subscribeLoading ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Subscribing...
-                  </span>
-                ) : "Subscribe"}
-              </Button>
-            </form>
+
+                <Button
+                  type="submit"
+                  size="lg"
+                  className="h-12 w-full px-6"
+                  disabled={subscribeLoading}
+                >
+                  {subscribeLoading ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Sending...
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-2">
+                      <ListChecks className="h-4 w-4" />
+                      Get the Checklist
+                    </span>
+                  )}
+                </Button>
+              </form>
+
+              {/* Trust signal */}
+              <p className="mt-4 text-[0.7rem] leading-relaxed text-fg/40">
+                No spam. Only practical insights for business websites.{" "}
+                <span className="text-fg/28">Unsubscribe anytime.</span>
+              </p>
+            </div>
           </div>
 
           <SubmissionModal
             open={subscribeModal}
             onClose={() => setSubscribeModal(false)}
             type="success"
-            title="You're In!"
+            title="Checklist on its way!"
             message={subscribeMessage}
             autoDismiss={6000}
           />

@@ -440,40 +440,96 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     content: params.formData.get("content"),
     coverImageUrl: params.formData.get("coverImageUrl"),
     galleryImages: parseGalleryImagesInput(params.formData.getAll("galleryImages")),
-    status: params.formData.get("status")
+    status: params.formData.get("status"),
+    // Portfolio card
+    cardOutcome: params.formData.get("cardOutcome"),
+    cardServices: parseServicesInput(params.formData.get("cardServices")),
+    sortOrder: params.formData.get("sortOrder"),
+    featured: params.formData.get("featured") === "true",
+    // Info panel
+    industry: params.formData.get("industry"),
+    platform: params.formData.get("platform"),
+    timeline: params.formData.get("timeline"),
+    location: params.formData.get("location"),
+    liveUrl: params.formData.get("liveUrl"),
+    // Case study
+    overview: params.formData.get("overview"),
+    challenge: params.formData.get("challenge"),
+    approach: params.formData.get("approach"),
+    solution: params.formData.get("solution"),
+    result: params.formData.get("result"),
+    // SEO
+    metaTitle: params.formData.get("metaTitle"),
+    metaDescription: params.formData.get("metaDescription")
   });
 
   const galleryImages = sanitizeGalleryImages(parsed.galleryImages, parsed.coverImageUrl);
   const supabase = getWriteClient();
   const id = params.id;
 
+  const workExtendedPayload = {
+    card_outcome: parsed.cardOutcome || null,
+    card_services: parsed.cardServices,
+    sort_order: parsed.sortOrder,
+    featured: parsed.featured,
+    industry: parsed.industry || null,
+    platform: parsed.platform || null,
+    timeline: parsed.timeline || null,
+    location: parsed.location || null,
+    live_url: parsed.liveUrl || null,
+    overview: parsed.overview || null,
+    challenge: parsed.challenge || null,
+    approach: parsed.approach || null,
+    solution: parsed.solution || null,
+    result: parsed.result || null,
+    meta_title: parsed.metaTitle || null,
+    meta_description: parsed.metaDescription || null
+  };
+
   if (!id) {
     assertCanCreateWork(profile);
     assertCanPublishWork(profile, parsed.status);
 
-    const { data, error } = await supabase
+    const workBaseInsert = {
+      title: parsed.title,
+      slug: parsed.slug,
+      year: parsed.year,
+      role: parsed.role,
+      services: parsed.services,
+      subtitle: parsed.subtitle || null,
+      layout_variant: parsed.layoutVariant,
+      excerpt: parsed.excerpt,
+      content: parsed.content,
+      cover_image_url: parsed.coverImageUrl || null,
+      gallery_images: galleryImages,
+      status: parsed.status,
+      author_id: profile.id
+    };
+
+    const primaryInsert = await supabase
       .from("works")
-      .insert({
-        title: parsed.title,
-        slug: parsed.slug,
-        year: parsed.year,
-        role: parsed.role,
-        services: parsed.services,
-        subtitle: parsed.subtitle || null,
-        layout_variant: parsed.layoutVariant,
-        excerpt: parsed.excerpt,
-        content: parsed.content,
-        cover_image_url: parsed.coverImageUrl || null,
-        gallery_images: galleryImages,
-        status: parsed.status,
-        author_id: profile.id
-      })
+      .insert({ ...workBaseInsert, ...workExtendedPayload })
       .select("id")
       .single();
 
-    if (error) {
-      throw error;
+    if (primaryInsert.error && !isMissingColumnError(primaryInsert.error)) {
+      throw primaryInsert.error;
     }
+
+    if (primaryInsert.error) {
+      const fallbackInsert = await supabase
+        .from("works")
+        .insert(workBaseInsert)
+        .select("id")
+        .single();
+
+      if (fallbackInsert.error) {
+        throw fallbackInsert.error;
+      }
+      primaryInsert.data = fallbackInsert.data;
+    }
+
+    const data = primaryInsert.data!;
 
     await supabase.from("work_versions").insert({
       work_id: data.id,
@@ -523,28 +579,41 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
   assertCanEditWork(profile);
   assertCanPublishWork(profile, parsed.status);
 
-  const { error } = await supabase
+  const workBaseUpdate = {
+    title: parsed.title,
+    slug: parsed.slug,
+    year: parsed.year,
+    role: parsed.role,
+    services: parsed.services,
+    subtitle: parsed.subtitle || null,
+    layout_variant: parsed.layoutVariant,
+    excerpt: parsed.excerpt,
+    content: parsed.content,
+    cover_image_url: parsed.coverImageUrl || null,
+    gallery_images: galleryImages,
+    status: parsed.status,
+    author_id: existing.author_id ?? profile.id,
+    updated_at: new Date().toISOString()
+  };
+
+  const primaryUpdate = await supabase
     .from("works")
-    .update({
-      title: parsed.title,
-      slug: parsed.slug,
-      year: parsed.year,
-      role: parsed.role,
-      services: parsed.services,
-      subtitle: parsed.subtitle || null,
-      layout_variant: parsed.layoutVariant,
-      excerpt: parsed.excerpt,
-      content: parsed.content,
-      cover_image_url: parsed.coverImageUrl || null,
-      gallery_images: galleryImages,
-      status: parsed.status,
-      author_id: existing.author_id ?? profile.id,
-      updated_at: new Date().toISOString()
-    })
+    .update({ ...workBaseUpdate, ...workExtendedPayload })
     .eq("id", id);
 
-  if (error) {
-    throw error;
+  if (primaryUpdate.error && !isMissingColumnError(primaryUpdate.error)) {
+    throw primaryUpdate.error;
+  }
+
+  if (primaryUpdate.error) {
+    const fallbackUpdate = await supabase
+      .from("works")
+      .update(workBaseUpdate)
+      .eq("id", id);
+
+    if (fallbackUpdate.error) {
+      throw fallbackUpdate.error;
+    }
   }
 
   const version = await nextWorkVersion(id, supabase);

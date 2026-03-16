@@ -2,6 +2,8 @@ type ProjectCardContentItem = {
   slug: string;
   pathSlug: string;
   industry: string;
+  cardServices: string[];
+  cardOutcome: string;
   title: string;
   liveUrl?: string;
 };
@@ -10,40 +12,52 @@ export const projectCardContent: readonly ProjectCardContentItem[] = [
   {
     slug: "northline-enterprise-replatform",
     pathSlug: "flyup-line",
-    industry: "Digital Platform",
+    industry: "Travel Platform",
+    cardServices: ["Brand Identity", "Web Design", "Development"],
+    cardOutcome: "A modern platform redesigned to simplify flight discovery and travel browsing.",
     title: "Flyup Line",
     liveUrl: "https://flyupline.com/"
   },
   {
     slug: "vertex-brand-operations",
     pathSlug: "maven",
-    industry: "Brand Identity",
+    industry: "B2B Platform",
+    cardServices: ["Brand Systems", "Web Design", "Governance"],
+    cardOutcome: "A brand governance toolkit built for multi-team campaign delivery.",
     title: "Maven"
   },
   {
     slug: "axis-growth-platform",
     pathSlug: "boss-raam-pharmacy",
-    industry: "Brand Identity + Website",
+    industry: "Healthcare",
+    cardServices: ["Brand Identity", "Web Design", "Development"],
+    cardOutcome: "Full brand identity and website built for a modern Canadian pharmacy.",
     title: "Boss Raam Pharmacy",
     liveUrl: "https://www.bossmedclinic.com/"
   },
   {
     slug: "lumen-commerce-redesign",
     pathSlug: "pharmacy-on-king",
-    industry: "Brand Identity + Website",
+    industry: "Healthcare",
+    cardServices: ["Brand Identity", "Web Design", "Development"],
+    cardOutcome: "Brand refresh and digital presence for a trusted downtown pharmacy.",
     title: "Pharmacy on King",
     liveUrl: "https://pharmacyonking.ca/"
   },
   {
     slug: "atlas-fintech-experience-hub",
     pathSlug: "luka-hair-salon",
-    industry: "Brand Identity",
+    industry: "Beauty",
+    cardServices: ["Brand Identity"],
+    cardOutcome: "A refined identity built to reflect the studio's premium positioning.",
     title: "Luka Hair Salon"
   },
   {
     slug: "meridian-health-network-portal",
     pathSlug: "king-medical-art-pharmacy",
-    industry: "Web Designer & Developer",
+    industry: "Healthcare",
+    cardServices: ["Web Design", "Development"],
+    cardOutcome: "A professional website built to serve a medical arts pharmacy with clarity.",
     title: "King Medical Arts",
     liveUrl: "https://www.kingmedicalartspharmacy.ca/"
   }
@@ -97,7 +111,9 @@ export function withProjectCardContent<T extends { slug: string; title: string; 
   return {
     ...item,
     title: content.title,
-    ...(typeof item.industry === "string" ? { industry: content.industry } : {}),
+    // Prefer the item's own industry (from CMS or fallback project) when it is meaningful;
+    // only substitute the hardcoded value when the item has no industry set.
+    ...(typeof item.industry === "string" ? { industry: item.industry || content.industry } : {}),
     liveUrl: content.liveUrl ?? item.liveUrl
   } as T;
 }
