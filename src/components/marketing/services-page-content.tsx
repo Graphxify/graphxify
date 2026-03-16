@@ -69,19 +69,19 @@ const servicesData: ServicePillar[] = [
     title: "Web Design",
     description: "Structured interfaces with clarity and hierarchy.",
     icon: Palette,
-    body: "We design website interfaces built to communicate clearly and convert visitors into leads. Every layout prioritises hierarchy so your main message, your differentiator, and your call to action are visible before the scroll. Designed mobile-first, responsive across all screen sizes, and built to meet AODA accessibility standards for Ontario businesses.",
+    body: "We design website interfaces built to communicate clearly and convert visitors into leads. Every layout prioritises hierarchy so your main message, your differentiator, and your call to action are visible before the scroll. Designed mobile-first, responsive across all screen sizes, and built with accessibility in mind so your website is usable by the widest possible audience.",
     deliverables: [
       "UX wireframes for each key page",
       "High-fidelity desktop and mobile designs",
       "Interactive prototype for client review",
       "Component design system",
       "Responsive layout specifications",
-      "Accessibility audit (WCAG 2.1 AA)"
+      "Accessibility review (WCAG guidelines)"
     ],
     bestFor: "Businesses with a clear brand ready to build or redesign their website",
     typicalProject: "4 to 8 pages across a 2 to 4 week design phase",
     businessOutcome: "A website visitors understand and engage with from the first scroll",
-    microProof: "All interfaces are designed to WCAG 2.1 AA standards, required for Ontario public-facing businesses under AODA."
+    microProof: "We design interfaces aligned with WCAG accessibility guidelines so websites are usable, inclusive, and built with AODA requirements in mind."
   },
   {
     key: "web-development",
@@ -461,8 +461,8 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
             Services
           </p>
           <h1 className="mt-3 text-[clamp(2rem,5vw,4.5rem)] font-semibold leading-[0.96] tracking-tight">
-            <span className="block">Branding and websites.</span>
-            <span className="mt-3 block md:mt-4">Built as one system.</span>
+            <span className="block">Branding and websites</span>
+            <span className="mt-3 block md:mt-4">built as one system.</span>
           </h1>
           <span className="mt-4 block h-px w-24 bg-accent-gradient" />
           <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.08rem]">

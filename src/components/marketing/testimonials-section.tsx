@@ -230,6 +230,7 @@ function MarqueeRow({
             key={`group-${groupIndex}`}
             ref={groupIndex === 0 ? firstGroupRef : null}
             className="flex shrink-0 gap-4"
+            aria-hidden={groupIndex > 0 ? true : undefined}
           >
             {items.map((item) => (
               <TestimonialCard key={`${groupIndex}-${item.id}`} item={item} />

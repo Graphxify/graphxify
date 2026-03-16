@@ -456,7 +456,7 @@ export function HomeSections({
 
             <div className="border-t border-border/14 pt-3">
               <div className="flex flex-col gap-2.5 md:flex-row md:items-end md:justify-between">
-                <p className="text-[0.72rem] text-fg/56">Response time: within 48 hours</p>
+                <p className="text-[0.72rem] text-fg/56">Response time: within 24 hours</p>
                 <div className="flex flex-wrap items-center gap-4 text-sm md:justify-end">
                   <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex w-fit items-center gap-2 text-fg/74">
                     <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />

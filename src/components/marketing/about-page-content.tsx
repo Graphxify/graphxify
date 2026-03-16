@@ -56,7 +56,7 @@ type AboutTestimonial = {
 const snapshotItems = [
   { label: "Focus", value: "Brand · Websites · CMS", icon: Eye },
   { label: "Delivery", value: "Design + Dev aligned", icon: Workflow },
-  { label: "Response", value: "within 48 hours", icon: Clock }
+  { label: "Response", value: "within 24 hours", icon: Clock }
 ] as const;
 
 const approachSteps = [

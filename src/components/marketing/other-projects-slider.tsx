@@ -453,6 +453,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
           {renderCards.map((item, index) => {
             const displayTitle = getProjectDisplayTitle(item.slug, item.title);
             const pathSlug = getProjectPathSlug(item.slug);
+            const isClone = index < cloneCount || index >= cloneCount + totalCards;
             return (
               <motion.div
                 key={`${item.slug}-${index}`}
@@ -461,6 +462,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.985 }}
                 transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                aria-hidden={isClone ? true : undefined}
               >
                 <Link
                   href={`/works/${pathSlug}`}

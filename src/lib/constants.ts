@@ -14,8 +14,8 @@ export const companyContact = {
 export const marketingNav = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/services", label: "Service" },
-  { href: "/works", label: "Work" },
+  { href: "/services", label: "Services" },
+  { href: "/works", label: "Works" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" }
 ];

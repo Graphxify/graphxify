@@ -629,24 +629,24 @@ export function ContactPageContent(): JSX.Element {
                 <FileText className="h-4 w-4 text-accentA" aria-hidden="true" />
                 <h2 className="text-lg font-semibold">What happens next</h2>
               </div>
-              <ol className="mt-4 space-y-3">
+              <ol className="mt-4 list-none space-y-3">
                 <li className="flex items-start gap-3 border-b border-border/14 pb-3 text-sm text-fg/72">
-                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/24 text-[0.66rem] text-accentA">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/24 text-[0.66rem] text-accentA" aria-hidden="true">
                     1
                   </span>
-                  <span>We review your request</span>
+                  <span>Review your inquiry</span>
                 </li>
                 <li className="flex items-start gap-3 border-b border-border/14 pb-3 text-sm text-fg/72">
-                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/24 text-[0.66rem] text-accentA">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/24 text-[0.66rem] text-accentA" aria-hidden="true">
                     2
                   </span>
-                  <span>We reply with questions or a call link</span>
+                  <span>We respond within the stated timeframe</span>
                 </li>
                 <li className="flex items-start gap-3 text-sm text-fg/72">
-                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/24 text-[0.66rem] text-accentA">
+                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/24 text-[0.66rem] text-accentA" aria-hidden="true">
                     3
                   </span>
-                  <span>We send a scope + next steps</span>
+                  <span>We schedule a call or next steps</span>
                 </li>
               </ol>
             </article>

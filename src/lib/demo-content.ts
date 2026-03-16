@@ -108,10 +108,10 @@ For most small and medium businesses in Toronto and Mississauga, an $8,000–$20
 - Who will be doing the actual design work — a senior designer or a junior?
 - Is the site built for speed? What is your typical Lighthouse performance score?
 - Will I own all the code and content when the project is done?
-- How do you handle accessibility (WCAG 2.1 / AODA compliance)?
+- How do you handle accessibility (WCAG guidelines / AODA)?
 - What CMS will you use, and will I be able to update content myself?
 
-NOTE: In Ontario, the Accessibility for Ontarians with Disabilities Act (AODA) requires public-facing websites to meet WCAG 2.0 Level AA accessibility standards. Confirm your agency builds to this standard.
+NOTE: In Ontario, the Accessibility for Ontarians with Disabilities Act (AODA) includes web accessibility requirements referencing WCAG 2.0 Level AA. Ask any agency you consider how they approach accessibility and whether their builds are designed with these guidelines in mind.
 
 ## Making the Right Decision
 
