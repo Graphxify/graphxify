@@ -1,6 +1,7 @@
 import "server-only";
 
 import { unstable_noStore as noStore } from "next/cache";
+import type { Work } from "@/db/types";
 import { getProjectDisplayTitle } from "@/lib/project-card-content";
 import { createClient } from "@/lib/supabase/server";
 
@@ -21,41 +22,43 @@ function deduplicateWorksBySlug<T extends { slug: string }>(rows: T[]): T[] {
   return Array.from(uniqueBySlug.values());
 }
 
-export async function getPublishedWorks() {
+export async function getPublishedWorks(): Promise<Work[]> {
   const supabase = createClient();
 
-  // Try the full column list (requires migration work-cms-fields.sql to have been run).
-  const { data, error } = await supabase
+  // Fetch with the full column list (requires migration work-cms-fields.sql to have been run).
+  // We store the result WITHOUT immediately destructuring so TypeScript does not narrow
+  // `fullData` to `null` in the error branch (Supabase uses a discriminated union on the
+  // destructured form, which would make NonNullable<typeof data> resolve to `never`).
+  const fullResult = await supabase
     .from("works")
     .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,cover_image_url,gallery_images,created_at,updated_at,card_outcome,card_services,sort_order,featured,industry,platform,timeline,location,live_url,overview,challenge,approach,solution,result,meta_title,meta_description")
     .eq("status", "published")
     .order("sort_order", { ascending: true })
     .order("year", { ascending: false });
 
-  if (!error) {
-    return deduplicateWorksBySlug(data ?? []);
+  if (!fullResult.error) {
+    return deduplicateWorksBySlug(fullResult.data ?? []) as Work[];
   }
 
-  // If any column doesn't exist yet (migration not run), fall back to base columns so
-  // public pages continue to function with CMS cover images and gallery images.
-  if (error.code === "42703") {
-    const { data: baseData, error: baseError } = await supabase
+  // If any column doesn't exist yet (migration not run), retry with base columns so
+  // public pages continue to show CMS cover images and gallery images.
+  if (fullResult.error.code === "42703") {
+    const baseResult = await supabase
       .from("works")
       .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,cover_image_url,gallery_images,created_at,updated_at")
       .eq("status", "published")
       .order("year", { ascending: false });
 
-    if (baseError) {
-      throw baseError;
+    if (baseResult.error) {
+      throw baseResult.error;
     }
 
-    // Cast to the full type so callers don't see a narrowed row shape.
-    // Extended fields (industry, overview, etc.) will be undefined at runtime
-    // until the migration is run, and all callers already guard against that.
-    return deduplicateWorksBySlug((baseData ?? []) as NonNullable<typeof data>);
+    // Extended fields (industry, overview, etc.) are absent until the migration runs;
+    // all callers guard against undefined/null with `||`/`??` so this is safe.
+    return deduplicateWorksBySlug(baseResult.data ?? []) as Work[];
   }
 
-  throw error;
+  throw fullResult.error;
 }
 
 export async function getPublishedWorkBySlug(slug: string) {

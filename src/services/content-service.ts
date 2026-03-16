@@ -516,6 +516,8 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
       throw primaryInsert.error;
     }
 
+    let insertedWorkId: string;
+
     if (primaryInsert.error) {
       const fallbackInsert = await supabase
         .from("works")
@@ -526,10 +528,12 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
       if (fallbackInsert.error) {
         throw fallbackInsert.error;
       }
-      primaryInsert.data = fallbackInsert.data;
+      insertedWorkId = fallbackInsert.data.id;
+    } else {
+      insertedWorkId = primaryInsert.data.id;
     }
 
-    const data = primaryInsert.data!;
+    const data = { id: insertedWorkId };
 
     await supabase.from("work_versions").insert({
       work_id: data.id,

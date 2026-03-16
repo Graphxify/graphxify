@@ -22,22 +22,39 @@ type WorkCard = {
   coverImage: string;
 };
 
+type CmsWorkEntry = {
+  id: string;
+  title: string;
+  slug: string;
+  cover_image_url: string | null;
+  gallery_images?: string[] | null;
+  updated_at?: string | null;
+};
+
+function toUnixMs(value: string | null | undefined): number {
+  if (!value) return 0;
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function asCmsWorkEntry(work: unknown): CmsWorkEntry | null {
+  if (!work || typeof work !== "object") return null;
+  const w = work as Record<string, unknown>;
+  if (typeof w.id !== "string" || typeof w.slug !== "string") return null;
+  return {
+    id: w.id,
+    title: typeof w.title === "string" ? w.title : "",
+    slug: w.slug,
+    cover_image_url: typeof w.cover_image_url === "string" ? w.cover_image_url : null,
+    gallery_images: Array.isArray(w.gallery_images) ? (w.gallery_images as string[]) : null,
+    updated_at: typeof w.updated_at === "string" ? w.updated_at : null
+  };
+}
+
 async function getWorkCards(): Promise<WorkCard[]> {
   const fallbackBySlug = new Map(graphxifyProjects.map((project) => [project.slug, project]));
 
-  const buildCanonicalCards = (
-    cmsBySlug: Map<
-      string,
-      {
-        id: string;
-        title: string;
-        slug: string;
-        cover_image_url: string | null;
-        gallery_images?: string[] | null;
-        updated_at?: string | null;
-      }
-    > = new Map()
-  ): WorkCard[] =>
+  const buildCanonicalCards = (cmsBySlug: Map<string, CmsWorkEntry> = new Map()): WorkCard[] =>
     projectCardContent.map((card, index) => {
       const fallback = getProjectBySlug(card.slug) ?? fallbackBySlug.get(card.slug);
       const cms = cmsBySlug.get(card.slug);
@@ -58,14 +75,14 @@ async function getWorkCards(): Promise<WorkCard[]> {
   try {
     const cmsWorks = await getPublishedWorks();
     if (cmsWorks.length > 0) {
-      const cmsBySlug = new Map<string, (typeof cmsWorks)[number]>();
+      const cmsBySlug = new Map<string, CmsWorkEntry>();
       for (const work of cmsWorks) {
-        const canonicalSlug = resolveProjectSlugFromPathSlug(work.slug);
+        const entry = asCmsWorkEntry(work);
+        if (!entry) continue;
+        const canonicalSlug = resolveProjectSlugFromPathSlug(entry.slug);
         const existing = cmsBySlug.get(canonicalSlug);
-        const existingUpdated = Number.isFinite(Date.parse(existing?.updated_at ?? "")) ? Date.parse(existing?.updated_at ?? "") : 0;
-        const candidateUpdated = Number.isFinite(Date.parse(work.updated_at ?? "")) ? Date.parse(work.updated_at ?? "") : 0;
-        if (!existing || candidateUpdated >= existingUpdated) {
-          cmsBySlug.set(canonicalSlug, work);
+        if (!existing || toUnixMs(entry.updated_at) >= toUnixMs(existing.updated_at)) {
+          cmsBySlug.set(canonicalSlug, entry);
         }
       }
       return buildCanonicalCards(cmsBySlug);
