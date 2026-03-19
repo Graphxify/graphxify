@@ -376,6 +376,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
           onTransitionEnd={onTrackTransitionEnd}
         >
           {renderCards.map((project, index) => {
+            const isClone = index < cloneCount || index >= cloneCount + totalCards;
             const displayTitle = getProjectDisplayTitle(project.slug, project.title);
             const pathSlug = getProjectPathSlug(project.slug);
             return (
@@ -386,6 +387,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
                 whileHover={{ y: -3, scale: 1.008 }}
                 whileTap={{ scale: 0.993 }}
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                aria-hidden={isClone ? true : undefined}
               >
                 <Link
                   href={`/works/${pathSlug}`}

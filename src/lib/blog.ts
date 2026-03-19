@@ -57,6 +57,16 @@ const DEFAULT_AUTHOR_NAME = "Graphxify Team";
 const DEFAULT_AUTHOR_ROLE = "Editorial Team";
 const DEFAULT_AUTHOR_BIO = "Graphxify shares practical guidance on brand systems, websites, and content operations.";
 
+/**
+ * Shared reading-time estimator — single source of truth used by both
+ * the blog listing page (excerpt) and the blog detail page (full content).
+ * Formula: round(words / 200), minimum 1 minute.
+ */
+export function estimateReadTime(text: string): string {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  return `${Math.max(1, Math.round(words / 200))} min read`;
+}
+
 function getString(value: unknown): string | undefined {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : undefined;
 }

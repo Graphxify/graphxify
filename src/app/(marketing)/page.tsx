@@ -6,7 +6,7 @@ import { HomeSections } from "@/components/marketing/home-sections";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Design & Branding Agency in Canada | Graphxify",
+  title: "Design & Development Agency for Modern Businesses",
   description: "Graphxify is a Canadian web design and branding agency serving Toronto, Mississauga, and Ontario. We build brand identities, custom websites, and performance digital platforms for businesses across Canada.",
   path: "/"
 });

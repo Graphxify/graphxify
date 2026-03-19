@@ -7,7 +7,7 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { CopyLinkButton } from "@/components/marketing/copy-link-button";
 import { JsonLd } from "@/components/seo/json-ld";
-import { selectRelatedBlogPosts } from "@/lib/blog";
+import { estimateReadTime, selectRelatedBlogPosts } from "@/lib/blog";
 import { getPublishedBlogBySlug, getPublishedBlogSummaries } from "@/lib/blog-data";
 import { siteConfig } from "@/lib/constants";
 import { blogPostingJsonLd, breadcrumbListJsonLd, buildMetadata } from "@/lib/seo";
@@ -35,14 +35,6 @@ function formatDate(value?: string): string {
   });
 }
 
-function estimateReadingTime(content: string): string {
-  const words = content
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean).length;
-  const minutes = Math.max(1, Math.round(words / 220));
-  return `${minutes} min read`;
-}
 
 function parseContentBlocks(content: string): ContentBlock[] {
   const lines = content.replace(/\r\n/g, "\n").split("\n");
@@ -319,7 +311,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
   const relatedSource = await getPublishedBlogSummaries();
   const relatedPosts = selectRelatedBlogPosts(relatedSource, post.slug, post.category);
   const publishedAt = formatDate(post.publishedAt);
-  const readingTime = estimateReadingTime(post.content);
+  const readingTime = estimateReadTime(post.content);
   const shareUrl = new URL(`/blog/${post.slug}`, siteConfig.url).toString();
   const authorInitials = post.authorName
     .split(/\s+/)

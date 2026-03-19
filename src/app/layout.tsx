@@ -8,7 +8,7 @@ import { ChunkLoadRecovery } from "@/components/runtime/chunk-load-recovery";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Premium Agency Platform",
+  title: "Web Design & Branding Agency",
   description:
     "Graphxify builds enterprise-grade marketing websites and CMS systems with performance, governance, and growth in mind.",
   path: "/"

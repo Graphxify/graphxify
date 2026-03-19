@@ -43,7 +43,7 @@ function servicesPageJsonLd() {
 }
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Design, Branding & Development Services | Graphxify Canada",
+  title: "Web Design & Branding Services for Growing Businesses",
   description: "Professional web design, branding, web development, and CMS services for Canadian businesses. Graphxify serves Toronto, Mississauga, and businesses across Ontario with structured, high-performance digital solutions.",
   path: "/services"
 });

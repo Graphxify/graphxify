@@ -11,18 +11,13 @@ import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
 import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
-import { BLOG_CATEGORIES, type BlogCategory, type BlogPostSummary } from "@/lib/blog";
+import { BLOG_CATEGORIES, estimateReadTime, type BlogCategory, type BlogPostSummary } from "@/lib/blog";
 import { newsletterSubscriptionSchema } from "@/lib/validation/schemas";
 
 const CATEGORY_FILTERS = ["All", ...BLOG_CATEGORIES] as const;
 const INITIAL_VISIBLE_COUNT = 6;
 const LOAD_MORE_STEP = 6;
 
-function estimateReadTime(excerpt: string): string {
-  const words = excerpt.split(/\s+/).length;
-  const time = Math.max(2, Math.ceil((words * 5) / 200));
-  return `${time} min read`;
-}
 
 const CATEGORY_COLORS: Record<BlogCategory, { dot: string; pill: string }> = {
   "Web Design": { dot: "bg-sky-400", pill: "border-sky-500/25 text-sky-300" },

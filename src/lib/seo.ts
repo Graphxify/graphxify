@@ -138,6 +138,24 @@ export function blogPostingJsonLd(input: {
   };
 }
 
+/**
+ * Generates a standardised case-study page title.
+ * Used by /works/[slug] generateMetadata and can be used by any CMS tool.
+ *
+ * Format: "{projectTitle} {industry} Case Study"
+ * Slashes in industry strings are converted to spaces so
+ * "Healthcare / Pharmacy" → "Healthcare Pharmacy Case Study".
+ */
+export function buildCaseStudyTitle(projectTitle: string, industry: string | null | undefined): string {
+  const industryNorm = (industry ?? "")
+    .replace(/\s*\/\s*/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  return industryNorm
+    ? `${projectTitle} ${industryNorm} Case Study`
+    : `${projectTitle} Case Study`;
+}
+
 export function creativeWorkJsonLd(input: {
   title: string;
   description: string;

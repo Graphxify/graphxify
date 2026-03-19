@@ -12,53 +12,53 @@ export const projectCardContent: readonly ProjectCardContentItem[] = [
   {
     slug: "northline-enterprise-replatform",
     pathSlug: "flyup-line",
-    industry: "Travel Platform",
-    cardServices: ["Brand Identity", "Web Design", "Development"],
-    cardOutcome: "A modern platform redesigned to simplify flight discovery and travel browsing.",
-    title: "Flyup Line",
+    industry: "Travel and Aviation",
+    cardServices: ["Website Design", "UX Strategy"],
+    cardOutcome: "A responsive travel platform redesigned to simplify the booking experience and drive conversion.",
+    title: "FlyUp Line",
     liveUrl: "https://flyupline.com/"
   },
   {
     slug: "vertex-brand-operations",
     pathSlug: "maven",
-    industry: "B2B Platform",
-    cardServices: ["Brand Systems", "Web Design", "Governance"],
-    cardOutcome: "A brand governance toolkit built for multi-team campaign delivery.",
+    industry: "Women's Fashion",
+    cardServices: ["Brand", "Design System"],
+    cardOutcome: "A complete brand identity system for a contemporary women's fashion label built around precision and typographic clarity.",
     title: "Maven"
   },
   {
     slug: "axis-growth-platform",
-    pathSlug: "boss-raam-pharmacy",
-    industry: "Healthcare",
-    cardServices: ["Brand Identity", "Web Design", "Development"],
-    cardOutcome: "Full brand identity and website built for a modern Canadian pharmacy.",
-    title: "Boss Raam Pharmacy",
+    pathSlug: "boss-medical-clinic",
+    industry: "Healthcare / Medical Clinic",
+    cardServices: ["Website Design", "Branding"],
+    cardOutcome: "A professional clinic website built to communicate authority while remaining approachable.",
+    title: "Boss Medical Clinic",
     liveUrl: "https://www.bossmedclinic.com/"
   },
   {
     slug: "lumen-commerce-redesign",
     pathSlug: "pharmacy-on-king",
-    industry: "Healthcare",
-    cardServices: ["Brand Identity", "Web Design", "Development"],
-    cardOutcome: "Brand refresh and digital presence for a trusted downtown pharmacy.",
-    title: "Pharmacy on King",
+    industry: "Healthcare / Pharmacy",
+    cardServices: ["Website Design", "UI/UX"],
+    cardOutcome: "An accessible, trust-focused website for a community-focused Canadian pharmacy.",
+    title: "Pharmacy On King",
     liveUrl: "https://pharmacyonking.ca/"
   },
   {
     slug: "atlas-fintech-experience-hub",
     pathSlug: "luka-hair-salon",
-    industry: "Beauty",
-    cardServices: ["Brand Identity"],
-    cardOutcome: "A refined identity built to reflect the studio's premium positioning.",
+    industry: "Beauty / Hair Salon",
+    cardServices: ["Website Design", "Branding"],
+    cardOutcome: "A polished salon website and visual identity built to attract and convert new clients.",
     title: "Luka Hair Salon"
   },
   {
     slug: "meridian-health-network-portal",
     pathSlug: "king-medical-art-pharmacy",
-    industry: "Healthcare",
-    cardServices: ["Web Design", "Development"],
-    cardOutcome: "A professional website built to serve a medical arts pharmacy with clarity.",
-    title: "King Medical Arts",
+    industry: "Healthcare / Pharmacy",
+    cardServices: ["Website Design", "UI/UX"],
+    cardOutcome: "A refined, accessible pharmacy website built to improve usability and reinforce credibility.",
+    title: "King Medical Arts Pharmacy",
     liveUrl: "https://www.kingmedicalartspharmacy.ca/"
   }
 ];
@@ -78,11 +78,17 @@ const legacySlugToCanonicalSlug = new Map<string, string>([
   ["northline-enterprise-platform", "northline-enterprise-replatform"],
   ["orion-saas-relaunch", "lumen-commerce-redesign"],
   ["solace-investor-relations-portal", "atlas-fintech-experience-hub"],
-  ["kite-commerce-experience-refresh", "meridian-health-network-portal"]
+  ["kite-commerce-experience-refresh", "meridian-health-network-portal"],
+  // old path slug → new path slug (resolved to canonical below)
+  ["boss-raam-pharmacy", "boss-medical-clinic"]
 ]);
 
 function normalizeProjectSlug(slug: string): string {
-  return pathSlugToCanonicalSlug.get(slug) ?? legacySlugToCanonicalSlug.get(slug) ?? slug;
+  const direct = pathSlugToCanonicalSlug.get(slug);
+  if (direct) return direct;
+  const legacy = legacySlugToCanonicalSlug.get(slug);
+  if (legacy) return pathSlugToCanonicalSlug.get(legacy) ?? legacy;
+  return slug;
 }
 
 export function resolveProjectSlugFromPathSlug(pathSlug: string): string {

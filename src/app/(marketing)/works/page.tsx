@@ -19,7 +19,7 @@ import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Design & Branding Portfolio | Graphxify Canada",
+  title: "Web Design & Branding Portfolio",
   description:
     "Explore Graphxify's portfolio of web design, branding, and custom development projects for Canadian businesses. Real work delivering brand identity, high-performance websites, and scalable digital platforms.",
   path: "/works"

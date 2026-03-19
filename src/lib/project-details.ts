@@ -218,17 +218,17 @@ export const graphxifyProjects: ProjectDetail[] = [
     slug: "vertex-brand-operations",
     layoutVariant: "B",
     title: "Maven",
-    subtitle: "A complete brand identity and visual system built for a minimalist streetwear concept.",
+    subtitle: "Maven was developed as a women's fashion label defined by precision, confidence, and refined minimalism.",
     year: 2025,
-    industry: "Fashion and Streetwear",
-    services: ["Brand Identity", "Visual System", "Brand Direction"],
+    industry: "Women's Fashion",
+    services: ["Brand", "Design System"],
     tools: ["Figma"],
     roles: ["Brand Designer", "Art Director"],
     overview:
-      "Maven is a minimalist streetwear concept built around bold typography, restrained colour, and a strong editorial point of view. Graphxify was engaged to develop the full brand identity and visual system, creating a foundation that would carry across apparel, packaging, and digital marketing from day one.",
-    excerpt: "A premium brand identity system built for a minimalist streetwear concept.",
+      "Maven is a contemporary women's fashion brand built around clean silhouettes, controlled colour, and a strong typographic presence. The goal was to create an identity that reflects confidence and individuality without relying on traditional feminine clichés. Graphxify crafted a system that extends seamlessly across apparel, packaging, and digital platforms.",
+    excerpt: "A complete brand identity system for a women's fashion label built around precision and refined minimalism.",
     content:
-      "The identity system was designed to work across apparel, packaging, social media, and marketing materials, built on simplicity, strong visual hierarchy, and modern typography.",
+      "The identity system was designed to work across apparel, packaging, digital media, and marketing materials — built on typographic control, restrained colour, and a confident visual language.",
     coverImage: "/assets/work-2.svg",
     timelineSteps: [
       {
@@ -329,26 +329,26 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     },
     proof: {
-      problem: "The streetwear category demands authenticity, and brands that feel generic or overdesigned are quickly dismissed. Maven needed a brand system that reads as premium and original while remaining flexible enough to scale across apparel, packaging, and digital formats.",
-      approach: "We led with typography as the primary brand element, selecting a typographic voice that communicates modernity and authority. Every other visual decision was built around that foundation, with colour kept deliberately minimal to keep attention on form and composition.",
-      solution: "Graphxify delivered a complete brand identity system including primary logo, typographic lockups, colour palette, and visual guidelines for physical and digital formats. The system was built to work at every scale, from apparel to full-bleed campaign graphics.",
-      outcome: "Maven launched with a brand identity that reads as established and premium. The visual system gives the brand room to grow while maintaining a distinct and consistent point of view across every format it occupies."
+      problem: "Women's fashion branding often leans heavily on soft visuals and predictable aesthetics. The challenge was to build a brand that feels feminine without being delicate, and strong without being aggressive — striking a balance that positions Maven as both refined and distinctive in a saturated market.",
+      approach: "We focused on typography and composition as the core of the identity. Instead of relying on decorative elements, the system uses spacing, hierarchy, and proportion to communicate elegance and control. The colour palette was kept restrained to reinforce clarity and consistency.",
+      solution: "Graphxify developed a complete brand identity system including logotypes, typographic rules, colour palette, and scalable design applications. The system was designed to adapt across apparel, tags, packaging, and digital media while maintaining a cohesive visual language.",
+      outcome: "Maven launched with a distinct and confident identity that stands apart from typical fashion branding. The system allows the brand to scale while maintaining its tone, positioning Maven as a modern label with a clear point of view."
     }
   },
   {
     id: "gp-3",
     slug: "axis-growth-platform",
     layoutVariant: "C",
-    title: "BOSS RAAM Pharmacy",
-    subtitle: "A professional pharmacy website built to communicate trust and accessibility to patients.",
+    title: "Boss Medical Clinic",
+    subtitle: "A visual system built to communicate authority, clarity, and professional credibility.",
     year: 2024,
     industry: "Healthcare",
     services: ["Web Design", "Web Development"],
     tools: ["Next.js", "Figma"],
     roles: ["Web Designer", "Frontend Developer"],
     overview:
-      "BOSS RAAM Pharmacy needed a modern website that would clearly present its services and build trust with patients. The existing digital presence did not reflect the quality of care the pharmacy provides. Graphxify was engaged to design and develop a professional website that communicates reliability, accessibility, and expertise.",
-    excerpt: "A modern, trustworthy website built for a Canadian pharmacy.",
+      "Boss Medical Clinic offers a range of medical services and needed a platform that reflects professionalism while presenting information in a structured and accessible way for patients.",
+    excerpt: "A professional clinic website built to communicate authority while remaining approachable.",
     content:
       "The structure focused on making services, contact information, and pharmacy details easy to find, communicating professionalism and accessibility throughout.",
     coverImage: "/assets/work-3.svg",
@@ -451,10 +451,10 @@ export const graphxifyProjects: ProjectDetail[] = [
       }
     },
     proof: {
-      problem: "In healthcare, trust is the primary currency. A website that feels outdated or confusing creates doubt before a patient ever walks through the door, and BOSS RAAM needed a clean digital presence that gave patients confidence and made essential information easy to find.",
-      approach: "The design process began with structure. We mapped what patients actually need from a pharmacy website and built the interface to surface those answers immediately, without requiring users to search through unnecessary content.",
-      solution: "Graphxify designed and developed a professional website with a clean layout, clear service presentation, and straightforward navigation. The visual design communicates professionalism and care without feeling clinical or impersonal.",
-      outcome: "BOSS RAAM Pharmacy now has a digital presence that matches the standard of its in-person service. Patients can find what they need quickly, and the site reinforces confidence in the pharmacy before any direct interaction takes place."
+      problem: "The primary challenge was balancing credibility with usability — avoiding overly complex layouts while maintaining a strong professional presence that builds patient trust.",
+      approach: "We focused on hierarchy and clarity, ensuring users can quickly understand the services available and navigate without confusion, supported by a clean and authoritative visual language.",
+      solution: "Graphxify delivered a responsive website with a service-driven layout, clear content structure, and an optimized user experience that communicates competence at every touchpoint.",
+      outcome: "The clinic now has a digital presence that strengthens trust and improves patient engagement, presenting as a credible and approachable medical provider."
     }
   },
   {

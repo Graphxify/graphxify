@@ -21,7 +21,7 @@ import {
   type ProjectDetail,
   type ProjectImage
 } from "@/lib/project-details";
-import { buildMetadata } from "@/lib/seo";
+import { buildCaseStudyTitle, buildMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 type Params = { slug: string };
@@ -515,8 +515,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   const cmsWork = project as ProjectDetail & { meta_title?: string | null; meta_description?: string | null };
 
+  const autoTitle = buildCaseStudyTitle(project.title, project.industry);
+
   return buildMetadata({
-    title: cmsWork.meta_title?.trim() || project.title,
+    title: cmsWork.meta_title?.trim() || autoTitle,
     description: cmsWork.meta_description?.trim() || project.excerpt,
     path: `/works/${canonicalPathSlug}`,
     image: project.coverImage
@@ -772,7 +774,7 @@ function ProjectVisualGallery({ project }: { project: ProjectDetail }): JSX.Elem
   const projectPathSlug = getProjectPathSlug(project.slug);
   const isFlyUpLine = projectPathSlug === "flyup-line";
   const isMaven = projectPathSlug === "maven";
-  const isBossRaam = projectPathSlug === "boss-raam-pharmacy";
+  const isBossRaam = projectPathSlug === "boss-medical-clinic";
   const isPharmacyOnKing = projectPathSlug === "pharmacy-on-king";
   const isLukaHairSalon = projectPathSlug === "luka-hair-salon";
 

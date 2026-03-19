@@ -6,7 +6,7 @@ import { buildMetadata } from "@/lib/seo";
 export const revalidate = 30;
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Design, Branding & Digital Strategy Blogs | Graphxify Canada",
+  title: "Web Design & Digital Strategy Blog",
   description: "Practical guides on web design, web development, and branding for Canadian businesses. Insights from Graphxify, a web design and branding agency serving Toronto, Mississauga, and all of Canada.",
   path: "/blog"
 });
