@@ -55,7 +55,7 @@ set search_path = public
 as $$
   select exists (
     select 1 from public.profiles p
-    where p.id = auth.uid() and p.role in ('admin', 'editor', 'reviewer', 'mod')
+    where p.id = auth.uid() and p.role in ('admin', 'moderator')
   );
 $$;
 
@@ -94,7 +94,7 @@ for insert
 with check (
   exists (
     select 1 from public.profiles p
-    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+    where p.id = auth.uid() and p.role in ('admin', 'moderator')
   )
 );
 

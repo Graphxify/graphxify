@@ -27,9 +27,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { getDashboardUserById, getRecentUserActivity, getUserEditCount } from "@/db/queries/admin";
+import { getDashboardRoles, getDashboardUserById, getRecentUserActivity, getUserEditCount } from "@/db/queries/admin";
 import { requireRole } from "@/lib/auth/requireRole";
-import { APP_ROLES } from "@/lib/auth/roles";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 type Params = { id: string };
@@ -54,7 +53,7 @@ function initials(name: string | null, email: string): string {
 
 function roleBadgeVariant(role: string): "default" | "warning" | "secondary" {
   if (role === "admin") return "default";
-  if (role === "mod") return "warning";
+  if (role === "moderator") return "warning";
   return "secondary";
 }
 
@@ -84,9 +83,10 @@ export default async function DashboardUserProfilePage({ params }: { params: Pro
 
   if (!user) notFound();
 
-  const [activity, editCount] = await Promise.all([
+  const [activity, editCount, roleOptions] = await Promise.all([
     getRecentUserActivity(user.id, 15),
-    getUserEditCount(user.id)
+    getUserEditCount(user.id),
+    getDashboardRoles()
   ]);
 
   let authLastSignInAt: string | null = null;
@@ -216,8 +216,8 @@ export default async function DashboardUserProfilePage({ params }: { params: Pro
                   defaultValue={user.role}
                   className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-sm text-fg"
                 >
-                  {APP_ROLES.map((r) => (
-                    <option key={r} value={r}>{roleLabel(r)}</option>
+                  {roleOptions.map((roleOption) => (
+                    <option key={roleOption.id} value={roleOption.slug}>{roleOption.name}</option>
                   ))}
                 </select>
                 <Button type="submit" size="sm" variant="secondary">Change role</Button>

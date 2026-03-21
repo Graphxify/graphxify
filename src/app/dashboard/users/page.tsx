@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { Eye, Search, UserPlus, Users } from "lucide-react";
+import { Eye, Search, Users } from "lucide-react";
 import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
+import { AddUserDialog } from "@/app/dashboard/users/add-user-dialog";
 import {
   createUserInviteAction,
+  createUserWithPasswordAction,
   deleteUserAction,
   sendPasswordResetEmailAction,
   setUserStatusAction,
@@ -14,9 +16,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getDashboardUsers } from "@/db/queries/admin";
+import { getDashboardRoles, getDashboardUsers } from "@/db/queries/admin";
 import { requireRole } from "@/lib/auth/requireRole";
-import { APP_ROLES } from "@/lib/auth/roles";
 import { UserActionsDropdown } from "@/app/dashboard/users/user-actions-dropdown";
 
 
@@ -47,7 +48,7 @@ function formatDate(value: string | null): string {
 
 function roleBadgeVariant(role: string): "default" | "warning" | "secondary" {
   if (role === "admin") return "default";
-  if (role === "mod") return "warning";
+  if (role === "moderator") return "warning";
   return "secondary";
 }
 
@@ -79,6 +80,7 @@ export default async function DashboardUsersPage({
   const createdWithin = typeof resolved.createdWithin === "string" ? resolved.createdWithin : "";
 
   const result = await getDashboardUsers({ page, pageSize: 20, search, role, status, lastLogin, createdWithin });
+  const roleOptions = await getDashboardRoles();
 
   const preservedParams: Record<string, string> = {};
   if (search) preservedParams.q = search;
@@ -99,33 +101,11 @@ export default async function DashboardUsersPage({
               {result.total} {result.total === 1 ? "user" : "users"} total
             </p>
           </div>
-          <details className="group">
-            <summary className="inline-flex cursor-pointer list-none items-center gap-2 rounded-lg border border-accentA/20 bg-accentA/8 px-3.5 py-2 text-sm font-medium text-accentA transition hover:bg-accentA/16">
-              <UserPlus className="h-4 w-4" />
-              Add User
-            </summary>
-            <div className="mt-3 rounded-xl border border-border/18 bg-card/80 p-5 backdrop-blur">
-              <form action={createUserInviteAction} className="grid gap-3 md:grid-cols-2">
-                <Input name="full_name" placeholder="Full name *" required />
-                <Input name="email" placeholder="Email address *" type="email" required />
-                <select
-                  name="role"
-                  className="h-10 rounded-md border border-border/20 bg-card/72 px-3 text-sm text-fg"
-                  defaultValue="editor"
-                >
-                  {APP_ROLES.map((r) => (
-                    <option key={r} value={r}>{roleLabel(r)}</option>
-                  ))}
-                </select>
-                <Input name="phone" placeholder="Phone (optional)" />
-                <Input name="avatar_url" placeholder="Avatar URL (optional)" />
-                <Input name="bio" placeholder="Bio (optional)" />
-                <div className="md:col-span-2">
-                  <Button type="submit" size="sm">Send invitation</Button>
-                </div>
-              </form>
-            </div>
-          </details>
+          <AddUserDialog
+            roleOptions={roleOptions}
+            createUserInviteAction={createUserInviteAction}
+            createUserWithPasswordAction={createUserWithPasswordAction}
+          />
         </RevealItem>
 
         {/* ── Filters ── */}
@@ -137,7 +117,9 @@ export default async function DashboardUsersPage({
             </div>
             <select name="role" defaultValue={role} className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-xs text-fg">
               <option value="">All roles</option>
-              {APP_ROLES.map((r) => (<option key={r} value={r}>{roleLabel(r)}</option>))}
+              {roleOptions.map((roleOption) => (
+                <option key={roleOption.id} value={roleOption.slug}>{roleOption.name}</option>
+              ))}
             </select>
             <select name="status" defaultValue={status} className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-xs text-fg">
               <option value="">All statuses</option>
@@ -236,7 +218,7 @@ export default async function DashboardUsersPage({
                               currentRole={user.role}
                               currentStatus={user.status}
                               isSelf={isSelf}
-                              roles={[...APP_ROLES]}
+                              roles={roleOptions.map((roleOption) => roleOption.slug)}
                               updateRoleAction={updateUserRoleAction}
                               sendPasswordResetAction={sendPasswordResetEmailAction}
                               setStatusAction={setUserStatusAction}

@@ -1,6 +1,13 @@
 import "server-only";
 
-import { normalizeAccountStatus, normalizeRole, type AccountStatus, type AppPermission, type AppRole } from "@/lib/auth/roles";
+import {
+  APP_ROLES,
+  normalizeAccountStatus,
+  normalizeRole,
+  type AccountStatus,
+  type AppPermission,
+  type AppRole
+} from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
 
 export async function getDashboardLeads(page = 1, pageSize = 20, search = "", status = "") {
@@ -58,6 +65,7 @@ export type DashboardUserRow = {
   id: string;
   email: string;
   role: AppRole;
+  role_id: number | null;
   status: AccountStatus;
   display_name: string | null;
   avatar_url: string | null;
@@ -72,6 +80,14 @@ export type DashboardUserRow = {
   force_logout_at: string | null;
 };
 
+export type DashboardRoleRow = {
+  id: number;
+  slug: AppRole;
+  name: string;
+  description: string | null;
+  sort_order: number;
+};
+
 type UserListFilters = {
   page?: number;
   pageSize?: number;
@@ -83,7 +99,7 @@ type UserListFilters = {
 };
 
 const USER_SELECT_FIELDS =
-  "id,email,role,status,display_name,avatar_url,phone,bio,permissions,created_at,last_login,last_activity,last_password_change,force_password_reset,force_logout_at";
+  "id,email,role,role_id,status,display_name,avatar_url,phone,bio,permissions,created_at,last_login,last_activity,last_password_change,force_password_reset,force_logout_at";
 
 function parsePermissions(raw: unknown): Record<string, boolean> {
   if (raw && typeof raw === "object" && !Array.isArray(raw)) {
@@ -98,11 +114,24 @@ function parsePermissions(raw: unknown): Record<string, boolean> {
   return {};
 }
 
+function isMissingAppRolesTableError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const code = "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
+  const message =
+    "message" in error ? String((error as { message?: unknown }).message ?? "").toLowerCase() : "";
+
+  return code === "42P01" || message.includes("app_roles");
+}
+
 function normalizeUserRow(row: Record<string, unknown>): DashboardUserRow {
   return {
     id: String(row.id ?? ""),
     email: String(row.email ?? ""),
     role: normalizeRole(typeof row.role === "string" ? row.role : "editor"),
+    role_id: typeof row.role_id === "number" ? row.role_id : null,
     status: normalizeAccountStatus(typeof row.status === "string" ? row.status : "active"),
     display_name: typeof row.display_name === "string" ? row.display_name : null,
     avatar_url: typeof row.avatar_url === "string" ? row.avatar_url : null,
@@ -115,6 +144,16 @@ function normalizeUserRow(row: Record<string, unknown>): DashboardUserRow {
     last_password_change: typeof row.last_password_change === "string" ? row.last_password_change : null,
     force_password_reset: Boolean(row.force_password_reset),
     force_logout_at: typeof row.force_logout_at === "string" ? row.force_logout_at : null
+  };
+}
+
+function normalizeRoleRow(row: Record<string, unknown>): DashboardRoleRow {
+  return {
+    id: typeof row.id === "number" ? row.id : 2,
+    slug: normalizeRole(typeof row.slug === "string" ? row.slug : "editor"),
+    name: typeof row.name === "string" ? row.name : "Editor",
+    description: typeof row.description === "string" ? row.description : null,
+    sort_order: typeof row.sort_order === "number" ? row.sort_order : 0
   };
 }
 
@@ -183,6 +222,29 @@ export async function getDashboardUserById(id: string): Promise<DashboardUserRow
   if (!data) return null;
 
   return normalizeUserRow(data as Record<string, unknown>);
+}
+
+export async function getDashboardRoles(): Promise<DashboardRoleRow[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("app_roles")
+    .select("id,slug,name,description,sort_order")
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    if (isMissingAppRolesTableError(error)) {
+      return APP_ROLES.map((role, index) => ({
+        id: index + 1,
+        slug: role,
+        name: role.charAt(0).toUpperCase() + role.slice(1),
+        description: null,
+        sort_order: index
+      }));
+    }
+    throw error;
+  }
+
+  return (data ?? []).map((row) => normalizeRoleRow(row as Record<string, unknown>));
 }
 
 export async function getRecentUserActivity(userId: string, limit = 20) {

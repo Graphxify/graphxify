@@ -3,18 +3,31 @@ export type ContentStatus = "draft" | "review" | "published";
 export type Profile = {
   id: string;
   email: string;
-  role: "admin" | "mod" | "editor";
+  role: "admin" | "editor" | "moderator";
+  role_id: number | null;
   status: "active" | "disabled" | "pending_invite";
   display_name: string | null;
   avatar_url: string | null;
   phone: string | null;
   bio: string | null;
+  permissions: Record<string, boolean>;
   last_login: string | null;
   last_activity: string | null;
   last_password_change: string | null;
   force_password_reset: boolean;
   force_logout_at: string | null;
   created_at: string;
+};
+
+export type AppRoleRecord = {
+  id: number;
+  slug: "admin" | "editor" | "moderator";
+  name: string;
+  description: string | null;
+  sort_order: number;
+  default_permissions: Record<string, boolean>;
+  created_at: string;
+  updated_at: string;
 };
 
 export type Post = {

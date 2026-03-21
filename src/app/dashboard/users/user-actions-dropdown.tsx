@@ -5,6 +5,14 @@ import { MoreHorizontal, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -40,7 +48,7 @@ export function UserActionsDropdown({
   deleteAction
 }: UserActionsProps) {
   const [isPending, startTransition] = useTransition();
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   function handleAction(action: (formData: FormData) => Promise<void>, data: Record<string, string>, successMessage: string) {
     const fd = new FormData();
@@ -58,70 +66,85 @@ export function UserActionsDropdown({
   }
 
   return (
-    <DropdownMenu onOpenChange={() => setConfirmDelete(false)}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-60 group-hover:opacity-100 transition-opacity" disabled={isPending}>
-          {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
-          <span className="sr-only">Actions</span>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        {/* Role changes */}
-        {roles.filter((r) => r !== currentRole).map((r) => (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-60 group-hover:opacity-100 transition-opacity" disabled={isPending}>
+            {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <MoreHorizontal className="h-4 w-4" />}
+            <span className="sr-only">Actions</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          {roles.filter((r) => r !== currentRole).map((r) => (
+            <DropdownMenuItem
+              key={r}
+              onClick={() => handleAction(updateRoleAction, { userId, role: r }, `Role changed to ${roleLabel(r)}`)}
+            >
+              Set role → {roleLabel(r)}
+            </DropdownMenuItem>
+          ))}
+          <DropdownMenuSeparator />
+
           <DropdownMenuItem
-            key={r}
-            onClick={() => handleAction(updateRoleAction, { userId, role: r }, `Role changed to ${roleLabel(r)}`)}
+            onClick={() => handleAction(sendPasswordResetAction, { userId }, "Password reset email sent")}
           >
-            Set role → {roleLabel(r)}
+            Reset password
           </DropdownMenuItem>
-        ))}
-        <DropdownMenuSeparator />
 
-        {/* Reset password */}
-        <DropdownMenuItem
-          onClick={() => handleAction(sendPasswordResetAction, { userId }, "Password reset email sent")}
-        >
-          Reset password
-        </DropdownMenuItem>
-
-        {/* Enable/Disable */}
-        <DropdownMenuItem
-          disabled={isSelf}
-          onClick={() =>
-            handleAction(
-              setStatusAction,
-              { userId, status: currentStatus === "disabled" ? "active" : "disabled" },
-              currentStatus === "disabled" ? "Account enabled" : "Account disabled"
-            )
-          }
-        >
-          {currentStatus === "disabled" ? "Enable account" : "Disable account"}
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
-
-        {/* Delete with confirmation */}
-        {!confirmDelete ? (
           <DropdownMenuItem
             disabled={isSelf}
-            onClick={(e) => {
-              e.preventDefault();
-              setConfirmDelete(true);
+            onClick={() =>
+              handleAction(
+                setStatusAction,
+                { userId, status: currentStatus === "disabled" ? "active" : "disabled" },
+                currentStatus === "disabled" ? "Account enabled" : "Account disabled"
+              )
+            }
+          >
+            {currentStatus === "disabled" ? "Enable account" : "Disable account"}
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem
+            disabled={isSelf}
+            onSelect={(event) => {
+              event.preventDefault();
+              setDeleteDialogOpen(true);
             }}
             className="text-red-400"
           >
             Delete user
           </DropdownMenuItem>
-        ) : (
-          <DropdownMenuItem
-            disabled={isSelf}
-            onClick={() => handleAction(deleteAction, { userId }, "User deleted")}
-            className="text-red-400 font-semibold"
-          >
-            ⚠ Confirm delete?
-          </DropdownMenuItem>
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete user?</DialogTitle>
+            <DialogDescription>
+              This permanently deletes the user account and cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={isPending || isSelf}
+              onClick={() => {
+                setDeleteDialogOpen(false);
+                handleAction(deleteAction, { userId }, "User deleted");
+              }}
+            >
+              Confirm delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

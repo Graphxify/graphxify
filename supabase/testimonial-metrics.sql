@@ -45,7 +45,7 @@ for select
 using (
   exists (
     select 1 from public.profiles p
-    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+    where p.id = auth.uid() and p.role in ('admin', 'moderator')
   )
 );
 
@@ -55,7 +55,7 @@ for insert
 with check (
   exists (
     select 1 from public.profiles p
-    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+    where p.id = auth.uid() and p.role in ('admin', 'moderator')
   )
 );
 
@@ -65,13 +65,13 @@ for update
 using (
   exists (
     select 1 from public.profiles p
-    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+    where p.id = auth.uid() and p.role in ('admin', 'moderator')
   )
 )
 with check (
   exists (
     select 1 from public.profiles p
-    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+    where p.id = auth.uid() and p.role in ('admin', 'moderator')
   )
 );
 
@@ -81,9 +81,8 @@ for delete
 using (
   exists (
     select 1 from public.profiles p
-    where p.id = auth.uid() and p.role in ('admin', 'editor', 'mod')
+    where p.id = auth.uid() and p.role in ('admin', 'moderator')
   )
 );
 
 notify pgrst, 'reload schema';
-

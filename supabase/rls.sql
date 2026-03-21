@@ -1,4 +1,5 @@
 -- Enable RLS
+alter table public.app_roles enable row level security;
 alter table public.profiles enable row level security;
 alter table public.posts enable row level security;
 alter table public.works enable row level security;
@@ -34,7 +35,33 @@ set search_path = public
 as $$
   select exists (
     select 1 from public.profiles p
-    where p.id = auth.uid() and p.role in ('editor', 'mod')
+    where p.id = auth.uid() and p.role = 'editor'
+  );
+$$;
+
+create or replace function public.is_moderator()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role = 'moderator'
+  );
+$$;
+
+create or replace function public.is_staff()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.profiles p
+    where p.id = auth.uid() and p.role in ('editor', 'moderator')
   );
 $$;
 
@@ -45,10 +72,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select exists (
-    select 1 from public.profiles p
-    where p.id = auth.uid() and p.role = 'reviewer'
-  );
+  select public.is_moderator();
 $$;
 
 create or replace function public.is_author()
@@ -58,10 +82,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select exists (
-    select 1 from public.profiles p
-    where p.id = auth.uid() and p.role = 'author'
-  );
+  select public.is_editor();
 $$;
 
 create or replace function public.can_access_posts(post_author_id uuid)
@@ -72,8 +93,8 @@ security definer
 set search_path = public
 as $$
   select public.is_admin()
-    or public.is_editor()
-    or (public.is_author() and auth.uid() = post_author_id);
+    or public.is_moderator()
+    or (public.is_editor() and auth.uid() = post_author_id);
 $$;
 
 create or replace function public.can_edit_posts(post_author_id uuid)
@@ -84,7 +105,8 @@ security definer
 set search_path = public
 as $$
   select public.is_admin()
-    or (public.is_author() and auth.uid() = post_author_id);
+    or public.is_moderator()
+    or (public.is_editor() and auth.uid() = post_author_id);
 $$;
 
 create or replace function public.can_access_works()
@@ -94,7 +116,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or public.is_editor();
+  select public.is_admin() or public.is_staff();
 $$;
 
 create or replace function public.can_manage_testimonials()
@@ -104,7 +126,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or public.is_editor() or public.is_reviewer();
+  select public.is_admin() or public.is_moderator();
 $$;
 
 create or replace function public.can_manage_testimonial_metrics()
@@ -114,7 +136,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or public.is_editor();
+  select public.is_admin() or public.is_moderator();
 $$;
 
 create or replace function public.can_view_leads()
@@ -124,7 +146,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or public.is_editor();
+  select public.is_admin() or public.is_moderator();
 $$;
 
 create or replace function public.can_upload_media()
@@ -134,11 +156,13 @@ stable
 security definer
 set search_path = public
 as $$
-  select public.is_admin() or public.is_editor();
+  select public.is_admin() or public.is_staff();
 $$;
 
 grant execute on function public.is_admin() to anon, authenticated, service_role;
 grant execute on function public.is_editor() to anon, authenticated, service_role;
+grant execute on function public.is_moderator() to anon, authenticated, service_role;
+grant execute on function public.is_staff() to anon, authenticated, service_role;
 grant execute on function public.is_reviewer() to anon, authenticated, service_role;
 grant execute on function public.is_author() to anon, authenticated, service_role;
 grant execute on function public.can_access_posts(uuid) to anon, authenticated, service_role;
@@ -148,6 +172,14 @@ grant execute on function public.can_manage_testimonials() to anon, authenticate
 grant execute on function public.can_manage_testimonial_metrics() to anon, authenticated, service_role;
 grant execute on function public.can_view_leads() to anon, authenticated, service_role;
 grant execute on function public.can_upload_media() to anon, authenticated, service_role;
+
+-- App roles policies
+drop policy if exists "app_roles_authenticated_read" on public.app_roles;
+
+create policy "app_roles_authenticated_read"
+on public.app_roles
+for select
+using (auth.role() = 'authenticated');
 
 -- Profile triggers for high-risk protections
 create or replace function public.prevent_last_admin_change()
@@ -250,7 +282,7 @@ using (public.can_access_posts(author_id));
 create policy "posts_insert_staff"
 on public.posts
 for insert
-with check (public.is_admin() or public.is_author());
+with check (public.is_admin() or public.is_moderator() or public.is_editor());
 
 create policy "posts_update_staff_owned"
 on public.posts
@@ -258,7 +290,7 @@ for update
 using (public.can_edit_posts(author_id))
 with check (
   public.can_edit_posts(author_id)
-  and (status <> 'published' or public.is_admin())
+  and (status <> 'published' or public.is_admin() or public.is_moderator())
 );
 
 create policy "posts_delete_admin"
@@ -292,7 +324,10 @@ create policy "works_update_staff_owned"
 on public.works
 for update
 using (public.can_access_works())
-with check (public.can_access_works());
+with check (
+  public.can_access_works()
+  and (status <> 'published' or public.is_admin() or public.is_moderator())
+);
 
 create policy "works_delete_admin"
 on public.works
@@ -330,7 +365,7 @@ using (public.can_manage_testimonials());
 create policy "testimonials_insert_staff"
 on public.testimonials
 for insert
-with check (public.is_admin() or public.is_editor());
+with check (public.can_manage_testimonials());
 
 create policy "testimonials_update_staff_owned"
 on public.testimonials

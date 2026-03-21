@@ -36,6 +36,9 @@ type TargetProfile = {
 };
 
 type WriteClient = ReturnType<typeof createClient> | NonNullable<ReturnType<typeof createAdminClient>>;
+export type CreateUserResult =
+  | { ok: true; mode: "invite" | "manual"; message: string; userId: string }
+  | { ok: false; message: string };
 
 /* ── Helpers ── */
 
@@ -61,6 +64,45 @@ function parseStatus(value: string): AccountStatus {
     throw new Error("Invalid status");
   }
   return parsed as AccountStatus;
+}
+
+function parsePassword(value: FormDataEntryValue | null): string {
+  const password = String(value).trim();
+  if (password.length < 8) {
+    throw new Error("Password must be at least 8 characters");
+  }
+  return password;
+}
+
+function formatRoleName(role: AppRole): string {
+  return role.charAt(0).toUpperCase() + role.slice(1);
+}
+
+function buildCallbackUrl(baseUrl: string, nextPath: string): string {
+  const url = new URL("/auth/callback", baseUrl);
+  url.searchParams.set("next", nextPath);
+  return url.toString();
+}
+
+function parseCreateUserFields(formData: FormData) {
+  const fullName = String(formData.get("full_name") || "").trim();
+  const email = normalizeEmail(String(formData.get("email") || ""));
+  const role = parseRole(String(formData.get("role") || "editor"));
+  const avatarUrl = String(formData.get("avatar_url") || "").trim();
+  const phone = String(formData.get("phone") || "").trim();
+  const bio = String(formData.get("bio") || "").trim();
+
+  if (!fullName || fullName.length < 2) throw new Error("Full name is required");
+  if (!email || !email.includes("@")) throw new Error("Valid email is required");
+
+  return {
+    fullName,
+    email,
+    role,
+    avatarUrl,
+    phone,
+    bio
+  };
 }
 
 async function countAdmins(client: WriteClient): Promise<number> {
@@ -131,6 +173,54 @@ function revalidateUserViews(userId?: string): void {
   if (userId) {
     revalidatePath(`/dashboard/users/${userId}`);
   }
+}
+
+async function upsertManagedProfile(
+  client: WriteClient,
+  payload: {
+    authUserId: string;
+    email: string;
+    role: AppRole;
+    fullName: string;
+    avatarUrl: string;
+    phone: string;
+    bio: string;
+    status: AccountStatus;
+    forcePasswordReset?: boolean;
+  }
+): Promise<{ isNewProfile: boolean; desiredStatus: AccountStatus }> {
+  const { data: existingProfile, error: profileError } = await client
+    .from("profiles")
+    .select("status")
+    .eq("id", payload.authUserId)
+    .maybeSingle();
+
+  if (profileError) {
+    throw profileError;
+  }
+
+  const isNewProfile = !existingProfile;
+  const desiredStatus = existingProfile
+    ? normalizeAccountStatus(String(existingProfile.status ?? payload.status))
+    : payload.status;
+
+  const { error: upsertError } = await client.from("profiles").upsert({
+    id: payload.authUserId,
+    email: payload.email,
+    role: payload.role,
+    status: desiredStatus,
+    display_name: payload.fullName,
+    avatar_url: payload.avatarUrl || null,
+    phone: payload.phone || null,
+    bio: payload.bio || null,
+    force_password_reset: Boolean(payload.forcePasswordReset)
+  });
+
+  if (upsertError) {
+    throw upsertError;
+  }
+
+  return { isNewProfile, desiredStatus };
 }
 
 /* ── Core operations ── */
@@ -220,7 +310,7 @@ async function applySendPasswordReset(actor: AppProfile, userId: string): Promis
   const client = getWriteClient();
   const target = await getTargetProfile(client, userId);
   const supabase = createClient();
-  const redirectTo = `${env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/login/reset-password`;
+  const redirectTo = buildCallbackUrl(env.NEXT_PUBLIC_SITE_URL, "/reset-password");
 
   const { error } = await supabase.auth.resetPasswordForEmail(target.email, { redirectTo });
   if (error) throw new Error(error.message || "Unable to send password reset");
@@ -306,79 +396,157 @@ async function applyUpdateDetails(
 
 /* ── Exported server actions ── */
 
-export async function createUserInviteAction(formData: FormData): Promise<void> {
-  const actor = await requireRole(["admin"]);
-  const admin = createAdminClient();
-  if (!admin) throw new Error("Service role key is required to invite users");
+export async function createUserInviteAction(formData: FormData): Promise<CreateUserResult> {
+  try {
+    const actor = await requireRole(["admin"]);
+    const admin = createAdminClient();
+    if (!admin) throw new Error("Service role key is required to invite users");
 
-  const fullName = String(formData.get("full_name") || "").trim();
-  const email = normalizeEmail(String(formData.get("email") || ""));
-  const role = parseRole(String(formData.get("role") || "editor"));
-  const avatarUrl = String(formData.get("avatar_url") || "").trim();
-  const phone = String(formData.get("phone") || "").trim();
-  const bio = String(formData.get("bio") || "").trim();
+    const { fullName, email, role, avatarUrl, phone, bio } = parseCreateUserFields(formData);
+    if (role === "admin" && !canAssignRole(actor.role, role)) {
+      throw new Error("Only admins can assign the admin role");
+    }
 
-  if (!fullName || fullName.length < 2) throw new Error("Full name is required");
-  if (!email || !email.includes("@")) throw new Error("Valid email is required");
-  if (role === "admin" && !canAssignRole(actor.role, role)) {
-    throw new Error("Only admins can assign the admin role");
+    let authUserId: string | null = null;
+    const redirectTo = buildCallbackUrl(env.NEXT_PUBLIC_SITE_URL, "/reset-password?invite=1");
+
+    const inviteResult = await admin.auth.admin.inviteUserByEmail(email, {
+      data: { display_name: fullName, role },
+      redirectTo
+    });
+
+    if (inviteResult.error) {
+      const message = inviteResult.error.message.toLowerCase();
+      const alreadyExists = message.includes("already") || message.includes("exists") || message.includes("registered");
+
+      if (!alreadyExists) throw new Error(inviteResult.error.message || "Failed to send invitation");
+
+      const existing = await findAuthUserByEmail(email);
+      if (!existing) throw new Error(inviteResult.error.message || "Unable to locate existing user");
+      authUserId = existing.id;
+    } else {
+      authUserId = inviteResult.data.user?.id ?? null;
+    }
+
+    if (!authUserId) {
+      const existing = await findAuthUserByEmail(email);
+      authUserId = existing?.id ?? null;
+    }
+
+    if (!authUserId) throw new Error("Unable to resolve invited user id");
+
+    const client = getWriteClient();
+    const { isNewProfile, desiredStatus } = await upsertManagedProfile(client, {
+      authUserId,
+      email,
+      role,
+      fullName,
+      avatarUrl,
+      phone,
+      bio,
+      status: "pending_invite",
+      forcePasswordReset: false
+    });
+
+    if (isNewProfile) {
+      await logAuditEvent({
+        actorId: actor.id,
+        actorEmail: actor.email,
+        actorRole: actor.role,
+        action: "user.created",
+        entityType: "profile",
+        entityId: authUserId,
+        metadata: { email, role, creation_mode: "invite" }
+      });
+    }
+
+    await logAuditEvent({
+      actorId: actor.id,
+      actorEmail: actor.email,
+      actorRole: actor.role,
+      action: "user.invited",
+      entityType: "profile",
+      entityId: authUserId,
+      metadata: { invited_email: email, role, status: desiredStatus }
+    });
+
+    const inviteTemplate = userInvitationTemplate({
+      inviteeName: fullName,
+      inviteeEmail: email,
+      role: formatRoleName(role),
+      invitedBy: actor.email
+    });
+    void sendEmail({ to: email, ...inviteTemplate });
+
+    revalidateUserViews(authUserId);
+
+    return {
+      ok: true,
+      mode: "invite",
+      userId: authUserId,
+      message: "Invitation requested. Supabase will send the invite email if Auth email delivery is configured."
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to send invitation";
+    logger.error("User invite failed", { error: message });
+    return { ok: false, message };
   }
+}
 
-  let authUserId: string | null = null;
-  const redirectTo = `${env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/dashboard`;
+export async function createUserWithPasswordAction(formData: FormData): Promise<CreateUserResult> {
+  try {
+    const actor = await requireRole(["admin"]);
+    const admin = createAdminClient();
+    if (!admin) throw new Error("Service role key is required to create users");
 
-  const inviteResult = await admin.auth.admin.inviteUserByEmail(email, {
-    data: { display_name: fullName, role },
-    redirectTo
-  });
+    const { fullName, email, role, avatarUrl, phone, bio } = parseCreateUserFields(formData);
+    const password = parsePassword(formData.get("password"));
+    const confirmPassword = String(formData.get("confirm_password") || "");
 
-  if (inviteResult.error) {
-    const message = inviteResult.error.message.toLowerCase();
-    const alreadyExists = message.includes("already") || message.includes("exists") || message.includes("registered");
-
-    if (!alreadyExists) throw new Error(inviteResult.error.message || "Failed to send invitation");
+    if (password !== confirmPassword) {
+      throw new Error("Passwords do not match");
+    }
+    if (role === "admin" && !canAssignRole(actor.role, role)) {
+      throw new Error("Only admins can assign the admin role");
+    }
 
     const existing = await findAuthUserByEmail(email);
-    if (!existing) throw new Error(inviteResult.error.message || "Unable to locate existing user");
-    authUserId = existing.id;
-  } else {
-    authUserId = inviteResult.data.user?.id ?? null;
-  }
+    if (existing) {
+      throw new Error("A user with this email already exists");
+    }
 
-  if (!authUserId) {
-    const existing = await findAuthUserByEmail(email);
-    authUserId = existing?.id ?? null;
-  }
+    const createResult = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+      user_metadata: {
+        display_name: fullName,
+        role
+      }
+    });
 
-  if (!authUserId) throw new Error("Unable to resolve invited user id");
+    if (createResult.error) {
+      throw new Error(createResult.error.message || "Failed to create user");
+    }
 
-  const client = getWriteClient();
-  const { data: existingProfile } = await client
-    .from("profiles")
-    .select("status")
-    .eq("id", authUserId)
-    .maybeSingle();
+    const authUserId = createResult.data.user?.id;
+    if (!authUserId) {
+      throw new Error("Unable to resolve created user id");
+    }
 
-  const isNewProfile = !existingProfile;
-  const desiredStatus = existingProfile
-    ? normalizeAccountStatus(String(existingProfile.status ?? "active"))
-    : "pending_invite";
+    const client = getWriteClient();
+    await upsertManagedProfile(client, {
+      authUserId,
+      email,
+      role,
+      fullName,
+      avatarUrl,
+      phone,
+      bio,
+      status: "active",
+      forcePasswordReset: false
+    });
 
-  const { error: upsertError } = await client.from("profiles").upsert({
-    id: authUserId,
-    email,
-    role,
-    status: desiredStatus,
-    display_name: fullName,
-    avatar_url: avatarUrl || null,
-    phone: phone || null,
-    bio: bio || null,
-    force_password_reset: false
-  });
-
-  if (upsertError) throw upsertError;
-
-  if (isNewProfile) {
     await logAuditEvent({
       actorId: actor.id,
       actorEmail: actor.email,
@@ -386,30 +554,22 @@ export async function createUserInviteAction(formData: FormData): Promise<void> 
       action: "user.created",
       entityType: "profile",
       entityId: authUserId,
-      metadata: { email, role }
+      metadata: { email, role, creation_mode: "manual" }
     });
+
+    revalidateUserViews(authUserId);
+
+    return {
+      ok: true,
+      mode: "manual",
+      userId: authUserId,
+      message: "User created successfully. Share the password with them through a secure channel."
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to create user";
+    logger.error("Manual user creation failed", { error: message });
+    return { ok: false, message };
   }
-
-  await logAuditEvent({
-    actorId: actor.id,
-    actorEmail: actor.email,
-    actorRole: actor.role,
-    action: "user.invited",
-    entityType: "profile",
-    entityId: authUserId,
-    metadata: { invited_email: email, role, status: desiredStatus }
-  });
-
-  // Send branded invitation email
-  const inviteTemplate = userInvitationTemplate({
-    inviteeName: fullName,
-    inviteeEmail: email,
-    role: role.charAt(0).toUpperCase() + role.slice(1),
-    invitedBy: actor.email
-  });
-  void sendEmail({ to: email, ...inviteTemplate });
-
-  revalidateUserViews(authUserId);
 }
 
 export async function updateUserRoleAction(formData: FormData): Promise<void> {

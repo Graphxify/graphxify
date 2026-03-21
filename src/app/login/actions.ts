@@ -263,7 +263,7 @@ export async function loginAction(formData: FormData): Promise<void> {
   }
 
   if (forcePasswordReset) {
-    redirect("/login/reset-password?forced=1");
+    redirect("/reset-password?forced=1");
   }
 
   redirect("/dashboard");

@@ -29,8 +29,13 @@ export async function forgotPasswordAction(formData: FormData): Promise<{ succes
   const supabase = createClient();
 
   try {
-    const origin = headerStore.get("origin") ?? headerStore.get("x-forwarded-host") ?? "http://localhost:3000";
-    const redirectTo = `${origin}/auth/callback?next=/login/reset-password`;
+    const originHeader = headerStore.get("origin");
+    const forwardedProto = headerStore.get("x-forwarded-proto") ?? "https";
+    const forwardedHost = headerStore.get("x-forwarded-host");
+    const baseUrl = originHeader || (forwardedHost ? `${forwardedProto}://${forwardedHost}` : "http://localhost:3000");
+    const callbackUrl = new URL("/auth/callback", baseUrl);
+    callbackUrl.searchParams.set("next", "/reset-password");
+    const redirectTo = callbackUrl.toString();
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
 

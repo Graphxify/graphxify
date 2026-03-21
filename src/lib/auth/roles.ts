@@ -1,6 +1,6 @@
-export const APP_ROLES = ["admin", "mod", "editor"] as const;
+export const APP_ROLES = ["admin", "editor", "moderator"] as const;
 export type AppRole = (typeof APP_ROLES)[number];
-export type LegacyRole = "reviewer" | "author";
+export type LegacyRole = "mod" | "reviewer" | "author";
 export type StoredRole = AppRole | LegacyRole;
 
 export const ACCOUNT_STATUSES = ["active", "disabled", "pending_invite"] as const;
@@ -80,7 +80,16 @@ export const PERMISSION_LABELS: Record<AppPermission, string> = {
 
 const ROLE_PERMISSIONS: Record<AppRole, readonly AppPermission[]> = {
   admin: [...ALL_PERMISSIONS],
-  mod: [
+  editor: [
+    "content.works.create",
+    "content.works.edit_any",
+    "content.posts.create",
+    "content.posts.edit_own",
+    "content.services.edit",
+    "content.homepage.edit",
+    "media.upload"
+  ],
+  moderator: [
     "content.works.create",
     "content.works.edit_any",
     "content.works.publish",
@@ -97,15 +106,6 @@ const ROLE_PERMISSIONS: Record<AppRole, readonly AppPermission[]> = {
     "analytics.view",
     "leads.view",
     "activity.view"
-  ],
-  editor: [
-    "content.works.create",
-    "content.works.edit_any",
-    "content.posts.create",
-    "content.posts.edit_own",
-    "content.services.edit",
-    "content.homepage.edit",
-    "media.upload"
   ]
 };
 
@@ -173,7 +173,7 @@ export function isAppRole(input: string): input is AppRole {
 
 export function normalizeRole(input: string | null | undefined): AppRole {
   const normalized = String(input ?? "").trim().toLowerCase();
-  if (normalized === "reviewer") return "mod";
+  if (normalized === "mod" || normalized === "reviewer") return "moderator";
   if (normalized === "author") return "editor";
   return isAppRole(normalized) ? normalized : "editor";
 }

@@ -2,7 +2,9 @@
 -- Replace the email value before executing.
 
 update public.profiles
-set role = 'admin'
+set
+  role = 'admin',
+  role_id = 1
 where email = 'founder@graphxify.com';
 
 -- Optional safety check
