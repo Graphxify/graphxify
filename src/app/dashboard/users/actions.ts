@@ -383,6 +383,25 @@ async function applyUpdateDetails(
 
   if (error) throw error;
 
+  const admin = createAdminClient();
+  if (admin) {
+    const { error: authUpdateError } = await admin.auth.admin.updateUserById(payload.userId, {
+      user_metadata: {
+        full_name: payload.fullName || null,
+        display_name: payload.fullName || null,
+        phone: payload.phone || null,
+        avatar_url: payload.avatarUrl || null
+      }
+    });
+
+    if (authUpdateError) {
+      logger.warn("Managed user auth metadata sync failed", {
+        userId: payload.userId,
+        error: authUpdateError.message
+      });
+    }
+  }
+
   await logAuditEvent({
     actorId: actor.id,
     actorEmail: actor.email,
@@ -411,7 +430,7 @@ export async function createUserInviteAction(formData: FormData): Promise<Create
     const redirectTo = buildCallbackUrl(env.NEXT_PUBLIC_SITE_URL, "/reset-password?invite=1");
 
     const inviteResult = await admin.auth.admin.inviteUserByEmail(email, {
-      data: { display_name: fullName, role },
+      data: { full_name: fullName, display_name: fullName, role },
       redirectTo
     });
 
@@ -520,6 +539,7 @@ export async function createUserWithPasswordAction(formData: FormData): Promise<
       password,
       email_confirm: true,
       user_metadata: {
+        full_name: fullName,
         display_name: fullName,
         role
       }

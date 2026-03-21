@@ -10,6 +10,7 @@ import { hasPermission } from "@/lib/auth/roles";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const profile = await requireAuth();
+  const identityLabel = profile.displayName?.trim() || profile.email;
 
   return (
     <div className="relative min-h-screen md:flex noise-overlay">
@@ -21,7 +22,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="mx-auto max-w-6xl space-y-6">
           <div className="section-shell flex flex-wrap items-center justify-between gap-3 border-border/18 bg-card/76 px-4 py-2.5">
             <p className="text-xs text-fg/56">
-              <span className="font-medium text-fg/72">{profile.email}</span>
+              <span className="font-medium text-fg/72">{identityLabel}</span>
+              {profile.displayName ? <span className="ml-2 text-fg/42">{profile.email}</span> : null}
             </p>
             <div className="flex items-center gap-2">
               <Button

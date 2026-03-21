@@ -110,14 +110,43 @@ export const getCurrentProfile = cache(async function getCurrentProfile(): Promi
     } = await supabase.auth.getUser();
 
     if (user?.id === fwdUid) {
+      const metadata = (user.user_metadata ?? {}) as Record<string, unknown>;
+      let displayName =
+        typeof metadata.full_name === "string"
+          ? metadata.full_name
+          : typeof metadata.display_name === "string"
+            ? metadata.display_name
+            : null;
+      let avatarUrl =
+        typeof metadata.avatar_url === "string"
+          ? metadata.avatar_url
+          : typeof metadata.picture === "string"
+            ? metadata.picture
+            : null;
+
+      if (!displayName || !avatarUrl) {
+        const { data: profileData } = await supabase
+          .from("profiles")
+          .select("display_name,avatar_url")
+          .eq("id", fwdUid)
+          .maybeSingle();
+
+        if (!displayName && typeof profileData?.display_name === "string") {
+          displayName = profileData.display_name;
+        }
+        if (!avatarUrl && typeof profileData?.avatar_url === "string") {
+          avatarUrl = profileData.avatar_url;
+        }
+      }
+
       return {
         id: fwdUid,
         email: user.email ?? "",
         role: normalizeRole(fwdRole),
         rawRole: fwdRole,
         status: "active" as AccountStatus, // Middleware only sets headers for non-blocked users
-        displayName: (user.user_metadata?.full_name as string | undefined) ?? null,
-        avatarUrl: (user.user_metadata?.avatar_url as string | undefined) ?? null,
+        displayName,
+        avatarUrl,
         createdAt: null,
         lastLogin: null,
         lastActivity: null,

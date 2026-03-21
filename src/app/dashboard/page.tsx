@@ -84,6 +84,7 @@ export default async function DashboardHomePage() {
     hasPermission(profile.role, "leads.view") ? { href: "/dashboard/leads", label: "View leads" } : null,
     hasPermission(profile.role, "activity.view") ? { href: "/dashboard/activity", label: "Activity logs" } : null
   ].filter((link): link is { href: string; label: string } => link !== null);
+  const greetingName = profile.displayName?.trim() || (profile.email ? profile.email.split("@")[0] : "");
 
   return (
     <section className="space-y-6">
@@ -91,7 +92,7 @@ export default async function DashboardHomePage() {
         <RevealItem className="space-y-1">
           <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Dashboard</p>
           <h1 className="text-3xl font-semibold md:text-4xl">
-            Welcome back{profile.email ? `, ${profile.email.split("@")[0]}` : ""}
+            Welcome back{greetingName ? `, ${greetingName}` : ""}
           </h1>
         </RevealItem>
 

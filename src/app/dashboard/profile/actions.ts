@@ -36,6 +36,22 @@ export async function updateProfileAction(
       throw error;
     }
 
+    const { error: authUpdateError } = await supabase.auth.updateUser({
+      data: {
+        full_name: displayName || null,
+        display_name: displayName || null,
+        avatar_url: avatarUrl || null,
+        phone: phone || null
+      }
+    });
+
+    if (authUpdateError) {
+      logger.warn("Profile auth metadata sync failed", {
+        userId: profile.id,
+        error: authUpdateError.message
+      });
+    }
+
     try {
       await logAuditEvent({
         actorId: profile.id,
