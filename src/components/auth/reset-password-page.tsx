@@ -36,7 +36,38 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
     async function initializeSession() {
       try {
         const supabase = createClient();
+        const hash = typeof window !== "undefined" ? window.location.hash : "";
+
+        if (hash) {
+          const params = new URLSearchParams(hash.startsWith("#") ? hash.slice(1) : hash);
+          const accessToken = params.get("access_token");
+          const refreshToken = params.get("refresh_token");
+
+          if (accessToken && refreshToken) {
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+
+            if (error) {
+              throw error;
+            }
+
+            const cleanUrl = `${window.location.pathname}${window.location.search}`;
+            window.history.replaceState({}, "", cleanUrl);
+          }
+        }
+
         await supabase.auth.getSession();
+      } catch (error) {
+        if (mounted) {
+          const message = error instanceof Error ? error.message.toLowerCase() : "";
+          setError(
+            message.includes("session") || message.includes("token")
+              ? "This invitation link is invalid or expired. Request a new invitation."
+              : "Unable to initialize your secure session. Please try the invitation link again."
+          );
+        }
       } finally {
         if (mounted) {
           setReady(true);
