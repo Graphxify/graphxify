@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, AlertTriangle } from "lucide-react";
@@ -18,9 +18,11 @@ type ResetPasswordPageProps = {
 
 export function ResetPasswordPage({ forced = false, invite = false }: ResetPasswordPageProps): JSX.Element {
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [ready, setReady] = useState(false);
 
   const title = invite ? "Create Your Password" : "Set New Password";
   const description = invite
@@ -28,6 +30,26 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
     : "Enter your new password below.";
   const successTitle = invite ? "Password created successfully!" : "Password updated successfully!";
   const submitLabel = invite ? "Create Password" : "Update Password";
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function initializeSession() {
+      try {
+        await supabase.auth.getSession();
+      } finally {
+        if (mounted) {
+          setReady(true);
+        }
+      }
+    }
+
+    void initializeSession();
+
+    return () => {
+      mounted = false;
+    };
+  }, [supabase]);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -51,7 +73,6 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
     }
 
     try {
-      const supabase = createClient();
       const { error: updateError } = await supabase.auth.updateUser({ password });
 
       if (updateError) {
@@ -164,12 +185,14 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
                 </div>
               ) : null}
 
-              <Button type="submit" className="h-11 w-full rounded-xl text-sm font-medium" disabled={loading}>
+              <Button type="submit" className="h-11 w-full rounded-xl text-sm font-medium" disabled={loading || !ready}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Updating...
                   </>
+                ) : !ready ? (
+                  "Preparing session..."
                 ) : (
                   submitLabel
                 )}
@@ -177,6 +200,10 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
             </form>
           )}
         </div>
+
+        {!ready ? (
+          <p className="mt-3 text-center text-xs text-fg/42">Preparing your secure session...</p>
+        ) : null}
 
         <p className="mt-6 text-center text-xs text-fg/34">
           Protected access ·{" "}
