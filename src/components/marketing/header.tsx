@@ -42,11 +42,22 @@ export function MarketingHeader(): JSX.Element {
 
     try {
       const supabase = createBrowserClient(url, key);
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setIsAuthenticated(!!session);
-      });
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setIsAuthenticated(!!session);
+      const syncAuthState = async () => {
+        const { data, error } = await supabase.auth.getUser();
+        if (!error) {
+          setIsAuthenticated(!!data.user);
+        }
+      };
+
+      void syncAuthState();
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+        if (event === "SIGNED_OUT") {
+          setIsAuthenticated(false);
+          return;
+        }
+
+        void syncAuthState();
       });
       return () => subscription.unsubscribe();
     } catch {

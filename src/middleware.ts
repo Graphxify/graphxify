@@ -45,9 +45,9 @@ export async function middleware(request: NextRequest) {
 
   // ── Fast-path redirects ──
   if (pathname.startsWith("/dashboard") && !user) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return NextResponse.redirect(new URL("/admin", request.url));
   }
-  if (pathname === "/login" && user) {
+  if (pathname === "/admin" && user) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -95,7 +95,7 @@ export async function middleware(request: NextRequest) {
         if (isBlocked) {
           await supabase.auth.signOut();
           const url = request.nextUrl.clone();
-          url.pathname = "/login";
+          url.pathname = "/admin";
           if (mustForceLogout) url.searchParams.set("error", "session_revoked");
           else if (rawStatus === "disabled") url.searchParams.set("error", "account_disabled");
           return NextResponse.redirect(url);
@@ -138,6 +138,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/login/:path*", "/auth/callback"],
+  matcher: ["/dashboard/:path*", "/admin", "/admin/:path*", "/auth/callback"],
   // Note: /monitoring (Sentry tunnel route) is excluded by default since it's not listed here
 };

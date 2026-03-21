@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { loginAction } from "@/app/login/actions";
+import { loginAction } from "@/app/admin/actions";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Login",
   description: "Graphxify CMS login",
-  path: "/login"
+  path: "/admin"
 });
 
 export default async function LoginPage({
@@ -108,7 +108,7 @@ function LoginView({
               />
               <div className="flex justify-end">
                 <Link
-                  href="/login/forgot-password"
+                  href="/admin/forgot-password"
                   className="text-xs text-fg/48 transition-colors hover:text-accentA"
                 >
                   Forgot password?

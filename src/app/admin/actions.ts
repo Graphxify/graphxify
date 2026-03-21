@@ -22,7 +22,7 @@ type LoginErrorCode =
   | "unknown";
 
 function redirectLoginError(code: LoginErrorCode): never {
-  redirect(`/login?error=${code}`);
+  redirect(`/admin?error=${code}`);
 }
 
 function classifyAuthError(input: { message?: string; status?: number | null; code?: string | null }): LoginErrorCode {
@@ -272,5 +272,5 @@ export async function loginAction(formData: FormData): Promise<void> {
 export async function logoutAction(): Promise<void> {
   const supabase = createClient();
   await supabase.auth.signOut();
-  redirect("/login");
+  redirect("/admin");
 }

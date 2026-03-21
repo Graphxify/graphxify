@@ -8,7 +8,7 @@ import {
   Bell, BellOff, Monitor, Lock, KeyRound
 } from "lucide-react";
 import { updateProfileAction, changePasswordAction } from "@/app/dashboard/profile/actions";
-import { logoutAction } from "@/app/login/actions";
+import { logoutAction } from "@/app/admin/actions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

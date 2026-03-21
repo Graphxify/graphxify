@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   const next = searchParams.get("next") ?? "/dashboard";
 
   if (!code) {
-    return NextResponse.redirect(new URL("/login?error=unknown", request.url));
+    return NextResponse.redirect(new URL("/admin?error=unknown", request.url));
   }
 
   const response = NextResponse.redirect(new URL(next, request.url));
@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
-    return NextResponse.redirect(new URL("/login?error=unknown", request.url));
+    return NextResponse.redirect(new URL("/admin?error=unknown", request.url));
   }
 
   return response;

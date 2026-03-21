@@ -58,7 +58,10 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
           }
         }
 
-        await supabase.auth.getSession();
+        const { data, error } = await supabase.auth.getUser();
+        if (error || !data.user) {
+          throw error ?? new Error("No authenticated user found for password reset.");
+        }
       } catch (error) {
         if (mounted) {
           const message = error instanceof Error ? error.message.toLowerCase() : "";
@@ -125,7 +128,7 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
       });
       await supabase.auth.signOut();
       setSuccess(true);
-      setTimeout(() => router.push("/login"), 3000);
+      setTimeout(() => router.push("/admin"), 3000);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -239,7 +242,7 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
 
         <p className="mt-6 text-center text-xs text-fg/34">
           Protected access ·{" "}
-          <Link href="/login" className="text-fg/48 underline decoration-fg/20 underline-offset-2 transition-colors hover:text-fg/68">
+          <Link href="/admin" className="text-fg/48 underline decoration-fg/20 underline-offset-2 transition-colors hover:text-fg/68">
             Back to login
           </Link>
         </p>

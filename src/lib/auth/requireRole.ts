@@ -50,14 +50,14 @@ export function hasPermission(profile: Pick<AppProfile, "role">, permission: App
 
 function statusRedirect(status: AccountStatus): never {
   if (status === "disabled") {
-    redirect("/login?error=account_disabled");
+    redirect("/admin?error=account_disabled");
   }
 
   if (status === "pending_invite") {
-    redirect("/login?error=account_pending");
+    redirect("/admin?error=account_pending");
   }
 
-  redirect("/login");
+  redirect("/admin");
 }
 
 function isMissingProfileColumnError(error: unknown): boolean {
@@ -98,8 +98,7 @@ function toAppProfile(input: Record<string, unknown>, fallbackEmail: string): Ap
 export const getCurrentProfile = cache(async function getCurrentProfile(): Promise<AppProfile | null> {
   // ── Fast path: use identity forwarded by middleware ──
   // Middleware sets x-cms-uid and x-cms-role after validating the session and profile.
-  // Reading from headers + getSession() costs ~0ms vs getUser() (~50ms) + DB (~80ms).
-  // getSession() is safe here because middleware already ran getUser() on this same request.
+  // We still verify the user with getUser() so auth data does not come from untrusted cookie/session storage.
   const reqHeaders = await headers();
   const fwdUid = reqHeaders.get("x-cms-uid");
   const fwdRole = reqHeaders.get("x-cms-role");
@@ -107,18 +106,18 @@ export const getCurrentProfile = cache(async function getCurrentProfile(): Promi
   if (fwdUid && fwdRole) {
     const supabase = createClient();
     const {
-      data: { session }
-    } = await supabase.auth.getSession();
+      data: { user }
+    } = await supabase.auth.getUser();
 
-    if (session?.user?.id === fwdUid) {
+    if (user?.id === fwdUid) {
       return {
         id: fwdUid,
-        email: session.user.email ?? "",
+        email: user.email ?? "",
         role: normalizeRole(fwdRole),
         rawRole: fwdRole,
         status: "active" as AccountStatus, // Middleware only sets headers for non-blocked users
-        displayName: (session.user.user_metadata?.full_name as string | undefined) ?? null,
-        avatarUrl: (session.user.user_metadata?.avatar_url as string | undefined) ?? null,
+        displayName: (user.user_metadata?.full_name as string | undefined) ?? null,
+        avatarUrl: (user.user_metadata?.avatar_url as string | undefined) ?? null,
         createdAt: null,
         lastLogin: null,
         lastActivity: null,
@@ -208,7 +207,7 @@ export const getCurrentProfile = cache(async function getCurrentProfile(): Promi
 export async function requireAuth(): Promise<AppProfile> {
   const profile = await getCurrentProfile();
   if (!profile) {
-    redirect("/login");
+    redirect("/admin");
   }
 
   if (profile.status !== "active") {

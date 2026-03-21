@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { logoutAction } from "@/app/login/actions";
+import { logoutAction } from "@/app/admin/actions";
 import { DashboardNav } from "@/app/dashboard/(components)/dashboard-nav";
 import { MobileSidebarToggle } from "@/app/dashboard/(components)/mobile-sidebar-toggle";
 import { Button } from "@/components/ui/button";

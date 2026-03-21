@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Loader2 } from "lucide-react";
-import { forgotPasswordAction } from "@/app/login/forgot-password/actions";
+import { forgotPasswordAction } from "@/app/admin/forgot-password/actions";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,7 +72,7 @@ export default function ForgotPasswordPage() {
                 <p className="text-sm text-fg/80">{result.message}</p>
               </div>
               <Link
-                href="/login"
+                href="/admin"
                 className="flex items-center justify-center gap-2 text-sm text-fg/56 transition-colors hover:text-fg/80"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -114,7 +114,7 @@ export default function ForgotPasswordPage() {
               </Button>
 
               <Link
-                href="/login"
+                href="/admin"
                 className="flex items-center justify-center gap-2 text-sm text-fg/56 transition-colors hover:text-fg/80"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
