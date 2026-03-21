@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
+  ArrowUpRight,
   Blocks,
   Check,
   ChevronDown,
@@ -726,6 +728,42 @@ export function ContactPageContent(): JSX.Element {
               </AccordionItem>
             ))}
           </Accordion>
+        </div>
+      </SectionReveal>
+
+      <SectionReveal className="container mt-8 md:mt-10" effect="up">
+        <div className="section-shell border-border/18 bg-card/76 p-5 md:p-7">
+          <h2 className="text-xl font-semibold">Not sure where to start?</h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-fg/62">
+            Browse our services to find what fits your project, or reach out and we&apos;ll point you in the right direction.
+          </p>
+          <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
+            {[
+              { label: "Brand Systems", href: "/services/brand-systems", desc: "Logo suite, typography, colour palette, and guidelines" },
+              { label: "Web Design", href: "/services/web-design", desc: "Visual design, UX strategy, and responsive UI" },
+              { label: "Web Development", href: "/services/web-development", desc: "Custom Next.js builds with full code ownership" },
+              { label: "CMS Architecture", href: "/services/cms-architecture", desc: "Structured content systems your team can manage" }
+            ].map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group flex items-start justify-between rounded-xl border border-border/16 bg-bg/45 px-4 py-3.5 transition-all duration-200 hover:border-accentA/22 hover:bg-bg/65"
+              >
+                <div>
+                  <p className="text-sm font-medium text-fg/86 group-hover:text-fg">{item.label}</p>
+                  <p className="mt-0.5 text-xs text-fg/52">{item.desc}</p>
+                </div>
+                <ArrowUpRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fg/32 group-hover:text-accentA" aria-hidden="true" />
+              </Link>
+            ))}
+          </div>
+          <p className="mt-4 text-sm text-fg/52">
+            Or{" "}
+            <Link href="/services" className="link-sweep text-accentA hover:text-accentA/80">
+              see all services
+            </Link>{" "}
+            for a full overview.
+          </p>
         </div>
       </SectionReveal>
 

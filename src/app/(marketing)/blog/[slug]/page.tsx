@@ -311,7 +311,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
   const relatedSource = await getPublishedBlogSummaries();
   const relatedPosts = selectRelatedBlogPosts(relatedSource, post.slug, post.category);
   const publishedAt = formatDate(post.publishedAt);
-  const readingTime = estimateReadTime(post.content);
+  const readingTime = post.readTime ?? estimateReadTime(post.content);
   const shareUrl = new URL(`/blog/${post.slug}`, siteConfig.url).toString();
   const authorInitials = post.authorName
     .split(/\s+/)
@@ -418,6 +418,41 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
           </div>
         </div>
       </SectionReveal>
+
+      {((): JSX.Element | null => {
+        const SERVICE_DISPLAY: Record<string, { label: string; href: string; desc: string }> = {
+          "brand-systems": { label: "Brand Systems", href: "/services/brand-systems", desc: "Logo suite, typography, colour palette, and brand guidelines as one system." },
+          "web-design": { label: "Web Design", href: "/services/web-design", desc: "Visual design, UX strategy, and responsive UI for Canadian businesses." },
+          "web-development": { label: "Web Development", href: "/services/web-development", desc: "Custom Next.js builds with full code ownership and Lighthouse scores above 90." },
+          "cms-architecture": { label: "CMS Architecture", href: "/services/cms-architecture", desc: "Structured content systems your team can manage without developer involvement." }
+        };
+        // CMS-controlled relatedService field wins; fall back to category-based mapping
+        const CATEGORY_FALLBACK: Record<string, string> = {
+          "Web Design": "web-design",
+          "Web Development": "web-development",
+          "Branding": "brand-systems"
+        };
+        const serviceKey = post.relatedService ?? CATEGORY_FALLBACK[post.category] ?? null;
+        const related = serviceKey ? SERVICE_DISPLAY[serviceKey] : null;
+        if (!related) return null;
+        return (
+          <SectionReveal className="container mt-10 md:mt-12" effect="up">
+            <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
+              <p className="text-[0.67rem] uppercase tracking-[0.18em] text-fg/48">Related Service</p>
+              <Link
+                href={related.href}
+                className="group mt-3 flex items-start justify-between rounded-xl border border-border/16 bg-bg/45 px-4 py-3.5 transition-all duration-200 hover:border-accentA/22 hover:bg-bg/65"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-fg/90 group-hover:text-fg">{related.label}</p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-fg/56">{related.desc}</p>
+                </div>
+                <ArrowUpRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fg/32 group-hover:text-accentA" aria-hidden="true" />
+              </Link>
+            </div>
+          </SectionReveal>
+        );
+      })()}
 
       <SectionReveal className="container mt-10 md:mt-12" effect="up">
         <div className="mb-5 flex items-end justify-between gap-4">

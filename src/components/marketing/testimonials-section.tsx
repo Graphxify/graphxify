@@ -46,7 +46,7 @@ function TestimonialCard({ item }: { item: TestimonialInput }): JSX.Element {
 
   return (
     <article
-      className="relative flex w-[340px] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border border-border/10 bg-card/80 p-7 backdrop-blur-sm sm:w-[380px]"
+      className="relative flex w-[340px] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border border-border/10 bg-card/80 p-7 sm:w-[380px]"
       style={{
         backgroundImage:
           "radial-gradient(circle, rgba(128,128,128,0.06) 1px, transparent 1px)",

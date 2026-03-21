@@ -31,8 +31,9 @@ export function SmoothScrollDriver(): null {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    // Don't use smooth scroll if user prefers reduced motion
-    if (reducedMotion) {
+    // Don't use smooth scroll if user prefers reduced motion or is on a touch device.
+    // On mobile/tablet, native scroll is always faster and smoother than Lenis interception.
+    if (reducedMotion || window.matchMedia("(pointer: coarse)").matches) {
       return;
     }
 

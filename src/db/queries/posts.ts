@@ -2,85 +2,53 @@ import "server-only";
 
 import { unstable_noStore as noStore } from "next/cache";
 import type { Post } from "@/db/types";
-import { getOriginalBlogCmsRecordBySlug } from "@/lib/original-blog-content";
 import { createClient } from "@/lib/supabase/server";
 
 const POST_BASE_SELECT = "id,title,slug,excerpt,content,cover_image_url,status,author_id,created_at,updated_at";
-const POST_EXTENDED_SELECT = `${POST_BASE_SELECT},category,author,author_role,author_bio,tags,seo_title,seo_description`;
+const POST_EXTENDED_SELECT = `${POST_BASE_SELECT},category,author,author_role,author_bio,tags,seo_title,seo_description,related_service,read_time_override`;
 type PostQueryRow = Post & { __legacySchema?: boolean };
 
 function isMissingColumnError(error: { code?: string } | null): boolean {
   return error?.code === "42703" || error?.code === "PGRST204";
 }
 
-function mergeOriginalBlogMetadata(row: Partial<Post>): Partial<Post> {
-  if (typeof row.slug !== "string") {
-    return row;
-  }
-
-  const original = getOriginalBlogCmsRecordBySlug(row.slug);
-  if (!original) {
-    return row;
-  }
-
-  return {
-    ...row,
-    category: original.category ?? row.category ?? "Web Design",
-    author: original.author ?? row.author ?? "Graphxify Team",
-    author_role: original.author_role ?? row.author_role ?? "Editorial Team",
-    author_bio:
-      original.author_bio ??
-      row.author_bio ??
-      "Graphxify shares practical guidance on brand systems, websites, and content operations.",
-    tags: Array.isArray(original.tags) ? original.tags : Array.isArray(row.tags) ? row.tags : [],
-    seo_title: original.seo_title ?? row.seo_title ?? null,
-    seo_description: original.seo_description ?? row.seo_description ?? null,
-    cover_image_url: row.cover_image_url ?? original.cover_image_url,
-    created_at: row.created_at ?? original.created_at,
-    updated_at: row.updated_at ?? original.updated_at ?? row.created_at ?? original.created_at
-  };
-}
-
 function withLegacyBlogDefaults(rows: Array<Partial<Post>>, legacySchema = false): PostQueryRow[] {
   return rows.map((row) => ({
-    ...(() => {
-      const normalizedRow = legacySchema ? mergeOriginalBlogMetadata(row) : row;
-      return {
-        id: typeof normalizedRow.id === "string" ? normalizedRow.id : "",
-        title: typeof normalizedRow.title === "string" ? normalizedRow.title : "",
-        slug: typeof normalizedRow.slug === "string" ? normalizedRow.slug : "",
-        excerpt: typeof normalizedRow.excerpt === "string" ? normalizedRow.excerpt : "",
-        content:
-          typeof normalizedRow.content === "string"
-            ? normalizedRow.content
-            : typeof normalizedRow.excerpt === "string"
-              ? normalizedRow.excerpt
-              : "",
-        cover_image_url: typeof normalizedRow.cover_image_url === "string" ? normalizedRow.cover_image_url : null,
-        category: typeof normalizedRow.category === "string" ? normalizedRow.category : "Web Design",
-        author: typeof normalizedRow.author === "string" ? normalizedRow.author : "Graphxify Team",
-        author_role: typeof normalizedRow.author_role === "string" ? normalizedRow.author_role : "Editorial Team",
-        author_bio:
-          typeof normalizedRow.author_bio === "string"
-            ? normalizedRow.author_bio
-            : "Graphxify shares practical guidance on brand systems, websites, and content operations.",
-        tags: Array.isArray(normalizedRow.tags)
-          ? normalizedRow.tags.map((tag) => String(tag).trim()).filter(Boolean)
-          : [],
-        seo_title: typeof normalizedRow.seo_title === "string" ? normalizedRow.seo_title : null,
-        seo_description: typeof normalizedRow.seo_description === "string" ? normalizedRow.seo_description : null,
-        status: normalizedRow.status ?? "draft",
-        author_id: typeof normalizedRow.author_id === "string" ? normalizedRow.author_id : null,
-        created_at: typeof normalizedRow.created_at === "string" ? normalizedRow.created_at : "",
-        updated_at:
-          typeof normalizedRow.updated_at === "string"
-            ? normalizedRow.updated_at
-            : typeof normalizedRow.created_at === "string"
-              ? normalizedRow.created_at
-              : "",
-        __legacySchema: legacySchema || undefined
-      };
-    })(),
+    id: typeof row.id === "string" ? row.id : "",
+    title: typeof row.title === "string" ? row.title : "",
+    slug: typeof row.slug === "string" ? row.slug : "",
+    excerpt: typeof row.excerpt === "string" ? row.excerpt : "",
+    content:
+      typeof row.content === "string"
+        ? row.content
+        : typeof row.excerpt === "string"
+          ? row.excerpt
+          : "",
+    cover_image_url: typeof row.cover_image_url === "string" ? row.cover_image_url : null,
+    category: typeof row.category === "string" ? row.category : "Web Design",
+    author: typeof row.author === "string" ? row.author : "Graphxify Team",
+    author_role: typeof row.author_role === "string" ? row.author_role : "Editorial Team",
+    author_bio:
+      typeof row.author_bio === "string"
+        ? row.author_bio
+        : "Graphxify shares practical guidance on brand systems, websites, and content operations.",
+    tags: Array.isArray(row.tags)
+      ? row.tags.map((tag) => String(tag).trim()).filter(Boolean)
+      : [],
+    seo_title: typeof row.seo_title === "string" ? row.seo_title : null,
+    seo_description: typeof row.seo_description === "string" ? row.seo_description : null,
+    related_service: typeof row.related_service === "string" ? row.related_service : null,
+    read_time_override: typeof row.read_time_override === "number" ? row.read_time_override : null,
+    status: row.status ?? "draft",
+    author_id: typeof row.author_id === "string" ? row.author_id : null,
+    created_at: typeof row.created_at === "string" ? row.created_at : "",
+    updated_at:
+      typeof row.updated_at === "string"
+        ? row.updated_at
+        : typeof row.created_at === "string"
+          ? row.created_at
+          : "",
+    __legacySchema: legacySchema || undefined
   }));
 }
 
@@ -207,6 +175,7 @@ export async function getPostById(id: string) {
 
   return withLegacyBlogDefaults(fallback.data ? [fallback.data as Partial<Post>] : [], true)[0] ?? null;
 }
+
 
 export async function getPostVersions(postId: string) {
   const supabase = createClient();

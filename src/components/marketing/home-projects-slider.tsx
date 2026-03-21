@@ -400,6 +400,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
                       src={project.coverImage}
                       alt={displayTitle}
                       fill
+                      priority={index === baseIndex || index === baseIndex + 1}
                       className="object-cover transition-[transform,filter] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] group-hover:brightness-[0.7]"
                       sizes="(max-width: 1279px) 100vw, 50vw"
                     />

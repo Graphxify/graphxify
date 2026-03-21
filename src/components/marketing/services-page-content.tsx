@@ -443,17 +443,16 @@ function ServiceVisual({ serviceKey }: { serviceKey: ServicePillar["key"] }): JS
     </div>
   );
 }
+const servicePageRoutes: Record<string, string> = {
+  "brand-systems": "/services/brand-systems",
+  "web-design": "/services/web-design",
+  "web-development": "/services/web-development",
+  "cms-architecture": "/services/cms-architecture"
+};
+
 export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }): JSX.Element {
   const reducedMotion = useReducedMotion();
   const previewWorks = useMemo(() => works.slice(0, 3), [works]);
-
-  function scrollToService(sectionId: string): void {
-    const node = document.getElementById(sectionId);
-    if (!node) {
-      return;
-    }
-    node.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
-  }
 
   return (
     <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
@@ -487,10 +486,9 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
           {servicesData.map((service, index) => {
             const Icon = service.icon;
             return (
-              <button
+              <Link
                 key={`service-pillars-${service.key}`}
-                type="button"
-                onClick={() => scrollToService(service.sectionId)}
+                href={servicePageRoutes[service.key] ?? `#${service.sectionId}`}
                 className="group flex flex-col rounded-[1.2rem] border border-border/18 bg-card/72 p-5 text-left transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg hover:-translate-y-0.5 hover:border-accentA/22 hover:bg-card/85"
               >
                 <div className="flex items-start justify-between gap-3">
@@ -503,7 +501,7 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
                 </div>
                 <h2 className="mt-4 text-[1.05rem] font-semibold leading-tight">{service.title}</h2>
                 <p className="mt-2 text-xs leading-relaxed text-fg/54">{service.description}</p>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -577,6 +575,17 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
                       ))}
                     </ul>
                   </div>
+                </div>
+
+                {/* Link to dedicated service page */}
+                <div className="mt-8 flex items-center border-t border-border/10 pt-6">
+                  <Link
+                    href={servicePageRoutes[service.key] ?? "#"}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-accentA transition-colors hover:text-accentA/80"
+                  >
+                    Explore {service.title} in depth
+                    <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </Link>
                 </div>
 
               </article>
@@ -668,29 +677,28 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
               {
                 scenario: "Starting from scratch",
                 recommendation: "Begin with Brand Systems to establish your identity, then move into Web Design and Development.",
-                sectionId: "service-brand-systems"
+                route: "/services/brand-systems"
               },
               {
                 scenario: "You have a brand but need a new website",
                 recommendation: "Web Design and Web Development using your existing brand assets.",
-                sectionId: "service-web-design"
+                route: "/services/web-design"
               },
               {
                 scenario: "Your site is live but your team can't update it",
                 recommendation: "CMS Architecture as a standalone engagement to restructure your content management.",
-                sectionId: "service-cms-architecture"
+                route: "/services/cms-architecture"
               }
             ] as const).map((item) => (
               <div key={item.scenario} className="flex flex-col rounded-xl border border-border/16 bg-bg/45 p-5">
                 <p className="text-sm font-semibold text-fg/90">{item.scenario}</p>
                 <p className="mt-2 flex-1 text-sm text-fg/62">{item.recommendation}</p>
-                <button
-                  type="button"
-                  onClick={() => scrollToService(item.sectionId)}
+                <Link
+                  href={item.route}
                   className="mt-4 self-start text-xs uppercase tracking-[0.14em] text-accentA transition-colors hover:text-accentA/72"
                 >
                   See the service
-                </button>
+                </Link>
               </div>
             ))}
           </div>

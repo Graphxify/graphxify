@@ -192,7 +192,7 @@ export function HomeSections({
 
           {/* ── Proof bar ── */}
           <div className="mt-9 flex justify-center">
-            <div className="inline-grid grid-cols-3 divide-x divide-border/12 overflow-hidden rounded-2xl border border-border/14 bg-card/60 shadow-[0_8px_28px_rgba(13,13,15,0.07)] backdrop-blur-sm">
+            <div className="inline-grid grid-cols-3 divide-x divide-border/12 overflow-hidden rounded-2xl border border-border/14 bg-card/60 shadow-[0_8px_28px_rgba(13,13,15,0.07)]">
               {([
                 { icon: PackageCheck, stat: "26+", label: "Projects delivered" },
                 { icon: Timer, stat: "4 to 8 wks", label: "Average launch" },
@@ -276,10 +276,10 @@ export function HomeSections({
       <SectionReveal className="container" effect="zoom">
         <div className="section-shell relative overflow-hidden border-accentA/20 p-0">
 
-          {/* Ambient glow orbs */}
-          <div className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-accentA/8 blur-[100px]" />
-          <div className="pointer-events-none absolute -bottom-16 -right-16 h-48 w-48 rounded-full bg-accentB/6 blur-[80px]" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accentA/5 blur-[60px]" />
+          {/* Ambient glow orbs — desktop only (expensive filter on mobile GPUs) */}
+          <div className="pointer-events-none absolute -left-20 -top-20 hidden h-60 w-60 rounded-full bg-accentA/8 blur-[100px] md:block" />
+          <div className="pointer-events-none absolute -bottom-16 -right-16 hidden h-48 w-48 rounded-full bg-accentB/6 blur-[80px] md:block" />
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accentA/5 blur-[60px] md:block" />
 
           {/* Top accent hairline */}
           <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-accentA/50 to-transparent" />
@@ -349,8 +349,9 @@ export function HomeSections({
                 viewport={{ once: true, margin: "-60px" }}
                 whileHover={reducedMotion ? undefined : { y: -3, scale: 1.015, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }}
                 transition={{ duration: 0.56, delay: 0.08 * index, ease: [0.22, 1, 0.36, 1] }}
-                className="group relative overflow-hidden rounded-2xl border border-border/16 bg-card/72 p-6 shadow-[0_8px_20px_rgba(13,13,15,0.06)] backdrop-blur-sm md:p-7"
+                className="group relative overflow-hidden rounded-2xl border border-border/16 bg-card/72 p-6 shadow-[0_8px_20px_rgba(13,13,15,0.06)] md:p-7"
               >
+                <Link href={`/services/${service.key}`} className="absolute inset-0 z-20" aria-label={`Learn more about ${service.title}`} />
                 {/* hover accent glow — bg-color alpha transitions correctly */}
                 <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-accentA/0 blur-2xl transition-[background-color] duration-500 group-hover:bg-accentA/8" />
                 {/* top hairline — opacity used because background-image cannot be CSS-transitioned */}

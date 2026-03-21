@@ -18,7 +18,6 @@ const CATEGORY_FILTERS = ["All", ...BLOG_CATEGORIES] as const;
 const INITIAL_VISIBLE_COUNT = 6;
 const LOAD_MORE_STEP = 6;
 
-
 const CATEGORY_COLORS: Record<BlogCategory, { dot: string; pill: string }> = {
   "Web Design": { dot: "bg-sky-400", pill: "border-sky-500/25 text-sky-300" },
   "Web Development": { dot: "bg-emerald-400", pill: "border-emerald-500/25 text-emerald-300" },
@@ -153,7 +152,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
                     </span>
                     <span className="flex items-center gap-1 text-fg/44">
                       <Clock className="h-3 w-3" />
-                      {estimateReadTime(featuredBlog.excerpt)}
+                      {featuredBlog.readTime}
                     </span>
                   </div>
                   <span className="link-sweep mt-4 inline-flex items-center gap-1.5 text-sm text-fg/82 transition-colors group-hover:text-accentA">
@@ -246,7 +245,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
                         <span className="uppercase tracking-[0.14em]">{formatDate(blog.publishedAt)}</span>
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />
-                          {estimateReadTime(blog.excerpt)}
+                          {blog.readTime}
                         </span>
                       </div>
                       <span className="inline-flex items-center gap-1 text-sm text-fg/70 transition-colors duration-200 group-hover:text-accentA">

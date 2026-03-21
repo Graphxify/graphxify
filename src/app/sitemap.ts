@@ -5,7 +5,7 @@ import { getProjectPathSlug } from "@/lib/project-card-content";
 import { graphxifyProjects } from "@/lib/project-details";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticRoutes = ["", "/works", "/services", "/about", "/blog", "/contact", "/privacy", "/terms"];
+  const staticRoutes = ["", "/works", "/services", "/services/brand-systems", "/services/web-design", "/services/web-development", "/services/cms-architecture", "/about", "/blog", "/contact", "/privacy", "/terms"];
   let blogs: Array<{ slug: string; updatedAt?: string }> = [];
   const works: Array<{ slug: string; updated_at?: string }> = graphxifyProjects.map((project) => ({
     slug: project.slug,

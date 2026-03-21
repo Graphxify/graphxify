@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X, LayoutDashboard } from "lucide-react";
+import { ChevronRight, Menu, X, LayoutDashboard } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { Magnetic } from "@/components/motion/magnetic";
@@ -83,7 +83,7 @@ export function MarketingHeader(): JSX.Element {
 
         <div
           className={cn(
-            "container relative mt-8 flex min-h-[68px] items-center gap-3 overflow-hidden rounded-[1.1rem] border border-border/22 bg-bg px-3 transition-all duration-300 sm:mt-8 sm:min-h-[72px] sm:px-4 lg:mt-12 lg:h-[80px] lg:px-6",
+            "container relative mt-8 flex min-h-[68px] items-center gap-3 rounded-[1.1rem] border border-border/22 bg-bg px-3 transition-all duration-300 sm:mt-8 sm:min-h-[72px] sm:px-4 lg:mt-12 lg:h-[80px] lg:px-6",
             scrolled
               ? "shadow-[0_18px_38px_rgba(13,13,15,0.16)]"
               : "shadow-[0_8px_24px_rgba(13,13,15,0.1)]"
@@ -106,27 +106,80 @@ export function MarketingHeader(): JSX.Element {
           <nav className="relative z-10 hidden flex-1 items-center justify-center gap-1 lg:flex">
             {centerNav.map((item) => {
               const active = isRouteActive(item.href);
+              const isServices = item.href === "/services";
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  prefetch={true}
-                  className={cn(
-                    "group relative rounded-full px-4 py-2.5 text-[0.9rem] font-medium text-fg/72 transition-colors duration-150 hover:-translate-y-[1px] hover:text-fg",
-                    active && "text-fg"
-                  )}
-                >
-                  <span className="absolute inset-[1px] -z-10 scale-95 rounded-full bg-card/84 opacity-0 transition-[opacity,transform] duration-200 group-hover:scale-100 group-hover:opacity-100" />
-                  <span className="absolute inset-x-4 bottom-[0.38rem] h-[1.5px] origin-left scale-x-0 rounded-full bg-accent-gradient transition-transform duration-200 group-hover:scale-x-100" />
-                  {active ? (
-                    <motion.span
-                      layoutId="marketing-nav-active-pill"
-                      className="absolute inset-0 -z-10 rounded-full border border-border/24 bg-card/92"
-                      transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                    />
+                <div key={item.href} className={isServices ? "group/services relative" : "relative"}>
+                  <Link
+                    href={item.href}
+                    prefetch={true}
+                    className={cn(
+                      "group relative rounded-full px-4 py-2.5 text-[0.9rem] font-medium text-fg/72 transition-colors duration-150 hover:-translate-y-[1px] hover:text-fg",
+                      active && "text-fg"
+                    )}
+                  >
+                    <span className="absolute inset-[1px] -z-10 scale-95 rounded-full bg-card/84 opacity-0 transition-[opacity,transform] duration-200 group-hover:scale-100 group-hover:opacity-100" />
+                    <span className="absolute inset-x-4 bottom-[0.38rem] h-[1.5px] origin-left scale-x-0 rounded-full bg-accent-gradient transition-transform duration-200 group-hover:scale-x-100" />
+                    {active ? (
+                      <motion.span
+                        layoutId="marketing-nav-active-pill"
+                        className="absolute inset-0 -z-10 rounded-full border border-border/24 bg-card/92"
+                        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                      />
+                    ) : null}
+                    {item.label}
+                  </Link>
+                  {isServices ? (
+                    <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 translate-y-1 pt-2 opacity-0 transition-[opacity,visibility,transform] duration-200 ease-out group-hover/services:visible group-hover/services:translate-y-0 group-hover/services:opacity-100">
+                      <div className="relative min-w-[14.5rem] overflow-hidden rounded-[1rem] border border-border/22 bg-bg py-2 shadow-[0_20px_48px_rgba(13,13,15,0.28)]">
+                        {/* top accent line */}
+                        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/30 to-transparent" />
+                        {[
+                          { label: "Brand Systems", href: "/services/brand-systems" },
+                          { label: "Web Design", href: "/services/web-design" },
+                          { label: "Web Development", href: "/services/web-development" },
+                          { label: "CMS Architecture", href: "/services/cms-architecture" }
+                        ].map((sub) => {
+                          const subActive = isRouteActive(sub.href);
+                          return (
+                            <Link
+                              key={sub.href}
+                              href={sub.href}
+                              prefetch={true}
+                              className={cn(
+                                "group/item relative mx-1.5 flex items-center rounded-[0.6rem] px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ease-out",
+                                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg",
+                                subActive
+                                  ? "bg-accentA/8 text-accentA"
+                                  : "text-fg/60 hover:bg-card/70 hover:text-fg"
+                              )}
+                            >
+                              {/* left accent bar */}
+                              <span
+                                aria-hidden="true"
+                                className={cn(
+                                  "absolute left-0 top-1/2 h-5 w-[2.5px] -translate-y-1/2 rounded-r-full bg-accent-gradient transition-[opacity,transform] duration-200",
+                                  subActive
+                                    ? "opacity-100"
+                                    : "scale-y-50 opacity-0 group-hover/item:scale-y-100 group-hover/item:opacity-100"
+                                )}
+                              />
+                              <span className="relative">{sub.label}</span>
+                              <ChevronRight
+                                aria-hidden="true"
+                                className={cn(
+                                  "relative ml-auto h-3.5 w-3.5 shrink-0 transition-[transform,opacity] duration-200",
+                                  subActive
+                                    ? "text-accentA/70 opacity-100"
+                                    : "opacity-0 group-hover/item:translate-x-0.5 group-hover/item:text-fg/36 group-hover/item:opacity-100"
+                                )}
+                              />
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
                   ) : null}
-                  {item.label}
-                </Link>
+                </div>
               );
             })}
           </nav>

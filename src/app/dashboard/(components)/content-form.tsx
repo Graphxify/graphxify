@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { emitCmsContentChanged } from "@/lib/client/cms-sync";
 import { submitFormDataRequest } from "@/lib/forms/shared";
-import { BLOG_CATEGORIES, formatBlogTagInput } from "@/lib/blog";
+import { BLOG_CATEGORIES, RELATED_SERVICE_OPTIONS, formatBlogTagInput } from "@/lib/blog";
 
 function slugify(text: string): string {
   return text
@@ -87,6 +87,8 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
   const blogTagsValue = formatBlogTagInput(item?.tags);
   const blogSeoTitleValue = String(item?.seo_title ?? "");
   const blogSeoDescriptionValue = String(item?.seo_description ?? "");
+  const blogRelatedServiceValue = String(item?.related_service ?? "");
+  const blogReadTimeOverrideValue = typeof item?.read_time_override === "number" ? String(item.read_time_override) : "";
 
   const updateGalleryImage = (index: number, value: string) => {
     setGalleryImages((prev) => prev.map((entry, entryIndex) => (entryIndex === index ? value : entry)));
@@ -614,6 +616,36 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
                 placeholder="Optional custom meta description for the blog detail page"
               />
             </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="readTimeOverride">Read time (minutes)</Label>
+            <Input
+              id="readTimeOverride"
+              name="readTimeOverride"
+              type="number"
+              min="1"
+              max="120"
+              defaultValue={blogReadTimeOverrideValue}
+              placeholder="Auto-calculated from word count"
+            />
+            <p className="text-[0.7rem] text-fg/48">Leave blank to auto-calculate (220 wpm). Override for posts with video or heavy media.</p>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="relatedService">Related service</Label>
+            <select
+              id="relatedService"
+              name="relatedService"
+              className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm text-fg"
+              defaultValue={blogRelatedServiceValue}
+            >
+              <option value="">Auto (derived from category)</option>
+              {RELATED_SERVICE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <p className="text-[0.7rem] text-fg/48">Controls the service callout shown at the bottom of this blog post. Leave blank to derive automatically from category.</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>

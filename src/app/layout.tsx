@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { Providers } from "@/app/providers";
@@ -6,6 +7,14 @@ import { MarketingFooter } from "@/components/marketing/footer";
 import { ChunkLoadRecovery } from "@/components/runtime/chunk-load-recovery";
 
 import { buildMetadata } from "@/lib/seo";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+  preload: true,
+});
 
 export const metadata: Metadata = buildMetadata({
   title: "Web Design & Branding Agency",
@@ -16,7 +25,7 @@ export const metadata: Metadata = buildMetadata({
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className={`dark ${poppins.variable}`} suppressHydrationWarning>
       <body suppressHydrationWarning className="app-shell min-h-screen bg-bg text-fg antialiased">
 
         <Providers>

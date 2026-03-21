@@ -31,6 +31,8 @@ export type Post = {
   tags: string[];
   seo_title: string | null;
   seo_description: string | null;
+  related_service: string | null;
+  read_time_override: number | null;
   status: ContentStatus;
   author_id: string | null;
   created_at: string;

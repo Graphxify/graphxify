@@ -12,14 +12,18 @@ const footerGroups = [
       { label: "Services", href: "/services" },
       { label: "About", href: "/about" },
       { label: "Blog", href: "/blog" },
-      { label: "Contact", href: "/contact" }
+      { label: "Contact", href: "/contact" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" }
     ]
   },
   {
-    title: "Legal",
+    title: "Services",
     links: [
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms", href: "/terms" }
+      { label: "Brand Systems", href: "/services/brand-systems" },
+      { label: "Web Design", href: "/services/web-design" },
+      { label: "Web Development", href: "/services/web-development" },
+      { label: "CMS Architecture", href: "/services/cms-architecture" }
     ]
   }
 ] as const;

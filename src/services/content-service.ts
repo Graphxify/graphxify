@@ -161,7 +161,9 @@ function buildPostMetadataPayload(parsed: ParsedPostInput, tags: string[]) {
     author_bio: parsed.authorBio || null,
     tags,
     seo_title: parsed.seoTitle || null,
-    seo_description: parsed.seoDescription || null
+    seo_description: parsed.seoDescription || null,
+    related_service: parsed.relatedService || null,
+    read_time_override: typeof parsed.readTimeOverride === "number" ? parsed.readTimeOverride : null
   };
 }
 
@@ -176,7 +178,9 @@ function buildStoredPostMetadataPayload(version: Record<string, unknown>): Retur
         : "Graphxify shares practical guidance on brand systems, websites, and content operations.",
     tags: Array.isArray(version.tags) ? version.tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
     seo_title: typeof version.seo_title === "string" ? version.seo_title : null,
-    seo_description: typeof version.seo_description === "string" ? version.seo_description : null
+    seo_description: typeof version.seo_description === "string" ? version.seo_description : null,
+    related_service: typeof version.related_service === "string" ? version.related_service || null : null,
+    read_time_override: typeof version.read_time_override === "number" ? version.read_time_override : null
   };
 }
 
@@ -324,6 +328,8 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
     seoTitle: params.formData.get("seoTitle"),
     seoDescription: params.formData.get("seoDescription"),
     coverImageUrl: params.formData.get("coverImageUrl"),
+    relatedService: params.formData.get("relatedService"),
+    readTimeOverride: params.formData.get("readTimeOverride") || undefined,
     status: params.formData.get("status")
   });
   const tags = parseTagsInput(params.formData.get("tags"));
@@ -348,6 +354,8 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
         excerpt: parsed.excerpt,
         content: parsed.content,
         cover_image_url: parsed.coverImageUrl || null,
+        related_service: parsed.relatedService || null,
+        read_time_override: typeof parsed.readTimeOverride === "number" ? parsed.readTimeOverride : null,
         status: parsed.status,
         editor_id: profile.id
       },
@@ -399,6 +407,8 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
         excerpt: parsed.excerpt,
         content: parsed.content,
         cover_image_url: parsed.coverImageUrl || null,
+        related_service: parsed.relatedService || null,
+        read_time_override: typeof parsed.readTimeOverride === "number" ? parsed.readTimeOverride : null,
         status: parsed.status,
         editor_id: profile.id
       },

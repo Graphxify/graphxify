@@ -1,58 +1,43 @@
-export const demoWorks = [
-  {
-    id: "w1",
-    title: "Northline Enterprise Replatform",
-    slug: "northline-enterprise-replatform",
-    year: 2025,
-    role: "Lead Product Partner",
-    services: ["Research", "UX", "Engineering"],
-    excerpt: "Unified marketing and CMS stack with measurable conversion lift.",
-    content: "Enterprise replatform case study with measurable improvements in velocity and performance.",
-    cover_image_url: "/assets/work-1.svg",
-    created_at: "2026-01-25"
-  },
-  {
-    id: "w2",
-    title: "Vertex Brand Operations",
-    slug: "vertex-brand-operations",
-    year: 2025,
-    role: "Design Systems",
-    services: ["Brand", "Design System"],
-    excerpt: "Brand governance toolkit for multi-team campaign delivery.",
-    content: "Cross-functional design and engineering operations case study.",
-    cover_image_url: "/assets/work-2.svg",
-    created_at: "2025-12-18"
-  },
-  {
-    id: "w3",
-    title: "Axis Growth Platform",
-    slug: "axis-growth-platform",
-    year: 2024,
-    role: "Full-Stack Delivery",
-    services: ["Web", "CMS", "Analytics"],
-    excerpt: "Performance-first website and publishing model for growth teams.",
-    content: "Content operations platform built with governance and measurement.",
-    cover_image_url: "/assets/work-3.svg",
-    created_at: "2025-11-03"
-  }
-];
+-- Seed the 6 original Graphxify blog posts into the posts table.
+-- These posts were previously served from demo-content.ts (code-level fallback).
+-- Running this migration makes them fully CMS-controlled — editors can edit them
+-- in the dashboard like any other post.
+--
+-- Safe to re-run: ON CONFLICT (slug) DO NOTHING preserves any CMS edits made since
+-- a post was first seeded. If you want to force-overwrite with seed content, change
+-- DO NOTHING to DO UPDATE SET ... for the relevant columns.
+--
+-- Prerequisites:
+--   1. Run schema.sql to ensure the posts table exists.
+--   2. Run add-related-service.sql to ensure the related_service column exists.
 
-export const demoPosts = [
-  {
-    id: "p1",
-    title: "How to Choose a Web Design Agency in Canada",
-    slug: "how-to-choose-web-design-agency-canada",
-    excerpt: "Your website is your most valuable sales asset. Here's a practical framework for evaluating and selecting the right web design partner for your Canadian business.",
-    category: "Web Design",
-    cover_image_url: "/assets/post-1.svg",
-    created_at: "2026-03-05",
-    author_name: "Graphxify Team",
-    author_role: "Web Design & Strategy",
-    author_bio: "Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.",
-    tags: ["Web Design", "Canada", "Digital Agency", "Website Design", "Toronto"],
-    seo_title: "How to Choose a Web Design Agency in Canada | Graphxify",
-    seo_description: "A practical guide to evaluating web design agencies in Canada. Learn what to look for, what to avoid, and how to find the right fit for your business in Toronto, Mississauga, or anywhere in Canada.",
-    content: `## Why Your Choice of Web Design Agency Matters
+INSERT INTO public.posts (
+  id,
+  title,
+  slug,
+  excerpt,
+  content,
+  category,
+  author,
+  author_role,
+  author_bio,
+  tags,
+  seo_title,
+  seo_description,
+  cover_image_url,
+  related_service,
+  status,
+  created_at,
+  updated_at
+) VALUES
+
+-- Post 1: How to Choose a Web Design Agency in Canada
+(
+  'a1000000-0000-0000-0000-000000000001',
+  'How to Choose a Web Design Agency in Canada',
+  'how-to-choose-web-design-agency-canada',
+  'Your website is your most valuable sales asset. Here''s a practical framework for evaluating and selecting the right web design partner for your Canadian business.',
+  $p1$## Why Your Choice of Web Design Agency Matters
 
 Your website is often the first interaction a potential customer has with your business. In Canada's competitive market — from Vancouver to Toronto to Halifax — a professional, fast, and trustworthy website is the foundation of every sale, every referral, and every first impression.
 
@@ -123,23 +108,28 @@ If you want to understand how your mobile experience factors into this decision,
 
 ## Ready to Evaluate Graphxify?
 
-We work with Canadian businesses across Toronto, Mississauga, and Ontario to build websites that perform and convert. If you're in the process of selecting a web design partner, we're happy to answer your questions honestly — including whether we're the right fit for your project. [Start a conversation with our team.](/contact)`
-  },
-  {
-    id: "p2",
-    title: "Why Canadian Small Businesses Need a Mobile-First Website in 2026",
-    slug: "mobile-first-website-canadian-small-businesses-2026",
-    excerpt: "More than 70% of Canadian web traffic now comes from mobile devices. If your website wasn't designed for mobile first, you're losing customers before they even read your first sentence.",
-    category: "Web Design",
-    cover_image_url: "/assets/post-2.svg",
-    created_at: "2026-02-18",
-    author_name: "Graphxify Team",
-    author_role: "Web Design & Strategy",
-    author_bio: "Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.",
-    tags: ["Mobile-First", "Web Design", "Small Business", "Canada", "UX"],
-    seo_title: "Mobile-First Website Design for Canadian Small Businesses | Graphxify",
-    seo_description: "Learn why mobile-first web design matters for Canadian small businesses in 2026 — and what it means for your Google rankings, user experience, and conversion rates.",
-    content: `## The Mobile Reality in Canada
+We work with Canadian businesses across Toronto, Mississauga, and Ontario to build websites that perform and convert. If you're in the process of selecting a web design partner, we're happy to answer your questions honestly — including whether we're the right fit for your project. [Start a conversation with our team.](/contact)$p1$,
+  'Web Design',
+  'Graphxify Team',
+  'Web Design & Strategy',
+  'Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.',
+  ARRAY['Web Design', 'Canada', 'Digital Agency', 'Website Design', 'Toronto'],
+  'How to Choose a Web Design Agency in Canada | Graphxify',
+  'A practical guide to evaluating web design agencies in Canada. Learn what to look for, what to avoid, and how to find the right fit for your business in Toronto, Mississauga, or anywhere in Canada.',
+  '/assets/post-1.svg',
+  'web-design',
+  'published',
+  '2026-03-05T00:00:00Z',
+  '2026-03-05T00:00:00Z'
+),
+
+-- Post 2: Why Canadian Small Businesses Need a Mobile-First Website in 2026
+(
+  'a1000000-0000-0000-0000-000000000002',
+  'Why Canadian Small Businesses Need a Mobile-First Website in 2026',
+  'mobile-first-website-canadian-small-businesses-2026',
+  'More than 70% of Canadian web traffic now comes from mobile devices. If your website wasn''t designed for mobile first, you''re losing customers before they even read your first sentence.',
+  $p2$## The Mobile Reality in Canada
 
 According to recent data, over 70% of Canadians browse the internet primarily on their smartphones. In cities like Toronto, Mississauga, and Calgary, that number climbs even higher for local business searches — "restaurant near me," "web designer in Mississauga," "best dentist Toronto."
 
@@ -205,23 +195,28 @@ If you're weighing whether to patch your current site or rebuild properly, our g
 
 ## Get a Mobile-First Website That Performs
 
-Graphxify builds high-performance, mobile-first websites for Canadian businesses from the ground up — no WordPress templates, no shortcuts. If your current site is holding your business back, [let's talk about what a proper rebuild would look like for you.](/contact)`
-  },
-  {
-    id: "p3",
-    title: "What Makes a Strong Brand Identity for Canadian Businesses",
-    slug: "brand-identity-canadian-businesses",
-    excerpt: "A logo is not a brand. Learn what a complete brand identity system includes, why it matters for Canadian businesses, and how to build one that actually works in market.",
-    category: "Branding",
-    cover_image_url: "/assets/post-3.svg",
-    created_at: "2026-02-04",
-    author_name: "Graphxify Team",
-    author_role: "Brand Strategy & Design",
-    author_bio: "Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.",
-    tags: ["Branding", "Brand Identity", "Canada", "Logo Design", "Brand Strategy"],
-    seo_title: "Strong Brand Identity for Canadian Businesses | Graphxify",
-    seo_description: "Learn what a complete brand identity system includes and why it matters for Canadian businesses. Build a brand that stands out in Toronto, Mississauga, and beyond.",
-    content: `## The Difference Between a Logo and a Brand
+Graphxify builds high-performance, mobile-first websites for Canadian businesses from the ground up — no WordPress templates, no shortcuts. If your current site is holding your business back, [let's talk about what a proper rebuild would look like for you.](/contact)$p2$,
+  'Web Design',
+  'Graphxify Team',
+  'Web Design & Strategy',
+  'Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.',
+  ARRAY['Mobile-First', 'Web Design', 'Small Business', 'Canada', 'UX'],
+  'Mobile-First Website Design for Canadian Small Businesses | Graphxify',
+  'Learn why mobile-first web design matters for Canadian small businesses in 2026 — and what it means for your Google rankings, user experience, and conversion rates.',
+  '/assets/post-2.svg',
+  'web-design',
+  'published',
+  '2026-02-18T00:00:00Z',
+  '2026-02-18T00:00:00Z'
+),
+
+-- Post 3: What Makes a Strong Brand Identity for Canadian Businesses
+(
+  'a1000000-0000-0000-0000-000000000003',
+  'What Makes a Strong Brand Identity for Canadian Businesses',
+  'brand-identity-canadian-businesses',
+  'A logo is not a brand. Learn what a complete brand identity system includes, why it matters for Canadian businesses, and how to build one that actually works in market.',
+  $p3$## The Difference Between a Logo and a Brand
 
 Most Canadian small business owners, when they say "branding," mean "I need a logo." That's understandable — a logo is visible, tangible, and feels like the right starting point. But a logo is just one element of a brand identity system. Without the system around it, even a great logo fails to create the consistency and recognition that builds trust over time.
 
@@ -290,23 +285,28 @@ If you're a Canadian business considering a rebrand or building your brand ident
 
 ## Build a Brand That Actually Works
 
-Graphxify designs brand identity systems for Canadian businesses — from first-time founders who need to launch with confidence, to established Ontario companies ready to professionalize their visual presence. [Tell us about your brand project.](/contact)`
-  },
-  {
-    id: "p4",
-    title: "Custom Web Development vs. WordPress: A Guide for Canadian Business Owners",
-    slug: "custom-web-development-vs-wordpress-canada",
-    excerpt: "WordPress powers 43% of the web. But that doesn't mean it's right for your business. Here's how to make the right technical decision for your Canadian business website.",
-    category: "Web Development",
-    cover_image_url: "/assets/post-1.svg",
-    created_at: "2026-01-22",
-    author_name: "Graphxify Team",
-    author_role: "Web Development & Architecture",
-    author_bio: "Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.",
-    tags: ["Web Development", "WordPress", "Custom Development", "Canada", "CMS"],
-    seo_title: "Custom Web Development vs WordPress for Canadian Businesses | Graphxify",
-    seo_description: "Should your Canadian business use WordPress or custom web development? We break down costs, performance, flexibility, and long-term maintenance to help you decide.",
-    content: `## The Question Every Canadian Business Owner Asks
+Graphxify designs brand identity systems for Canadian businesses — from first-time founders who need to launch with confidence, to established Ontario companies ready to professionalize their visual presence. [Tell us about your brand project.](/contact)$p3$,
+  'Branding',
+  'Graphxify Team',
+  'Brand Strategy & Design',
+  'Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.',
+  ARRAY['Branding', 'Brand Identity', 'Canada', 'Logo Design', 'Brand Strategy'],
+  'Strong Brand Identity for Canadian Businesses | Graphxify',
+  'Learn what a complete brand identity system includes and why it matters for Canadian businesses. Build a brand that stands out in Toronto, Mississauga, and beyond.',
+  '/assets/post-3.svg',
+  'brand-systems',
+  'published',
+  '2026-02-04T00:00:00Z',
+  '2026-02-04T00:00:00Z'
+),
+
+-- Post 4: Custom Web Development vs. WordPress
+(
+  'a1000000-0000-0000-0000-000000000004',
+  'Custom Web Development vs. WordPress: A Guide for Canadian Business Owners',
+  'custom-web-development-vs-wordpress-canada',
+  'WordPress powers 43% of the web. But that doesn''t mean it''s right for your business. Here''s how to make the right technical decision for your Canadian business website.',
+  $p4$## The Question Every Canadian Business Owner Asks
 
 When building or rebuilding a business website, almost every Canadian business owner eventually asks: "Should we use WordPress, or do we need something custom?" It's the right question — and the answer has real implications for your budget, timeline, performance, and how you'll manage the site for the next five years.
 
@@ -393,23 +393,28 @@ Whatever platform you choose, performance on mobile is non-negotiable. See our g
 
 ## Talk to a Canadian Web Development Agency
 
-Graphxify builds custom websites using Next.js and modern headless CMS architecture — the same stack we use for our own platform. [See examples of our work](/works) or [get in touch to discuss your project.](/contact)`
-  },
-  {
-    id: "p5",
-    title: "How a Professional Website Drives Real Business Growth in Canada",
-    slug: "professional-website-business-growth-canada",
-    excerpt: "A great website doesn't just look good — it generates leads, builds trust, and converts visitors into customers. Here's what separates a website that performs from one that just exists.",
-    category: "Business Growth",
-    cover_image_url: "/assets/post-2.svg",
-    created_at: "2026-01-10",
-    author_name: "Graphxify Team",
-    author_role: "Growth Strategy & Web",
-    author_bio: "Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.",
-    tags: ["Business Growth", "Website ROI", "Lead Generation", "Canada", "Conversion"],
-    seo_title: "How a Professional Website Drives Business Growth in Canada | Graphxify",
-    seo_description: "Discover how a professionally designed website drives leads, conversions, and revenue for Canadian businesses. Real strategies from a Canadian web design agency.",
-    content: `## Your Website Is Either Working or It Isn't
+Graphxify builds custom websites using Next.js and modern headless CMS architecture — the same stack we use for our own platform. [See examples of our work](/works) or [get in touch to discuss your project.](/contact)$p4$,
+  'Web Development',
+  'Graphxify Team',
+  'Web Development & Architecture',
+  'Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.',
+  ARRAY['Web Development', 'WordPress', 'Custom Development', 'Canada', 'CMS'],
+  'Custom Web Development vs WordPress for Canadian Businesses | Graphxify',
+  'Should your Canadian business use WordPress or custom web development? We break down costs, performance, flexibility, and long-term maintenance to help you decide.',
+  '/assets/post-1.svg',
+  'web-development',
+  'published',
+  '2026-01-22T00:00:00Z',
+  '2026-01-22T00:00:00Z'
+),
+
+-- Post 5: How a Professional Website Drives Real Business Growth in Canada
+(
+  'a1000000-0000-0000-0000-000000000005',
+  'How a Professional Website Drives Real Business Growth in Canada',
+  'professional-website-business-growth-canada',
+  'A great website doesn''t just look good — it generates leads, builds trust, and converts visitors into customers. Here''s what separates a website that performs from one that just exists.',
+  $p5$## Your Website Is Either Working or It Isn't
 
 Most Canadian businesses fall into one of two categories: those whose website is actively generating leads and revenue, and those whose website is essentially a digital brochure — present, but not performing.
 
@@ -480,23 +485,28 @@ Getting found on Google is part of the equation too. Read our guide on [local SE
 
 ## Your Website Should Be Working Harder
 
-Graphxify designs and builds websites for Canadian businesses that are built to convert — not just to exist. [View our work](/works) to see how we approach performance and conversion, or [get in touch to discuss what your website should be doing for your business.](/contact)`
-  },
-  {
-    id: "p6",
-    title: "Local SEO for Canadian Businesses: Getting Found on Google in Your City",
-    slug: "local-seo-canadian-businesses-getting-found-google",
-    excerpt: "Most Canadian businesses leave enormous amounts of revenue on the table because potential customers can't find them on Google. Here's a clear, actionable local SEO strategy for 2026.",
-    category: "Digital Strategy",
-    cover_image_url: "/assets/post-3.svg",
-    created_at: "2025-12-18",
-    author_name: "Graphxify Team",
-    author_role: "Digital Strategy & SEO",
-    author_bio: "Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.",
-    tags: ["Local SEO", "Digital Strategy", "Canada", "Google", "Toronto", "Mississauga"],
-    seo_title: "Local SEO for Canadian Businesses: Getting Found on Google | Graphxify",
-    seo_description: "Learn a proven local SEO strategy for Canadian businesses in Toronto, Mississauga, and across Ontario. Get found on Google for the searches that drive real revenue.",
-    content: `## Why Local SEO Is the Highest-ROI Digital Investment for Canadian Businesses
+Graphxify designs and builds websites for Canadian businesses that are built to convert — not just to exist. [View our work](/works) to see how we approach performance and conversion, or [get in touch to discuss what your website should be doing for your business.](/contact)$p5$,
+  'Business Growth',
+  'Graphxify Team',
+  'Growth Strategy & Web',
+  'Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.',
+  ARRAY['Business Growth', 'Website ROI', 'Lead Generation', 'Canada', 'Conversion'],
+  'How a Professional Website Drives Business Growth in Canada | Graphxify',
+  'Discover how a professionally designed website drives leads, conversions, and revenue for Canadian businesses. Real strategies from a Canadian web design agency.',
+  '/assets/post-2.svg',
+  NULL,
+  'published',
+  '2026-01-10T00:00:00Z',
+  '2026-01-10T00:00:00Z'
+),
+
+-- Post 6: Local SEO for Canadian Businesses
+(
+  'a1000000-0000-0000-0000-000000000006',
+  'Local SEO for Canadian Businesses: Getting Found on Google in Your City',
+  'local-seo-canadian-businesses-getting-found-google',
+  'Most Canadian businesses leave enormous amounts of revenue on the table because potential customers can''t find them on Google. Here''s a clear, actionable local SEO strategy for 2026.',
+  $p6$## Why Local SEO Is the Highest-ROI Digital Investment for Canadian Businesses
 
 When a potential customer in Mississauga searches "web design agency near me" or a restaurant owner in Toronto searches "business logo design Toronto," they're expressing explicit buying intent. They want a service. They're actively looking for a provider. The businesses that appear at the top of those results get the call.
 
@@ -592,6 +602,19 @@ Local SEO only works if the website it points to converts visitors into leads. F
 
 ## Need a Website That Ranks and Converts?
 
-Graphxify builds websites for Canadian businesses that are technically optimized for search from day one — fast, mobile-first, and structured for Google. We also offer [full digital strategy services](/services) including SEO foundation setup, content planning, and Google Business Profile optimization. [Start the conversation with our team.](/contact)`
-  }
-];
+Graphxify builds websites for Canadian businesses that are technically optimized for search from day one — fast, mobile-first, and structured for Google. We also offer [full digital strategy services](/services) including SEO foundation setup, content planning, and Google Business Profile optimization. [Start the conversation with our team.](/contact)$p6$,
+  'Digital Strategy',
+  'Graphxify Team',
+  'Digital Strategy & SEO',
+  'Graphxify is a Canadian web design and branding agency helping businesses across Toronto, Mississauga, and Canada build high-performance digital platforms.',
+  ARRAY['Local SEO', 'Digital Strategy', 'Canada', 'Google', 'Toronto', 'Mississauga'],
+  'Local SEO for Canadian Businesses: Getting Found on Google | Graphxify',
+  'Learn a proven local SEO strategy for Canadian businesses in Toronto, Mississauga, and across Ontario. Get found on Google for the searches that drive real revenue.',
+  '/assets/post-3.svg',
+  NULL,
+  'published',
+  '2025-12-18T00:00:00Z',
+  '2025-12-18T00:00:00Z'
+)
+
+ON CONFLICT (slug) DO NOTHING;

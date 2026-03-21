@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { BLOG_CATEGORIES } from "@/lib/blog";
+import { BLOG_CATEGORIES, RELATED_SERVICE_OPTIONS } from "@/lib/blog";
+
+const RELATED_SERVICE_VALUES = RELATED_SERVICE_OPTIONS.map((o) => o.value) as [string, ...string[]];
 
 const imageUrlSchema = z
   .string()
@@ -100,6 +102,8 @@ export const postSchema = z.object({
   seoTitle: z.string().trim().max(180).optional().or(z.literal("")),
   seoDescription: z.string().trim().max(320).optional().or(z.literal("")),
   coverImageUrl: imageUrlSchema.optional().or(z.literal("")),
+  relatedService: z.enum(RELATED_SERVICE_VALUES as [string, ...string[]]).optional().or(z.literal("")),
+  readTimeOverride: z.coerce.number().int().min(1).max(120).optional(),
   status: z.enum(["draft", "review", "published"])
 }).superRefine((value, ctx) => {
   if (value.status !== "published") {

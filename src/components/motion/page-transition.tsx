@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * CMS page transition — instant passthrough.
  *

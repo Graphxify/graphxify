@@ -10,8 +10,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { getDashboardPosts } from "@/db/queries/posts";
 import { requirePermission } from "@/lib/auth/requireRole";
 
-
-
 function statusVariant(status: string) {
   if (status === "published") return "success" as const;
   if (status === "draft" || status === "review") return "warning" as const;
@@ -30,13 +28,12 @@ export default async function DashboardPostsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const permissionCheck = requirePermission("content.posts.edit_own");
   const resolvedSearchParams = await searchParams;
   const page = Number(resolvedSearchParams.page ?? 1);
   const search = typeof resolvedSearchParams.q === "string" ? resolvedSearchParams.q : "";
   const status = typeof resolvedSearchParams.status === "string" ? resolvedSearchParams.status : "";
   const [, result] = await Promise.all([
-    permissionCheck,
+    requirePermission("content.posts.edit_own"),
     getDashboardPosts(page, 10, search, status)
   ]);
 

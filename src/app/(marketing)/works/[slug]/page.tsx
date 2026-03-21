@@ -801,33 +801,64 @@ function getProjectTimeline(project: ProjectDetail): string {
   return found?.value ?? String(project.year);
 }
 
+const SERVICE_ROUTE_MAP: Record<string, string> = {
+  "Brand Identity": "/services/brand-systems",
+  "Design System": "/services/brand-systems",
+  "Branding": "/services/brand-systems",
+  "Website Design": "/services/web-design",
+  "Web Design": "/services/web-design",
+  "UI/UX": "/services/web-design",
+  "UX Strategy": "/services/web-design",
+  "Web Development": "/services/web-development",
+  "CMS Architecture": "/services/cms-architecture"
+};
+
 function ProjectInfoRail({ project }: { project: ProjectDetail }): JSX.Element {
   const platformValue =
     project.scope.find(({ label }) => label.toLowerCase() === "platform")?.value ??
     (project.tools.length > 0 ? project.tools[0] : "Web");
 
-  const infoItems = [
-    { label: "Industry", value: project.industry },
-    {
-      label: "Services",
-      value:
-        project.services.length > 0
-          ? project.services.slice(0, 3).join(", ")
-          : "Brand and Web"
-    },
-    { label: "Platform", value: platformValue },
-    { label: "Timeline", value: getProjectTimeline(project) },
-    { label: "Location", value: "Canada" }
-  ];
+  const services = project.services.length > 0 ? project.services.slice(0, 3) : ["Brand and Web"];
 
   return (
     <div className="grid grid-cols-2 gap-x-5 gap-y-5 rounded-xl border border-border/14 bg-bg/42 px-5 py-5 sm:grid-cols-3 md:px-7 md:py-6 lg:grid-cols-5">
-      {infoItems.map(({ label, value }) => (
-        <div key={label}>
-          <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">{label}</p>
-          <p className="mt-1.5 text-sm leading-snug text-fg/76">{value}</p>
+      <div>
+        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Industry</p>
+        <p className="mt-1.5 text-sm leading-snug text-fg/76">{project.industry}</p>
+      </div>
+      <div>
+        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Services</p>
+        <div className="mt-1.5 flex flex-wrap gap-x-1.5 gap-y-1">
+          {services.map((svc, i) => {
+            const route = SERVICE_ROUTE_MAP[svc];
+            return route ? (
+              <Link
+                key={svc}
+                href={route}
+                className="text-sm leading-snug text-accentA/80 underline-offset-2 hover:text-accentA hover:underline"
+              >
+                {svc}{i < services.length - 1 ? "," : ""}
+              </Link>
+            ) : (
+              <span key={svc} className="text-sm leading-snug text-fg/76">
+                {svc}{i < services.length - 1 ? "," : ""}
+              </span>
+            );
+          })}
         </div>
-      ))}
+      </div>
+      <div>
+        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Platform</p>
+        <p className="mt-1.5 text-sm leading-snug text-fg/76">{platformValue}</p>
+      </div>
+      <div>
+        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Timeline</p>
+        <p className="mt-1.5 text-sm leading-snug text-fg/76">{getProjectTimeline(project)}</p>
+      </div>
+      <div>
+        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Location</p>
+        <p className="mt-1.5 text-sm leading-snug text-fg/76">Canada</p>
+      </div>
     </div>
   );
 }

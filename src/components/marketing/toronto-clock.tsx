@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 export function TorontoClock(): JSX.Element {
   const formatter = useMemo(
@@ -15,19 +15,22 @@ export function TorontoClock(): JSX.Element {
     []
   );
 
-  const [time, setTime] = useState<string | null>(null);
+  const spanRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    setTime(formatter.format(new Date()));
-    const id = setInterval(() => {
-      setTime(formatter.format(new Date()));
-    }, 1000);
+    const update = () => {
+      if (spanRef.current) {
+        spanRef.current.textContent = `Toronto ${formatter.format(new Date())}`;
+      }
+    };
+    update();
+    const id = setInterval(update, 1000);
     return () => clearInterval(id);
   }, [formatter]);
 
   return (
-    <span aria-label="Toronto live time" suppressHydrationWarning>
-      Toronto {time ?? "--:--:--"}
+    <span ref={spanRef} aria-label="Toronto live time" suppressHydrationWarning>
+      Toronto --:--:--
     </span>
   );
 }

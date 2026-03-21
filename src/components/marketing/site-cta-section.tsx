@@ -47,7 +47,7 @@ export function SiteCtaSection({ className }: { className?: string }): JSX.Eleme
   }, [charIndex, direction]);
 
   useEffect(() => {
-    if (reducedMotion) {
+    if (reducedMotion || !window.matchMedia("(pointer: fine) and (min-width: 1024px)").matches) {
       magneticX.set(0);
       magneticY.set(0);
       return;

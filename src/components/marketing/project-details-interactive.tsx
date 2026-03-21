@@ -439,7 +439,7 @@ export function GridFeatureTransform({ project }: { project: ProjectDetail }): J
               data-index={index}
               initial={{ opacity: 0, y: 16, scale: 0.995 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: false, margin: "-20% 0px -20% 0px" }}
+              viewport={{ once: true, margin: "-20% 0px -20% 0px" }}
               transition={{ duration: 0.44, ease: EASE }}
               className={cn("transition-opacity duration-200", active ? "opacity-100" : "opacity-82")}
             >
