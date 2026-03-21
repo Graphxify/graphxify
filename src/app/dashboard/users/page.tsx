@@ -3,9 +3,11 @@ import { Eye, Search, Users } from "lucide-react";
 import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
 import { AddUserDialog } from "@/app/dashboard/users/add-user-dialog";
 import {
+  copyMagicLinkAction,
   createUserInviteAction,
   createUserWithPasswordAction,
   deleteUserAction,
+  sendMagicLinkEmailAction,
   sendPasswordResetEmailAction,
   setUserStatusAction,
   updateUserRoleAction
@@ -218,8 +220,11 @@ export default async function DashboardUsersPage({
                               currentRole={user.role}
                               currentStatus={user.status}
                               isSelf={isSelf}
+                              canManageMagicLinks={actor.role === "admin"}
                               roles={roleOptions.map((roleOption) => roleOption.slug)}
                               updateRoleAction={updateUserRoleAction}
+                              copyMagicLinkAction={copyMagicLinkAction}
+                              sendMagicLinkAction={sendMagicLinkEmailAction}
                               sendPasswordResetAction={sendPasswordResetEmailAction}
                               setStatusAction={setUserStatusAction}
                               deleteAction={deleteUserAction}

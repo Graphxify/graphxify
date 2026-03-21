@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { MoreHorizontal, Loader2 } from "lucide-react";
+import { MoreHorizontal, Loader2, Copy, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,8 +25,11 @@ type UserActionsProps = {
   currentRole: string;
   currentStatus: string;
   isSelf: boolean;
+  canManageMagicLinks: boolean;
   roles: string[];
   updateRoleAction: (formData: FormData) => Promise<void>;
+  copyMagicLinkAction: (formData: FormData) => Promise<{ ok: boolean; message: string; url?: string }>;
+  sendMagicLinkAction: (formData: FormData) => Promise<{ ok: boolean; message: string; url?: string }>;
   sendPasswordResetAction: (formData: FormData) => Promise<void>;
   setStatusAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
@@ -41,8 +44,11 @@ export function UserActionsDropdown({
   currentRole,
   currentStatus,
   isSelf,
+  canManageMagicLinks,
   roles,
   updateRoleAction,
+  copyMagicLinkAction,
+  sendMagicLinkAction,
   sendPasswordResetAction,
   setStatusAction,
   deleteAction
@@ -65,6 +71,43 @@ export function UserActionsDropdown({
     });
   }
 
+  function buildFormData(data: Record<string, string>) {
+    const fd = new FormData();
+    for (const [key, value] of Object.entries(data)) {
+      fd.append(key, value);
+    }
+    return fd;
+  }
+
+  function handleCopyMagicLink() {
+    startTransition(async () => {
+      const result = await copyMagicLinkAction(buildFormData({ userId }));
+      if (!result.ok || !result.url) {
+        toast.error(result.message || "Failed to generate magic link.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(result.url);
+        toast.success("Magic link copied to clipboard.");
+      } catch {
+        window.prompt("Copy the magic link below:", result.url);
+        toast.success("Magic link generated.");
+      }
+    });
+  }
+
+  function handleSendMagicLink() {
+    startTransition(async () => {
+      const result = await sendMagicLinkAction(buildFormData({ userId }));
+      if (!result.ok) {
+        toast.error(result.message || "Failed to send magic link.");
+        return;
+      }
+      toast.success(result.message);
+    });
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -84,6 +127,20 @@ export function UserActionsDropdown({
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />
+
+          {canManageMagicLinks ? (
+            <>
+              <DropdownMenuItem onClick={handleSendMagicLink}>
+                <Send className="mr-2 h-4 w-4" />
+                Send Magic Link
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleCopyMagicLink}>
+                <Copy className="mr-2 h-4 w-4" />
+                Copy Magic Link
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+            </>
+          ) : null}
 
           <DropdownMenuItem
             onClick={() => handleAction(sendPasswordResetAction, { userId }, "Password reset email sent")}

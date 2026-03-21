@@ -29,6 +29,8 @@ export type AuditAction =
   | "user.disabled"
   | "user.enabled"
   | "user.password_reset_email"
+  | "user.magic_link_copied"
+  | "user.magic_link_sent"
   | "user.force_password_reset"
   | "user.force_logout"
   | "user.permissions_change"

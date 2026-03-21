@@ -17,7 +17,7 @@ import {
 } from "@/lib/auth/roles";
 import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/provider";
-import { passwordResetTemplate, userInvitationTemplate } from "@/lib/email/templates";
+import { magicLinkTemplate, passwordResetTemplate, userInvitationTemplate } from "@/lib/email/templates";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
@@ -38,6 +38,9 @@ type TargetProfile = {
 type WriteClient = ReturnType<typeof createClient> | NonNullable<ReturnType<typeof createAdminClient>>;
 export type CreateUserResult =
   | { ok: true; mode: "invite" | "manual"; message: string; userId: string }
+  | { ok: false; message: string };
+export type MagicLinkActionResult =
+  | { ok: true; message: string; url?: string }
   | { ok: false; message: string };
 
 /* ── Helpers ── */
@@ -173,6 +176,56 @@ function revalidateUserViews(userId?: string): void {
   if (userId) {
     revalidatePath(`/dashboard/users/${userId}`);
   }
+}
+
+function resolveMagicLinkNextPath(target: Pick<TargetProfile, "status" | "force_password_reset">): string {
+  if (target.status === "pending_invite") {
+    return "/reset-password?invite=1";
+  }
+  if (target.force_password_reset) {
+    return "/reset-password?forced=1";
+  }
+  return "/dashboard";
+}
+
+async function createMagicLinkForUser(userId: string): Promise<{ target: TargetProfile; magicLink: string; nextPath: string }> {
+  const admin = createAdminClient();
+  if (!admin) {
+    throw new Error("Service role key is required to generate magic links");
+  }
+
+  const client = getWriteClient();
+  const target = await getTargetProfile(client, userId);
+
+  if (target.status === "disabled") {
+    throw new Error("Cannot generate a magic link for a disabled account");
+  }
+
+  const nextPath = resolveMagicLinkNextPath(target);
+  const redirectTo = buildCallbackUrl(env.NEXT_PUBLIC_SITE_URL, nextPath);
+  const { data, error } = await admin.auth.admin.generateLink({
+    type: "magiclink",
+    email: target.email,
+    options: {
+      redirectTo,
+      data: {
+        full_name: target.display_name || undefined,
+        display_name: target.display_name || undefined,
+        role: target.role
+      }
+    }
+  });
+
+  if (error) {
+    throw new Error(error.message || "Failed to generate magic link");
+  }
+
+  const magicLink = data.properties?.action_link;
+  if (!magicLink) {
+    throw new Error("Magic link was not returned by Supabase");
+  }
+
+  return { target, magicLink, nextPath };
 }
 
 async function upsertManagedProfile(
@@ -639,6 +692,70 @@ export async function sendPasswordResetEmailAction(formData: FormData): Promise<
   void sendEmail({ to: target.email, ...resetTemplate });
 
   revalidateUserViews(userId);
+}
+
+export async function copyMagicLinkAction(formData: FormData): Promise<MagicLinkActionResult> {
+  try {
+    const actor = await requireRole(["admin"]);
+    const userId = String(formData.get("userId") || "");
+
+    if (!userId) throw new Error("User id is required");
+
+    const { target, magicLink, nextPath } = await createMagicLinkForUser(userId);
+
+    await logAuditEvent({
+      actorId: actor.id,
+      actorEmail: actor.email,
+      actorRole: actor.role,
+      action: "user.magic_link_copied",
+      entityType: "profile",
+      entityId: userId,
+      metadata: { target_email: target.email, next_path: nextPath }
+    });
+
+    return { ok: true, message: "Magic link generated.", url: magicLink };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to generate magic link";
+    logger.error("Magic link copy failed", { error: message });
+    return { ok: false, message };
+  }
+}
+
+export async function sendMagicLinkEmailAction(formData: FormData): Promise<MagicLinkActionResult> {
+  try {
+    const actor = await requireRole(["admin"]);
+    const userId = String(formData.get("userId") || "");
+
+    if (!userId) throw new Error("User id is required");
+
+    const { target, magicLink, nextPath } = await createMagicLinkForUser(userId);
+    const emailTemplate = magicLinkTemplate({
+      recipientName: target.display_name,
+      recipientEmail: target.email,
+      magicLink
+    });
+    const emailResult = await sendEmail({ to: target.email, ...emailTemplate });
+
+    if (!emailResult.ok) {
+      throw new Error(emailResult.error || "Failed to send magic link email");
+    }
+
+    await logAuditEvent({
+      actorId: actor.id,
+      actorEmail: actor.email,
+      actorRole: actor.role,
+      action: "user.magic_link_sent",
+      entityType: "profile",
+      entityId: userId,
+      metadata: { target_email: target.email, next_path: nextPath }
+    });
+
+    return { ok: true, message: `Magic link sent to ${target.email}.` };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to send magic link";
+    logger.error("Magic link send failed", { error: message });
+    return { ok: false, message };
+  }
 }
 
 export async function forcePasswordResetAction(formData: FormData): Promise<void> {

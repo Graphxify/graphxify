@@ -238,6 +238,38 @@ export function passwordResetTemplate(input: {
   };
 }
 
+/* ── Magic Link ── */
+
+export function magicLinkTemplate(input: {
+  recipientName: string | null;
+  recipientEmail: string;
+  magicLink: string;
+}) {
+  const name = input.recipientName?.trim() || input.recipientEmail.split("@")[0];
+  const body = `
+    ${h2("Your Graphxify Magic Link")}
+    <p style="margin:0 0 16px;font-size:14px;color:${TEXT_COLOR};line-height:1.6;">
+      Hi <strong>${escapeHtml(name)}</strong>,
+    </p>
+    <p style="margin:0 0 16px;font-size:14px;color:${TEXT_COLOR};line-height:1.6;">
+      An administrator generated a secure sign-in link for your Graphxify CMS account.
+    </p>
+    <p style="margin:0 0 8px;font-size:14px;color:${TEXT_COLOR};line-height:1.6;">
+      Use the button below to continue:
+    </p>
+    ${ctaButton("Log In to Graphxify", escapeHtml(input.magicLink))}
+    <p style="margin:0;font-size:12px;color:${MUTED_COLOR};">
+      If you did not expect this email, you can safely ignore it.
+    </p>
+  `;
+
+  return {
+    subject: "Your Graphxify magic link",
+    text: `Hi ${name},\n\nAn administrator generated a secure sign-in link for your Graphxify CMS account.\n\nLog in here: ${input.magicLink}`,
+    html: baseLayout("Magic Link", body)
+  };
+}
+
 /* ── Content Publish Notification ── */
 
 export function publishNotificationTemplate(input: {
