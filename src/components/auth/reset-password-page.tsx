@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, AlertTriangle } from "lucide-react";
@@ -18,7 +18,6 @@ type ResetPasswordPageProps = {
 
 export function ResetPasswordPage({ forced = false, invite = false }: ResetPasswordPageProps): JSX.Element {
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -36,6 +35,7 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
 
     async function initializeSession() {
       try {
+        const supabase = createClient();
         await supabase.auth.getSession();
       } finally {
         if (mounted) {
@@ -49,7 +49,7 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
     return () => {
       mounted = false;
     };
-  }, [supabase]);
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,6 +73,7 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
     }
 
     try {
+      const supabase = createClient();
       const { error: updateError } = await supabase.auth.updateUser({ password });
 
       if (updateError) {
