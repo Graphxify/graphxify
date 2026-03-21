@@ -9,8 +9,7 @@ function warnMissing(name: string): void {
   }
 }
 
-function readClientEnv(name: string, fallback = ""): string {
-  const value = process.env[name];
+function readClientEnv(value: string | undefined, name: string, fallback = ""): string {
   if (!value) {
     warnMissing(name);
     return fallback;
@@ -19,7 +18,19 @@ function readClientEnv(name: string, fallback = ""): string {
 }
 
 export const clientEnv = {
-  NEXT_PUBLIC_SUPABASE_URL: readClientEnv("NEXT_PUBLIC_SUPABASE_URL", "https://cajxvhcrfgpyyqohlkfp.supabase.co"),
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: readClientEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", ""),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: readClientEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "")
+  NEXT_PUBLIC_SUPABASE_URL: readClientEnv(
+    process.env.NEXT_PUBLIC_SUPABASE_URL,
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "https://cajxvhcrfgpyyqohlkfp.supabase.co"
+  ),
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: readClientEnv(
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
+    ""
+  ),
+  NEXT_PUBLIC_SUPABASE_ANON_KEY: readClientEnv(
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+    ""
+  )
 } as const;
