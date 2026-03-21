@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, AlertTriangle } from "lucide-react";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { createClient } from "@/lib/supabase/browser";
@@ -11,15 +11,16 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
-export function ResetPasswordPage(): JSX.Element {
+type ResetPasswordPageProps = {
+  forced?: boolean;
+  invite?: boolean;
+};
+
+export function ResetPasswordPage({ forced = false, invite = false }: ResetPasswordPageProps): JSX.Element {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
-
-  const forced = searchParams.get("forced") === "1";
-  const invite = searchParams.get("invite") === "1";
 
   const title = invite ? "Create Your Password" : "Set New Password";
   const description = invite
