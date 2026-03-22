@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { publicLeadSchema } from "@/lib/validation/schemas";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
+type NotificationState = { status: "sent" | "disabled" | "skipped" | "failed" };
+type LeadSubmitResponse = { id: string; notification?: NotificationState };
 
 const SERVICE_OPTIONS = [
   { key: "brand-systems", label: "Brand Systems" },
@@ -69,15 +71,17 @@ export function LeadForm(): JSX.Element {
     setLoading(true);
 
     try {
-      const result = await submitJsonForm<{ id: string }>("/api/leads", parsed.data);
+      const result = await submitJsonForm<LeadSubmitResponse>("/api/leads", parsed.data);
 
       if (result.success) {
+        const notificationStatus = result.data?.notification?.status;
+        const hasWarning = notificationStatus === "failed" || notificationStatus === "skipped";
         form.reset();
         setSelectedService("");
         setModal({
           open: true,
-          type: "success",
-          title: "Message Sent Successfully",
+          type: hasWarning ? "error" : "success",
+          title: hasWarning ? "Inquiry Saved With Warning" : "Message Sent Successfully",
           message: result.message
         });
       } else if (result.fieldErrors && Object.keys(result.fieldErrors).length > 0) {

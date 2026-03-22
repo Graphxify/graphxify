@@ -1,10 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { createLead } from "@/services/lead-service";
+import { createLead, type LeadNotificationResult } from "@/services/lead-service";
 import { formError, formSuccess, fieldErrorsFromZod } from "@/lib/forms/shared";
 import { rateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
 import { publicLeadSchema } from "@/lib/validation/schemas";
+
+function getLeadResponseMessage(notification: LeadNotificationResult): string {
+  if (notification.status === "failed" || notification.status === "skipped") {
+    return "Your inquiry was saved, but our team notification email could not be delivered right now. Please contact us directly if your request is urgent.";
+  }
+
+  return "Thanks for reaching out. Your inquiry has been received.";
+}
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
@@ -31,8 +39,16 @@ export async function POST(request: NextRequest) {
     const result = await createLead(parsed.data);
     revalidatePath("/dashboard/leads");
     return NextResponse.json(
-      formSuccess("Thanks for reaching out. Your inquiry has been received.", { id: result.id }),
-      { status: 201 }
+      formSuccess(getLeadResponseMessage(result.notification), {
+        id: result.id,
+        notification: result.notification
+      }),
+      {
+        status:
+          result.notification.status === "failed" || result.notification.status === "skipped"
+            ? 202
+            : 201
+      }
     );
   } catch (error) {
     logger.error("Lead create failed", {

@@ -10,6 +10,7 @@ import { isNotificationEnabled } from "@/lib/email/notification-settings";
 import { publishNotificationTemplate } from "@/lib/email/templates";
 import { normalizeBlogCategory } from "@/lib/blog";
 import { env } from "@/lib/env";
+import { logger } from "@/lib/logger";
 import { getProjectPathSlug } from "@/lib/project-card-content";
 import { postSchema, workSchema } from "@/lib/validation/schemas";
 
@@ -310,7 +311,14 @@ async function notifyPublish(type: PublishContentType, title: string, slug: stri
     slug,
     publishedAt: new Date().toISOString()
   });
-  void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+  const result = await sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+  if (!result.ok) {
+    logger.error("Publish notification email failed", {
+      type,
+      slug,
+      reason: result.error || "SMTP delivery failed."
+    });
+  }
 }
 
 export async function createOrUpdatePost(params: { id?: string; formData: FormData }): Promise<{ id: string }> {

@@ -11,6 +11,8 @@ import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/
 import { publicReviewSchema } from "@/lib/validation/schemas";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
+type NotificationState = { status: "sent" | "disabled" | "skipped" | "failed" };
+type ReviewSubmitResponse = { notification?: NotificationState };
 
 const FIELD_CLASS =
   "h-12 rounded-xl border-border/18 bg-bg/62 px-4 text-sm placeholder:text-fg/32 placeholder:opacity-100";
@@ -100,16 +102,18 @@ export function ReviewForm(): JSX.Element {
     setLoading(true);
 
     try {
-      const result = await submitJsonForm("/api/reviews", parsed.data);
+      const result = await submitJsonForm<ReviewSubmitResponse>("/api/reviews", parsed.data);
 
       if (result.success) {
+        const notificationStatus = result.data?.notification?.status;
+        const hasWarning = notificationStatus === "failed" || notificationStatus === "skipped";
         form.reset();
         setCharCount(0);
         setRating(5);
         setModal({
           open: true,
-          type: "success",
-          title: "Review Submitted",
+          type: hasWarning ? "error" : "success",
+          title: hasWarning ? "Review Saved With Warning" : "Review Submitted",
           message: result.message
         });
       } else if (result.fieldErrors && Object.keys(result.fieldErrors).length > 0) {

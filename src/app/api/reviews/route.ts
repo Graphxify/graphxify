@@ -10,6 +10,12 @@ import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { rateLimit } from "@/lib/rate-limit";
 
+type ReviewNotificationResult =
+  | { status: "sent" }
+  | { status: "disabled" }
+  | { status: "skipped"; reason: string }
+  | { status: "failed"; reason: string };
+
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
 
@@ -59,21 +65,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fire-and-forget: notify owner — does not block the response
-    void (async () => {
-      try {
-        if (env.OWNER_NOTIFY_EMAIL && await isNotificationEnabled("notify_review_submissions")) {
-          const template = reviewSubmissionTemplate({ name, role: roleDisplay, quote, rating: rating ?? 5 });
-          void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
-        }
-      } catch (err) {
-        logger.error("Email notification failed for review", { error: err instanceof Error ? err.message : "unknown" });
+    let notification: ReviewNotificationResult = { status: "disabled" };
+
+    try {
+      const enabled = await isNotificationEnabled("notify_review_submissions");
+      if (!enabled) {
+        notification = { status: "disabled" };
+      } else if (!env.OWNER_NOTIFY_EMAIL) {
+        notification = { status: "skipped", reason: "OWNER_NOTIFY_EMAIL is not configured." };
+      } else {
+        const template = reviewSubmissionTemplate({ name, role: roleDisplay, quote, rating: rating ?? 5 });
+        const emailResult = await sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+        notification = emailResult.ok
+          ? { status: "sent" }
+          : { status: "failed", reason: emailResult.error || "SMTP delivery failed." };
       }
-    })();
+    } catch (err) {
+      notification = {
+        status: "failed",
+        reason: err instanceof Error ? err.message : "Unknown notification error."
+      };
+    }
+
+    if (notification.status === "failed" || notification.status === "skipped") {
+      logger.error("Email notification failed for review", {
+        route: "api/reviews",
+        reason: notification.reason
+      });
+    }
 
     return NextResponse.json(
-      formSuccess("Thank you. Your review has been submitted and is pending approval."),
-      { status: 201 }
+      formSuccess(
+        notification.status === "failed" || notification.status === "skipped"
+          ? "Your review was submitted, but our team notification email could not be delivered right now."
+          : "Thank you. Your review has been submitted and is pending approval.",
+        { notification }
+      ),
+      {
+        status:
+          notification.status === "failed" || notification.status === "skipped"
+            ? 202
+            : 201
+      }
     );
   } catch (error) {
     logger.error("Review submission error", {

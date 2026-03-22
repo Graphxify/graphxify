@@ -20,6 +20,11 @@ const LEAD_SERVICE_LABELS: Record<string, string> = {
 };
 
 export type PublicLeadInput = z.infer<typeof publicLeadSchema>;
+export type LeadNotificationResult =
+  | { status: "sent" }
+  | { status: "disabled" }
+  | { status: "skipped"; reason: string }
+  | { status: "failed"; reason: string };
 
 function getWriteClient() {
   return createAdminClient() ?? createClient();
@@ -47,7 +52,7 @@ function buildStoredLeadMessage(payload: PublicLeadInput): string {
   return lines.join("\n").slice(0, 2000);
 }
 
-export async function createLead(payload: PublicLeadInput): Promise<{ id: string }> {
+export async function createLead(payload: PublicLeadInput): Promise<{ id: string; notification: LeadNotificationResult }> {
   const parsedPublic = publicLeadSchema.parse(payload);
   const compiledPayload = leadSchema.parse({
     name: parsedPublic.name,
@@ -72,43 +77,61 @@ export async function createLead(payload: PublicLeadInput): Promise<{ id: string
     throw error;
   }
 
-  // Fire-and-forget: audit log + email notification
-  // These are non-critical — don't block the API response
-  void (async () => {
-    try {
-      await logAuditEvent({
-        actorId: null,
-        actorEmail: email,
-        actorRole: "public",
-        action: "lead.create",
-        entityType: "lead",
-        entityId: data.id,
-        metadata: {
-          source: parsedPublic.source,
-          intake_needs: parsedPublic.intakeNeeds,
-          custom_request: parsedPublic.customRequest || null,
-          attachments: attachments ?? []
-        }
-      });
-    } catch (err) {
-      logger.error("Audit log failed for lead", { error: err instanceof Error ? err.message : "unknown" });
-    }
-
-    try {
-      if (env.OWNER_NOTIFY_EMAIL && await isNotificationEnabled("notify_leads")) {
-        const template = leadNotificationTemplate({
-          name,
-          email,
-          message,
-          createdAt: data.created_at,
-          attachments: attachments ?? []
-        });
-        void sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+  try {
+    await logAuditEvent({
+      actorId: null,
+      actorEmail: email,
+      actorRole: "public",
+      action: "lead.create",
+      entityType: "lead",
+      entityId: data.id,
+      metadata: {
+        source: parsedPublic.source,
+        intake_needs: parsedPublic.intakeNeeds,
+        custom_request: parsedPublic.customRequest || null,
+        attachments: attachments ?? []
       }
-    } catch (err) {
-      logger.error("Email notification failed for lead", { error: err instanceof Error ? err.message : "unknown" });
-    }
-  })();
+    });
+  } catch (err) {
+    logger.error("Audit log failed for lead", { error: err instanceof Error ? err.message : "unknown" });
+  }
 
-  return { id: data.id };
+  const notificationType = parsedPublic.source === "contact" ? "notify_contact_form" : "notify_leads";
+  let notification: LeadNotificationResult = { status: "disabled" };
+
+  try {
+    const enabled = await isNotificationEnabled(notificationType);
+    if (!enabled) {
+      notification = { status: "disabled" };
+    } else if (!env.OWNER_NOTIFY_EMAIL) {
+      notification = { status: "skipped", reason: "OWNER_NOTIFY_EMAIL is not configured." };
+    } else {
+      const template = leadNotificationTemplate({
+        name,
+        email,
+        message,
+        createdAt: data.created_at,
+        attachments: attachments ?? []
+      });
+      const emailResult = await sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+      notification = emailResult.ok
+        ? { status: "sent" }
+        : { status: "failed", reason: emailResult.error || "SMTP delivery failed." };
+    }
+  } catch (err) {
+    notification = {
+      status: "failed",
+      reason: err instanceof Error ? err.message : "Unknown notification error."
+    };
+  }
+
+  if (notification.status === "failed" || notification.status === "skipped") {
+    logger.error("Lead notification failed", {
+      leadId: data.id,
+      source: parsedPublic.source,
+      reason: notification.reason
+    });
+  }
+
+  return { id: data.id, notification };
 }

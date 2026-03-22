@@ -35,6 +35,8 @@ import { cn } from "@/lib/utils";
 import { publicLeadSchema } from "@/lib/validation/schemas";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
+type NotificationState = { status: "sent" | "disabled" | "skipped" | "failed" };
+type LeadSubmitResponse = { id: string; notification?: NotificationState };
 
 type HelpOption = {
   key: string;
@@ -296,12 +298,14 @@ export function ContactPageContent(): JSX.Element {
     }
 
     try {
-      const result = await submitJsonForm<{ id: string }>("/api/leads", {
+      const result = await submitJsonForm<LeadSubmitResponse>("/api/leads", {
         ...parsed.data,
         attachments: attachmentUrls
       });
 
       if (result.success) {
+        const notificationStatus = result.data?.notification?.status;
+        const hasWarning = notificationStatus === "failed" || notificationStatus === "skipped";
         form.reset();
         setSelectedNeeds([]);
         setCustomNeed("");
@@ -309,8 +313,8 @@ export function ContactPageContent(): JSX.Element {
         setAttachmentNotice("");
         setModal({
           open: true,
-          type: "success",
-          title: "Inquiry Sent Successfully",
+          type: hasWarning ? "error" : "success",
+          title: hasWarning ? "Inquiry Saved With Warning" : "Inquiry Sent Successfully",
           message: uploadNotice ? `${result.message} ${uploadNotice}` : result.message
         });
       } else if (result.fieldErrors && Object.keys(result.fieldErrors).length > 0) {
