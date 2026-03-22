@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole, type AppProfile } from "@/lib/auth/requireRole";
@@ -91,6 +92,32 @@ function buildMagicLinkRedirectUrl(baseUrl: string, nextPath: string): string {
   const url = new URL("/auth/complete", baseUrl);
   url.searchParams.set("next", nextPath);
   return url.toString();
+}
+
+async function getAppBaseUrl(): Promise<string> {
+  const headerStore = await headers();
+  const origin = headerStore.get("origin");
+  if (origin) {
+    return origin;
+  }
+
+  const forwardedProto = headerStore.get("x-forwarded-proto") ?? "https";
+  const forwardedHost = headerStore.get("x-forwarded-host") ?? headerStore.get("host");
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+
+  const vercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  if (vercelProductionUrl) {
+    return `https://${vercelProductionUrl}`;
+  }
+
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) {
+    return `https://${vercelUrl}`;
+  }
+
+  return env.NEXT_PUBLIC_SITE_URL;
 }
 
 function parseCreateUserFields(formData: FormData) {
@@ -227,7 +254,8 @@ async function createMagicLinkForUser(userId: string): Promise<{ target: TargetP
 
   const nextPath = resolveMagicLinkNextPath(target);
   const verificationType = resolveMagicLinkType(target);
-  const redirectTo = buildMagicLinkRedirectUrl(env.NEXT_PUBLIC_SITE_URL, nextPath);
+  const baseUrl = await getAppBaseUrl();
+  const redirectTo = buildMagicLinkRedirectUrl(baseUrl, nextPath);
   const linkParams =
     verificationType === "recovery"
       ? {
@@ -261,7 +289,7 @@ async function createMagicLinkForUser(userId: string): Promise<{ target: TargetP
     throw new Error("Magic link token was not returned by Supabase");
   }
 
-  const magicLink = buildManagedAuthLink(env.NEXT_PUBLIC_SITE_URL, {
+  const magicLink = buildManagedAuthLink(baseUrl, {
     tokenHash,
     type: returnedType,
     nextPath
@@ -405,7 +433,8 @@ async function applySendPasswordReset(actor: AppProfile, userId: string): Promis
   const client = getWriteClient();
   const target = await getTargetProfile(client, userId);
   const supabase = createClient();
-  const redirectTo = buildCallbackUrl(env.NEXT_PUBLIC_SITE_URL, "/reset-password");
+  const baseUrl = await getAppBaseUrl();
+  const redirectTo = buildCallbackUrl(baseUrl, "/reset-password");
 
   const { error } = await supabase.auth.resetPasswordForEmail(target.email, { redirectTo });
   if (error) throw new Error(error.message || "Unable to send password reset");
@@ -522,7 +551,8 @@ export async function createUserInviteAction(formData: FormData): Promise<Create
     }
 
     let authUserId: string | null = null;
-    const redirectTo = buildCallbackUrl(env.NEXT_PUBLIC_SITE_URL, "/reset-password?invite=1");
+    const baseUrl = await getAppBaseUrl();
+    const redirectTo = buildCallbackUrl(baseUrl, "/reset-password?invite=1");
 
     const inviteResult = await admin.auth.admin.inviteUserByEmail(email, {
       data: { full_name: fullName, display_name: fullName, role },
