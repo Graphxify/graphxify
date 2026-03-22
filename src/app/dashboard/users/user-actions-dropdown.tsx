@@ -85,8 +85,8 @@ export function UserActionsDropdown({
         onSuccess?.();
         toast.success(successMessage);
         router.refresh();
-      } catch {
-        toast.error("Action failed. Please try again.");
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Action failed. Please try again.");
       }
     });
   }

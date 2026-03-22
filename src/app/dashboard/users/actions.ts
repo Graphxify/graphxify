@@ -17,8 +17,6 @@ import {
   type AppRole
 } from "@/lib/auth/roles";
 import { logAuditEvent } from "@/lib/audit";
-import { sendEmail } from "@/lib/email/provider";
-import { magicLinkTemplate, passwordResetTemplate, userInvitationTemplate } from "@/lib/email/templates";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
@@ -117,10 +115,6 @@ function parsePassword(value: FormDataEntryValue | null): string {
     throw new Error("Password must be at least 8 characters");
   }
   return password;
-}
-
-function formatRoleName(role: AppRole): string {
-  return role.charAt(0).toUpperCase() + role.slice(1);
 }
 
 function buildCallbackUrl(baseUrl: string, nextPath: string): string {
@@ -618,6 +612,48 @@ async function applySendPasswordReset(actor: AppProfile, userId: string): Promis
   });
 }
 
+async function applySendManagedMagicLink(actor: AppProfile, userId: string): Promise<{ email: string; nextPath: string }> {
+  const client = getWriteClient();
+  const target = await getTargetProfile(client, userId);
+
+  if (target.status === "disabled") {
+    throw new Error("Cannot send a magic link for a disabled account");
+  }
+
+  const supabase = createClient();
+  const baseUrl = await getAppBaseUrl();
+  const nextPath = resolveMagicLinkNextPath(target);
+  const emailRedirectTo = buildMagicLinkRedirectUrl(baseUrl, nextPath);
+  const { error } = await supabase.auth.signInWithOtp({
+    email: target.email,
+    options: {
+      emailRedirectTo,
+      shouldCreateUser: false,
+      data: {
+        full_name: target.display_name || undefined,
+        display_name: target.display_name || undefined,
+        role: target.role
+      }
+    }
+  });
+
+  if (error) {
+    throw new Error(error.message || "Unable to send magic link");
+  }
+
+  await logAuditEvent({
+    actorId: actor.id,
+    actorEmail: actor.email,
+    actorRole: actor.role,
+    action: "user.magic_link_sent",
+    entityType: "profile",
+    entityId: userId,
+    metadata: { target_email: target.email, next_path: nextPath, delivery: "supabase_auth" }
+  });
+
+  return { email: target.email, nextPath };
+}
+
 async function applyForcePasswordReset(actor: AppProfile, userId: string): Promise<void> {
   const client = getWriteClient();
   const target = await getTargetProfile(client, userId);
@@ -782,21 +818,13 @@ export async function createUserInviteAction(formData: FormData): Promise<Create
       metadata: { invited_email: email, role, status: desiredStatus }
     });
 
-    const inviteTemplate = userInvitationTemplate({
-      inviteeName: fullName,
-      inviteeEmail: email,
-      role: formatRoleName(role),
-      invitedBy: actor.email
-    });
-    void sendEmail({ to: email, ...inviteTemplate });
-
     revalidateUserViews(authUserId);
 
     return {
       ok: true,
       mode: "invite",
       userId: authUserId,
-      message: "Invitation requested. Supabase will send the invite email if Auth email delivery is configured."
+      message: "Invitation email requested through Supabase Auth."
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to send invitation";
@@ -938,12 +966,6 @@ export async function sendPasswordResetEmailAction(formData: FormData): Promise<
 
   await applySendPasswordReset(actor, userId);
 
-  // Also send branded password reset notification
-  const client = getWriteClient();
-  const target = await getTargetProfile(client, userId);
-  const resetTemplate = passwordResetTemplate({ recipientEmail: target.email });
-  void sendEmail({ to: target.email, ...resetTemplate });
-
   revalidateUserViews(userId);
 }
 
@@ -981,29 +1003,9 @@ export async function sendMagicLinkEmailAction(formData: FormData): Promise<Magi
 
     if (!userId) throw new Error("User id is required");
 
-    const { target, magicLink, nextPath } = await createMagicLinkForUser(userId);
-    const emailTemplate = magicLinkTemplate({
-      recipientName: target.display_name,
-      recipientEmail: target.email,
-      magicLink
-    });
-    const emailResult = await sendEmail({ to: target.email, ...emailTemplate });
+    const { email } = await applySendManagedMagicLink(actor, userId);
 
-    if (!emailResult.ok) {
-      throw new Error(emailResult.error || "Failed to send magic link email");
-    }
-
-    await logAuditEvent({
-      actorId: actor.id,
-      actorEmail: actor.email,
-      actorRole: actor.role,
-      action: "user.magic_link_sent",
-      entityType: "profile",
-      entityId: userId,
-      metadata: { target_email: target.email, next_path: nextPath }
-    });
-
-    return { ok: true, message: `Magic link sent to ${target.email}.` };
+    return { ok: true, message: `Supabase auth email sent to ${email}.` };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Failed to send magic link";
     logger.error("Magic link send failed", { error: message });
