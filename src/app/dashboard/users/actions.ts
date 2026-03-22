@@ -194,7 +194,25 @@ function resolveMagicLinkNextPath(target: Pick<TargetProfile, "status" | "force_
   return "/dashboard";
 }
 
-async function createMagicLinkForUser(userId: string): Promise<{ target: TargetProfile; magicLink: string; nextPath: string }> {
+function resolveMagicLinkType(target: Pick<TargetProfile, "status" | "force_password_reset">): "invite" | "recovery" | "magiclink" {
+  if (target.status === "pending_invite") {
+    return "invite";
+  }
+  if (target.force_password_reset) {
+    return "recovery";
+  }
+  return "magiclink";
+}
+
+function buildManagedAuthLink(baseUrl: string, params: { tokenHash: string; type: string; nextPath: string }): string {
+  const url = new URL("/auth/complete", baseUrl);
+  url.searchParams.set("token_hash", params.tokenHash);
+  url.searchParams.set("type", params.type);
+  url.searchParams.set("next", params.nextPath);
+  return url.toString();
+}
+
+async function createMagicLinkForUser(userId: string): Promise<{ target: TargetProfile; magicLink: string; nextPath: string; verificationType: string }> {
   const admin = createAdminClient();
   if (!admin) {
     throw new Error("Service role key is required to generate magic links");
@@ -208,30 +226,48 @@ async function createMagicLinkForUser(userId: string): Promise<{ target: TargetP
   }
 
   const nextPath = resolveMagicLinkNextPath(target);
+  const verificationType = resolveMagicLinkType(target);
   const redirectTo = buildMagicLinkRedirectUrl(env.NEXT_PUBLIC_SITE_URL, nextPath);
-  const { data, error } = await admin.auth.admin.generateLink({
-    type: "magiclink",
-    email: target.email,
-    options: {
-      redirectTo,
-      data: {
-        full_name: target.display_name || undefined,
-        display_name: target.display_name || undefined,
-        role: target.role
-      }
-    }
-  });
+  const linkParams =
+    verificationType === "recovery"
+      ? {
+          type: "recovery" as const,
+          email: target.email,
+          options: {
+            redirectTo
+          }
+        }
+      : {
+          type: verificationType,
+          email: target.email,
+          options: {
+            redirectTo,
+            data: {
+              full_name: target.display_name || undefined,
+              display_name: target.display_name || undefined,
+              role: target.role
+            }
+          }
+        };
+  const { data, error } = await admin.auth.admin.generateLink(linkParams);
 
   if (error) {
     throw new Error(error.message || "Failed to generate magic link");
   }
 
-  const magicLink = data.properties?.action_link;
-  if (!magicLink) {
-    throw new Error("Magic link was not returned by Supabase");
+  const tokenHash = data.properties?.hashed_token;
+  const returnedType = data.properties?.verification_type ?? verificationType;
+  if (!tokenHash) {
+    throw new Error("Magic link token was not returned by Supabase");
   }
 
-  return { target, magicLink, nextPath };
+  const magicLink = buildManagedAuthLink(env.NEXT_PUBLIC_SITE_URL, {
+    tokenHash,
+    type: returnedType,
+    nextPath
+  });
+
+  return { target, magicLink, nextPath, verificationType: returnedType };
 }
 
 async function upsertManagedProfile(

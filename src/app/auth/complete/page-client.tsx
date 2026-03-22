@@ -4,7 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/browser";
 
-export function AuthCompleteClient({ nextPath }: { nextPath: string }) {
+export function AuthCompleteClient({
+  nextPath,
+  tokenHash,
+  verificationType
+}: {
+  nextPath: string;
+  tokenHash: string;
+  verificationType: "magiclink" | "invite" | "recovery";
+}) {
   const [error, setError] = useState("");
 
   const description = useMemo(() => {
@@ -16,24 +24,35 @@ export function AuthCompleteClient({ nextPath }: { nextPath: string }) {
 
     async function completeAuth() {
       try {
-        const hash = typeof window !== "undefined" ? window.location.hash : "";
-        if (!hash) {
-          throw new Error("Missing auth token.");
-        }
-
-        const params = new URLSearchParams(hash.startsWith("#") ? hash.slice(1) : hash);
-        const accessToken = params.get("access_token");
-        const refreshToken = params.get("refresh_token");
-
-        if (!accessToken || !refreshToken) {
-          throw new Error("Magic link is invalid or expired.");
-        }
-
         const supabase = createClient();
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken
-        });
+        let sessionError: Error | null = null;
+
+        if (tokenHash) {
+          const { error } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: verificationType
+          });
+          sessionError = error;
+        } else {
+          const hash = typeof window !== "undefined" ? window.location.hash : "";
+          if (!hash) {
+            throw new Error("Missing auth token.");
+          }
+
+          const params = new URLSearchParams(hash.startsWith("#") ? hash.slice(1) : hash);
+          const accessToken = params.get("access_token");
+          const refreshToken = params.get("refresh_token");
+
+          if (!accessToken || !refreshToken) {
+            throw new Error("Magic link is invalid or expired.");
+          }
+
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          sessionError = error;
+        }
 
         if (sessionError) {
           throw sessionError;
@@ -62,7 +81,7 @@ export function AuthCompleteClient({ nextPath }: { nextPath: string }) {
     return () => {
       cancelled = true;
     };
-  }, [nextPath]);
+  }, [nextPath, tokenHash, verificationType]);
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
