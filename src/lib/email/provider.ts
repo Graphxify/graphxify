@@ -74,12 +74,13 @@ export async function sendEmail(input: SendEmailInput): Promise<{ ok: boolean; e
   const transport = getTransport();
 
   if (!transport) {
+    const error = "SMTP not configured (missing SMTP_HOST/PORT/USER/PASS)";
     logger.info("[Email fallback] SMTP not configured → console", {
       to: input.to,
       subject: input.subject,
       preview: input.text.slice(0, 120)
     });
-    return { ok: true };
+    return { ok: false, error };
   }
 
   try {

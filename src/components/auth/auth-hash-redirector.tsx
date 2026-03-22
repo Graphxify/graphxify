@@ -14,6 +14,10 @@ function getTargetPath(hash: string): string | null {
     return `/reset-password${hash}`;
   }
 
+  if (type === "magiclink") {
+    return `/auth/complete${hash}`;
+  }
+
   return null;
 }
 

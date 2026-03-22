@@ -87,6 +87,12 @@ function buildCallbackUrl(baseUrl: string, nextPath: string): string {
   return url.toString();
 }
 
+function buildMagicLinkRedirectUrl(baseUrl: string, nextPath: string): string {
+  const url = new URL("/auth/complete", baseUrl);
+  url.searchParams.set("next", nextPath);
+  return url.toString();
+}
+
 function parseCreateUserFields(formData: FormData) {
   const fullName = String(formData.get("full_name") || "").trim();
   const email = normalizeEmail(String(formData.get("email") || ""));
@@ -202,7 +208,7 @@ async function createMagicLinkForUser(userId: string): Promise<{ target: TargetP
   }
 
   const nextPath = resolveMagicLinkNextPath(target);
-  const redirectTo = buildCallbackUrl(env.NEXT_PUBLIC_SITE_URL, nextPath);
+  const redirectTo = buildMagicLinkRedirectUrl(env.NEXT_PUBLIC_SITE_URL, nextPath);
   const { data, error } = await admin.auth.admin.generateLink({
     type: "magiclink",
     email: target.email,
