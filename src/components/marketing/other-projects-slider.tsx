@@ -536,7 +536,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
 
       <div className="flex justify-center pt-2">
         <div className="w-fit">
-          <div className="flex items-center justify-center gap-2.5">
+          <div className="flex items-center justify-center gap-3">
             {Array.from({ length: dotCount }).map((_, index) => {
               const active = index === activeDotIndex;
               return (
@@ -547,7 +547,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                   onKeyDown={onDotKeyDown}
                   aria-label={`Go to slide ${index + 1}`}
                   aria-pressed={active}
-                  className="flex items-center justify-center p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  className="flex h-12 w-12 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                 >
                   <span
                     className={cn(

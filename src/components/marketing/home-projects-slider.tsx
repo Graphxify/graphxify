@@ -471,7 +471,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-2 pt-1">
+      <div className="flex items-center justify-center gap-3 pt-1">
         {Array.from({ length: indicatorCount }).map((_, index) => {
           const active = index === activeIndex;
           return (
@@ -481,7 +481,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
               onClick={() => goToSlide(index)}
               aria-label={`Go to project ${index + 1}`}
               aria-pressed={active}
-              className="flex items-center justify-center py-[19px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+              className="flex h-12 w-12 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             >
               <span
                 className={cn(
