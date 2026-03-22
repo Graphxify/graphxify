@@ -10,6 +10,8 @@ import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { rateLimit } from "@/lib/rate-limit";
 
+export const runtime = "nodejs";
+
 type ReviewNotificationResult =
   | { status: "sent" }
   | { status: "disabled" }

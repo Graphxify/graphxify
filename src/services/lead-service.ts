@@ -113,7 +113,11 @@ export async function createLead(payload: PublicLeadInput): Promise<{ id: string
         createdAt: data.created_at,
         attachments: attachments ?? []
       });
-      const emailResult = await sendEmail({ to: env.OWNER_NOTIFY_EMAIL, ...template });
+      const emailResult = await sendEmail({
+        to: env.OWNER_NOTIFY_EMAIL,
+        replyTo: email,
+        ...template
+      });
       notification = emailResult.ok
         ? { status: "sent" }
         : { status: "failed", reason: emailResult.error || "SMTP delivery failed." };

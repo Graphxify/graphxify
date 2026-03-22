@@ -6,6 +6,8 @@ import { rateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
 import { publicLeadSchema } from "@/lib/validation/schemas";
 
+export const runtime = "nodejs";
+
 function getLeadResponseMessage(notification: LeadNotificationResult): string {
   if (notification.status === "failed" || notification.status === "skipped") {
     return "Your inquiry was saved, but our team notification email could not be delivered right now. Please contact us directly if your request is urgent.";

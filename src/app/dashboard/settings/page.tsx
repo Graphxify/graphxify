@@ -1,10 +1,9 @@
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { requireRole } from "@/lib/auth/requireRole";
+import { diagnoseEmailConfiguration } from "@/lib/email/provider";
 import { env } from "@/lib/env";
 import { SettingsClient } from "./settings-client";
 import { loadAllSettings } from "./settings-actions";
-
-
 
 export default async function DashboardSettingsPage() {
   await requireRole(["admin"]);
@@ -17,6 +16,7 @@ export default async function DashboardSettingsPage() {
     from: env.SMTP_FROM || "",
     owner: env.OWNER_NOTIFY_EMAIL || ""
   };
+  const smtpStatus = diagnoseEmailConfiguration(env.OWNER_NOTIFY_EMAIL);
 
   return (
     <section className="space-y-5">
@@ -31,6 +31,7 @@ export default async function DashboardSettingsPage() {
           <SettingsClient
             settings={settings}
             smtpDisplay={smtpDisplay}
+            smtpStatus={smtpStatus}
           />
         </RevealItem>
       </RevealStagger>

@@ -4,6 +4,8 @@ import { testEmailTemplate } from "@/lib/email/templates";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/logger";
 
+export const runtime = "nodejs";
+
 const TEST_RECIPIENT = "info@graphxify.com";
 
 export async function GET() {

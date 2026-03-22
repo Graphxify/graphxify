@@ -30,6 +30,7 @@ import {
 type Props = {
   settings: Record<string, Record<string, unknown>>;
   smtpDisplay: { host: string; port: string; from: string; owner: string };
+  smtpStatus: { ok: boolean; message?: string };
 };
 
 type Tab = "general" | "email" | "security" | "danger";
@@ -258,7 +259,15 @@ function GeneralTab({ settings }: { settings: Record<string, Record<string, unkn
   );
 }
 
-function EmailTab({ settings, smtpDisplay }: { settings: Record<string, Record<string, unknown>>; smtpDisplay: Props["smtpDisplay"] }) {
+function EmailTab({
+  settings,
+  smtpDisplay,
+  smtpStatus
+}: {
+  settings: Record<string, Record<string, unknown>>;
+  smtpDisplay: Props["smtpDisplay"];
+  smtpStatus: Props["smtpStatus"];
+}) {
   const [pending, startTransition] = useTransition();
   const [testPending, startTestTransition] = useTransition();
   const [msg, setMsg] = useState("");
@@ -270,6 +279,11 @@ function EmailTab({ settings, smtpDisplay }: { settings: Record<string, Record<s
     <div className="space-y-5">
       <SectionCard title="SMTP Configuration" icon={Mail} description="Email sending is configured via environment variables.">
         <div className="space-y-3">
+          {!smtpStatus.ok && (
+            <div className="rounded-lg border border-amber-500/25 bg-amber-500/8 px-4 py-3 text-sm text-amber-200">
+              {smtpStatus.message}
+            </div>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             {([
               ["SMTP Host", smtpDisplay.host],
@@ -409,7 +423,7 @@ function DangerZoneTab() {
 
 /* ── Main Component ── */
 
-export function SettingsClient({ settings, smtpDisplay }: Props) {
+export function SettingsClient({ settings, smtpDisplay, smtpStatus }: Props) {
   const [tab, setTab] = useState<Tab>("general");
 
   return (
@@ -443,7 +457,7 @@ export function SettingsClient({ settings, smtpDisplay }: Props) {
       {/* Content */}
       <div className="min-w-0 flex-1">
         {tab === "general" && <GeneralTab settings={settings} />}
-        {tab === "email" && <EmailTab settings={settings} smtpDisplay={smtpDisplay} />}
+        {tab === "email" && <EmailTab settings={settings} smtpDisplay={smtpDisplay} smtpStatus={smtpStatus} />}
         {tab === "security" && <SecurityTab settings={settings} />}
         {tab === "danger" && <DangerZoneTab />}
       </div>
