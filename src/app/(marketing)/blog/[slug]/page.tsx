@@ -24,6 +24,15 @@ type ContentBlock =
   | { type: "code"; lang: string; code: string }
   | { type: "image"; src: string; alt: string; caption?: string };
 
+const SUPABASE_HOST = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+  : "cajxvhcrfgpyyqohlkfp.supabase.co";
+
+const EXTRA_IMAGE_HOSTS = (process.env.NEXT_PUBLIC_IMAGE_DOMAINS || "")
+  .split(",")
+  .map((value) => value.trim().toLowerCase())
+  .filter(Boolean);
+
 function formatDate(value?: string): string {
   if (!value) return "Latest";
   const date = new Date(value);
@@ -33,6 +42,48 @@ function formatDate(value?: string): string {
     day: "numeric",
     year: "numeric"
   });
+}
+
+function canUseNextImage(src: string): boolean {
+  if (src.startsWith("/")) {
+    return true;
+  }
+
+  try {
+    const url = new URL(src);
+    const hostname = url.hostname.toLowerCase();
+    const siteHost = new URL(siteConfig.url).hostname.toLowerCase();
+    return hostname === siteHost || hostname === SUPABASE_HOST || EXTRA_IMAGE_HOSTS.includes(hostname);
+  } catch {
+    return false;
+  }
+}
+
+function PostContentImage({ src, alt }: { src: string; alt: string }): JSX.Element {
+  if (canUseNextImage(src)) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        className="object-cover"
+        sizes="(max-width: 1024px) 100vw, 768px"
+      />
+    );
+  }
+
+  return (
+    // Fallback for arbitrary external image URLs that are not whitelisted in next/image config.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      className="h-full w-full object-cover"
+      loading="lazy"
+      decoding="async"
+      fetchPriority="low"
+    />
+  );
 }
 
 
@@ -244,8 +295,7 @@ function PostContentRenderer({ content }: { content: string }): JSX.Element {
           return (
             <figure key={key} className="overflow-hidden rounded-xl border border-border/16 bg-bg/46">
               <div className="relative aspect-[16/9]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={block.src} alt={block.alt} className="h-full w-full object-cover" loading="lazy" />
+                <PostContentImage src={block.src} alt={block.alt} />
               </div>
               {block.caption ? <figcaption className="px-3 py-2 text-xs text-fg/56">{block.caption}</figcaption> : null}
             </figure>
@@ -506,4 +556,3 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
     </article>
   );
 }
-

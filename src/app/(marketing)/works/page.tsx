@@ -176,7 +176,7 @@ export default async function WorksPage() {
                       src={work.coverImage}
                       alt={displayTitle}
                       fill
-                      priority={index < 3}
+                      priority={index < 2}
                       className="object-cover transition-[transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05] group-hover:brightness-[0.48]"
                       sizes="(max-width: 767px) 100vw, 50vw"
                     />

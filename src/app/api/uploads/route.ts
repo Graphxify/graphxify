@@ -30,6 +30,7 @@ export async function POST(request: NextRequest) {
     const client = admin ?? createClient();
 
     const { data, error } = await client.storage.from("media").upload(filePath, Buffer.from(bytes), {
+      cacheControl: "31536000",
       contentType: file.type || "application/octet-stream",
       upsert: false
     });

@@ -12,6 +12,8 @@ const extraImageHosts = (process.env.NEXT_PUBLIC_IMAGE_DOMAINS || "")
 const nextConfig: NextConfig = {
   images: {
     qualities: [75],
+    formats: ["image/avif", "image/webp"],
+    minimumCacheTTL: 60 * 60 * 24 * 7,
     localPatterns: [
       {
         pathname: "/**"

@@ -71,6 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await admin.storage.from("media").upload(filePath, Buffer.from(bytes), {
+      cacheControl: "31536000",
       contentType: file.type || "application/octet-stream",
       upsert: false
     });

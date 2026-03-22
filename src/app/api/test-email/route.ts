@@ -2,11 +2,10 @@ import { NextResponse } from "next/server";
 import { verifySmtp, sendEmail } from "@/lib/email/provider";
 import { testEmailTemplate } from "@/lib/email/templates";
 import { createClient } from "@/lib/supabase/server";
+import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
-
-const TEST_RECIPIENT = "info@graphxify.com";
 
 export async function GET() {
   // Require authenticated admin
@@ -43,8 +42,9 @@ export async function GET() {
   }
 
   // Step 2: Send test email
+  const recipient = env.OWNER_NOTIFY_EMAIL || "info@graphxify.com";
   const template = testEmailTemplate();
-  const result = await sendEmail({ to: TEST_RECIPIENT, ...template });
+  const result = await sendEmail({ to: recipient, ...template });
 
   if (!result.ok) {
     logger.error("SMTP test failed at send", { error: result.error });
@@ -57,10 +57,10 @@ export async function GET() {
 
   return NextResponse.json({
     success: true,
-    message: `Test email sent successfully to ${TEST_RECIPIENT}`,
+    message: `Test email sent successfully to ${recipient}`,
     smtp: {
       verified: true,
-      recipient: TEST_RECIPIENT
+      recipient
     }
   });
 }
