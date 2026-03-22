@@ -432,7 +432,6 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
         ref={viewportRef}
         className="overflow-hidden rounded-[1rem]"
         role="region"
-        aria-roledescription="carousel"
         aria-label="Other projects"
         tabIndex={0}
         onKeyDown={onKeyDown}
@@ -455,17 +454,14 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
             const displayTitle = getProjectDisplayTitle(item.slug, item.title);
             const pathSlug = getProjectPathSlug(item.slug);
             const isClone = index < cloneCount || index >= cloneCount + totalCards;
-            return (
-              <motion.div
-                key={`${item.slug}-${index}`}
-                className="relative origin-center will-change-transform"
-                style={{ flex: `0 0 ${cardBasis}` }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.985 }}
-                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
-                aria-hidden={isClone ? true : undefined}
-              >
-                {isClone ? (
+            if (isClone) {
+              return (
+                <div
+                  key={`${item.slug}-${index}`}
+                  className="relative origin-center will-change-transform"
+                  style={{ flex: `0 0 ${cardBasis}` }}
+                  aria-hidden="true"
+                >
                   <div className="group block overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)]">
                     <article className="relative h-[16.5rem] overflow-hidden rounded-[1.05rem] md:h-[18.5rem]">
                       <Image
@@ -489,38 +485,49 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                       </span>
                     </article>
                   </div>
-                ) : (
-                  <Link
-                    href={`/works/${pathSlug}`}
-                    aria-label={`Open project ${displayTitle}`}
-                    data-cursor-label="Open"
-                    className="group block overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                  >
-                    <article className="relative h-[16.5rem] overflow-hidden rounded-[1.05rem] md:h-[18.5rem]">
-                      <Image
-                        src={item.coverImage}
-                        alt={displayTitle}
-                        fill
-                        unoptimized={shouldBypassNextImageOptimization(item.coverImage)}
-                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
-                        sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                      />
-                      <span className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
+                </div>
+              );
+            }
 
-                      <span className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
-                        <span className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
-                          {displayTitle}
-                        </span>
-                      </span>
+            return (
+              <motion.div
+                key={`${item.slug}-${index}`}
+                className="relative origin-center will-change-transform"
+                style={{ flex: `0 0 ${cardBasis}` }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.985 }}
+                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <Link
+                  href={`/works/${pathSlug}`}
+                  aria-label={`Open project ${displayTitle}`}
+                  data-cursor-label="Open"
+                  className="group block overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                >
+                  <article className="relative h-[16.5rem] overflow-hidden rounded-[1.05rem] md:h-[18.5rem]">
+                    <Image
+                      src={item.coverImage}
+                      alt={displayTitle}
+                      fill
+                      unoptimized={shouldBypassNextImageOptimization(item.coverImage)}
+                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
+                      sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                    />
+                    <span className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
 
-                      <span className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        <span className="text-[1.45rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.75rem]">
-                          {displayTitle}
-                        </span>
+                    <span className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
+                      <span className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
+                        {displayTitle}
                       </span>
-                    </article>
-                  </Link>
-                )}
+                    </span>
+
+                    <span className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                      <span className="text-[1.45rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.75rem]">
+                        {displayTitle}
+                      </span>
+                    </span>
+                  </article>
+                </Link>
               </motion.div>
             );
           })}
