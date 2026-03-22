@@ -15,7 +15,7 @@ import {
   type PointerEvent,
   type WheelEvent
 } from "react";
-import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
+import { shouldBypassNextImageOptimization, supabasePublicImageLoader } from "@/lib/content-helpers";
 import { cn } from "@/lib/utils";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
@@ -468,7 +468,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                         src={item.coverImage}
                         alt={displayTitle}
                         fill
-                        unoptimized={shouldBypassNextImageOptimization(item.coverImage)}
+                        loader={shouldBypassNextImageOptimization(item.coverImage) ? supabasePublicImageLoader : undefined}
                         className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
                         sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
                       />
@@ -509,7 +509,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                       src={item.coverImage}
                       alt={displayTitle}
                       fill
-                      unoptimized={shouldBypassNextImageOptimization(item.coverImage)}
+                      loader={shouldBypassNextImageOptimization(item.coverImage) ? supabasePublicImageLoader : undefined}
                       className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
                       sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
                     />

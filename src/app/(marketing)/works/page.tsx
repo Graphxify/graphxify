@@ -3,6 +3,7 @@ export const revalidate = 60;
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
 import { getPublishedWorks } from "@/db/queries/works";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
@@ -114,7 +115,9 @@ export default async function WorksPage() {
   const works = await getWorkCards();
 
   return (
-    <section className="pb-16 pt-10 md:pb-20 md:pt-12">
+    <>
+      <ContentRefreshListener pathPrefixes={["/works"]} />
+      <section className="pb-16 pt-10 md:pb-20 md:pt-12">
       {/* ── Hero Header ── */}
       <div className="container">
         <div className="relative mx-auto max-w-4xl text-center">
@@ -249,6 +252,7 @@ export default async function WorksPage() {
           <SiteCtaSection />
         </SectionReveal>
       </div>
-    </section>
+      </section>
+    </>
   );
 }

@@ -4,6 +4,12 @@
  * needs to resolve a displayable image from CMS data.
  */
 
+type SupabaseLoaderParams = {
+    src: string;
+    width: number;
+    quality?: number;
+};
+
 export function normalizeImage(value: string | null | undefined): string | null {
     if (!value) {
         return null;
@@ -54,4 +60,16 @@ export function shouldBypassNextImageOptimization(src: string): boolean {
     } catch {
         return false;
     }
+}
+
+export function supabasePublicImageLoader({ src, width, quality }: SupabaseLoaderParams): string {
+    if (!shouldBypassNextImageOptimization(src)) {
+        return src;
+    }
+
+    const url = new URL(src);
+    url.pathname = url.pathname.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/");
+    url.searchParams.set("width", String(Math.max(1, Math.min(width, 2500))));
+    url.searchParams.set("quality", String(quality ?? 75));
+    return url.toString();
 }

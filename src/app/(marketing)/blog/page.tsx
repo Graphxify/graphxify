@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { BlogPageContent } from "@/components/marketing/blog-page-content";
+import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
 import { getPublishedBlogSummaries } from "@/lib/blog-data";
 import { buildMetadata } from "@/lib/seo";
 
@@ -13,5 +14,10 @@ export const metadata: Metadata = buildMetadata({
 
 export default async function BlogPage() {
   const blogs = await getPublishedBlogSummaries();
-  return <BlogPageContent blogs={blogs} />;
+  return (
+    <>
+      <ContentRefreshListener pathPrefixes={["/blog"]} />
+      <BlogPageContent blogs={blogs} />
+    </>
+  );
 }

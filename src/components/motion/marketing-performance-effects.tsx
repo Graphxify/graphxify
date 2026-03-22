@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useReducedMotion } from "framer-motion";
 import { CursorGlow } from "@/components/motion/cursor-glow";
 import { DeferredEffects } from "@/components/motion/deferred-effects";
 import { ScrollProgress } from "@/components/motion/scroll-progress";
@@ -20,6 +19,7 @@ type IdleWindow = Window & {
 function readCapabilities() {
   if (typeof window === "undefined") {
     return {
+      reducedMotion: false,
       allowShellEffects: false,
       allowCursorGlow: false
     };
@@ -31,19 +31,21 @@ function readCapabilities() {
   const hardwareConcurrency = navigatorHints.hardwareConcurrency ?? 8;
   const finePointer = window.matchMedia("(pointer: fine)").matches;
   const wideViewport = window.matchMedia("(min-width: 1024px)").matches;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  const allowShellEffects = finePointer && wideViewport && !saveData && deviceMemory >= 6 && hardwareConcurrency >= 6;
+  const allowShellEffects = !reducedMotion && finePointer && wideViewport && !saveData && deviceMemory >= 6 && hardwareConcurrency >= 6;
   const allowCursorGlow = allowShellEffects && deviceMemory >= 8 && hardwareConcurrency >= 8;
 
   return {
+    reducedMotion,
     allowShellEffects,
     allowCursorGlow
   };
 }
 
 export function MarketingPerformanceEffects(): JSX.Element | null {
-  const reducedMotion = useReducedMotion();
-  const [{ allowShellEffects, allowCursorGlow }, setCapabilities] = useState(() => ({
+  const [{ reducedMotion, allowShellEffects, allowCursorGlow }, setCapabilities] = useState(() => ({
+    reducedMotion: false,
     allowShellEffects: false,
     allowCursorGlow: false
   }));
@@ -51,7 +53,7 @@ export function MarketingPerformanceEffects(): JSX.Element | null {
 
   useEffect(() => {
     if (reducedMotion) {
-      setCapabilities({ allowShellEffects: false, allowCursorGlow: false });
+      setCapabilities({ reducedMotion: true, allowShellEffects: false, allowCursorGlow: false });
       setReady(false);
       return;
     }

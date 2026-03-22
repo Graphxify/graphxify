@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { ProjectLightboxImage } from "@/components/marketing/project-details-interactive";
 import { OtherProjectsSlider } from "@/components/marketing/other-projects-slider";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
+import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
 import { Button } from "@/components/ui/button";
 import { getPublishedWorks } from "@/db/queries/works";
 import {
@@ -964,6 +965,7 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
 
   return (
     <main className="relative -mt-28 sm:-mt-32 lg:-mt-40">
+        <ContentRefreshListener pathPrefixes={["/works"]} />
         <section className="pointer-events-none sticky top-0 z-0 h-[100svh] overflow-hidden">
           <Image src={project.coverImage} alt={project.title} fill className="object-cover" sizes="100vw" priority unoptimized={shouldBypassNextImageOptimization(project.coverImage)} />
           <div aria-hidden className="absolute inset-0 bg-black/48" />

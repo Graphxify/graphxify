@@ -6,6 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { CopyLinkButton } from "@/components/marketing/copy-link-button";
+import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
 import { JsonLd } from "@/components/seo/json-ld";
 import { estimateReadTime, selectRelatedBlogPosts } from "@/lib/blog";
 import { getPublishedBlogBySlug, getPublishedBlogSummaries } from "@/lib/blog-data";
@@ -373,7 +374,9 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
     .join("");
 
   return (
-    <article className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
+    <>
+      <ContentRefreshListener pathPrefixes={["/blog"]} />
+      <article className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
       <JsonLd
         data={
           blogPostingJsonLd({
@@ -557,6 +560,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
       <SectionReveal className="container mt-10 md:mt-12" effect="zoom">
         <SiteCtaSection />
       </SectionReveal>
-    </article>
+      </article>
+    </>
   );
 }

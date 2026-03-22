@@ -2,22 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronRight, Menu, X, LayoutDashboard } from "lucide-react";
+import { ChevronRight, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
-import { Magnetic } from "@/components/motion/magnetic";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { marketingNav } from "@/lib/constants";
-import { createClient } from "@/lib/supabase/browser";
 import { cn } from "@/lib/utils";
 
 export function MarketingHeader(): JSX.Element {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const centerNav = marketingNav.filter((item) => item.href !== "/contact");
   const isRouteActive = (href: string): boolean =>
     href === "/" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
@@ -33,36 +29,6 @@ export function MarketingHeader(): JSX.Element {
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
-
-  // Cosmetic-only auth state detection for the marketing header.
-  useEffect(() => {
-    try {
-      const supabase = createClient();
-      const syncAuthState = async () => {
-        const { data } = await supabase.auth.getSession();
-        setIsAuthenticated(!!data.session);
-      };
-
-      void syncAuthState();
-
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === "SIGNED_OUT") {
-          setIsAuthenticated(false);
-          return;
-        }
-
-        if (typeof session !== "undefined") {
-          setIsAuthenticated(!!session);
-          return;
-        }
-
-        void syncAuthState();
-      });
-      return () => subscription.unsubscribe();
-    } catch {
-      // Client creation failed — keep button hidden
-    }
-  }, []);
 
   useEffect(() => {
     if (!mobileOpen) {
@@ -121,7 +87,7 @@ export function MarketingHeader(): JSX.Element {
                 <div key={item.href} className={isServices ? "group/services relative" : "relative"}>
                   <Link
                     href={item.href}
-                    prefetch={true}
+                    prefetch={false}
                     className={cn(
                       "group relative rounded-full px-4 py-2.5 text-[0.9rem] font-medium text-fg/72 transition-colors duration-150 hover:-translate-y-[1px] hover:text-fg",
                       active && "text-fg"
@@ -129,13 +95,7 @@ export function MarketingHeader(): JSX.Element {
                   >
                     <span className="absolute inset-[1px] -z-10 scale-95 rounded-full bg-card/84 opacity-0 transition-[opacity,transform] duration-200 group-hover:scale-100 group-hover:opacity-100" />
                     <span className="absolute inset-x-4 bottom-[0.38rem] h-[1.5px] origin-left scale-x-0 rounded-full bg-accent-gradient transition-transform duration-200 group-hover:scale-x-100" />
-                    {active ? (
-                      <motion.span
-                        layoutId="marketing-nav-active-pill"
-                        className="absolute inset-0 -z-10 rounded-full border border-border/24 bg-card/92"
-                        transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                      />
-                    ) : null}
+                    {active ? <span className="absolute inset-0 -z-10 rounded-full border border-border/24 bg-card/92" /> : null}
                     {item.label}
                   </Link>
                   {isServices ? (
@@ -154,7 +114,7 @@ export function MarketingHeader(): JSX.Element {
                             <Link
                               key={sub.href}
                               href={sub.href}
-                              prefetch={true}
+                              prefetch={false}
                               className={cn(
                                 "group/item relative mx-1.5 flex items-center rounded-[0.6rem] px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ease-out",
                                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg",
@@ -195,30 +155,19 @@ export function MarketingHeader(): JSX.Element {
           </nav>
 
           <div className="relative z-10 ml-auto hidden items-center gap-2.5 lg:flex">
-            {isAuthenticated ? (
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-1.5 rounded-full border border-accentA/30 bg-accentA/10 px-3.5 py-1.5 text-xs font-medium text-accentA transition-all duration-200 hover:border-accentA/50 hover:bg-accentA/18 hover:shadow-[0_4px_16px_rgba(0,163,255,0.18)]"
-              >
-                <LayoutDashboard className="h-3.5 w-3.5" />
-                CMS
-              </Link>
-            ) : null}
             <ThemeToggle className="hidden lg:inline-flex" />
-            <Magnetic className="hidden lg:block">
-              <Button
-                asChild
-                size="lg"
-                className={cn(
-                  "rounded-lg border px-6 text-sm text-ivory",
-                  contactActive
-                    ? "border-accentA/55 bg-accent-gradient shadow-[0_12px_26px_rgba(0,128,255,0.22)]"
-                    : "border-border/24 bg-accent-gradient shadow-[0_10px_22px_rgba(13,13,15,0.18)]"
-                )}
-              >
-                <Link href="/contact" prefetch={true}>Contact</Link>
-              </Button>
-            </Magnetic>
+            <Button
+              asChild
+              size="lg"
+              className={cn(
+                "hidden rounded-lg border px-6 text-sm text-ivory lg:inline-flex",
+                contactActive
+                  ? "border-accentA/55 bg-accent-gradient shadow-[0_12px_26px_rgba(0,128,255,0.22)]"
+                  : "border-border/24 bg-accent-gradient shadow-[0_10px_22px_rgba(13,13,15,0.18)]"
+              )}
+            >
+              <Link href="/contact" prefetch={false}>Contact</Link>
+            </Button>
           </div>
 
           <div className="relative z-10 ml-auto flex items-center gap-2 lg:hidden">
@@ -236,114 +185,62 @@ export function MarketingHeader(): JSX.Element {
                   : "border-border/28 bg-card/82 text-fg/75 hover:border-border/45 hover:bg-card hover:text-fg"
               )}
             >
-              <motion.span
-                key={mobileOpen ? "close" : "menu"}
-                initial={{ rotate: mobileOpen ? -35 : 35, opacity: 0, scale: 0.9 }}
-                animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                exit={{ rotate: mobileOpen ? 35 : -35, opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="inline-flex"
-              >
-                {mobileOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}
-              </motion.span>
+              <span className="inline-flex">{mobileOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}</span>
             </button>
           </div>
         </div>
 
-        <AnimatePresence initial={false}>
-          {mobileOpen ? (
-            <>
-              {/* Dark backdrop overlay */}
-              <motion.div
-                aria-hidden="true"
-                onClick={() => setMobileOpen(false)}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="fixed inset-0 z-40 bg-graphite/60 backdrop-blur-[3px] lg:hidden"
-              />
+        {mobileOpen ? (
+          <>
+            <div
+              aria-hidden="true"
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 z-40 bg-graphite/60 backdrop-blur-[3px] lg:hidden"
+            />
 
-              {/* Premium menu panel */}
-              <motion.div
-                id="mobile-marketing-nav"
-                initial={{ opacity: 0, y: -14, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute left-3 right-3 top-full z-[60] mt-2.5 overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-graphite/[0.97] p-2 shadow-[0_0_0_1px_rgba(0,163,255,0.05),0_32px_64px_rgba(13,13,15,0.65)] backdrop-blur-2xl lg:hidden"
-              >
-                {/* Subtle top glow stripe */}
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.13] to-transparent" />
+            <div
+              id="mobile-marketing-nav"
+              className="absolute left-3 right-3 top-full z-[60] mt-2.5 overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-graphite/[0.97] p-2 shadow-[0_0_0_1px_rgba(0,163,255,0.05),0_32px_64px_rgba(13,13,15,0.65)] backdrop-blur-2xl lg:hidden"
+            >
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.13] to-transparent" />
 
-                <nav className="grid gap-px p-1">
-                  {centerNav.map((item, i) => {
-                    const active = isRouteActive(item.href);
-                    return (
-                      <motion.div
-                        key={item.href}
-                        initial={{ opacity: 0, y: 7 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.04 + 0.06, duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                      >
-                        <Link
-                          href={item.href}
-                          prefetch={true}
-                          className={cn(
-                            "flex items-center gap-2.5 rounded-[0.875rem] px-4 py-3.5 text-[0.9375rem] font-medium transition-colors duration-150",
-                            active
-                              ? "bg-white/[0.08] text-ivory"
-                              : "text-ivory/50 hover:bg-white/[0.05] hover:text-ivory/85"
-                          )}
-                        >
-                          {active && (
-                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accentA shadow-[0_0_6px_rgba(0,163,255,0.7)]" />
-                          )}
-                          {item.label}
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
-                </nav>
-
-                <div className="mx-3 my-1.5 h-px bg-white/[0.07]" />
-
-                {/* Contact CTA */}
-                <motion.div
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: centerNav.length * 0.04 + 0.06, duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                  className="p-1"
-                >
-                  <Link
-                    href="/contact"
-                    prefetch={true}
-                    className="flex w-full items-center justify-center rounded-[0.875rem] bg-accent-gradient px-4 py-3.5 text-[0.9375rem] font-semibold text-ivory shadow-[0_6px_20px_rgba(0,100,220,0.28)] transition-shadow duration-200 hover:shadow-[0_10px_28px_rgba(0,100,220,0.38)]"
-                  >
-                    Start a Project
-                  </Link>
-                </motion.div>
-
-                {isAuthenticated ? (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: centerNav.length * 0.04 + 0.14, duration: 0.2 }}
-                    className="p-1 pt-0"
-                  >
+              <nav className="grid gap-px p-1">
+                {centerNav.map((item) => {
+                  const active = isRouteActive(item.href);
+                  return (
                     <Link
-                      href="/dashboard"
-                      className="flex items-center gap-2 rounded-[0.875rem] px-4 py-2.5 text-sm font-medium text-accentA/70 transition-colors duration-150 hover:bg-accentA/[0.08] hover:text-accentA"
+                      key={item.href}
+                      href={item.href}
+                      prefetch={false}
+                      className={cn(
+                        "flex items-center gap-2.5 rounded-[0.875rem] px-4 py-3.5 text-[0.9375rem] font-medium transition-colors duration-150",
+                        active
+                          ? "bg-white/[0.08] text-ivory"
+                          : "text-ivory/50 hover:bg-white/[0.05] hover:text-ivory/85"
+                      )}
                     >
-                      <LayoutDashboard className="h-4 w-4" />
-                      CMS Dashboard
+                      {active ? <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accentA shadow-[0_0_6px_rgba(0,163,255,0.7)]" /> : null}
+                      {item.label}
                     </Link>
-                  </motion.div>
-                ) : null}
-              </motion.div>
-            </>
-          ) : null}
-        </AnimatePresence>
+                  );
+                })}
+              </nav>
+
+              <div className="mx-3 my-1.5 h-px bg-white/[0.07]" />
+
+              <div className="p-1">
+                <Link
+                  href="/contact"
+                  prefetch={false}
+                  className="flex w-full items-center justify-center rounded-[0.875rem] bg-accent-gradient px-4 py-3.5 text-[0.9375rem] font-semibold text-ivory shadow-[0_6px_20px_rgba(0,100,220,0.28)] transition-shadow duration-200 hover:shadow-[0_10px_28px_rgba(0,100,220,0.38)]"
+                >
+                  Start a Project
+                </Link>
+              </div>
+
+            </div>
+          </>
+        ) : null}
       </div>
     </header>
   );
