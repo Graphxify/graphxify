@@ -23,12 +23,13 @@ type TestimonialMetricInput = {
 /* ── Star rating display ── */
 function Stars({ count = 5 }: { count?: number }): JSX.Element {
   return (
-    <div className="flex gap-0.5" aria-label={`${count} out of 5 stars`}>
+    <div className="flex gap-0.5" role="img" aria-label={`${count} out of 5 stars`}>
       {Array.from({ length: 5 }, (_, i) => (
         <Star
           key={i}
           className={`h-4 w-4 ${i < count ? "fill-[#e8732a] text-[#e8732a]" : "fill-border/20 text-border/30"}`}
           strokeWidth={0}
+          aria-hidden="true"
         />
       ))}
     </div>
