@@ -1,6 +1,7 @@
 "use client";
 
 import { type FormEvent, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ export function AddUserDialog({
   createUserInviteAction,
   createUserWithPasswordAction
 }: AddUserDialogProps): JSX.Element {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<CreationMode>("invite");
   const [error, setError] = useState<string>("");
@@ -62,6 +64,7 @@ export function AddUserDialog({
       }
 
       toast.success(result.message);
+      router.refresh();
       resetFormState();
       setOpen(false);
     });

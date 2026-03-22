@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { MoreHorizontal, Loader2, Copy, Send } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,7 @@ export function UserActionsDropdown({
   setStatusAction,
   deleteAction
 }: UserActionsProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -65,6 +67,7 @@ export function UserActionsDropdown({
       try {
         await action(fd);
         toast.success(successMessage);
+        router.refresh();
       } catch {
         toast.error("Action failed. Please try again.");
       }
@@ -105,6 +108,7 @@ export function UserActionsDropdown({
         return;
       }
       toast.success(result.message);
+      router.refresh();
     });
   }
 

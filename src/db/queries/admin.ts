@@ -210,6 +210,18 @@ export async function getDashboardUsers(filters: UserListFilters = {}) {
   };
 }
 
+export async function getAllDashboardUsers(): Promise<DashboardUserRow[]> {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select(USER_SELECT_FIELDS)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => normalizeUserRow(row as Record<string, unknown>));
+}
+
 export async function getDashboardUserById(id: string): Promise<DashboardUserRow | null> {
   const supabase = createClient();
   const { data, error } = await supabase
