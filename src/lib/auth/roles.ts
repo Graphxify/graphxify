@@ -29,7 +29,6 @@ export const ALL_PERMISSIONS = [
   "media.upload",
   "analytics.view",
   "leads.view",
-  "activity.view",
   "settings.manage",
   "users.manage",
   "users.create",
@@ -65,7 +64,6 @@ export const PERMISSION_LABELS: Record<AppPermission, string> = {
   "media.upload": "Upload media",
   "analytics.view": "View analytics",
   "leads.view": "View leads",
-  "activity.view": "View activity logs",
   "settings.manage": "Manage site settings",
   "users.manage": "View user management",
   "users.create": "Create users",
@@ -104,8 +102,7 @@ const ROLE_PERMISSIONS: Record<AppRole, readonly AppPermission[]> = {
     "content.testimonial_metrics.edit",
     "media.upload",
     "analytics.view",
-    "leads.view",
-    "activity.view"
+    "leads.view"
   ]
 };
 
@@ -145,7 +142,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   },
   {
     label: "Dashboard",
-    permissions: ["analytics.view", "leads.view", "activity.view"]
+    permissions: ["analytics.view", "leads.view"]
   },
   {
     label: "Administration",

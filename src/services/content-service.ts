@@ -6,7 +6,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentProfile, hasPermission } from "@/lib/auth/requireRole";
 import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/provider";
-import { isNotificationEnabled } from "@/lib/email/notification-settings";
 import { publishNotificationTemplate } from "@/lib/email/templates";
 import { normalizeBlogCategory } from "@/lib/blog";
 import { env } from "@/lib/env";
@@ -301,9 +300,6 @@ async function notifyPublish(type: PublishContentType, title: string, slug: stri
   if (!env.OWNER_NOTIFY_EMAIL) {
     return;
   }
-
-  const enabled = await isNotificationEnabled("notify_contact_form");
-  if (!enabled) return;
 
   const template = publishNotificationTemplate({
     type,

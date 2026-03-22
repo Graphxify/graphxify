@@ -9,12 +9,12 @@ import {
 } from "lucide-react";
 import { updateProfileAction, changePasswordAction } from "@/app/dashboard/profile/actions";
 import { logoutAction } from "@/app/admin/actions";
+import { STRONG_PASSWORD_HINT, validatePasswordAgainstPolicy } from "@/lib/auth/password-policy";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -28,7 +28,6 @@ type ProfileData = {
   email: string;
   role: string;
   displayName: string | null;
-  bio: string | null;
   avatarUrl: string | null;
   phone: string | null;
   createdAt: string | null;
@@ -97,7 +96,13 @@ function FeedbackBanner({ result }: { result: FormResult }) {
    MAIN COMPONENT
    ═══════════════════════════════════════════════════ */
 
-export function ProfilePageContent({ profile }: { profile: ProfileData }) {
+export function ProfilePageContent({
+  profile,
+  requireStrongPasswords
+}: {
+  profile: ProfileData;
+  requireStrongPasswords: boolean;
+}) {
   return (
     <section className="space-y-5">
       <RevealStagger className="space-y-6">
@@ -124,7 +129,7 @@ export function ProfilePageContent({ profile }: { profile: ProfileData }) {
               <EditProfileTab profile={profile} />
             </TabsContent>
             <TabsContent value="security">
-              <SecurityTab profile={profile} />
+              <SecurityTab profile={profile} requireStrongPasswords={requireStrongPasswords} />
             </TabsContent>
             <TabsContent value="settings">
               <SettingsTab />
@@ -163,9 +168,6 @@ function OverviewTab({ profile }: { profile: ProfileData }) {
           <Badge variant={profile.role === "admin" ? "default" : "secondary"} className="capitalize">
             {profile.role}
           </Badge>
-          {profile.bio ? (
-            <p className="text-center text-sm text-fg/62 leading-relaxed">{profile.bio}</p>
-          ) : null}
         </CardContent>
       </Card>
 
@@ -341,16 +343,6 @@ function EditProfileTab({ profile }: { profile: ProfileData }) {
             </FieldGroup>
           </div>
 
-          <FieldGroup label="Bio" htmlFor="bio">
-            <Textarea
-              id="bio"
-              name="bio"
-              defaultValue={profile.bio ?? ""}
-              placeholder="A short description about yourself..."
-              className="min-h-[100px] rounded-xl border-border/18 bg-bg/50"
-            />
-          </FieldGroup>
-
           <FeedbackBanner result={result} />
 
           <div className="flex justify-end">
@@ -378,16 +370,16 @@ function EditProfileTab({ profile }: { profile: ProfileData }) {
    TAB 3 — SECURITY
    ═══════════════════════════════════════════════════ */
 
-function SecurityTab({ profile }: { profile: ProfileData }) {
+function SecurityTab({ profile, requireStrongPasswords }: { profile: ProfileData; requireStrongPasswords: boolean }) {
   return (
     <div className="space-y-5">
-      <ChangePasswordCard />
+      <ChangePasswordCard requireStrongPasswords={requireStrongPasswords} />
       <SessionCard profile={profile} />
     </div>
   );
 }
 
-function ChangePasswordCard() {
+function ChangePasswordCard({ requireStrongPasswords }: { requireStrongPasswords: boolean }) {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<FormResult>(null);
 
@@ -396,6 +388,13 @@ function ChangePasswordCard() {
     setLoading(true);
     setResult(null);
     const formData = new FormData(event.currentTarget);
+    const newPassword = String(formData.get("new_password") || "");
+    const validationError = validatePasswordAgainstPolicy(newPassword, { requireStrongPasswords });
+    if (validationError) {
+      setResult({ success: false, message: validationError });
+      setLoading(false);
+      return;
+    }
     try {
       const response = await changePasswordAction(formData);
       setResult(response);
@@ -431,7 +430,9 @@ function ChangePasswordCard() {
               <PasswordInput id="confirm_password" name="confirm_password" required placeholder="••••••••" />
             </FieldGroup>
           </div>
-          <p className="text-xs text-fg/42">Minimum 6 characters. Choose something strong and unique.</p>
+          <p className="text-xs text-fg/42">
+            {requireStrongPasswords ? STRONG_PASSWORD_HINT : "Minimum 8 characters. Choose something strong and unique."}
+          </p>
           <FeedbackBanner result={result} />
           <div className="flex justify-end">
             <Button type="submit" disabled={loading} className="h-10 gap-2 rounded-xl px-6 text-sm font-medium">

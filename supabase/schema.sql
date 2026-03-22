@@ -40,7 +40,6 @@ values
       "media.upload": true,
       "analytics.view": true,
       "leads.view": true,
-      "activity.view": true,
       "settings.manage": true,
       "users.manage": true,
       "users.create": true,
@@ -88,8 +87,7 @@ values
       "content.testimonial_metrics.edit": true,
       "media.upload": true,
       "analytics.view": true,
-      "leads.view": true,
-      "activity.view": true
+      "leads.view": true
     }'::jsonb,
     2
   )

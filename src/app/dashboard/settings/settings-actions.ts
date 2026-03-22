@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { logAuditEvent } from "@/lib/audit";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireRole } from "@/lib/auth/requireRole";
@@ -33,6 +34,72 @@ async function setSetting(key: string, value: Record<string, unknown>): Promise<
   if (error) throw new Error(error.message);
 }
 
+function isEnabledInput(formData: FormData, key: string): boolean {
+  return formData.getAll(key).some((value) => String(value) === "on");
+}
+
+function revalidateDangerZonePaths() {
+  revalidatePath("/dashboard", "layout");
+  revalidatePath("/dashboard/settings");
+}
+
+function getDefaultSettingsRows() {
+  return [
+    {
+      key: "general",
+      value: {
+        site_name: "Graphxify",
+        site_url: "https://graphxify.com",
+        support_email: "info@graphxify.com",
+        contact_email: "info@graphxify.com",
+        company_name: "Graphxify",
+        company_address: "",
+        timezone: "America/Toronto"
+      }
+    },
+    {
+      key: "social_links",
+      value: {
+        instagram: "https://www.instagram.com/graphxify",
+        linkedin: "",
+        twitter: "",
+        behance: "https://www.behance.net/graphxify",
+        dribbble: "",
+        tiktok: "https://www.tiktok.com/@graphxify",
+        facebook: "https://www.facebook.com/Graphxify"
+      }
+    },
+    {
+      key: "email_notifications",
+      value: {
+        contact_form: true,
+        review_submission: true,
+        new_lead: true,
+        user_invitation: true,
+        password_reset: true
+      }
+    },
+    {
+      key: "security",
+      value: {
+        require_strong_passwords: true,
+        session_timeout_hours: 24,
+        login_rate_limit: 10,
+        enable_2fa: false
+      }
+    },
+    {
+      key: "integrations",
+      value: {
+        google_analytics_id: "",
+        google_tag_manager_id: "",
+        meta_pixel_id: "",
+        hotjar_id: ""
+      }
+    }
+  ];
+}
+
 /* ── Load all settings ── */
 
 export async function loadAllSettings() {
@@ -59,8 +126,7 @@ export async function saveGeneralSettingsAction(formData: FormData): Promise<{ o
       contact_email: String(formData.get("contact_email") || "").trim(),
       company_name: String(formData.get("company_name") || "").trim(),
       company_address: String(formData.get("company_address") || "").trim(),
-      timezone: String(formData.get("timezone") || "").trim(),
-      language: String(formData.get("language") || "").trim()
+      timezone: String(formData.get("timezone") || "").trim()
     };
     await setSetting("general", value);
     revalidatePath("/dashboard/settings");
@@ -96,11 +162,11 @@ export async function saveEmailNotificationsAction(formData: FormData): Promise<
   try {
     await requireRole(["admin"]);
     const value = {
-      contact_form: formData.get("contact_form") === "on",
-      review_submission: formData.get("review_submission") === "on",
-      new_lead: formData.get("new_lead") === "on",
-      user_invitation: formData.get("user_invitation") === "on",
-      password_reset: formData.get("password_reset") === "on"
+      contact_form: isEnabledInput(formData, "contact_form"),
+      review_submission: isEnabledInput(formData, "review_submission"),
+      new_lead: isEnabledInput(formData, "new_lead"),
+      user_invitation: isEnabledInput(formData, "user_invitation"),
+      password_reset: isEnabledInput(formData, "password_reset")
     };
     await setSetting("email_notifications", value);
     revalidatePath("/dashboard/settings");
@@ -132,10 +198,10 @@ export async function saveSecuritySettingsAction(formData: FormData): Promise<{ 
   try {
     await requireRole(["admin"]);
     const value = {
-      require_strong_passwords: formData.get("require_strong_passwords") === "on",
+      require_strong_passwords: isEnabledInput(formData, "require_strong_passwords"),
       session_timeout_hours: Number(formData.get("session_timeout_hours") || 24),
       login_rate_limit: Number(formData.get("login_rate_limit") || 10),
-      enable_2fa: formData.get("enable_2fa") === "on"
+      enable_2fa: isEnabledInput(formData, "enable_2fa")
     };
     await setSetting("security", value);
     revalidatePath("/dashboard/settings");
@@ -168,15 +234,28 @@ export async function saveIntegrationsAction(formData: FormData): Promise<{ ok: 
 
 export async function dangerDeletePendingReviewsAction(): Promise<{ ok: boolean; message: string }> {
   try {
-    await requireRole(["admin"]);
+    const actor = await requireRole(["admin"]);
     const client = await getWriteClient();
     const { count, error } = await client
       .from("testimonials")
       .delete({ count: "exact" })
       .eq("status", "pending");
     if (error) throw error;
+
+    await logAuditEvent({
+      actorId: actor.id,
+      actorEmail: actor.email,
+      actorRole: actor.role,
+      action: "testimonial.pending_bulk_delete",
+      entityType: "testimonial",
+      metadata: {
+        deleted_count: count ?? 0
+      }
+    });
+
     logger.info("Deleted pending reviews", { count });
-    revalidatePath("/dashboard/settings");
+    revalidateDangerZonePaths();
+    revalidatePath("/dashboard/testimonials");
     return { ok: true, message: `Deleted ${count ?? 0} pending reviews` };
   } catch (e) {
     return { ok: false, message: e instanceof Error ? e.message : "Failed" };
@@ -185,19 +264,31 @@ export async function dangerDeletePendingReviewsAction(): Promise<{ ok: boolean;
 
 export async function dangerResetSettingsAction(): Promise<{ ok: boolean; message: string }> {
   try {
-    await requireRole(["admin"]);
+    const actor = await requireRole(["admin"]);
     const client = await getWriteClient();
-    await client.from("cms_settings").delete().neq("key", "__never__");
-    // Re-seed defaults
-    await client.from("cms_settings").upsert([
-      { key: "general", value: { site_name: "Graphxify", site_url: "https://graphxify.com", support_email: "info@graphxify.com", contact_email: "info@graphxify.com", company_name: "Graphxify", company_address: "", timezone: "America/Toronto", language: "en" } },
-      { key: "social_links", value: { instagram: "https://www.instagram.com/graphxify", linkedin: "", twitter: "", behance: "https://www.behance.net/graphxify", dribbble: "", tiktok: "https://www.tiktok.com/@graphxify", facebook: "https://www.facebook.com/Graphxify" } },
-      { key: "email_notifications", value: { contact_form: true, review_submission: true, new_lead: true, user_invitation: true, password_reset: true } },
-      { key: "security", value: { require_strong_passwords: true, session_timeout_hours: 24, login_rate_limit: 10, enable_2fa: false } },
-      { key: "integrations", value: { google_analytics_id: "", google_tag_manager_id: "", meta_pixel_id: "", hotjar_id: "" } }
-    ]);
+    const { error: deleteError } = await client.from("cms_settings").delete().neq("key", "__never__");
+    if (deleteError) throw deleteError;
+
+    const { error: upsertError } = await client.from("cms_settings").upsert(getDefaultSettingsRows());
+    if (upsertError) throw upsertError;
+
+    await logAuditEvent({
+      actorId: actor.id,
+      actorEmail: actor.email,
+      actorRole: actor.role,
+      action: "settings.reset",
+      entityType: "system",
+      metadata: {
+        keys: getDefaultSettingsRows().map((row) => row.key)
+      }
+    });
+
     logger.info("CMS settings reset to defaults");
-    revalidatePath("/dashboard/settings");
+    revalidateDangerZonePaths();
+    revalidatePath("/dashboard/profile");
+    revalidatePath("/dashboard/users");
+    revalidatePath("/reset-password");
+    revalidatePath("/admin/reset-password");
     return { ok: true, message: "All settings reset to defaults" };
   } catch (e) {
     return { ok: false, message: e instanceof Error ? e.message : "Failed" };

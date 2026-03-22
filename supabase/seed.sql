@@ -138,16 +138,6 @@ on conflict (id) do update set
   status = excluded.status,
   sort_order = excluded.sort_order;
 
-with seed_author as (
-  select id from public.profiles order by created_at asc limit 1
-)
-insert into public.testimonial_metrics (id, value, label, sort_order, author_id)
-values
-  ('00000000-0000-0000-0000-000000000201', '26+', 'Finalized Projects', 0, (select id from seed_author)),
-  ('00000000-0000-0000-0000-000000000202', '98%', 'Client satisfaction rate', 1, (select id from seed_author)),
-  ('00000000-0000-0000-0000-000000000203', '10M', 'Gross Revenue', 2, (select id from seed_author))
-on conflict (id) do nothing;
-
 delete from public.posts
 where slug in (
   'enterprise-website-governance-2026',
@@ -171,10 +161,4 @@ insert into public.leads (name, email, message)
 values
   ('Jordan Miles', 'jordan@example.com', 'Need a premium redesign with CMS controls.'),
   ('Priya Das', 'priya@example.com', 'Looking for website + analytics implementation.')
-on conflict do nothing;
-
-insert into public.audit_logs (actor_id, actor_email, actor_role, action, entity_type, metadata, ip, user_agent)
-values
-  ((select id from public.profiles limit 1), 'admin@graphxify.com', 'admin', 'post.publish', 'post', '{"seed":true}'::jsonb, '127.0.0.1', 'seed-script'),
-  ((select id from public.profiles limit 1), 'admin@graphxify.com', 'admin', 'work.publish', 'work', '{"seed":true}'::jsonb, '127.0.0.1', 'seed-script')
 on conflict do nothing;

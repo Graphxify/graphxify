@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Loader2, Copy, Send } from "lucide-react";
+import { MoreHorizontal, Loader2, Copy, Send, KeyRound, LogOut, RefreshCcw, ShieldAlert, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +17,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
@@ -33,6 +34,8 @@ type UserActionsProps = {
   copyMagicLinkAction: (formData: FormData) => Promise<{ ok: boolean; message: string; url?: string }>;
   sendMagicLinkAction: (formData: FormData) => Promise<{ ok: boolean; message: string; url?: string }>;
   sendPasswordResetAction: (formData: FormData) => Promise<void>;
+  forcePasswordResetAction: (formData: FormData) => Promise<void>;
+  forceLogoutAction: (formData: FormData) => Promise<void>;
   setStatusAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
   onRoleUpdated?: (userId: string, nextRole: string) => void;
@@ -56,6 +59,8 @@ export function UserActionsDropdown({
   copyMagicLinkAction,
   sendMagicLinkAction,
   sendPasswordResetAction,
+  forcePasswordResetAction,
+  forceLogoutAction,
   setStatusAction,
   deleteAction,
   onRoleUpdated,
@@ -169,19 +174,25 @@ export function UserActionsDropdown({
             <span className="sr-only">Actions</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          {roles.filter((r) => r !== currentRole).map((r) => (
-            <DropdownMenuItem
-              key={r}
-              onClick={() => handleRoleChange(r)}
-            >
-              Set role → {roleLabel(r)}
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
+        <DropdownMenuContent align="end" className="w-56">
+          {roles.filter((r) => r !== currentRole).length > 0 ? (
+            <>
+              <DropdownMenuLabel>Role</DropdownMenuLabel>
+              {roles.filter((r) => r !== currentRole).map((r) => (
+                <DropdownMenuItem
+                  key={r}
+                  onClick={() => handleRoleChange(r)}
+                >
+                  Set role → {roleLabel(r)}
+                </DropdownMenuItem>
+              ))}
+              <DropdownMenuSeparator />
+            </>
+          ) : null}
 
           {canManageMagicLinks ? (
             <>
+              <DropdownMenuLabel>Access</DropdownMenuLabel>
               <DropdownMenuItem onClick={handleSendMagicLink}>
                 <Send className="mr-2 h-4 w-4" />
                 Send Magic Link
@@ -194,12 +205,28 @@ export function UserActionsDropdown({
             </>
           ) : null}
 
+          <DropdownMenuLabel>Security</DropdownMenuLabel>
           <DropdownMenuItem
             onClick={() => handleAction(sendPasswordResetAction, { userId }, "Password reset email sent")}
           >
+            <KeyRound className="mr-2 h-4 w-4" />
             Reset password
           </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => handleAction(forcePasswordResetAction, { userId }, "Password reset will be required on the next login")}
+          >
+            <RefreshCcw className="mr-2 h-4 w-4" />
+            Force reset on next login
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => handleAction(forceLogoutAction, { userId }, "User has been signed out on their next request")}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Force logout
+          </DropdownMenuItem>
 
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Account</DropdownMenuLabel>
           <DropdownMenuItem
             disabled={isSelf}
             onSelect={(event) => {
@@ -211,6 +238,7 @@ export function UserActionsDropdown({
               setDisableDialogOpen(true);
             }}
           >
+            <ShieldAlert className="mr-2 h-4 w-4" />
             {currentStatus === "disabled" ? "Enable account" : "Disable account"}
           </DropdownMenuItem>
 
@@ -224,6 +252,7 @@ export function UserActionsDropdown({
             }}
             className="text-red-400"
           >
+            <Trash2 className="mr-2 h-4 w-4" />
             Delete user
           </DropdownMenuItem>
         </DropdownMenuContent>

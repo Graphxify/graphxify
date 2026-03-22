@@ -1,6 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getCmsPasswordPolicy } from "@/lib/auth/password-policy.server";
+import { validatePasswordAgainstPolicy } from "@/lib/auth/password-policy";
 import { requireAuth } from "@/lib/auth/requireRole";
 import { logAuditEvent } from "@/lib/audit";
 import { logger } from "@/lib/logger";
@@ -12,7 +14,6 @@ export async function updateProfileAction(
   const supabase = createClient();
 
   const displayName = String(formData.get("display_name") || "").trim();
-  const bio = String(formData.get("bio") || "").trim();
   const avatarUrl = String(formData.get("avatar_url") || "").trim();
   const phone = String(formData.get("phone") || "").trim();
 
@@ -21,7 +22,6 @@ export async function updateProfileAction(
       .from("profiles")
       .update({
         display_name: displayName || null,
-        bio: bio || null,
         avatar_url: avatarUrl || null,
         phone: phone || null
       })
@@ -60,7 +60,7 @@ export async function updateProfileAction(
         action: "profile.update",
         entityType: "profile",
         entityId: profile.id,
-        metadata: { fields: ["display_name", "bio", "avatar_url", "phone"] }
+        metadata: { fields: ["display_name", "avatar_url", "phone"] }
       });
     } catch {
       // Audit log failure is non-critical
@@ -90,8 +90,10 @@ export async function changePasswordAction(
     return { success: false, message: "All password fields are required." };
   }
 
-  if (newPassword.length < 6) {
-    return { success: false, message: "New password must be at least 6 characters." };
+  const passwordPolicy = await getCmsPasswordPolicy();
+  const validationError = validatePasswordAgainstPolicy(newPassword, passwordPolicy);
+  if (validationError) {
+    return { success: false, message: validationError };
   }
 
   if (newPassword !== confirmPassword) {

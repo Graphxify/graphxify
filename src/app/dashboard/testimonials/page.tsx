@@ -12,8 +12,6 @@ import { getDashboardTestimonials } from "@/db/queries/testimonials";
 import { requirePermission } from "@/lib/auth/requireRole";
 import { hasPermission } from "@/lib/auth/roles";
 
-
-
 const STATUS_TABS = [
   { value: "", label: "All" },
   { value: "pending", label: "Pending" },
@@ -74,8 +72,6 @@ export default async function DashboardTestimonialsPage({
 
   const canModerate = hasPermission(profile.role, "content.testimonials.moderate");
   const canDelete = hasPermission(profile.role, "content.testimonials.delete");
-  const canCreate = hasPermission(profile.role, "content.testimonials.create");
-  const canEditMetrics = hasPermission(profile.role, "content.testimonial_metrics.edit");
 
   const filterParams: Record<string, string> = {};
   if (statusFilter) filterParams.status = statusFilter;
@@ -89,18 +85,6 @@ export default async function DashboardTestimonialsPage({
             <div className="space-y-1">
               <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Content</p>
               <h1 className="text-3xl font-semibold">Testimonials</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              {canEditMetrics ? (
-                <Link href="/dashboard/testimonials/metrics" className="link-sweep text-sm">
-                  Edit metrics card
-                </Link>
-              ) : null}
-              {canCreate ? (
-                <Link href="/dashboard/testimonials/new" className="link-sweep text-sm">
-                  New testimonial
-                </Link>
-              ) : null}
             </div>
           </div>
         </RevealItem>
@@ -154,9 +138,7 @@ export default async function DashboardTestimonialsPage({
               <EmptyState
                 icon={<MessageSquareQuote className="h-8 w-8 text-fg/32" />}
                 title={statusFilter || search ? "No testimonials match your filters" : "No testimonials yet"}
-                description={statusFilter || search ? "Try different filters or search terms." : "Add your first client testimonial to showcase on your site."}
-                actionLabel={canCreate && !statusFilter && !search ? "New testimonial" : undefined}
-                actionHref={canCreate && !statusFilter && !search ? "/dashboard/testimonials/new" : undefined}
+                description={statusFilter || search ? "Try different filters or search terms." : "Client testimonial submissions will appear here once they are received."}
               />
             ) : (
               <>

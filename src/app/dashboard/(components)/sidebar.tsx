@@ -41,10 +41,6 @@ function buildNavLinks(role: AppRole) {
     links.push({ href: "/dashboard/leads", label: "Leads" });
   }
 
-  if (hasPermission(role, "activity.view")) {
-    links.push({ href: "/dashboard/activity", label: "Activity" });
-  }
-
   links.push({ href: "/dashboard/profile", label: "Profile" });
   return links;
 }

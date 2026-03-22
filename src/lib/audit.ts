@@ -37,7 +37,9 @@ export type AuditAction =
   | "post.restore"
   | "work.restore"
   | "profile.update"
-  | "profile.password_change";
+  | "profile.password_change"
+  | "testimonial.pending_bulk_delete"
+  | "settings.reset";
 
 export type AuditEntity = "post" | "work" | "testimonial" | "lead" | "profile" | "system";
 

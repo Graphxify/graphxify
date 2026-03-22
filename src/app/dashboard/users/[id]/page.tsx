@@ -19,14 +19,13 @@ import {
   updateUserDetailsAction,
   updateUserRoleAction
 } from "@/app/dashboard/users/actions";
-import { DeleteUserDialog } from "@/app/dashboard/users/delete-user-dialog";
 import { PermissionToggles } from "@/app/dashboard/users/permission-toggles";
+import { UserSecurityActions } from "@/app/dashboard/users/user-security-actions";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { getDashboardRoles, getDashboardUserById, getRecentUserActivity, getUserEditCount } from "@/db/queries/admin";
 import { requireRole } from "@/lib/auth/requireRole";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -199,10 +198,6 @@ export default async function DashboardUserProfilePage({ params }: { params: Pro
                 <Input name="avatar_url" defaultValue={user.avatar_url || ""} placeholder="Avatar image URL" />
               </div>
               <div className="sm:col-span-2">
-                <label className="mb-1 block text-xs text-fg/48">Bio</label>
-                <Textarea name="bio" defaultValue={user.bio || ""} placeholder="Short bio" rows={2} />
-              </div>
-              <div className="sm:col-span-2">
                 <Button type="submit" size="sm">Save changes</Button>
               </div>
             </form>
@@ -255,21 +250,15 @@ export default async function DashboardUserProfilePage({ params }: { params: Pro
               <KeyRound className="h-4 w-4" />
               <h2 className="text-sm font-semibold uppercase tracking-[0.12em]">Security</h2>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <form action={sendPasswordResetEmailAction}>
-                <input type="hidden" name="userId" value={user.id} />
-                <Button type="submit" size="sm" variant="secondary">Send password reset email</Button>
-              </form>
-              <form action={forcePasswordResetAction}>
-                <input type="hidden" name="userId" value={user.id} />
-                <Button type="submit" size="sm" variant="secondary">Force reset on next login</Button>
-              </form>
-              <form action={forceLogoutUserAction}>
-                <input type="hidden" name="userId" value={user.id} />
-                <Button type="submit" size="sm" variant="secondary">Force logout</Button>
-              </form>
-              <DeleteUserDialog userId={user.id} email={user.email} disabled={isSelf} deleteAction={deleteUserAction} />
-            </div>
+            <UserSecurityActions
+              userId={user.id}
+              email={user.email}
+              isSelf={isSelf}
+              sendPasswordResetAction={sendPasswordResetEmailAction}
+              forcePasswordResetAction={forcePasswordResetAction}
+              forceLogoutAction={forceLogoutUserAction}
+              deleteAction={deleteUserAction}
+            />
           </div>
         </RevealItem>
 

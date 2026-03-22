@@ -81,8 +81,7 @@ export default async function DashboardHomePage() {
   const quickLinks = [
     hasPermission(profile.role, "content.posts.edit_own") ? { href: "/dashboard/posts", label: "Manage blog" } : null,
     hasPermission(profile.role, "content.works.edit_any") ? { href: "/dashboard/works", label: "Manage works" } : null,
-    hasPermission(profile.role, "leads.view") ? { href: "/dashboard/leads", label: "View leads" } : null,
-    hasPermission(profile.role, "activity.view") ? { href: "/dashboard/activity", label: "Activity logs" } : null
+    hasPermission(profile.role, "leads.view") ? { href: "/dashboard/leads", label: "View leads" } : null
   ].filter((link): link is { href: string; label: string } => link !== null);
   const greetingName = profile.displayName?.trim() || (profile.email ? profile.email.split("@")[0] : "");
 

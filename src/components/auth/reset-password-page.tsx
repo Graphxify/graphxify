@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, AlertTriangle } from "lucide-react";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { createClient } from "@/lib/supabase/browser";
+import { STRONG_PASSWORD_HINT, validatePasswordAgainstPolicy } from "@/lib/auth/password-policy";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
@@ -14,9 +15,14 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 type ResetPasswordPageProps = {
   forced?: boolean;
   invite?: boolean;
+  requireStrongPasswords?: boolean;
 };
 
-export function ResetPasswordPage({ forced = false, invite = false }: ResetPasswordPageProps): JSX.Element {
+export function ResetPasswordPage({
+  forced = false,
+  invite = false,
+  requireStrongPasswords = true
+}: ResetPasswordPageProps): JSX.Element {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -94,8 +100,9 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
     const password = String(formData.get("password") || "");
     const confirm = String(formData.get("confirm") || "");
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters.");
+    const validationError = validatePasswordAgainstPolicy(password, { requireStrongPasswords });
+    if (validationError) {
+      setError(validationError);
       setLoading(false);
       return;
     }
@@ -212,6 +219,9 @@ export function ResetPasswordPage({ forced = false, invite = false }: ResetPassw
                   disabled={loading}
                 />
               </div>
+              <p className="text-xs text-fg/48">
+                {requireStrongPasswords ? STRONG_PASSWORD_HINT : "Minimum 8 characters."}
+              </p>
 
               {error ? (
                 <div className="flex items-start gap-2 rounded-lg border border-red-500/20 bg-red-500/8 px-3 py-2.5">

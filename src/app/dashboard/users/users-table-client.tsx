@@ -28,6 +28,8 @@ type UsersTableClientProps = {
   copyMagicLinkAction: (formData: FormData) => Promise<{ ok: boolean; message: string; url?: string }>;
   sendMagicLinkAction: (formData: FormData) => Promise<{ ok: boolean; message: string; url?: string }>;
   sendPasswordResetAction: (formData: FormData) => Promise<void>;
+  forcePasswordResetAction: (formData: FormData) => Promise<void>;
+  forceLogoutAction: (formData: FormData) => Promise<void>;
   setUserStatusAction: (formData: FormData) => Promise<void>;
   deleteUserAction: (formData: FormData) => Promise<void>;
 };
@@ -94,6 +96,8 @@ export function UsersTableClient({
   copyMagicLinkAction,
   sendMagicLinkAction,
   sendPasswordResetAction,
+  forcePasswordResetAction,
+  forceLogoutAction,
   setUserStatusAction,
   deleteUserAction
 }: UsersTableClientProps): JSX.Element {
@@ -355,12 +359,14 @@ export function UsersTableClient({
                           canManageMagicLinks={actorRole === "admin"}
                           roles={roleOptions.map((roleOption) => roleOption.slug)}
                           updateRoleAction={updateUserRoleAction}
-                          copyMagicLinkAction={copyMagicLinkAction}
-                          sendMagicLinkAction={sendMagicLinkAction}
-                          sendPasswordResetAction={sendPasswordResetAction}
-                          setStatusAction={setUserStatusAction}
-                          deleteAction={deleteUserAction}
-                          onRoleUpdated={handleRoleUpdated}
+                copyMagicLinkAction={copyMagicLinkAction}
+                sendMagicLinkAction={sendMagicLinkAction}
+                sendPasswordResetAction={sendPasswordResetAction}
+                forcePasswordResetAction={forcePasswordResetAction}
+                forceLogoutAction={forceLogoutAction}
+                setStatusAction={setUserStatusAction}
+                deleteAction={deleteUserAction}
+                onRoleUpdated={handleRoleUpdated}
                           onStatusUpdated={handleStatusUpdated}
                           onUserDeleted={handleUserDeleted}
                         />

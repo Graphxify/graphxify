@@ -1,9 +1,46 @@
 "use server";
 
 import { headers } from "next/headers";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { sendBrandedPasswordResetEmail } from "@/lib/email/managed-notifications";
 import { rateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
+
+async function hasAuthUser(email: string): Promise<boolean> {
+  const admin = createAdminClient();
+  if (!admin) {
+    return false;
+  }
+
+  try {
+    let page = 1;
+    while (page <= 10) {
+      const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 200 });
+      if (error) {
+        logger.warn("Password reset auth user lookup failed", { email, error: error.message });
+        return false;
+      }
+
+      if (data.users.some((user) => (user.email ?? "").toLowerCase() === email)) {
+        return true;
+      }
+
+      if (data.users.length < 200) {
+        break;
+      }
+
+      page += 1;
+    }
+  } catch (error) {
+    logger.warn("Password reset auth user lookup threw", {
+      email,
+      error: error instanceof Error ? error.message : "unknown"
+    });
+  }
+
+  return false;
+}
 
 export async function forgotPasswordAction(formData: FormData): Promise<{ success: boolean; message: string }> {
   const email = String(formData.get("email") || "").trim().toLowerCase();
@@ -41,6 +78,18 @@ export async function forgotPasswordAction(formData: FormData): Promise<{ succes
 
     if (error) {
       logger.warn("Password reset request failed", { email, error: error.message });
+    } else {
+      const authUserExists = await hasAuthUser(email);
+      if (authUserExists) {
+        try {
+          await sendBrandedPasswordResetEmail(email);
+        } catch (sendError) {
+          logger.error("Supplemental branded password reset email failed", {
+            email,
+            error: sendError instanceof Error ? sendError.message : "unknown"
+          });
+        }
+      }
     }
   } catch (error) {
     logger.error("Password reset request threw", {

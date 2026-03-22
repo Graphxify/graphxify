@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
+import { getCmsPasswordPolicy } from "@/lib/auth/password-policy.server";
+import { validatePasswordAgainstPolicy } from "@/lib/auth/password-policy";
 import { requireRole, type AppProfile } from "@/lib/auth/requireRole";
 import {
   ACCOUNT_STATUSES,
@@ -17,6 +19,7 @@ import {
   type AppRole
 } from "@/lib/auth/roles";
 import { logAuditEvent } from "@/lib/audit";
+import { sendBrandedPasswordResetEmail, sendBrandedUserInvitationEmail } from "@/lib/email/managed-notifications";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
@@ -109,10 +112,12 @@ function isMissingProfileColumnError(error: unknown, column: string): boolean {
   );
 }
 
-function parsePassword(value: FormDataEntryValue | null): string {
+async function parsePassword(value: FormDataEntryValue | null): Promise<string> {
   const password = String(value).trim();
-  if (password.length < 8) {
-    throw new Error("Password must be at least 8 characters");
+  const policy = await getCmsPasswordPolicy();
+  const error = validatePasswordAgainstPolicy(password, policy);
+  if (error) {
+    throw new Error(error);
   }
   return password;
 }
@@ -601,6 +606,16 @@ async function applySendPasswordReset(actor: AppProfile, userId: string): Promis
   const { error } = await supabase.auth.resetPasswordForEmail(target.email, { redirectTo });
   if (error) throw new Error(error.message || "Unable to send password reset");
 
+  try {
+    await sendBrandedPasswordResetEmail(target.email);
+  } catch (error) {
+    logger.error("Supplemental branded password reset email failed", {
+      userId,
+      recipient: target.email,
+      error: error instanceof Error ? error.message : "unknown"
+    });
+  }
+
   await logAuditEvent({
     actorId: actor.id,
     actorEmail: actor.email,
@@ -696,7 +711,7 @@ async function applyForceLogout(actor: AppProfile, userId: string): Promise<void
 
 async function applyUpdateDetails(
   actor: AppProfile,
-  payload: { userId: string; fullName: string; phone: string; bio: string; avatarUrl: string }
+  payload: { userId: string; fullName: string; phone: string; avatarUrl: string }
 ): Promise<void> {
   const client = getWriteClient();
   const { error } = await client
@@ -704,7 +719,6 @@ async function applyUpdateDetails(
     .update({
       display_name: payload.fullName || null,
       phone: payload.phone || null,
-      bio: payload.bio || null,
       avatar_url: payload.avatarUrl || null
     })
     .eq("id", payload.userId);
@@ -737,7 +751,7 @@ async function applyUpdateDetails(
     action: "user.updated",
     entityType: "profile",
     entityId: payload.userId,
-    metadata: { fields: ["display_name", "phone", "bio", "avatar_url"] }
+    metadata: { fields: ["display_name", "phone", "avatar_url"] }
   });
 }
 
@@ -762,6 +776,7 @@ export async function createUserInviteAction(formData: FormData): Promise<Create
       data: { full_name: fullName, display_name: fullName, role },
       redirectTo
     });
+    const supabaseInviteSent = !inviteResult.error;
 
     if (inviteResult.error) {
       const message = inviteResult.error.message.toLowerCase();
@@ -818,6 +833,22 @@ export async function createUserInviteAction(formData: FormData): Promise<Create
       metadata: { invited_email: email, role, status: desiredStatus }
     });
 
+    if (supabaseInviteSent) {
+      try {
+        await sendBrandedUserInvitationEmail({
+          inviteeName: fullName,
+          inviteeEmail: email,
+          role,
+          invitedBy: actor.displayName?.trim() || actor.email
+        });
+      } catch (error) {
+        logger.error("Supplemental branded invitation email failed", {
+          recipient: email,
+          error: error instanceof Error ? error.message : "unknown"
+        });
+      }
+    }
+
     revalidateUserViews(authUserId);
 
     return {
@@ -840,7 +871,7 @@ export async function createUserWithPasswordAction(formData: FormData): Promise<
     if (!admin) throw new Error("Service role key is required to create users");
 
     const { fullName, email, role, avatarUrl, phone, bio } = parseCreateUserFields(formData);
-    const password = parsePassword(formData.get("password"));
+    const password = await parsePassword(formData.get("password"));
     const confirmPassword = String(formData.get("confirm_password") || "");
 
     if (password !== confirmPassword) {
@@ -1038,12 +1069,11 @@ export async function updateUserDetailsAction(formData: FormData): Promise<void>
   const userId = String(formData.get("userId") || "");
   const fullName = String(formData.get("full_name") || "").trim();
   const phone = String(formData.get("phone") || "").trim();
-  const bio = String(formData.get("bio") || "").trim();
   const avatarUrl = String(formData.get("avatar_url") || "").trim();
 
   if (!userId) throw new Error("User id is required");
 
-  await applyUpdateDetails(actor, { userId, fullName, phone, bio, avatarUrl });
+  await applyUpdateDetails(actor, { userId, fullName, phone, avatarUrl });
   revalidateUserViews(userId);
 }
 

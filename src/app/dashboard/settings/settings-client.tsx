@@ -103,7 +103,7 @@ function ToggleRow({ name, label, defaultChecked, description }: {
         <p className="text-sm font-medium text-fg">{label}</p>
         {description && <p className="mt-0.5 text-xs text-fg/48">{description}</p>}
       </div>
-      <input type="hidden" name={name} value="off" />
+      <input type="hidden" name={name} value={checked ? "on" : "off"} />
       <button
         type="button"
         role="switch"
@@ -111,7 +111,6 @@ function ToggleRow({ name, label, defaultChecked, description }: {
         onClick={() => setChecked(!checked)}
         className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${checked ? "bg-accentA" : "bg-border/30"}`}
       >
-        <input type="checkbox" name={name} checked={checked} readOnly className="sr-only" />
         <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${checked ? "translate-x-6" : "translate-x-1"}`} />
       </button>
     </label>
@@ -218,14 +217,6 @@ function GeneralTab({ settings }: { settings: Record<string, Record<string, unkn
               <option value="Europe/Berlin">Europe/Berlin (CET)</option>
               <option value="Asia/Dubai">Asia/Dubai (GST)</option>
               <option value="UTC">UTC</option>
-            </select>
-          </FieldRow>
-          <FieldRow label="Language">
-            <select name="language" defaultValue={String(g.language ?? "en")} className="h-10 rounded-lg border border-border/18 bg-bg/50 px-3 text-sm text-fg">
-              <option value="en">English</option>
-              <option value="fr">French</option>
-              <option value="es">Spanish</option>
-              <option value="ar">Arabic</option>
             </select>
           </FieldRow>
           <div className="flex items-center gap-3 pt-2">

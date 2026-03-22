@@ -5,6 +5,8 @@ import {
   createUserInviteAction,
   createUserWithPasswordAction,
   deleteUserAction,
+  forceLogoutUserAction,
+  forcePasswordResetAction,
   sendMagicLinkEmailAction,
   sendPasswordResetEmailAction,
   setUserStatusAction,
@@ -12,6 +14,7 @@ import {
 } from "@/app/dashboard/users/actions";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { getAllDashboardUsers, getDashboardRoles } from "@/db/queries/admin";
+import { getCmsPasswordPolicy } from "@/lib/auth/password-policy.server";
 import { requireRole } from "@/lib/auth/requireRole";
 
 function parsePage(value: string | string[] | undefined): number {
@@ -33,9 +36,10 @@ export default async function DashboardUsersPage({
   const initialLastLogin = typeof resolved.lastLogin === "string" ? resolved.lastLogin : "";
   const initialCreatedWithin = typeof resolved.createdWithin === "string" ? resolved.createdWithin : "";
 
-  const [users, roleOptions] = await Promise.all([
+  const [users, roleOptions, passwordPolicy] = await Promise.all([
     getAllDashboardUsers(),
-    getDashboardRoles()
+    getDashboardRoles(),
+    getCmsPasswordPolicy()
   ]);
 
   return (
@@ -53,6 +57,7 @@ export default async function DashboardUsersPage({
             roleOptions={roleOptions}
             createUserInviteAction={createUserInviteAction}
             createUserWithPasswordAction={createUserWithPasswordAction}
+            requireStrongPasswords={passwordPolicy.requireStrongPasswords}
           />
         </RevealItem>
 
@@ -72,6 +77,8 @@ export default async function DashboardUsersPage({
             copyMagicLinkAction={copyMagicLinkAction}
             sendMagicLinkAction={sendMagicLinkEmailAction}
             sendPasswordResetAction={sendPasswordResetEmailAction}
+            forcePasswordResetAction={forcePasswordResetAction}
+            forceLogoutAction={forceLogoutUserAction}
             setUserStatusAction={setUserStatusAction}
             deleteUserAction={deleteUserAction}
           />

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { UserPlus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { STRONG_PASSWORD_HINT, validatePasswordAgainstPolicy } from "@/lib/auth/password-policy";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,7 @@ type AddUserDialogProps = {
   roleOptions: DashboardRoleRow[];
   createUserInviteAction: (formData: FormData) => Promise<CreateUserResult>;
   createUserWithPasswordAction: (formData: FormData) => Promise<CreateUserResult>;
+  requireStrongPasswords: boolean;
 };
 
 type CreationMode = "invite" | "manual";
@@ -30,7 +32,8 @@ type CreationMode = "invite" | "manual";
 export function AddUserDialog({
   roleOptions,
   createUserInviteAction,
-  createUserWithPasswordAction
+  createUserWithPasswordAction,
+  requireStrongPasswords
 }: AddUserDialogProps): JSX.Element {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -50,6 +53,18 @@ export function AddUserDialog({
     setError("");
 
     const formData = new FormData(event.currentTarget);
+
+    if (mode === "manual") {
+      const password = String(formData.get("password") || "");
+      const validationError = validatePasswordAgainstPolicy(password, {
+        requireStrongPasswords
+      });
+      if (validationError) {
+        setError(validationError);
+        toast.error(validationError);
+        return;
+      }
+    }
 
     startTransition(async () => {
       const result =
@@ -148,6 +163,9 @@ export function AddUserDialog({
                 <>
                   <PasswordInput name="password" placeholder="Password *" required minLength={8} />
                   <PasswordInput name="confirm_password" placeholder="Confirm password *" required minLength={8} />
+                  <p className="md:col-span-2 -mt-1 text-xs text-fg/48">
+                    {requireStrongPasswords ? STRONG_PASSWORD_HINT : "Minimum 8 characters."}
+                  </p>
                 </>
               )}
               <DialogFooter className="md:col-span-2 mt-2 justify-start">
