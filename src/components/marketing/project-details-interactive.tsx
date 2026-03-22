@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { motion, useInView, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import type { ProjectDetail, ProjectImage } from "@/lib/project-details";
 import { cn } from "@/lib/utils";
 
@@ -117,7 +118,7 @@ export function ScrollScaleHero({
       )}
     >
       <motion.div style={{ scale, y }} className="absolute inset-0">
-        <Image src={image.src} alt={image.alt} fill className="object-cover" sizes="100vw" priority />
+        <Image src={image.src} alt={image.alt} fill className="object-cover" sizes="100vw" priority unoptimized={shouldBypassNextImageOptimization(image.src)} />
       </motion.div>
       {children}
     </div>
@@ -174,6 +175,7 @@ export function ProjectLightboxImage({
           src={image.src}
           alt={image.alt}
           fill
+          unoptimized={shouldBypassNextImageOptimization(image.src)}
           className={cn("block h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.02]", imageClassName)}
           sizes={sizes || "(max-width: 1024px) 100vw, 50vw"}
           loading={priority ? "eager" : "lazy"}
@@ -417,7 +419,7 @@ export function GridFeatureTransform({ project }: { project: ProjectDetail }): J
               onClick={() => scrollToVisual(index)}
               aria-label={`Jump to ${visual.alt}`}
             >
-              <Image src={visual.src} alt={visual.alt} fill className="object-cover transition-transform duration-500 group-hover:scale-[1.02]" sizes="(max-width: 768px) 50vw, 260px" />
+              <Image src={visual.src} alt={visual.alt} fill unoptimized={shouldBypassNextImageOptimization(visual.src)} className="object-cover transition-transform duration-500 group-hover:scale-[1.02]" sizes="(max-width: 768px) 50vw, 260px" />
               <span aria-hidden className={cn("absolute inset-x-3 top-3 h-[2px] rounded-full bg-accent-gradient transition-opacity", active ? "opacity-100" : "opacity-0")} />
               <span className="absolute inset-x-0 bottom-0 bg-black/46 px-2 py-1 text-[0.56rem] uppercase tracking-[0.12em] text-ivory/72">
                 {brief(visual.caption, 4)}

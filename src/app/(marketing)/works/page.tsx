@@ -6,7 +6,7 @@ import Link from "next/link";
 import { getPublishedWorks } from "@/db/queries/works";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
-import { normalizeImage, firstGalleryImage, withImageVersion } from "@/lib/content-helpers";
+import { normalizeImage, firstGalleryImage, withImageVersion, shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import {
   getProjectCardContent,
   getProjectDisplayTitle,
@@ -177,6 +177,7 @@ export default async function WorksPage() {
                       alt={displayTitle}
                       fill
                       priority={index < 2}
+                      unoptimized={shouldBypassNextImageOptimization(work.coverImage)}
                       className="object-cover transition-[transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05] group-hover:brightness-[0.48]"
                       sizes="(max-width: 767px) 100vw, 50vw"
                     />

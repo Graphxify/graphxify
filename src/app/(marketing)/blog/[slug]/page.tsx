@@ -9,6 +9,7 @@ import { CopyLinkButton } from "@/components/marketing/copy-link-button";
 import { JsonLd } from "@/components/seo/json-ld";
 import { estimateReadTime, selectRelatedBlogPosts } from "@/lib/blog";
 import { getPublishedBlogBySlug, getPublishedBlogSummaries } from "@/lib/blog-data";
+import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { siteConfig } from "@/lib/constants";
 import { blogPostingJsonLd, breadcrumbListJsonLd, buildMetadata } from "@/lib/seo";
 
@@ -66,6 +67,7 @@ function PostContentImage({ src, alt }: { src: string; alt: string }): JSX.Eleme
         src={src}
         alt={alt}
         fill
+        unoptimized={shouldBypassNextImageOptimization(src)}
         className="object-cover"
         sizes="(max-width: 1024px) 100vw, 768px"
       />
@@ -420,6 +422,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
               src={post.coverImage}
               alt={post.title}
               fill
+              unoptimized={shouldBypassNextImageOptimization(post.coverImage)}
               className="object-cover"
               priority
               sizes="(max-width: 1200px) 100vw, 72vw"
@@ -526,6 +529,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
                   src={item.coverImage}
                   alt={item.title}
                   fill
+                  unoptimized={shouldBypassNextImageOptimization(item.coverImage)}
                   className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.68]"
                   sizes="(max-width: 1280px) 100vw, 33vw"
                 />

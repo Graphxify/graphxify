@@ -15,6 +15,7 @@ import {
   type TransitionEvent,
   type WheelEvent
 } from "react";
+import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { cn } from "@/lib/utils";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
@@ -389,42 +390,76 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
                 transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 aria-hidden={isClone ? true : undefined}
               >
-                <Link
-                  href={`/works/${pathSlug}`}
-                  aria-label={`Open project ${displayTitle}`}
-                  data-cursor-label="Open"
-                  className="group block overflow-hidden rounded-[1.15rem] border border-border/18 shadow-[0_18px_36px_rgba(13,13,15,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                >
-                  <article className="relative h-[18.5rem] overflow-hidden rounded-[1.15rem] md:h-[21rem]">
-                    <Image
-                      src={project.coverImage}
-                      alt={displayTitle}
-                      fill
-                      priority={index === baseIndex || index === baseIndex + 1}
-                      className="object-cover transition-[transform,filter] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] group-hover:brightness-[0.7]"
-                      sizes="(max-width: 1279px) 100vw, 50vw"
-                    />
-                    <span className="absolute inset-0 bg-gradient-to-b from-black/78 via-black/30 to-black/66" />
-
-                    <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/40 bg-black/64 px-3 py-1 text-[0.56rem] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-accent-gradient" />
-                      {String(wrapIndex(index - cloneCount, Math.max(totalCards, 1)) + 1).padStart(2, "0")}
-                    </div>
-
-                    <div className="absolute inset-x-4 bottom-4">
-                      <div className="rounded-[0.92rem] border border-white/40 bg-black/64 p-4 shadow-[0_10px_24px_rgba(0,0,0,0.32)] backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-0.5">
-                        <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/80">{project.industry}</p>
-                        <h3 className="mt-2 line-clamp-2 text-[1.32rem] font-semibold leading-[1.05] text-white md:text-[1.6rem]">
-                          {displayTitle}
-                        </h3>
-                        <span className="mt-3 inline-flex items-center gap-1.5 text-[0.58rem] uppercase tracking-[0.14em] text-white/90">
-                          Open Project
-                          <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                        </span>
+                {isClone ? (
+                  <div className="group block overflow-hidden rounded-[1.15rem] border border-border/18 shadow-[0_18px_36px_rgba(13,13,15,0.12)]">
+                    <article className="relative h-[18.5rem] overflow-hidden rounded-[1.15rem] md:h-[21rem]">
+                      <Image
+                        src={project.coverImage}
+                        alt={displayTitle}
+                        fill
+                        priority={index === baseIndex || index === baseIndex + 1}
+                        unoptimized={shouldBypassNextImageOptimization(project.coverImage)}
+                        className="object-cover transition-[transform,filter] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] group-hover:brightness-[0.7]"
+                        sizes="(max-width: 1279px) 100vw, 50vw"
+                      />
+                      <span className="absolute inset-0 bg-gradient-to-b from-black/78 via-black/30 to-black/66" />
+                      <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/40 bg-black/64 px-3 py-1 text-[0.56rem] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-accent-gradient" />
+                        {String(wrapIndex(index - cloneCount, Math.max(totalCards, 1)) + 1).padStart(2, "0")}
                       </div>
-                    </div>
-                  </article>
-                </Link>
+                      <div className="absolute inset-x-4 bottom-4">
+                        <div className="rounded-[0.92rem] border border-white/40 bg-black/64 p-4 shadow-[0_10px_24px_rgba(0,0,0,0.32)] backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-0.5">
+                          <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/80">{project.industry}</p>
+                          <h3 className="mt-2 line-clamp-2 text-[1.32rem] font-semibold leading-[1.05] text-white md:text-[1.6rem]">
+                            {displayTitle}
+                          </h3>
+                          <span className="mt-3 inline-flex items-center gap-1.5 text-[0.58rem] uppercase tracking-[0.14em] text-white/90">
+                            Open Project
+                            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                          </span>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
+                ) : (
+                  <Link
+                    href={`/works/${pathSlug}`}
+                    aria-label={`Open project ${displayTitle}`}
+                    data-cursor-label="Open"
+                    className="group block overflow-hidden rounded-[1.15rem] border border-border/18 shadow-[0_18px_36px_rgba(13,13,15,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  >
+                    <article className="relative h-[18.5rem] overflow-hidden rounded-[1.15rem] md:h-[21rem]">
+                      <Image
+                        src={project.coverImage}
+                        alt={displayTitle}
+                        fill
+                        priority={index === baseIndex || index === baseIndex + 1}
+                        unoptimized={shouldBypassNextImageOptimization(project.coverImage)}
+                        className="object-cover transition-[transform,filter] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] group-hover:brightness-[0.7]"
+                        sizes="(max-width: 1279px) 100vw, 50vw"
+                      />
+                      <span className="absolute inset-0 bg-gradient-to-b from-black/78 via-black/30 to-black/66" />
+
+                      <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/40 bg-black/64 px-3 py-1 text-[0.56rem] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
+                        <span className="h-1.5 w-1.5 rounded-full bg-accent-gradient" />
+                        {String(wrapIndex(index - cloneCount, Math.max(totalCards, 1)) + 1).padStart(2, "0")}
+                      </div>
+
+                      <div className="absolute inset-x-4 bottom-4">
+                        <div className="rounded-[0.92rem] border border-white/40 bg-black/64 p-4 shadow-[0_10px_24px_rgba(0,0,0,0.32)] backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-0.5">
+                          <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/80">{project.industry}</p>
+                          <h3 className="mt-2 line-clamp-2 text-[1.32rem] font-semibold leading-[1.05] text-white md:text-[1.6rem]">
+                            {displayTitle}
+                          </h3>
+                          <span className="mt-3 inline-flex items-center gap-1.5 text-[0.58rem] uppercase tracking-[0.14em] text-white/90">
+                            Open Project
+                            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                          </span>
+                        </div>
+                      </div>
+                    </article>
+                  </Link>
+                )}
               </motion.div>
             );
           })}
@@ -440,7 +475,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
               type="button"
               onClick={() => goToSlide(index)}
               aria-label={`Go to project ${index + 1}`}
-              aria-current={active ? "true" : undefined}
+              aria-pressed={active}
               className="flex items-center justify-center py-[19px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             >
               <span

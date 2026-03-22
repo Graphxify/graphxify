@@ -42,3 +42,16 @@ export function withImageVersion(src: string, version: string | null | undefined
     const nextQuery = params.toString();
     return nextQuery.length > 0 ? `${path}?${nextQuery}` : path;
 }
+
+export function shouldBypassNextImageOptimization(src: string): boolean {
+    if (!/^https?:\/\//i.test(src)) {
+        return false;
+    }
+
+    try {
+        const url = new URL(src);
+        return /supabase\.co$/i.test(url.hostname) && url.pathname.includes("/storage/v1/object/public/");
+    } catch {
+        return false;
+    }
+}

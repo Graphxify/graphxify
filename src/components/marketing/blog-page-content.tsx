@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
 import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
 import { BLOG_CATEGORIES, estimateReadTime, type BlogCategory, type BlogPostSummary } from "@/lib/blog";
+import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { newsletterSubscriptionSchema } from "@/lib/validation/schemas";
 
 const CATEGORY_FILTERS = ["All", ...BLOG_CATEGORIES] as const;
@@ -166,6 +167,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
                     src={featuredBlog.coverImage}
                     alt={featuredBlog.title}
                     fill
+                    unoptimized={shouldBypassNextImageOptimization(featuredBlog.coverImage)}
                     className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.68]"
                     sizes="(max-width: 1024px) 100vw, 46vw"
                     priority
@@ -228,6 +230,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
                       src={blog.coverImage}
                       alt={blog.title}
                       fill
+                      unoptimized={shouldBypassNextImageOptimization(blog.coverImage)}
                       className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.65]"
                       sizes="(max-width: 1280px) 100vw, 33vw"
                     />

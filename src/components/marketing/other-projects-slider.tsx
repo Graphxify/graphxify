@@ -15,6 +15,7 @@ import {
   type PointerEvent,
   type WheelEvent
 } from "react";
+import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { cn } from "@/lib/utils";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
@@ -464,35 +465,62 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                 transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
                 aria-hidden={isClone ? true : undefined}
               >
-                <Link
-                  href={`/works/${pathSlug}`}
-                  aria-label={`Open project ${displayTitle}`}
-                  data-cursor-label="Open"
-                  className="group block overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                >
-                  <article className="relative h-[16.5rem] overflow-hidden rounded-[1.05rem] md:h-[18.5rem]">
-                    <Image
-                      src={item.coverImage}
-                      alt={displayTitle}
-                      fill
-                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
-                      sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                    />
-                    <span className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
-
-                    <span className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
-                      <span className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
-                        {displayTitle}
+                {isClone ? (
+                  <div className="group block overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)]">
+                    <article className="relative h-[16.5rem] overflow-hidden rounded-[1.05rem] md:h-[18.5rem]">
+                      <Image
+                        src={item.coverImage}
+                        alt={displayTitle}
+                        fill
+                        unoptimized={shouldBypassNextImageOptimization(item.coverImage)}
+                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
+                        sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                      />
+                      <span className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
+                      <span className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
+                        <span className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
+                          {displayTitle}
+                        </span>
                       </span>
-                    </span>
-
-                    <span className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <span className="text-[1.45rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.75rem]">
-                        {displayTitle}
+                      <span className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <span className="text-[1.45rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.75rem]">
+                          {displayTitle}
+                        </span>
                       </span>
-                    </span>
-                  </article>
-                </Link>
+                    </article>
+                  </div>
+                ) : (
+                  <Link
+                    href={`/works/${pathSlug}`}
+                    aria-label={`Open project ${displayTitle}`}
+                    data-cursor-label="Open"
+                    className="group block overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  >
+                    <article className="relative h-[16.5rem] overflow-hidden rounded-[1.05rem] md:h-[18.5rem]">
+                      <Image
+                        src={item.coverImage}
+                        alt={displayTitle}
+                        fill
+                        unoptimized={shouldBypassNextImageOptimization(item.coverImage)}
+                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
+                        sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                      />
+                      <span className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
+
+                      <span className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
+                        <span className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
+                          {displayTitle}
+                        </span>
+                      </span>
+
+                      <span className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                        <span className="text-[1.45rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.75rem]">
+                          {displayTitle}
+                        </span>
+                      </span>
+                    </article>
+                  </Link>
+                )}
               </motion.div>
             );
           })}
@@ -511,7 +539,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                   onClick={() => goToLogicalSlide(index)}
                   onKeyDown={onDotKeyDown}
                   aria-label={`Go to slide ${index + 1}`}
-                  aria-current={active ? "true" : undefined}
+                  aria-pressed={active}
                   className="flex items-center justify-center p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                 >
                   <span

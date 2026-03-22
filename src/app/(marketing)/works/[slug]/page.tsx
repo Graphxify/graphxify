@@ -21,6 +21,7 @@ import {
   type ProjectDetail,
   type ProjectImage
 } from "@/lib/project-details";
+import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { buildCaseStudyTitle, buildMetadata } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
@@ -964,7 +965,7 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
   return (
     <main className="relative -mt-28 sm:-mt-32 lg:-mt-40">
         <section className="pointer-events-none sticky top-0 z-0 h-[100svh] overflow-hidden">
-          <Image src={project.coverImage} alt={project.title} fill className="object-cover" sizes="100vw" priority />
+          <Image src={project.coverImage} alt={project.title} fill className="object-cover" sizes="100vw" priority unoptimized={shouldBypassNextImageOptimization(project.coverImage)} />
           <div aria-hidden className="absolute inset-0 bg-black/48" />
           <div className="absolute inset-0 flex items-center">
             <div className="container">

@@ -11,6 +11,7 @@ import {
   StickySplitShowcase,
   StoryboardLane
 } from "@/components/marketing/project-details-interactive";
+import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { getProjectPathSlug } from "@/lib/project-card-content";
 import type { LayoutVariant, ProjectDetail } from "@/lib/project-details";
 import { cn } from "@/lib/utils";
@@ -412,6 +413,7 @@ function RelatedProjects({ projects }: { projects: ProjectDetail[] }): JSX.Eleme
                   src={project.coverImage}
                   alt={project.title}
                   fill
+                  unoptimized={shouldBypassNextImageOptimization(project.coverImage)}
                   className="object-cover transition-transform duration-500 group-hover:scale-[1.025]"
                   sizes="(max-width: 1024px) 50vw, 33vw"
                 />

@@ -22,6 +22,7 @@ import { useMemo } from "react";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { Button } from "@/components/ui/button";
+import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
 type ServiceWorkPreview = {
@@ -741,6 +742,7 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
                         src={work.coverImage}
                         alt={displayTitle}
                         fill
+                        unoptimized={shouldBypassNextImageOptimization(work.coverImage)}
                         className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.55]"
                         sizes="(max-width: 1024px) 50vw, 33vw"
                       />
