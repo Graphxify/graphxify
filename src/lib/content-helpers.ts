@@ -30,6 +30,12 @@ export function withImageVersion(src: string, version: string | null | undefined
         return src;
     }
 
+    // Supabase media uploads already use unique object paths, so avoid adding
+    // extra query parameters that can trip Next image optimization.
+    if (/^https?:\/\//i.test(src)) {
+        return src;
+    }
+
     const [path, rawQuery = ""] = src.split("?");
     const params = new URLSearchParams(rawQuery);
     params.set("v", version);

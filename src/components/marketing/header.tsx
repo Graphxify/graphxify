@@ -10,8 +10,8 @@ import { Magnetic } from "@/components/motion/magnetic";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { marketingNav } from "@/lib/constants";
+import { createClient } from "@/lib/supabase/browser";
 import { cn } from "@/lib/utils";
-import { createBrowserClient } from "@supabase/ssr";
 
 export function MarketingHeader(): JSX.Element {
   const pathname = usePathname();
@@ -34,26 +34,25 @@ export function MarketingHeader(): JSX.Element {
     setMobileOpen(false);
   }, [pathname]);
 
-  // Reactive auth state detection — uses anon key directly
+  // Cosmetic-only auth state detection for the marketing header.
   useEffect(() => {
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    if (!url || !key) return;
-
     try {
-      const supabase = createBrowserClient(url, key);
+      const supabase = createClient();
       const syncAuthState = async () => {
-        const { data, error } = await supabase.auth.getUser();
-        if (!error) {
-          setIsAuthenticated(!!data.user);
-        }
+        const { data } = await supabase.auth.getSession();
+        setIsAuthenticated(!!data.session);
       };
 
       void syncAuthState();
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         if (event === "SIGNED_OUT") {
           setIsAuthenticated(false);
+          return;
+        }
+
+        if (typeof session !== "undefined") {
+          setIsAuthenticated(!!session);
           return;
         }
 

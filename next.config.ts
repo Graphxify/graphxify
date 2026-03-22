@@ -11,6 +11,7 @@ const extraImageHosts = (process.env.NEXT_PUBLIC_IMAGE_DOMAINS || "")
 
 const nextConfig: NextConfig = {
   images: {
+    qualities: [75],
     localPatterns: [
       {
         pathname: "/**"

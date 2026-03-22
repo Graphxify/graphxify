@@ -81,6 +81,10 @@ function withImageVersion(src: string, version: string | null | undefined): stri
     return src;
   }
 
+  if (/^https?:\/\//i.test(src)) {
+    return src;
+  }
+
   const [path, rawQuery = ""] = src.split("?");
   const params = new URLSearchParams(rawQuery);
   params.set("v", version);
