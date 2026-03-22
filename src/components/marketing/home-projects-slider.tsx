@@ -15,7 +15,10 @@ import {
   type TransitionEvent,
   type WheelEvent
 } from "react";
-import { shouldBypassNextImageOptimization, supabasePublicImageLoader } from "@/lib/content-helpers";
+import {
+  createSupabasePublicImageLoader,
+  shouldBypassNextImageOptimization
+} from "@/lib/content-helpers";
 import { cn } from "@/lib/utils";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
@@ -166,6 +169,28 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
   const stepPx = cardWidthPx + GAP_PX;
   const cardBasis = `calc((100% - ${(perView - 1) * GAP_PX}px) / ${perView})`;
   const trackTranslate = -(trackIndex * stepPx) + dragOffset;
+  const resolvedImageSizes =
+    cardWidthPx > 0
+      ? `${Math.max(1, Math.ceil(cardWidthPx))}px`
+      : "(max-width: 767px) calc(100vw - 2.5rem), (max-width: 1279px) calc(100vw - 4rem), calc((100vw - 5.5rem) / 2)";
+  const homeProjectImageLoader = useMemo(
+    () =>
+      createSupabasePublicImageLoader({
+        maxWidth: perView === 1 ? 640 : 1440,
+        quality: perView === 1 ? 68 : 72,
+        resize: "cover"
+      }),
+    [perView]
+  );
+  const homeProjectCloneImageLoader = useMemo(
+    () =>
+      createSupabasePublicImageLoader({
+        maxWidth: perView === 1 ? 480 : 960,
+        quality: perView === 1 ? 58 : 64,
+        resize: "cover"
+      }),
+    [perView]
+  );
 
   const queueAutoplayResume = useCallback(() => {
     if (!carouselActive) {
@@ -393,9 +418,9 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
                         src={project.coverImage}
                         alt={displayTitle}
                         fill
-                        loader={shouldBypassNextImageOptimization(project.coverImage) ? supabasePublicImageLoader : undefined}
+                        loader={shouldBypassNextImageOptimization(project.coverImage) ? homeProjectCloneImageLoader : undefined}
                         className="object-cover transition-[transform,filter] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] group-hover:brightness-[0.7]"
-                        sizes="(max-width: 1279px) 100vw, 50vw"
+                        sizes={resolvedImageSizes}
                       />
                       <span className="absolute inset-0 bg-gradient-to-b from-black/78 via-black/30 to-black/66" />
                       <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/40 bg-black/64 px-3 py-1 text-[0.56rem] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
@@ -440,9 +465,9 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
                       src={project.coverImage}
                       alt={displayTitle}
                       fill
-                      loader={shouldBypassNextImageOptimization(project.coverImage) ? supabasePublicImageLoader : undefined}
+                      loader={shouldBypassNextImageOptimization(project.coverImage) ? homeProjectImageLoader : undefined}
                       className="object-cover transition-[transform,filter] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] group-hover:brightness-[0.7]"
-                      sizes="(max-width: 1279px) 100vw, 50vw"
+                      sizes={resolvedImageSizes}
                     />
                     <span className="absolute inset-0 bg-gradient-to-b from-black/78 via-black/30 to-black/66" />
 

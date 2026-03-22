@@ -18,10 +18,21 @@ export const metadata: Metadata = buildMetadata({
 
 const enableAnalytics = process.env.NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS === "true";
 const enableSpeedInsights = process.env.NEXT_PUBLIC_ENABLE_VERCEL_SPEED_INSIGHTS === "true";
+const supabaseAssetOrigin = (() => {
+  try {
+    return process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin : null;
+  } catch {
+    return null;
+  }
+})();
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        {supabaseAssetOrigin ? <link rel="preconnect" href={supabaseAssetOrigin} crossOrigin="" /> : null}
+        {supabaseAssetOrigin ? <link rel="dns-prefetch" href={supabaseAssetOrigin} /> : null}
+      </head>
       <body suppressHydrationWarning className="app-shell min-h-screen bg-bg text-fg antialiased">
 
         <Providers>

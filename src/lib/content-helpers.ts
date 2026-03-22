@@ -8,6 +8,9 @@ type SupabaseLoaderParams = {
     src: string;
     width: number;
     quality?: number;
+    maxWidth?: number;
+    height?: number;
+    resize?: "cover" | "contain" | "fill";
 };
 
 export function normalizeImage(value: string | null | undefined): string | null {
@@ -62,14 +65,43 @@ export function shouldBypassNextImageOptimization(src: string): boolean {
     }
 }
 
-export function supabasePublicImageLoader({ src, width, quality }: SupabaseLoaderParams): string {
+function buildSupabasePublicImageUrl({
+    src,
+    width,
+    quality,
+    maxWidth,
+    height,
+    resize
+}: SupabaseLoaderParams): string {
     if (!shouldBypassNextImageOptimization(src)) {
         return src;
     }
 
     const url = new URL(src);
     url.pathname = url.pathname.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/");
-    url.searchParams.set("width", String(Math.max(1, Math.min(width, 2500))));
+    url.searchParams.set("width", String(Math.max(1, Math.min(width, maxWidth ?? 2500))));
+    if (typeof height === "number" && Number.isFinite(height) && height > 0) {
+        url.searchParams.set("height", String(Math.round(height)));
+    }
+    if (resize) {
+        url.searchParams.set("resize", resize);
+    }
     url.searchParams.set("quality", String(quality ?? 75));
     return url.toString();
+}
+
+export function supabasePublicImageLoader(params: SupabaseLoaderParams): string {
+    return buildSupabasePublicImageUrl(params);
+}
+
+export function createSupabasePublicImageLoader(
+    defaults: Omit<SupabaseLoaderParams, "src" | "width"> = {}
+): ({ src, width, quality }: Pick<SupabaseLoaderParams, "src" | "width" | "quality">) => string {
+    return ({ src, width, quality }) =>
+        buildSupabasePublicImageUrl({
+            ...defaults,
+            src,
+            width,
+            quality: quality ?? defaults.quality
+        });
 }
