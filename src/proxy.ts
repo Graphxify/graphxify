@@ -17,7 +17,7 @@ type SupabaseCookieOptions = {
 const PROFILE_COOKIE = "cms-ok";
 const PROFILE_TTL = 300; // 5 minutes
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const publicKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   // Collect cookie mutations from Supabase (auth refresh etc.) — applied to final response
