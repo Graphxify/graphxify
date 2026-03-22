@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
-import { motion } from "framer-motion";
 import {
   useCallback,
   useEffect,
@@ -446,13 +445,10 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
             }
 
             return (
-              <motion.div
+              <div
                 key={`${project.slug}-${index}`}
-                className="relative origin-center will-change-transform"
+                className="relative origin-center will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] active:scale-[0.993]"
                 style={{ flex: `0 0 ${cardBasis}` }}
-                whileHover={{ y: -3, scale: 1.008 }}
-                whileTap={{ scale: 0.993 }}
-                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Link
                   href={`/works/${pathSlug}`}
@@ -490,7 +486,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
                     </div>
                   </article>
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
         </div>
@@ -510,8 +506,10 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
             >
               <span
                 className={cn(
-                  "block h-1.5 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                  active ? "w-10 bg-accent-gradient" : "w-4 bg-border/30 hover:bg-border/50"
+                  "block h-1.5 w-4 rounded-full transition-[transform,background-color,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  active
+                    ? "scale-x-[2.5] bg-accent-gradient"
+                    : "bg-border/30 opacity-80 hover:bg-border/50 hover:opacity-100"
                 )}
               />
             </button>

@@ -1,8 +1,7 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import { Star } from "lucide-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { testimonials as fallbackTestimonials } from "@/lib/constants";
 
 type TestimonialInput = {
@@ -19,6 +18,22 @@ type TestimonialMetricInput = {
   label: string;
   sort_order: number;
 };
+
+function usePrefersReducedMotion(): boolean {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
+
+    updatePreference();
+    mediaQuery.addEventListener("change", updatePreference);
+
+    return () => mediaQuery.removeEventListener("change", updatePreference);
+  }, []);
+
+  return prefersReducedMotion;
+}
 
 /* ── Star rating display ── */
 function Stars({ count = 5 }: { count?: number }): JSX.Element {
@@ -86,7 +101,7 @@ function MarqueeRow({
   reverse?: boolean;
   speed?: number;
 }): JSX.Element {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = usePrefersReducedMotion();
   const trackRef = useRef<HTMLDivElement | null>(null);
   const firstGroupRef = useRef<HTMLDivElement | null>(null);
   const hoveredRef = useRef(false);
@@ -254,8 +269,6 @@ export function TestimonialsSection({
   showLeadText?: boolean;
   singleRow?: boolean;
 }): JSX.Element {
-  const reducedMotion = useReducedMotion();
-
   const slides = useMemo<TestimonialInput[]>(() => {
     const source = Array.isArray(items) && items.length > 0 ? items : fallbackTestimonials;
     return source.map((item) => ({
@@ -282,13 +295,7 @@ export function TestimonialsSection({
 
   return (
     <section className="relative py-2 md:py-4">
-      <motion.div
-        initial={reducedMotion ? false : { opacity: 0, y: 30 }}
-        whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="space-y-4"
-      >
+      <div className="space-y-4">
         {/* Row 1 — scrolls left */}
         <MarqueeRow items={singleRow ? slides : row1} speed={50} />
 
@@ -296,7 +303,7 @@ export function TestimonialsSection({
         {!singleRow && (
           <MarqueeRow items={row2.length > 0 ? row2 : row1} reverse speed={55} />
         )}
-      </motion.div>
+      </div>
     </section>
   );
 }

@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Blocks, Fingerprint, Layout, Mail, Minus, PackageCheck, Phone, Plus, Sparkles, Terminal, Timer, Zap, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DeferredLeadForm, DeferredTestimonialsSection } from "@/components/marketing/deferred-home-islands";
 import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { companyContact, faqs, services } from "@/lib/constants";
@@ -39,20 +40,6 @@ const HomeProjectsSlider = dynamic(
   () => import("@/components/marketing/home-projects-slider").then((mod) => mod.HomeProjectsSlider),
   {
     loading: () => <div className="h-[18.5rem] rounded-[1.2rem] border border-border/18 bg-card/40 md:h-[21rem]" />
-  }
-);
-
-const TestimonialsSection = dynamic(
-  () => import("@/components/marketing/testimonials-section").then((mod) => mod.TestimonialsSection),
-  {
-    loading: () => <div className="h-[18rem] rounded-2xl border border-border/16 bg-card/40" />
-  }
-);
-
-const LeadForm = dynamic(
-  () => import("@/components/marketing/lead-form").then((mod) => mod.LeadForm),
-  {
-    loading: () => <div className="h-48 rounded-2xl border border-border/16 bg-card/40" />
   }
 );
 
@@ -363,7 +350,7 @@ export function HomeSections({
 
       <SectionReveal className="container mt-6 md:mt-8 lg:mt-10" effect="right">
         <SectionHeading eyebrow="Testimonials" title="Client Stories" />
-        <TestimonialsSection items={testimonials} metrics={testimonialMetrics} showLeadText={false} />
+        <DeferredTestimonialsSection items={testimonials} metrics={testimonialMetrics} showLeadText={false} />
       </SectionReveal>
 
       <SectionReveal className="container" effect="left">
@@ -400,7 +387,7 @@ export function HomeSections({
               We respond within 24 hours with clear next steps. No jargon, no pressure.
             </p>
 
-            <LeadForm />
+            <DeferredLeadForm />
 
             <div className="border-t border-border/14 pt-3">
               <div className="flex flex-col gap-2.5 md:flex-row md:items-end md:justify-between">

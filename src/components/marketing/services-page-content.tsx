@@ -24,6 +24,7 @@ import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { Button } from "@/components/ui/button";
 import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
+import styles from "@/components/marketing/services-page-content.module.css";
 
 type ServiceWorkPreview = {
   id: string;
@@ -630,7 +631,7 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
         </div>
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <article className="graphxify-glow-card group relative rounded-[1.2rem] border border-border/16 bg-card/60 p-5 md:p-6">
+          <article className={`${styles.graphxifyGlowCard} group relative rounded-[1.2rem] border border-border/16 bg-card/60 p-5 md:p-6`}>
             <h3 className="text-xl font-semibold">Graphxify</h3>
             <ul className="mt-4">
               {graphxifyComparisonItems.map((item) => (
