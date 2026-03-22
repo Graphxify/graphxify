@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { Providers } from "@/app/providers";
@@ -32,6 +34,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ChunkLoadRecovery />
           {children}
           <MarketingFooter />
+          <Analytics />
+          <SpeedInsights />
           <Toaster
             theme="dark"
             position="bottom-right"
