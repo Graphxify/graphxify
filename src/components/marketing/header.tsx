@@ -10,7 +10,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { marketingNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-export function MarketingHeader(): JSX.Element {
+export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null }): JSX.Element {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -156,6 +156,16 @@ export function MarketingHeader(): JSX.Element {
 
           <div className="relative z-10 ml-auto hidden items-center gap-2.5 lg:flex">
             <ThemeToggle className="hidden lg:inline-flex" />
+            {cmsHref ? (
+              <Button
+                asChild
+                size="lg"
+                variant="secondary"
+                className="hidden rounded-lg border border-border/24 px-5 text-sm lg:inline-flex"
+              >
+                <Link href={cmsHref} prefetch={false}>CMS</Link>
+              </Button>
+            ) : null}
             <Button
               asChild
               size="lg"
@@ -229,6 +239,15 @@ export function MarketingHeader(): JSX.Element {
               <div className="mx-3 my-1.5 h-px bg-white/[0.07]" />
 
               <div className="p-1">
+                {cmsHref ? (
+                  <Link
+                    href={cmsHref}
+                    prefetch={false}
+                    className="mb-2 flex w-full items-center justify-center rounded-[0.875rem] border border-white/[0.1] bg-card/80 px-4 py-3.5 text-[0.9375rem] font-semibold text-ivory/88 transition-colors duration-200 hover:bg-white/[0.06] hover:text-ivory"
+                  >
+                    Open CMS
+                  </Link>
+                ) : null}
                 <Link
                   href="/contact"
                   prefetch={false}

@@ -5,6 +5,8 @@ import { rateLimit } from "@/lib/rate-limit";
 import { subscribeToNewsletter } from "@/services/newsletter-service";
 import { newsletterSubscriptionSchema } from "@/lib/validation/schemas";
 
+export const runtime = "nodejs";
+
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? request.headers.get("x-real-ip") ?? "unknown";
 
@@ -28,13 +30,16 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await subscribeToNewsletter({ email: parsed.data.email, source: "blog" });
+    const message =
+      result.state === "already_subscribed"
+        ? "You're already subscribed. We'll keep you on the list."
+        : result.welcomeEmail?.status === "sent"
+          ? "You're subscribed. Check your inbox for the checklist and future updates."
+          : "You're subscribed, but the checklist email could not be delivered right now. Please contact us directly if you need it urgently.";
+
     return NextResponse.json(
-      formSuccess(
-        result.alreadySubscribed
-          ? "You're already subscribed. We'll keep you on the list."
-          : "You're subscribed. We'll send occasional insights when there's something worth reading."
-      ),
-      { status: 201 }
+      formSuccess(message),
+      { status: result.state === "already_subscribed" ? 200 : 201 }
     );
   } catch (error) {
     logger.error("Newsletter subscription failed", {

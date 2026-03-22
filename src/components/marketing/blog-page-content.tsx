@@ -49,7 +49,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
   const [activeCategory, setActiveCategory] = useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
   const [subscribeModal, setSubscribeModal] = useState(false);
-  const [subscribeMessage, setSubscribeMessage] = useState("Your checklist is on its way. You will also receive practical insights on web design, branding, and digital strategy for Canadian businesses.");
+  const [subscribeMessage, setSubscribeMessage] = useState("Check your inbox for the checklist. You will also receive practical insights on web design, branding, and digital strategy for Canadian businesses.");
   const [subscribeEmail, setSubscribeEmail] = useState("");
   const [subscribeLoading, setSubscribeLoading] = useState(false);
   const [subscribeError, setSubscribeError] = useState("");

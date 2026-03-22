@@ -34,6 +34,10 @@ function buildNavLinks(role: AppRole) {
   }
 
   if (hasPermission(role, "leads.view")) {
+    links.push({ href: "/dashboard/subscriptions", label: "Subscriptions" });
+  }
+
+  if (hasPermission(role, "leads.view")) {
     links.push({ href: "/dashboard/leads", label: "Leads" });
   }
 

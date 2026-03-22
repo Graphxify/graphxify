@@ -152,6 +152,40 @@ export function leadNotificationTemplate(input: {
   };
 }
 
+/* ── Newsletter Welcome / Checklist Delivery ── */
+
+export function newsletterWelcomeTemplate(input: {
+  checklistUrl: string;
+  unsubscribeUrl: string;
+}) {
+  const body = `
+    ${h2("Your Website Growth Checklist Is Ready")}
+    <p style="margin:0 0 16px;font-size:14px;color:${TEXT_COLOR};line-height:1.6;">
+      Thanks for subscribing to the Graphxify newsletter. Your checklist is ready below, and we'll also send occasional practical insights on web design, branding, local SEO, and digital strategy.
+    </p>
+    ${ctaButton("Open the Checklist", escapeHtml(input.checklistUrl))}
+    ${divider()}
+    <p style="margin:0 0 12px;font-size:12px;color:${MUTED_COLOR};text-transform:uppercase;letter-spacing:0.05em;">What you'll get</p>
+    <ul style="margin:0 0 18px;padding-left:18px;color:${TEXT_COLOR};font-size:14px;line-height:1.7;">
+      <li>Website conversion essentials</li>
+      <li>Brand and messaging checks for service businesses</li>
+      <li>Local SEO and trust signals that help convert visitors</li>
+    </ul>
+    <p style="margin:0;font-size:12px;color:${MUTED_COLOR};line-height:1.6;">
+      If you ever want to stop hearing from us, you can <a href="${escapeHtml(input.unsubscribeUrl)}" style="color:${BRAND_COLOR};text-decoration:none;">unsubscribe here</a>.
+    </p>
+  `;
+
+  return {
+    subject: "Your Graphxify website growth checklist",
+    text:
+      `Thanks for subscribing to the Graphxify newsletter.\n\n` +
+      `Open your checklist here: ${input.checklistUrl}\n\n` +
+      `Unsubscribe: ${input.unsubscribeUrl}`,
+    html: baseLayout("Your Website Growth Checklist", body)
+  };
+}
+
 /* ── Review Submission Notification ── */
 
 export function reviewSubmissionTemplate(input: {

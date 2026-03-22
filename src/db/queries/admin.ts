@@ -57,6 +57,238 @@ export async function getLeadStatusCounts() {
   return counts;
 }
 
+export type NewsletterSubscriberRow = {
+  id: string;
+  email: string;
+  source: string;
+  status: string;
+  subscribed_at: string;
+  unsubscribed_at: string | null;
+  welcome_email_sent_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+function isMissingNewsletterColumnError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const code = "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
+  const message =
+    "message" in error ? String((error as { message?: unknown }).message ?? "").toLowerCase() : "";
+
+  return (
+    code === "42703" ||
+    code === "PGRST204" ||
+    message.includes("newsletter_subscribers") ||
+    message.includes("subscribed_at") ||
+    message.includes("unsubscribed_at") ||
+    message.includes("welcome_email_sent_at") ||
+    message.includes("unsubscribe_token") ||
+    message.includes("status")
+  );
+}
+
+function normalizeNewsletterSubscriberRow(row: Record<string, unknown>): NewsletterSubscriberRow {
+  return {
+    id: String(row.id ?? ""),
+    email: String(row.email ?? ""),
+    source: typeof row.source === "string" ? row.source : "blog",
+    status: typeof row.status === "string" ? row.status : "subscribed",
+    subscribed_at: typeof row.subscribed_at === "string" ? row.subscribed_at : new Date().toISOString(),
+    unsubscribed_at: typeof row.unsubscribed_at === "string" ? row.unsubscribed_at : null,
+    welcome_email_sent_at: typeof row.welcome_email_sent_at === "string" ? row.welcome_email_sent_at : null,
+    created_at: typeof row.created_at === "string" ? row.created_at : new Date().toISOString(),
+    updated_at: typeof row.updated_at === "string" ? row.updated_at : new Date().toISOString()
+  };
+}
+
+export async function getDashboardNewsletterSubscribers(page = 1, pageSize = 50, search = "", status = "") {
+  const supabase = createClient();
+  const from = (page - 1) * pageSize;
+  const to = from + pageSize - 1;
+
+  let query = supabase
+    .from("newsletter_subscribers")
+    .select("id,email,source,status,subscribed_at,unsubscribed_at,welcome_email_sent_at,created_at,updated_at", {
+      count: "exact"
+    })
+    .order("subscribed_at", { ascending: false });
+
+  if (search.trim()) {
+    const escaped = search.trim().replace(/[%_]/g, "");
+    query = query.or(`email.ilike.%${escaped}%,source.ilike.%${escaped}%`);
+  }
+
+  if (status === "subscribed" || status === "unsubscribed") {
+    query = query.eq("status", status);
+  }
+
+  let data: Record<string, unknown>[] | null = null;
+  let error: unknown = null;
+  let count: number | null = null;
+
+  ({ data, error, count } = await query.range(from, to));
+
+  if (error && isMissingNewsletterColumnError(error)) {
+    let fallbackQuery = supabase
+      .from("newsletter_subscribers")
+      .select("id,email,source,created_at,updated_at", { count: "exact" })
+      .order("created_at", { ascending: false });
+
+    if (search.trim()) {
+      const escaped = search.trim().replace(/[%_]/g, "");
+      fallbackQuery = fallbackQuery.or(`email.ilike.%${escaped}%,source.ilike.%${escaped}%`);
+    }
+
+    ({ data, error, count } = await fallbackQuery.range(from, to));
+
+    if (!error) {
+      return {
+        rows: (data ?? []).map((row) =>
+          normalizeNewsletterSubscriberRow({
+            ...((row as Record<string, unknown>) ?? {}),
+            status: "subscribed",
+            subscribed_at: (row as Record<string, unknown>).created_at ?? new Date().toISOString(),
+            unsubscribed_at: null,
+            welcome_email_sent_at: null
+          })
+        ),
+        total: count ?? 0,
+        page,
+        pageSize
+      };
+    }
+  }
+
+  if (error) throw error;
+
+  return {
+    rows: (data ?? []).map((row) => normalizeNewsletterSubscriberRow(row as Record<string, unknown>)),
+    total: count ?? 0,
+    page,
+    pageSize
+  };
+}
+
+export async function getNewsletterSubscriberStats() {
+  const supabase = createClient();
+  let data: Record<string, unknown>[] | null = null;
+  let error: unknown = null;
+
+  ({ data, error } = await supabase
+    .from("newsletter_subscribers")
+    .select("status,welcome_email_sent_at,source"));
+
+  if (error && isMissingNewsletterColumnError(error)) {
+    ({ data, error } = await supabase
+      .from("newsletter_subscribers")
+      .select("source"));
+
+    if (!error) {
+      const total = (data ?? []).length;
+      const bySource: Record<string, number> = {};
+
+      for (const row of data ?? []) {
+        const source = typeof row.source === "string" ? row.source : "blog";
+        bySource[source] = (bySource[source] || 0) + 1;
+      }
+
+      return {
+        total,
+        subscribed: total,
+        unsubscribed: 0,
+        welcomeSent: 0,
+        bySource
+      };
+    }
+  }
+
+  if (error) throw error;
+
+  const stats = {
+    total: 0,
+    subscribed: 0,
+    unsubscribed: 0,
+    welcomeSent: 0,
+    bySource: {} as Record<string, number>
+  };
+
+  for (const row of data ?? []) {
+    const status = typeof row.status === "string" ? row.status : "subscribed";
+    const source = typeof row.source === "string" ? row.source : "blog";
+
+    stats.total += 1;
+    stats.bySource[source] = (stats.bySource[source] || 0) + 1;
+
+    if (status === "unsubscribed") {
+      stats.unsubscribed += 1;
+    } else {
+      stats.subscribed += 1;
+    }
+
+    if (typeof row.welcome_email_sent_at === "string" && row.welcome_email_sent_at) {
+      stats.welcomeSent += 1;
+    }
+  }
+
+  return stats;
+}
+
+export async function getNewsletterSubscribersForExport(search = "", status = ""): Promise<NewsletterSubscriberRow[]> {
+  const supabase = createClient();
+
+  let query = supabase
+    .from("newsletter_subscribers")
+    .select("id,email,source,status,subscribed_at,unsubscribed_at,welcome_email_sent_at,created_at,updated_at")
+    .order("subscribed_at", { ascending: false });
+
+  if (search.trim()) {
+    const escaped = search.trim().replace(/[%_]/g, "");
+    query = query.or(`email.ilike.%${escaped}%,source.ilike.%${escaped}%`);
+  }
+
+  if (status === "subscribed" || status === "unsubscribed") {
+    query = query.eq("status", status);
+  }
+
+  let data: Record<string, unknown>[] | null = null;
+  let error: unknown = null;
+
+  ({ data, error } = await query);
+
+  if (error && isMissingNewsletterColumnError(error)) {
+    let fallbackQuery = supabase
+      .from("newsletter_subscribers")
+      .select("id,email,source,created_at,updated_at")
+      .order("created_at", { ascending: false });
+
+    if (search.trim()) {
+      const escaped = search.trim().replace(/[%_]/g, "");
+      fallbackQuery = fallbackQuery.or(`email.ilike.%${escaped}%,source.ilike.%${escaped}%`);
+    }
+
+    ({ data, error } = await fallbackQuery);
+
+    if (!error) {
+      return (data ?? []).map((row) =>
+        normalizeNewsletterSubscriberRow({
+          ...((row as Record<string, unknown>) ?? {}),
+          status: "subscribed",
+          subscribed_at: (row as Record<string, unknown>).created_at ?? new Date().toISOString(),
+          unsubscribed_at: null,
+          welcome_email_sent_at: null
+        })
+      );
+    }
+  }
+
+  if (error) throw error;
+
+  return (data ?? []).map((row) => normalizeNewsletterSubscriberRow(row as Record<string, unknown>));
+}
+
 function isoDaysAgo(days: number): string {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
 }

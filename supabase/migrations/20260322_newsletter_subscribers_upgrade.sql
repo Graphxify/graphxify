@@ -1,16 +1,3 @@
-create table if not exists public.newsletter_subscribers (
-  id uuid primary key default gen_random_uuid(),
-  email text not null unique,
-  source text not null default 'blog',
-  status text not null default 'subscribed',
-  unsubscribe_token text,
-  subscribed_at timestamptz not null default now(),
-  unsubscribed_at timestamptz,
-  welcome_email_sent_at timestamptz,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-
 alter table public.newsletter_subscribers
   add column if not exists status text not null default 'subscribed',
   add column if not exists unsubscribe_token text,
@@ -43,19 +30,9 @@ on public.newsletter_subscribers (unsubscribe_token);
 alter table public.newsletter_subscribers
   alter column unsubscribe_token set not null;
 
-alter table public.newsletter_subscribers enable row level security;
-
-drop policy if exists "newsletter_public_insert" on public.newsletter_subscribers;
 drop policy if exists "newsletter_staff_select" on public.newsletter_subscribers;
-
-create policy "newsletter_public_insert"
-on public.newsletter_subscribers
-for insert
-with check (true);
 
 create policy "newsletter_staff_select"
 on public.newsletter_subscribers
 for select
 using (public.is_admin() or public.is_staff());
-
-notify pgrst, 'reload schema';

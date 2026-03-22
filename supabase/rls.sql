@@ -481,7 +481,7 @@ with check (true);
 create policy "newsletter_staff_select"
 on public.newsletter_subscribers
 for select
-using (public.is_admin() or public.is_editor());
+using (public.is_admin() or public.is_staff());
 
 -- Audit policies
 drop policy if exists "audit_logs_staff_select" on public.audit_logs;
