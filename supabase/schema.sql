@@ -134,6 +134,7 @@ create table if not exists public.profiles (
   last_password_change timestamptz,
   force_password_reset boolean not null default false,
   force_logout_at timestamptz,
+  disabled_until timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -419,6 +420,9 @@ alter table public.profiles
 
 alter table public.profiles
   add column if not exists force_logout_at timestamptz;
+
+alter table public.profiles
+  add column if not exists disabled_until timestamptz;
 
 alter table public.profiles
   add column if not exists role_id smallint;

@@ -12,6 +12,7 @@ alter table public.profiles add column if not exists last_activity timestamptz;
 alter table public.profiles add column if not exists last_password_change timestamptz;
 alter table public.profiles add column if not exists force_password_reset boolean not null default false;
 alter table public.profiles add column if not exists force_logout_at timestamptz;
+alter table public.profiles add column if not exists disabled_until timestamptz;
 
 alter table public.profiles alter column role set default 'editor';
 

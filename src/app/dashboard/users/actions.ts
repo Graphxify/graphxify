@@ -28,12 +28,14 @@ type TargetProfile = {
   id: string;
   email: string;
   role: AppRole;
+  role_id: number | null;
   status: AccountStatus;
   display_name: string | null;
   avatar_url: string | null;
   phone: string | null;
   bio: string | null;
   force_password_reset: boolean;
+  disabled_until: string | null;
 };
 
 type WriteClient = ReturnType<typeof createClient> | NonNullable<ReturnType<typeof createAdminClient>>;
@@ -43,6 +45,11 @@ export type CreateUserResult =
 export type MagicLinkActionResult =
   | { ok: true; message: string; url?: string }
   | { ok: false; message: string };
+
+type DisableMode = "enable" | "disable" | "timeout";
+
+const PERMANENT_BAN_DURATION = "876000h";
+const TIMEOUT_DAY_OPTIONS = new Set([1, 3, 7, 14, 30]);
 
 /* ── Helpers ── */
 
@@ -68,6 +75,40 @@ function parseStatus(value: string): AccountStatus {
     throw new Error("Invalid status");
   }
   return parsed as AccountStatus;
+}
+
+function parseDisableMode(value: FormDataEntryValue | null): DisableMode | null {
+  const raw = String(value ?? "").trim().toLowerCase();
+  if (!raw) return null;
+  if (raw === "enable" || raw === "disable" || raw === "timeout") {
+    return raw;
+  }
+  throw new Error("Invalid disable mode");
+}
+
+function parseTimeoutDays(value: FormDataEntryValue | null): number {
+  const days = Number(String(value ?? "").trim());
+  if (!Number.isFinite(days) || !TIMEOUT_DAY_OPTIONS.has(days)) {
+    throw new Error("Invalid timeout period");
+  }
+  return days;
+}
+
+function isMissingProfileColumnError(error: unknown, column: string): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const code = "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
+  const message =
+    "message" in error ? String((error as { message?: unknown }).message ?? "").toLowerCase() : "";
+
+  return (
+    code === "42703" ||
+    code === "PGRST204" ||
+    message.includes(column.toLowerCase()) ||
+    message.includes("schema cache")
+  );
 }
 
 function parsePassword(value: FormDataEntryValue | null): string {
@@ -152,11 +193,19 @@ async function countAdmins(client: WriteClient): Promise<number> {
 }
 
 async function getTargetProfile(client: WriteClient, userId: string): Promise<TargetProfile> {
-  const { data, error } = await client
+  let { data, error } = await client
     .from("profiles")
-    .select("id,email,role,status,display_name,avatar_url,phone,bio,force_password_reset")
+    .select("id,email,role,role_id,status,display_name,avatar_url,phone,bio,force_password_reset,disabled_until")
     .eq("id", userId)
     .maybeSingle();
+
+  if (error && isMissingProfileColumnError(error, "disabled_until")) {
+    ({ data, error } = await client
+      .from("profiles")
+      .select("id,email,role,role_id,status,display_name,avatar_url,phone,bio,force_password_reset")
+      .eq("id", userId)
+      .maybeSingle());
+  }
 
   if (error) throw error;
   if (!data) throw new Error("User not found");
@@ -165,12 +214,14 @@ async function getTargetProfile(client: WriteClient, userId: string): Promise<Ta
     id: String(data.id),
     email: String(data.email ?? ""),
     role: normalizeRole(typeof data.role === "string" ? data.role : "editor"),
+    role_id: typeof data.role_id === "number" ? data.role_id : null,
     status: normalizeAccountStatus(typeof data.status === "string" ? data.status : "active"),
     display_name: typeof data.display_name === "string" ? data.display_name : null,
     avatar_url: typeof data.avatar_url === "string" ? data.avatar_url : null,
     phone: typeof data.phone === "string" ? data.phone : null,
     bio: typeof data.bio === "string" ? data.bio : null,
-    force_password_reset: Boolean(data.force_password_reset)
+    force_password_reset: Boolean(data.force_password_reset),
+    disabled_until: typeof data.disabled_until === "string" ? data.disabled_until : null
   };
 }
 
@@ -346,6 +397,84 @@ async function upsertManagedProfile(
   return { isNewProfile, desiredStatus };
 }
 
+async function getRoleIdForSlug(client: WriteClient, role: AppRole): Promise<number | null> {
+  const { data, error } = await client
+    .from("app_roles")
+    .select("id")
+    .eq("slug", role)
+    .maybeSingle();
+
+  if (error) {
+    logger.warn("Role lookup failed, falling back to static ids", {
+      role,
+      error: error.message
+    });
+    const fallbackIds: Record<AppRole, number> = { admin: 1, editor: 2, moderator: 3 };
+    return fallbackIds[role] ?? null;
+  }
+
+  return typeof data?.id === "number" ? data.id : null;
+}
+
+async function syncAuthMetadataForRole(userId: string, nextRole: AppRole): Promise<void> {
+  const admin = createAdminClient();
+  if (!admin) {
+    logger.warn("Skipping auth role sync because service role key is missing", { userId, nextRole });
+    return;
+  }
+
+  const { data: authUserResult, error: readError } = await admin.auth.admin.getUserById(userId);
+  if (readError) {
+    logger.warn("Managed user auth read failed during role sync", {
+      userId,
+      error: readError.message
+    });
+    return;
+  }
+
+  const existingUserMetadata =
+    authUserResult.user?.user_metadata && typeof authUserResult.user.user_metadata === "object"
+      ? (authUserResult.user.user_metadata as Record<string, unknown>)
+      : {};
+  const existingAppMetadata =
+    authUserResult.user?.app_metadata && typeof authUserResult.user.app_metadata === "object"
+      ? (authUserResult.user.app_metadata as Record<string, unknown>)
+      : {};
+
+  const { error: updateError } = await admin.auth.admin.updateUserById(userId, {
+    user_metadata: {
+      ...existingUserMetadata,
+      role: nextRole
+    },
+    app_metadata: {
+      ...existingAppMetadata,
+      cms_role: nextRole
+    }
+  });
+
+  if (updateError) {
+    logger.warn("Managed user auth metadata sync failed during role change", {
+      userId,
+      error: updateError.message
+    });
+  }
+}
+
+async function syncAuthBanState(userId: string, banDuration: string | "none"): Promise<void> {
+  const admin = createAdminClient();
+  if (!admin) {
+    throw new Error("Service role key is required to disable or re-enable accounts");
+  }
+
+  const { error } = await admin.auth.admin.updateUserById(userId, {
+    ban_duration: banDuration
+  });
+
+  if (error) {
+    throw new Error(error.message || "Failed to update account access");
+  }
+}
+
 /* ── Core operations ── */
 
 async function applyRoleChange(actor: AppProfile, userId: string, nextRole: AppRole): Promise<void> {
@@ -359,8 +488,17 @@ async function applyRoleChange(actor: AppProfile, userId: string, nextRole: AppR
   const adminCount = await countAdmins(client);
   assertCannotRemoveLastAdmin(target.role, nextRole, adminCount);
 
-  const { error } = await client.from("profiles").update({ role: nextRole }).eq("id", userId);
+  const roleId = await getRoleIdForSlug(client, nextRole);
+  const { error } = await client
+    .from("profiles")
+    .update({
+      role: nextRole,
+      ...(roleId !== null ? { role_id: roleId } : {})
+    })
+    .eq("id", userId);
   if (error) throw error;
+
+  await syncAuthMetadataForRole(userId, nextRole);
 
   await logAuditEvent({
     actorId: actor.id,
@@ -373,31 +511,61 @@ async function applyRoleChange(actor: AppProfile, userId: string, nextRole: AppR
   });
 }
 
-async function applyStatusChange(actor: AppProfile, userId: string, nextStatus: AccountStatus): Promise<void> {
+async function applyStatusChange(
+  actor: AppProfile,
+  userId: string,
+  params: { mode: DisableMode; nextStatus: AccountStatus; timeoutDays?: number }
+): Promise<void> {
   const client = getWriteClient();
   const target = await getTargetProfile(client, userId);
   const adminCount = await countAdmins(client);
-  assertCannotDisableLastAdmin(target.role, nextStatus, adminCount);
+  assertCannotDisableLastAdmin(target.role, params.nextStatus, adminCount);
 
   const nowIso = new Date().toISOString();
+  const disabledUntil =
+    params.mode === "timeout" && params.timeoutDays
+      ? new Date(Date.now() + params.timeoutDays * 24 * 60 * 60 * 1000).toISOString()
+      : null;
+
+  await syncAuthBanState(
+    userId,
+    params.mode === "enable"
+      ? "none"
+      : params.mode === "timeout" && params.timeoutDays
+        ? `${params.timeoutDays * 24}h`
+        : PERMANENT_BAN_DURATION
+  );
+
   const { error } = await client
     .from("profiles")
     .update({
-      status: nextStatus,
-      force_logout_at: nextStatus === "active" ? null : nowIso
+      status: params.nextStatus,
+      force_logout_at: params.mode === "enable" ? null : nowIso,
+      disabled_until: disabledUntil
     })
     .eq("id", userId);
 
-  if (error) throw error;
+  if (error) {
+    if (isMissingProfileColumnError(error, "disabled_until")) {
+      throw new Error("Supabase profiles.disabled_until is missing. Run the latest user-management SQL migration.");
+    }
+    throw error;
+  }
 
   await logAuditEvent({
     actorId: actor.id,
     actorEmail: actor.email,
     actorRole: actor.role,
-    action: nextStatus === "disabled" ? "user.disabled" : "user.enabled",
+    action: params.nextStatus === "disabled" ? "user.disabled" : "user.enabled",
     entityType: "profile",
     entityId: userId,
-    metadata: { previous_status: target.status, next_status: nextStatus }
+    metadata: {
+      previous_status: target.status,
+      next_status: params.nextStatus,
+      previous_disabled_until: target.disabled_until,
+      disabled_until: disabledUntil,
+      mode: params.mode
+    }
   });
 }
 
@@ -731,11 +899,24 @@ export async function updateUserRoleAction(formData: FormData): Promise<void> {
 export async function setUserStatusAction(formData: FormData): Promise<void> {
   const actor = await requireRole(["admin"]);
   const userId = String(formData.get("userId") || "");
-  const status = parseStatus(String(formData.get("status") || "active"));
 
   if (!userId) throw new Error("User id is required");
 
-  await applyStatusChange(actor, userId, status);
+  const mode = parseDisableMode(formData.get("mode"));
+  if (mode) {
+    const timeoutDays = mode === "timeout" ? parseTimeoutDays(formData.get("timeout_days")) : undefined;
+    await applyStatusChange(actor, userId, {
+      mode,
+      nextStatus: mode === "enable" ? "active" : "disabled",
+      timeoutDays
+    });
+  } else {
+    const status = parseStatus(String(formData.get("status") || "active"));
+    await applyStatusChange(actor, userId, {
+      mode: status === "active" ? "enable" : "disable",
+      nextStatus: status
+    });
+  }
   revalidateUserViews(userId);
 }
 
@@ -911,7 +1092,12 @@ export async function bulkUserAction(formData: FormData): Promise<void> {
 
   try {
     if (operation === "disable") {
-      for (const userId of userIds) await applyStatusChange(actor, userId, "disabled");
+      for (const userId of userIds) {
+        await applyStatusChange(actor, userId, {
+          mode: "disable",
+          nextStatus: "disabled"
+        });
+      }
     } else if (operation === "delete") {
       for (const userId of userIds) await applyDelete(actor, userId);
     } else if (operation === "change_role") {

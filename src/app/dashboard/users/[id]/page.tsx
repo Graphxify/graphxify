@@ -63,7 +63,8 @@ function statusBadgeVariant(status: string): "success" | "warning" | "secondary"
   return "secondary";
 }
 
-function statusLabel(status: string): string {
+function statusLabel(status: string, disabledUntil?: string | null): string {
+  if (status === "disabled" && disabledUntil) return "Timed out";
   if (status === "pending_invite") return "Pending Invite";
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
@@ -132,7 +133,7 @@ export default async function DashboardUserProfilePage({ params }: { params: Pro
                 </p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <Badge variant={roleBadgeVariant(user.role)}>{roleLabel(user.role)}</Badge>
-                  <Badge variant={statusBadgeVariant(user.status)}>{statusLabel(user.status)}</Badge>
+                  <Badge variant={statusBadgeVariant(user.status)}>{statusLabel(user.status, user.disabled_until)}</Badge>
                   {user.force_password_reset && (
                     <Badge variant="warning" className="text-[0.6rem]">Password reset required</Badge>
                   )}

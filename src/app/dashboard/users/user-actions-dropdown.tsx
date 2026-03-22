@@ -25,6 +25,7 @@ type UserActionsProps = {
   userId: string;
   currentRole: string;
   currentStatus: string;
+  currentDisabledUntil?: string | null;
   isSelf: boolean;
   canManageMagicLinks: boolean;
   roles: string[];
@@ -34,6 +35,9 @@ type UserActionsProps = {
   sendPasswordResetAction: (formData: FormData) => Promise<void>;
   setStatusAction: (formData: FormData) => Promise<void>;
   deleteAction: (formData: FormData) => Promise<void>;
+  onRoleUpdated?: (userId: string, nextRole: string) => void;
+  onStatusUpdated?: (userId: string, nextStatus: string, disabledUntil: string | null) => void;
+  onUserDeleted?: (userId: string) => void;
 };
 
 function roleLabel(role: string) {
@@ -44,6 +48,7 @@ export function UserActionsDropdown({
   userId,
   currentRole,
   currentStatus,
+  currentDisabledUntil,
   isSelf,
   canManageMagicLinks,
   roles,
@@ -52,13 +57,24 @@ export function UserActionsDropdown({
   sendMagicLinkAction,
   sendPasswordResetAction,
   setStatusAction,
-  deleteAction
+  deleteAction,
+  onRoleUpdated,
+  onStatusUpdated,
+  onUserDeleted
 }: UserActionsProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [disableDialogOpen, setDisableDialogOpen] = useState(false);
+  const [disableMode, setDisableMode] = useState<"disable" | "timeout">("disable");
+  const [timeoutDays, setTimeoutDays] = useState("7");
 
-  function handleAction(action: (formData: FormData) => Promise<void>, data: Record<string, string>, successMessage: string) {
+  function handleAction(
+    action: (formData: FormData) => Promise<void>,
+    data: Record<string, string>,
+    successMessage: string,
+    onSuccess?: () => void
+  ) {
     const fd = new FormData();
     for (const [key, value] of Object.entries(data)) {
       fd.append(key, value);
@@ -66,6 +82,7 @@ export function UserActionsDropdown({
     startTransition(async () => {
       try {
         await action(fd);
+        onSuccess?.();
         toast.success(successMessage);
         router.refresh();
       } catch {
@@ -112,6 +129,37 @@ export function UserActionsDropdown({
     });
   }
 
+  function handleRoleChange(nextRole: string) {
+    handleAction(updateRoleAction, { userId, role: nextRole }, `Role changed to ${roleLabel(nextRole)}`, () => {
+      onRoleUpdated?.(userId, nextRole);
+    });
+  }
+
+  function handleEnableAccount() {
+    handleAction(setStatusAction, { userId, mode: "enable" }, "Account enabled", () => {
+      onStatusUpdated?.(userId, "active", null);
+    });
+  }
+
+  function handleDisableSubmit() {
+    const nextDisabledUntil =
+      disableMode === "timeout"
+        ? new Date(Date.now() + Number(timeoutDays) * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+
+    setDisableDialogOpen(false);
+    handleAction(
+      setStatusAction,
+      disableMode === "timeout"
+        ? { userId, mode: "timeout", timeout_days: timeoutDays }
+        : { userId, mode: "disable" },
+      disableMode === "timeout" ? `Account timed out for ${timeoutDays} days` : "Account disabled",
+      () => {
+        onStatusUpdated?.(userId, "disabled", nextDisabledUntil);
+      }
+    );
+  }
+
   return (
     <>
       <DropdownMenu>
@@ -125,7 +173,7 @@ export function UserActionsDropdown({
           {roles.filter((r) => r !== currentRole).map((r) => (
             <DropdownMenuItem
               key={r}
-              onClick={() => handleAction(updateRoleAction, { userId, role: r }, `Role changed to ${roleLabel(r)}`)}
+              onClick={() => handleRoleChange(r)}
             >
               Set role → {roleLabel(r)}
             </DropdownMenuItem>
@@ -154,13 +202,14 @@ export function UserActionsDropdown({
 
           <DropdownMenuItem
             disabled={isSelf}
-            onClick={() =>
-              handleAction(
-                setStatusAction,
-                { userId, status: currentStatus === "disabled" ? "active" : "disabled" },
-                currentStatus === "disabled" ? "Account enabled" : "Account disabled"
-              )
-            }
+            onSelect={(event) => {
+              event.preventDefault();
+              if (currentStatus === "disabled") {
+                handleEnableAccount();
+                return;
+              }
+              setDisableDialogOpen(true);
+            }}
           >
             {currentStatus === "disabled" ? "Enable account" : "Disable account"}
           </DropdownMenuItem>
@@ -198,10 +247,69 @@ export function UserActionsDropdown({
               disabled={isPending || isSelf}
               onClick={() => {
                 setDeleteDialogOpen(false);
-                handleAction(deleteAction, { userId }, "User deleted");
+                handleAction(deleteAction, { userId }, "User deleted", () => {
+                  onUserDeleted?.(userId);
+                });
               }}
             >
               Confirm delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={disableDialogOpen} onOpenChange={setDisableDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Disable account</DialogTitle>
+            <DialogDescription>
+              Choose whether this account should be disabled permanently or for a fixed number of days.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-fg">Disable type</label>
+              <select
+                value={disableMode}
+                onChange={(event) => setDisableMode(event.target.value as "disable" | "timeout")}
+                className="h-10 rounded-md border border-border/20 bg-card/72 px-3 text-sm text-fg"
+              >
+                <option value="disable">Permanent disable</option>
+                <option value="timeout">Temporary timeout</option>
+              </select>
+            </div>
+
+            {disableMode === "timeout" ? (
+              <div className="grid gap-2">
+                <label className="text-sm font-medium text-fg">Timeout period</label>
+                <select
+                  value={timeoutDays}
+                  onChange={(event) => setTimeoutDays(event.target.value)}
+                  className="h-10 rounded-md border border-border/20 bg-card/72 px-3 text-sm text-fg"
+                >
+                  <option value="1">1 day</option>
+                  <option value="3">3 days</option>
+                  <option value="7">7 days</option>
+                  <option value="14">14 days</option>
+                  <option value="30">30 days</option>
+                </select>
+              </div>
+            ) : null}
+
+            {currentDisabledUntil ? (
+              <p className="text-xs text-fg/56">
+                Current timeout ends on {new Date(currentDisabledUntil).toLocaleString("en-US")}.
+              </p>
+            ) : null}
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="secondary" onClick={() => setDisableDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" disabled={isPending || isSelf} onClick={handleDisableSubmit}>
+              Confirm
             </Button>
           </DialogFooter>
         </DialogContent>

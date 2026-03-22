@@ -67,6 +67,7 @@ export type DashboardUserRow = {
   role: AppRole;
   role_id: number | null;
   status: AccountStatus;
+  disabled_until: string | null;
   display_name: string | null;
   avatar_url: string | null;
   phone: string | null;
@@ -99,6 +100,8 @@ type UserListFilters = {
 };
 
 const USER_SELECT_FIELDS =
+  "id,email,role,role_id,status,disabled_until,display_name,avatar_url,phone,bio,permissions,created_at,last_login,last_activity,last_password_change,force_password_reset,force_logout_at";
+const USER_SELECT_FIELDS_FALLBACK =
   "id,email,role,role_id,status,display_name,avatar_url,phone,bio,permissions,created_at,last_login,last_activity,last_password_change,force_password_reset,force_logout_at";
 
 function parsePermissions(raw: unknown): Record<string, boolean> {
@@ -126,6 +129,23 @@ function isMissingAppRolesTableError(error: unknown): boolean {
   return code === "42P01" || message.includes("app_roles");
 }
 
+function isMissingProfileColumnError(error: unknown, column: string): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const code = "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
+  const message =
+    "message" in error ? String((error as { message?: unknown }).message ?? "").toLowerCase() : "";
+
+  return (
+    code === "42703" ||
+    code === "PGRST204" ||
+    message.includes(column.toLowerCase()) ||
+    message.includes("schema cache")
+  );
+}
+
 function normalizeUserRow(row: Record<string, unknown>): DashboardUserRow {
   return {
     id: String(row.id ?? ""),
@@ -133,6 +153,7 @@ function normalizeUserRow(row: Record<string, unknown>): DashboardUserRow {
     role: normalizeRole(typeof row.role === "string" ? row.role : "editor"),
     role_id: typeof row.role_id === "number" ? row.role_id : null,
     status: normalizeAccountStatus(typeof row.status === "string" ? row.status : "active"),
+    disabled_until: typeof row.disabled_until === "string" ? row.disabled_until : null,
     display_name: typeof row.display_name === "string" ? row.display_name : null,
     avatar_url: typeof row.avatar_url === "string" ? row.avatar_url : null,
     phone: typeof row.phone === "string" ? row.phone : null,
@@ -198,7 +219,43 @@ export async function getDashboardUsers(filters: UserListFilters = {}) {
     query = query.gte("created_at", isoDaysAgo(Number(createdWithin.replace("d", ""))));
   }
 
-  const { data, error, count } = await query.range(from, to);
+  let data: Record<string, unknown>[] | null = null;
+  let error: unknown = null;
+  let count: number | null = null;
+
+  ({ data, error, count } = await query.range(from, to));
+
+  if (error && isMissingProfileColumnError(error, "disabled_until")) {
+    let fallbackQuery = supabase
+      .from("profiles")
+      .select(USER_SELECT_FIELDS_FALLBACK, { count: "exact" })
+      .order("created_at", { ascending: false });
+
+    if (search) {
+      const escaped = search.replace(/[%_]/g, "");
+      fallbackQuery = fallbackQuery.or(`display_name.ilike.%${escaped}%,email.ilike.%${escaped}%`);
+    }
+
+    if (role) {
+      fallbackQuery = fallbackQuery.eq("role", role);
+    }
+
+    if (status) {
+      fallbackQuery = fallbackQuery.eq("status", status);
+    }
+
+    if (lastLogin === "never") {
+      fallbackQuery = fallbackQuery.is("last_login", null);
+    } else if (lastLogin === "7d" || lastLogin === "30d" || lastLogin === "90d") {
+      fallbackQuery = fallbackQuery.gte("last_login", isoDaysAgo(Number(lastLogin.replace("d", ""))));
+    }
+
+    if (createdWithin === "7d" || createdWithin === "30d" || createdWithin === "90d" || createdWithin === "365d") {
+      fallbackQuery = fallbackQuery.gte("created_at", isoDaysAgo(Number(createdWithin.replace("d", ""))));
+    }
+
+    ({ data, error, count } = await fallbackQuery.range(from, to));
+  }
 
   if (error) throw error;
 
@@ -212,10 +269,20 @@ export async function getDashboardUsers(filters: UserListFilters = {}) {
 
 export async function getAllDashboardUsers(): Promise<DashboardUserRow[]> {
   const supabase = createClient();
-  const { data, error } = await supabase
+  let data: Record<string, unknown>[] | null = null;
+  let error: unknown = null;
+
+  ({ data, error } = await supabase
     .from("profiles")
     .select(USER_SELECT_FIELDS)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false }));
+
+  if (error && isMissingProfileColumnError(error, "disabled_until")) {
+    ({ data, error } = await supabase
+      .from("profiles")
+      .select(USER_SELECT_FIELDS_FALLBACK)
+      .order("created_at", { ascending: false }));
+  }
 
   if (error) throw error;
 
@@ -224,11 +291,22 @@ export async function getAllDashboardUsers(): Promise<DashboardUserRow[]> {
 
 export async function getDashboardUserById(id: string): Promise<DashboardUserRow | null> {
   const supabase = createClient();
-  const { data, error } = await supabase
+  let data: Record<string, unknown> | null = null;
+  let error: unknown = null;
+
+  ({ data, error } = await supabase
     .from("profiles")
     .select(USER_SELECT_FIELDS)
     .eq("id", id)
-    .maybeSingle();
+    .maybeSingle());
+
+  if (error && isMissingProfileColumnError(error, "disabled_until")) {
+    ({ data, error } = await supabase
+      .from("profiles")
+      .select(USER_SELECT_FIELDS_FALLBACK)
+      .eq("id", id)
+      .maybeSingle());
+  }
 
   if (error) throw error;
   if (!data) return null;

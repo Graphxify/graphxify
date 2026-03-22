@@ -6,6 +6,7 @@ export type Profile = {
   role: "admin" | "editor" | "moderator";
   role_id: number | null;
   status: "active" | "disabled" | "pending_invite";
+  disabled_until: string | null;
   display_name: string | null;
   avatar_url: string | null;
   phone: string | null;

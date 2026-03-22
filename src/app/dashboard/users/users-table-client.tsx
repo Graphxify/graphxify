@@ -61,7 +61,8 @@ function statusBadgeVariant(status: string): "success" | "warning" | "secondary"
   return "secondary";
 }
 
-function statusLabel(status: string): string {
+function statusLabel(status: string, disabledUntil?: string | null): string {
+  if (status === "disabled" && disabledUntil) return "Timed out";
   if (status === "pending_invite") return "Pending";
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
@@ -96,6 +97,7 @@ export function UsersTableClient({
   setUserStatusAction,
   deleteUserAction
 }: UsersTableClientProps): JSX.Element {
+  const [rows, setRows] = useState(users);
   const [search, setSearch] = useState(initialSearch);
   const [role, setRole] = useState(initialRole);
   const [status, setStatus] = useState(initialStatus);
@@ -103,6 +105,10 @@ export function UsersTableClient({
   const [createdWithin, setCreatedWithin] = useState(initialCreatedWithin);
   const [page, setPage] = useState(Math.max(1, initialPage));
   const deferredSearch = useDeferredValue(search);
+
+  useEffect(() => {
+    setRows(users);
+  }, [users]);
 
   useEffect(() => {
     setPage(1);
@@ -124,7 +130,7 @@ export function UsersTableClient({
   const filteredUsers = useMemo(() => {
     const normalizedSearch = deferredSearch.trim().toLowerCase();
 
-    return users.filter((user) => {
+    return rows.filter((user) => {
       const name = (user.display_name || "").toLowerCase();
       const email = user.email.toLowerCase();
 
@@ -159,7 +165,7 @@ export function UsersTableClient({
 
       return true;
     });
-  }, [users, deferredSearch, role, status, lastLogin, createdWithin]);
+  }, [rows, deferredSearch, role, status, lastLogin, createdWithin]);
 
   const totalPages = Math.max(1, Math.ceil(filteredUsers.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -170,6 +176,33 @@ export function UsersTableClient({
       setPage(currentPage);
     }
   }, [page, currentPage]);
+
+  function handleRoleUpdated(userId: string, nextRole: string) {
+    setRows((currentRows) =>
+      currentRows.map((user) =>
+        user.id === userId ? { ...user, role: nextRole as DashboardUserRow["role"] } : user
+      )
+    );
+  }
+
+  function handleStatusUpdated(userId: string, nextStatus: string, disabledUntil: string | null) {
+    setRows((currentRows) =>
+      currentRows.map((user) =>
+        user.id === userId
+          ? {
+              ...user,
+              status: nextStatus as DashboardUserRow["status"],
+              disabled_until: disabledUntil,
+              force_logout_at: nextStatus === "active" ? null : new Date().toISOString()
+            }
+          : user
+      )
+    );
+  }
+
+  function handleUserDeleted(userId: string) {
+    setRows((currentRows) => currentRows.filter((user) => user.id !== userId));
+  }
 
   return (
     <>
@@ -300,7 +333,7 @@ export function UsersTableClient({
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusBadgeVariant(user.status)} className="text-[0.65rem]">
-                        {statusLabel(user.status)}
+                        {statusLabel(user.status, user.disabled_until)}
                       </Badge>
                     </TableCell>
                     <TableCell className="whitespace-nowrap text-xs text-fg/48">{formatDate(user.created_at)}</TableCell>
@@ -317,6 +350,7 @@ export function UsersTableClient({
                           userId={user.id}
                           currentRole={user.role}
                           currentStatus={user.status}
+                          currentDisabledUntil={user.disabled_until}
                           isSelf={isSelf}
                           canManageMagicLinks={actorRole === "admin"}
                           roles={roleOptions.map((roleOption) => roleOption.slug)}
@@ -326,6 +360,9 @@ export function UsersTableClient({
                           sendPasswordResetAction={sendPasswordResetAction}
                           setStatusAction={setUserStatusAction}
                           deleteAction={deleteUserAction}
+                          onRoleUpdated={handleRoleUpdated}
+                          onStatusUpdated={handleStatusUpdated}
+                          onUserDeleted={handleUserDeleted}
                         />
                       </div>
                     </TableCell>

@@ -17,6 +17,7 @@ type LoginErrorCode =
   | "email_not_confirmed"
   | "account_not_found"
   | "account_disabled"
+  | "account_timeout"
   | "account_pending"
   | "session_revoked"
   | "unknown";
@@ -55,6 +56,13 @@ function classifyAuthError(input: { message?: string; status?: number | null; co
     return "email_not_confirmed";
   }
   if (
+    message.includes("banned") ||
+    message.includes("temporarily unavailable") ||
+    message.includes("not allowed at this time")
+  ) {
+    return "account_disabled";
+  }
+  if (
     code === "invalid_credentials" ||
     code === "invalid_login_credentials" ||
     message.includes("invalid") ||
@@ -73,6 +81,23 @@ function classifyAuthError(input: { message?: string; status?: number | null; co
     return "auth_unavailable";
   }
   return "unknown";
+}
+
+function isMissingProfileColumnError(error: unknown, column: string): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const code = "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
+  const message =
+    "message" in error ? String((error as { message?: unknown }).message ?? "").toLowerCase() : "";
+
+  return (
+    code === "42703" ||
+    code === "PGRST204" ||
+    message.includes(column.toLowerCase()) ||
+    message.includes("schema cache")
+  );
 }
 
 async function inspectAuthUserState(email: string): Promise<"email_not_confirmed" | "account_not_found" | null> {
@@ -186,11 +211,19 @@ export async function loginAction(formData: FormData): Promise<void> {
   let forcePasswordReset = false;
 
   try {
-    const { data: existingProfile, error: existingError } = await supabase
+    let { data: existingProfile, error: existingError } = await supabase
       .from("profiles")
-      .select("id,role,status,force_password_reset")
+      .select("id,role,status,force_password_reset,disabled_until")
       .eq("id", data.user.id)
       .maybeSingle();
+
+    if (existingError && isMissingProfileColumnError(existingError, "disabled_until")) {
+      ({ data: existingProfile, error: existingError } = await supabase
+        .from("profiles")
+        .select("id,role,status,force_password_reset")
+        .eq("id", data.user.id)
+        .maybeSingle());
+    }
 
     if (existingError) {
       throw existingError;
@@ -200,25 +233,59 @@ export async function loginAction(formData: FormData): Promise<void> {
       const normalizedStatus = normalizeAccountStatus(
         typeof existingProfile.status === "string" ? existingProfile.status : "active"
       );
+      const disabledUntil =
+        typeof existingProfile.disabled_until === "string" ? existingProfile.disabled_until : null;
+      let effectiveStatus = normalizedStatus;
       actorRole = normalizeRole(typeof existingProfile.role === "string" ? existingProfile.role : "editor");
       forcePasswordReset = Boolean(existingProfile.force_password_reset);
 
       if (normalizedStatus === "disabled") {
-        await supabase.auth.signOut();
-        redirectLoginError("account_disabled");
+        const disabledUntilMs = disabledUntil ? new Date(disabledUntil).getTime() : null;
+        const timeoutExpired = disabledUntilMs !== null && disabledUntilMs <= Date.now();
+
+        if (timeoutExpired) {
+          effectiveStatus = "active";
+          const admin = createAdminClient();
+          if (admin) {
+            await admin
+              .from("profiles")
+              .update({ status: "active", disabled_until: null, force_logout_at: null })
+              .eq("id", data.user.id);
+            await admin.auth.admin.updateUserById(data.user.id, { ban_duration: "none" });
+          }
+        } else {
+          await supabase.auth.signOut();
+          redirectLoginError(disabledUntilMs !== null ? "account_timeout" : "account_disabled");
+        }
       }
 
       const { error: updateError } = await supabase
         .from("profiles")
         .update({
           email: data.user.email ?? email,
-          status: normalizedStatus === "pending_invite" ? "active" : normalizedStatus,
+          status: effectiveStatus === "pending_invite" ? "active" : effectiveStatus,
           last_login: nowIso,
-          force_logout_at: null
+          force_logout_at: null,
+          disabled_until: null
         })
         .eq("id", data.user.id);
       if (updateError) {
-        throw updateError;
+        if (isMissingProfileColumnError(updateError, "disabled_until")) {
+          const { error: fallbackUpdateError } = await supabase
+            .from("profiles")
+            .update({
+              email: data.user.email ?? email,
+              status: effectiveStatus === "pending_invite" ? "active" : effectiveStatus,
+              last_login: nowIso,
+              force_logout_at: null
+            })
+            .eq("id", data.user.id);
+          if (fallbackUpdateError) {
+            throw fallbackUpdateError;
+          }
+        } else {
+          throw updateError;
+        }
       }
     } else {
       const { error: insertError } = await supabase
@@ -230,10 +297,28 @@ export async function loginAction(formData: FormData): Promise<void> {
           status: "active",
           last_login: nowIso,
           force_password_reset: false,
-          force_logout_at: null
+          force_logout_at: null,
+          disabled_until: null
         });
       if (insertError) {
-        throw insertError;
+        if (isMissingProfileColumnError(insertError, "disabled_until")) {
+          const { error: fallbackInsertError } = await supabase
+            .from("profiles")
+            .insert({
+              id: data.user.id,
+              email: data.user.email ?? email,
+              role: "editor",
+              status: "active",
+              last_login: nowIso,
+              force_password_reset: false,
+              force_logout_at: null
+            });
+          if (fallbackInsertError) {
+            throw fallbackInsertError;
+          }
+        } else {
+          throw insertError;
+        }
       }
       actorRole = "editor";
       forcePasswordReset = false;

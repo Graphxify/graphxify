@@ -21,6 +21,7 @@ export default async function LoginPage({
     invalid_credentials: "Invalid email or password.",
     account_not_found: "No account exists for this email in Supabase Auth.",
     account_disabled: "This account has been disabled. Contact an administrator.",
+    account_timeout: "This account is temporarily disabled. Try again later or contact an administrator.",
     account_pending: "Your invitation is pending. Complete account setup from your invite email first.",
     session_revoked: "Your session was revoked. Please sign in again.",
     email_not_confirmed: "Email is not confirmed. Confirm your inbox first, then try again.",

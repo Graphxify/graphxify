@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { env } from "@/lib/env";
 
 type SupabaseCookieOptions = {
@@ -12,16 +13,71 @@ type SupabaseCookieOptions = {
   sameSite?: "lax" | "strict" | "none" | boolean;
 };
 
-// Cookie that caches "userId:role" so subsequent navigations skip the profiles DB query.
-// Also used to forward role to server components via x-cms-role header.
-const PROFILE_COOKIE = "cms-ok";
-const PROFILE_TTL = 300; // 5 minutes
+function isMissingProfileColumnError(error: unknown, column: string): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const code = "code" in error ? String((error as { code?: unknown }).code ?? "") : "";
+  const message =
+    "message" in error ? String((error as { message?: unknown }).message ?? "").toLowerCase() : "";
+
+  return (
+    code === "42703" ||
+    code === "PGRST204" ||
+    message.includes(column.toLowerCase()) ||
+    message.includes("schema cache")
+  );
+}
+
+async function getProfileSecurityState(
+  supabase: ReturnType<typeof createServerClient>,
+  userId: string
+) {
+  let { data, error } = await supabase
+    .from("profiles")
+    .select("status,role,last_login,force_logout_at,disabled_until")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error && isMissingProfileColumnError(error, "disabled_until")) {
+    ({ data, error } = await supabase
+      .from("profiles")
+      .select("status,role,last_login,force_logout_at")
+      .eq("id", userId)
+      .maybeSingle());
+  }
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+async function clearExpiredTimeout(userId: string): Promise<void> {
+  const admin = createAdminClient();
+  if (!admin) {
+    return;
+  }
+
+  await admin
+    .from("profiles")
+    .update({ status: "active", disabled_until: null, force_logout_at: null })
+    .eq("id", userId);
+  await admin.auth.admin.updateUserById(userId, { ban_duration: "none" });
+}
 
 export async function proxy(request: NextRequest) {
   const publicKey = env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  // Collect cookie mutations from Supabase (auth refresh etc.) — applied to final response
   const pendingCookies: Array<{ name: string; value: string; options: SupabaseCookieOptions }> = [];
+
+  function applyPendingCookies(response: NextResponse) {
+    for (const { name, value, options } of pendingCookies) {
+      response.cookies.set({ name, value, ...options });
+    }
+    return response;
+  }
 
   const supabase = createServerClient(env.NEXT_PUBLIC_SUPABASE_URL, publicKey, {
     cookies: {
@@ -43,7 +99,6 @@ export async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  // ── Fast-path redirects ──
   if (pathname.startsWith("/dashboard") && !user) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
@@ -51,64 +106,57 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
-  // ── Determine user role (for forwarding to server components) ──
-  // Cached in cms-ok cookie as "userId:role" to avoid a DB round-trip on every request.
-  // Only queries the DB on first load or after cookie expires (5 min TTL).
   let userRole = "";
-  let newCookieValue: string | null = null;
 
   if (user && pathname.startsWith("/dashboard")) {
-    const cmsOkValue = request.cookies.get(PROFILE_COOKIE)?.value;
-    const cookieHit = cmsOkValue?.startsWith(user.id + ":");
+    const profile = await getProfileSecurityState(supabase, user.id);
+    const rawStatus = typeof profile?.status === "string" ? profile.status : "active";
+    const lastLogin = typeof profile?.last_login === "string" ? profile.last_login : null;
+    const forceLogoutAt = typeof profile?.force_logout_at === "string" ? profile.force_logout_at : null;
+    const disabledUntil = typeof profile?.disabled_until === "string" ? profile.disabled_until : null;
+    const disabledUntilMs = disabledUntil ? new Date(disabledUntil).getTime() : null;
+    const now = Date.now();
+    const timeoutActive = rawStatus === "disabled" && disabledUntilMs !== null && disabledUntilMs > now;
+    const timeoutExpired = rawStatus === "disabled" && disabledUntilMs !== null && disabledUntilMs <= now;
+    userRole = typeof profile?.role === "string" ? profile.role : "editor";
 
-    if (cookieHit) {
-      // Role is in the cookie — no DB needed
-      userRole = cmsOkValue!.slice(user.id.length + 1);
-    } else {
-      // Fetch profile to check status and get role
-      const { data: profile } = await supabase
+    if (rawStatus === "pending_invite") {
+      const nowIso = new Date().toISOString();
+      const { error: updateError } = await supabase
         .from("profiles")
-        .select("status,role,last_login,force_logout_at")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      const rawStatus = typeof profile?.status === "string" ? profile.status : "active";
-      const lastLogin = typeof profile?.last_login === "string" ? profile.last_login : null;
-      const forceLogoutAt =
-        typeof profile?.force_logout_at === "string" ? profile.force_logout_at : null;
-      userRole = typeof profile?.role === "string" ? profile.role : "editor";
-
-      // Accept pending invite users and mark them active
-      if (rawStatus === "pending_invite") {
-        const nowIso = new Date().toISOString();
-        await supabase
-          .from("profiles")
-          .update({ status: "active", last_login: nowIso, force_logout_at: null })
-          .eq("id", user.id);
-        newCookieValue = `${user.id}:${userRole}`;
-      } else {
-        const mustForceLogout =
-          Boolean(forceLogoutAt) &&
-          (!lastLogin || new Date(lastLogin).getTime() <= new Date(forceLogoutAt!).getTime());
-        const isBlocked = rawStatus === "disabled" || mustForceLogout;
-
-        if (isBlocked) {
-          await supabase.auth.signOut();
-          const url = request.nextUrl.clone();
-          url.pathname = "/admin";
-          if (mustForceLogout) url.searchParams.set("error", "session_revoked");
-          else if (rawStatus === "disabled") url.searchParams.set("error", "account_disabled");
-          return NextResponse.redirect(url);
+        .update({ status: "active", last_login: nowIso, force_logout_at: null, disabled_until: null })
+        .eq("id", user.id);
+      if (updateError) {
+        if (isMissingProfileColumnError(updateError, "disabled_until")) {
+          await supabase
+            .from("profiles")
+            .update({ status: "active", last_login: nowIso, force_logout_at: null })
+            .eq("id", user.id);
+        } else {
+          throw updateError;
         }
+      }
+    } else if (timeoutExpired) {
+      await clearExpiredTimeout(user.id);
+    } else {
+      const mustForceLogout =
+        rawStatus !== "disabled" &&
+        Boolean(forceLogoutAt) &&
+        (!lastLogin || new Date(lastLogin).getTime() <= new Date(forceLogoutAt).getTime());
+      const isBlocked = rawStatus === "disabled" || mustForceLogout;
 
-        newCookieValue = `${user.id}:${userRole}`;
+      if (isBlocked) {
+        await supabase.auth.signOut();
+        const url = request.nextUrl.clone();
+        url.pathname = "/admin";
+        if (timeoutActive) url.searchParams.set("error", "account_timeout");
+        else if (mustForceLogout) url.searchParams.set("error", "session_revoked");
+        else if (rawStatus === "disabled") url.searchParams.set("error", "account_disabled");
+        return applyPendingCookies(NextResponse.redirect(url));
       }
     }
   }
 
-  // ── Build final response with forwarded identity headers ──
-  // x-cms-uid and x-cms-role are stripped from client requests then set by us,
-  // so server components can trust them without a DB call or network round-trip.
   const forwardedHeaders = new Headers(request.headers);
   forwardedHeaders.delete("x-cms-uid");
   forwardedHeaders.delete("x-cms-role");
@@ -117,27 +165,9 @@ export async function proxy(request: NextRequest) {
     forwardedHeaders.set("x-cms-role", userRole);
   }
 
-  const response = NextResponse.next({ request: { headers: forwardedHeaders } });
-
-  // Apply Supabase auth cookie updates (token refresh etc.)
-  for (const { name, value, options } of pendingCookies) {
-    response.cookies.set({ name, value, ...options });
-  }
-
-  // Set/refresh the profile cache cookie
-  if (newCookieValue) {
-    response.cookies.set(PROFILE_COOKIE, newCookieValue, {
-      maxAge: PROFILE_TTL,
-      httpOnly: true,
-      path: "/",
-      sameSite: "lax"
-    });
-  }
-
-  return response;
+  return applyPendingCookies(NextResponse.next({ request: { headers: forwardedHeaders } }));
 }
 
 export const config = {
   matcher: ["/dashboard/:path*", "/admin", "/admin/:path*", "/auth/callback"],
-  // Note: /monitoring (Sentry tunnel route) is excluded by default since it's not listed here
 };
