@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Eye, Search, Users } from "lucide-react";
+import { Eye, Users } from "lucide-react";
 import { ServerPagination } from "@/app/dashboard/(components)/server-pagination";
 import { AddUserDialog } from "@/app/dashboard/users/add-user-dialog";
+import { UsersFilters } from "@/app/dashboard/users/users-filters";
 import {
   copyMagicLinkAction,
   createUserInviteAction,
@@ -16,7 +17,6 @@ import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getDashboardRoles, getDashboardUsers } from "@/db/queries/admin";
 import { requireRole } from "@/lib/auth/requireRole";
@@ -112,42 +112,14 @@ export default async function DashboardUsersPage({
 
         {/* ── Filters ── */}
         <RevealItem>
-          <form className="flex flex-wrap items-center gap-2 rounded-xl border border-border/14 bg-card/60 px-4 py-3 backdrop-blur">
-            <div className="relative flex-1 min-w-[200px]">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/36" />
-              <Input name="q" defaultValue={search} placeholder="Search name or email…" className="pl-9 h-9" />
-            </div>
-            <select name="role" defaultValue={role} className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-xs text-fg">
-              <option value="">All roles</option>
-              {roleOptions.map((roleOption) => (
-                <option key={roleOption.id} value={roleOption.slug}>{roleOption.name}</option>
-              ))}
-            </select>
-            <select name="status" defaultValue={status} className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-xs text-fg">
-              <option value="">All statuses</option>
-              <option value="active">Active</option>
-              <option value="disabled">Disabled</option>
-              <option value="pending_invite">Pending</option>
-            </select>
-            <select name="lastLogin" defaultValue={lastLogin} className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-xs text-fg">
-              <option value="">Login: any</option>
-              <option value="7d">Last 7d</option>
-              <option value="30d">Last 30d</option>
-              <option value="90d">Last 90d</option>
-              <option value="never">Never</option>
-            </select>
-            <select name="createdWithin" defaultValue={createdWithin} className="h-9 rounded-md border border-border/20 bg-card/72 px-2 text-xs text-fg">
-              <option value="">Created: any</option>
-              <option value="7d">7d</option>
-              <option value="30d">30d</option>
-              <option value="90d">90d</option>
-              <option value="365d">1y</option>
-            </select>
-            <Button type="submit" size="sm" variant="secondary" className="h-9">Filter</Button>
-            <Button asChild type="button" variant="ghost" size="sm" className="h-9">
-              <Link href="/dashboard/users">Clear</Link>
-            </Button>
-          </form>
+          <UsersFilters
+            roleOptions={roleOptions}
+            initialSearch={search}
+            initialRole={role}
+            initialStatus={status}
+            initialLastLogin={lastLogin}
+            initialCreatedWithin={createdWithin}
+          />
         </RevealItem>
 
         {/* ── Bulk Actions + Table ── */}
