@@ -64,37 +64,31 @@ export async function updateMarqueeItem(formData: FormData): Promise<{ error?: s
   return {};
 }
 
-export async function deleteMarqueeItem(formData: FormData): Promise<{ error?: string }> {
+export async function deleteMarqueeItem(formData: FormData): Promise<void> {
   await requirePermission("content.works.edit_any");
 
   const id = String(formData.get("id") ?? "").trim();
-  if (!id) return { error: "Missing id." };
+  if (!id) return;
 
   const supabase = createClient();
-  const { error } = await supabase.from("marquee_items").delete().eq("id", id);
-
-  if (error) return { error: error.message };
+  await supabase.from("marquee_items").delete().eq("id", id);
 
   revalidateMarquee();
-  return {};
 }
 
-export async function toggleMarqueeItem(formData: FormData): Promise<{ error?: string }> {
+export async function toggleMarqueeItem(formData: FormData): Promise<void> {
   await requirePermission("content.works.edit_any");
 
   const id = String(formData.get("id") ?? "").trim();
   const enabled = formData.get("enabled") === "true";
 
-  if (!id) return { error: "Missing id." };
+  if (!id) return;
 
   const supabase = createClient();
-  const { error } = await supabase
+  await supabase
     .from("marquee_items")
     .update({ enabled })
     .eq("id", id);
 
-  if (error) return { error: error.message };
-
   revalidateMarquee();
-  return {};
 }
