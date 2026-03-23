@@ -14,6 +14,7 @@ export const metadata: Metadata = buildMetadata({
   ogDescription: "A Toronto-based design studio helping small businesses and founders launch with a brand and website that looks credible, loads fast, and converts.",
   ogImageAlt: "Graphxify design studio — brand identity and web design for Canadian businesses"
 });
+import { getMarqueeItems, type MarqueeItem } from "@/db/queries/marquee";
 import { getTestimonialMetrics } from "@/db/queries/testimonial-metrics";
 import { getPublishedTestimonials } from "@/db/queries/testimonials";
 import { getPublishedWorks } from "@/db/queries/works";
@@ -115,11 +116,13 @@ export default async function HomePage() {
     .map((item) => toMetricPreview(item))
     .filter((item): item is TestimonialMetricPreview => item !== null);
   let homeProjects: HomeProjectPreview[] = fallbackHomeProjects();
+  let marqueeItems: MarqueeItem[] = [];
 
-  const [testimonialsResult, metricsResult, worksResult] = await Promise.allSettled([
+  const [testimonialsResult, metricsResult, worksResult, marqueeResult] = await Promise.allSettled([
     getPublishedTestimonials(),
     getTestimonialMetrics(),
-    getPublishedWorks()
+    getPublishedWorks(),
+    getMarqueeItems()
   ]);
 
   if (testimonialsResult.status === "fulfilled" && testimonialsResult.value.length > 0) {
@@ -157,5 +160,9 @@ export default async function HomePage() {
     });
   }
 
-  return <HomeSections testimonials={testimonials} testimonialMetrics={testimonialMetrics} homeProjects={homeProjects} />;
+  if (marqueeResult.status === "fulfilled" && marqueeResult.value.length > 0) {
+    marqueeItems = marqueeResult.value;
+  }
+
+  return <HomeSections testimonials={testimonials} testimonialMetrics={testimonialMetrics} homeProjects={homeProjects} marqueeItems={marqueeItems} />;
 }

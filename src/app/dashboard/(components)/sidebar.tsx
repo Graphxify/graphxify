@@ -27,6 +27,7 @@ function buildNavLinks(role: AppRole) {
 
   if (hasPermission(role, "content.works.edit_any")) {
     links.push({ href: "/dashboard/works", label: "Works" });
+    links.push({ href: "/dashboard/marquee", label: "Marquee" });
   }
 
   if (hasPermission(role, "content.testimonials.view")) {

@@ -36,6 +36,13 @@ type StripLogo = {
   baseName: string;
 };
 
+type CmsMarqueeItem = {
+  id: string;
+  image_url_dark: string;
+  image_url_light: string;
+  label: string;
+};
+
 const HomeProjectsSlider = dynamic(
   () => import("@/components/marketing/home-projects-slider").then((mod) => mod.HomeProjectsSlider),
   {
@@ -133,11 +140,13 @@ function SectionHeading({
 export function HomeSections({
   testimonials,
   testimonialMetrics,
-  homeProjects
+  homeProjects,
+  marqueeItems = []
 }: {
   testimonials: TestimonialCard[];
   testimonialMetrics: TestimonialMetricCard[];
   homeProjects: HomeProjectCard[];
+  marqueeItems?: CmsMarqueeItem[];
 }): JSX.Element {
   const projectCards = homeProjects;
 
@@ -203,45 +212,81 @@ export function HomeSections({
           </div>
         </div>
 
-        <div className="group relative mt-12 overflow-hidden rounded-2xl bg-card/70 py-2.5 md:mt-14">
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card via-card/90 to-transparent md:w-24" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-card via-card/90 to-transparent md:w-24" />
-          <div className="flex w-max animate-marquee items-center [animation-duration:30s] [animation-play-state:running] motion-reduce:animate-none group-hover:[animation-play-state:paused] will-change-transform">
-            {[0, 1].map((loopIndex) => (
-              <ul
-                key={`logo-loop-${loopIndex}`}
-                aria-hidden={loopIndex === 1}
-                className="flex shrink-0 items-center gap-6 pr-6 sm:gap-8 sm:pr-8 md:gap-12 md:pr-12"
-              >
-                {stripLogos.map((logo) => (
-                  <li
-                    key={`${loopIndex}-${logo.key}`}
-                    className="inline-flex h-8 items-center justify-center opacity-56 transition duration-300 hover:opacity-92 sm:h-9"
+        {(() => {
+          // Use CMS items when available; fall back to the hardcoded static logos.
+          const useCms = marqueeItems.length > 0;
+          const cmsItems = marqueeItems;
+
+          return (
+            <div className="group relative mt-12 overflow-hidden rounded-2xl bg-card/70 py-2.5 md:mt-14">
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card via-card/90 to-transparent md:w-24" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-card via-card/90 to-transparent md:w-24" />
+              <div className="flex w-max animate-marquee items-center [animation-duration:30s] [animation-play-state:running] motion-reduce:animate-none group-hover:[animation-play-state:paused] will-change-transform">
+                {[0, 1].map((loopIndex) => (
+                  <ul
+                    key={`logo-loop-${loopIndex}`}
+                    aria-hidden={loopIndex === 1}
+                    className="flex shrink-0 items-center gap-6 pr-6 sm:gap-8 sm:pr-8 md:gap-12 md:pr-12"
                   >
-                    <span className="relative inline-flex h-full w-[6.2rem] items-center justify-center sm:w-[7rem] md:w-[8.2rem]">
-                      <Image
-                        src={getMarqueeLogoSrc(logo.baseName, "dark")}
-                        alt={logo.alt}
-                        width={176}
-                        height={48}
-                        className="h-full w-full object-contain dark:hidden"
-                        sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
-                      />
-                      <Image
-                        src={getMarqueeLogoSrc(logo.baseName, "light")}
-                        alt={logo.alt}
-                        width={176}
-                        height={48}
-                        className="hidden h-full w-full object-contain dark:block"
-                        sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
-                      />
-                    </span>
-                  </li>
+                    {useCms
+                      ? cmsItems.map((item) => (
+                          <li
+                            key={`${loopIndex}-${item.id}`}
+                            className="inline-flex h-8 items-center justify-center opacity-56 transition duration-300 hover:opacity-92 sm:h-9"
+                          >
+                            <span className="relative inline-flex h-full w-[6.2rem] items-center justify-center sm:w-[7rem] md:w-[8.2rem]">
+                              <Image
+                                src={item.image_url_dark}
+                                alt={item.label}
+                                width={176}
+                                height={48}
+                                className="h-full w-full object-contain dark:hidden"
+                                sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
+                                unoptimized={item.image_url_dark.startsWith("http")}
+                              />
+                              <Image
+                                src={item.image_url_light}
+                                alt={item.label}
+                                width={176}
+                                height={48}
+                                className="hidden h-full w-full object-contain dark:block"
+                                sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
+                                unoptimized={item.image_url_light.startsWith("http")}
+                              />
+                            </span>
+                          </li>
+                        ))
+                      : stripLogos.map((logo) => (
+                          <li
+                            key={`${loopIndex}-${logo.key}`}
+                            className="inline-flex h-8 items-center justify-center opacity-56 transition duration-300 hover:opacity-92 sm:h-9"
+                          >
+                            <span className="relative inline-flex h-full w-[6.2rem] items-center justify-center sm:w-[7rem] md:w-[8.2rem]">
+                              <Image
+                                src={getMarqueeLogoSrc(logo.baseName, "dark")}
+                                alt={logo.alt}
+                                width={176}
+                                height={48}
+                                className="h-full w-full object-contain dark:hidden"
+                                sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
+                              />
+                              <Image
+                                src={getMarqueeLogoSrc(logo.baseName, "light")}
+                                alt={logo.alt}
+                                width={176}
+                                height={48}
+                                className="hidden h-full w-full object-contain dark:block"
+                                sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
+                              />
+                            </span>
+                          </li>
+                        ))}
+                  </ul>
                 ))}
-              </ul>
-            ))}
-          </div>
-        </div>
+              </div>
+            </div>
+          );
+        })()}
       </section>
 
       <SectionReveal className="container" effect="zoom">

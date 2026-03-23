@@ -306,12 +306,12 @@ function revalidatePaths(paths: string[]): void {
 
 function getPostRevalidationPaths(slug?: string): string[] {
   return slug
-    ? ["/blog", `/blog/${slug}`, "/dashboard/posts"]
-    : ["/blog", "/dashboard/posts"];
+    ? ["/", "/blog", `/blog/${slug}`, "/dashboard/posts"]
+    : ["/", "/blog", "/dashboard/posts"];
 }
 
 function getWorkRevalidationPaths(slug: string): string[] {
-  return ["/works", `/works/${getProjectPathSlug(slug)}`, `/works/${slug}`, "/dashboard/works"];
+  return ["/", "/works", `/works/${getProjectPathSlug(slug)}`, `/works/${slug}`, "/dashboard/works"];
 }
 
 async function notifyPublish(type: PublishContentType, title: string, slug: string): Promise<void> {
