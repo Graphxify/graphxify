@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ZodError } from "zod";
 import { createOrUpdatePost, deletePost } from "@/services/content-service";
 import { requireApiPermission } from "@/lib/auth/requireRole";
 import { errorMessage } from "@/lib/api-error";
-import { formError, formSuccess } from "@/lib/forms/shared";
+import { fieldErrorsFromZod, formError, formSuccess } from "@/lib/forms/shared";
 import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
@@ -12,6 +13,12 @@ export async function POST(request: NextRequest) {
     const result = await createOrUpdatePost({ formData });
     return NextResponse.json(formSuccess("Blog saved.", { id: result.id }), { status: 201 });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        formError("Please review the highlighted fields and try again.", fieldErrorsFromZod(error)),
+        { status: 400 }
+      );
+    }
     const message = errorMessage(error, "Unable to create blog");
     logger.error("Post create failed", { error: message });
     return NextResponse.json(formError(message), { status: 400 });
@@ -29,6 +36,12 @@ export async function PUT(request: NextRequest) {
     const result = await createOrUpdatePost({ id, formData });
     return NextResponse.json(formSuccess("Blog saved.", { id: result.id }), { status: 200 });
   } catch (error) {
+    if (error instanceof ZodError) {
+      return NextResponse.json(
+        formError("Please review the highlighted fields and try again.", fieldErrorsFromZod(error)),
+        { status: 400 }
+      );
+    }
     const message = errorMessage(error, "Unable to update blog");
     logger.error("Post update failed", { error: message });
     return NextResponse.json(formError(message), { status: 400 });
