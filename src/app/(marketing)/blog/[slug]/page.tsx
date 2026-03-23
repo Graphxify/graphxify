@@ -14,6 +14,8 @@ import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { siteConfig } from "@/lib/constants";
 import { blogPostingJsonLd, breadcrumbListJsonLd, buildMetadata } from "@/lib/seo";
 
+export const revalidate = 30;
+
 type Params = { slug: string };
 
 type ContentBlock =
@@ -351,6 +353,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       tags: post.tags.length > 0 ? post.tags : undefined
     }
   };
+}
+
+export async function generateStaticParams(): Promise<Params[]> {
+  const posts = await getPublishedBlogSummaries();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<Params> }) {

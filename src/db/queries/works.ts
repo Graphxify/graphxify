@@ -1,8 +1,8 @@
 import "server-only";
 
-import { unstable_noStore as noStore } from "next/cache";
 import type { Work } from "@/db/types";
 import { getProjectDisplayTitle } from "@/lib/project-card-content";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 function withCanonicalWorkTitle<T extends { slug: string; title: string }>(item: T): T {
@@ -23,7 +23,7 @@ function deduplicateWorksBySlug<T extends { slug: string }>(rows: T[]): T[] {
 }
 
 export async function getPublishedWorks(): Promise<Work[]> {
-  const supabase = createClient();
+  const supabase = createAdminClient() ?? createClient();
 
   // Fetch with the full column list (requires migration work-cms-fields.sql to have been run).
   // We store the result WITHOUT immediately destructuring so TypeScript does not narrow
@@ -62,8 +62,7 @@ export async function getPublishedWorks(): Promise<Work[]> {
 }
 
 export async function getPublishedWorkBySlug(slug: string) {
-  noStore();
-  const supabase = createClient();
+  const supabase = createAdminClient() ?? createClient();
   const { data, error } = await supabase
     .from("works")
     .select("*")

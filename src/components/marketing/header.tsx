@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import { marketingNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -14,10 +15,45 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [resolvedCmsHref, setResolvedCmsHref] = useState<string | null>(cmsHref);
   const centerNav = marketingNav.filter((item) => item.href !== "/contact");
   const isRouteActive = (href: string): boolean =>
     href === "/" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
   const contactActive = isRouteActive("/contact");
+
+  useEffect(() => {
+    const supabase = createBrowserSupabaseClient();
+    let mounted = true;
+
+    const syncSession = async () => {
+      const {
+        data: { session }
+      } = await supabase.auth.getSession();
+
+      if (mounted) {
+        setResolvedCmsHref(session?.user ? "/dashboard" : null);
+      }
+    };
+
+    syncSession().catch(() => {
+      if (mounted) {
+        setResolvedCmsHref(null);
+      }
+    });
+
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (mounted) {
+        setResolvedCmsHref(session?.user ? "/dashboard" : null);
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
@@ -87,7 +123,6 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
                 <div key={item.href} className={isServices ? "group/services relative" : "relative"}>
                   <Link
                     href={item.href}
-                    prefetch={false}
                     className={cn(
                       "group relative rounded-full px-4 py-2.5 text-[0.9rem] font-medium text-fg/72 transition-colors duration-150 hover:-translate-y-[1px] hover:text-fg",
                       active && "text-fg"
@@ -114,7 +149,6 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
                             <Link
                               key={sub.href}
                               href={sub.href}
-                              prefetch={false}
                               className={cn(
                                 "group/item relative mx-1.5 flex items-center rounded-[0.6rem] px-3.5 py-2.5 text-sm font-medium transition-all duration-200 ease-out",
                                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-1 focus-visible:ring-offset-bg",
@@ -134,15 +168,6 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
                                 )}
                               />
                               <span className="relative">{sub.label}</span>
-                              <ChevronRight
-                                aria-hidden="true"
-                                className={cn(
-                                  "relative ml-auto h-3.5 w-3.5 shrink-0 transition-[transform,opacity] duration-200",
-                                  subActive
-                                    ? "text-accentA/70 opacity-100"
-                                    : "opacity-0 group-hover/item:translate-x-0.5 group-hover/item:text-fg/36 group-hover/item:opacity-100"
-                                )}
-                              />
                             </Link>
                           );
                         })}
@@ -156,14 +181,14 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
 
           <div className="relative z-10 ml-auto hidden items-center gap-2.5 lg:flex">
             <ThemeToggle className="hidden lg:inline-flex" />
-            {cmsHref ? (
+            {resolvedCmsHref ? (
               <Button
                 asChild
                 size="lg"
                 variant="secondary"
                 className="hidden rounded-lg border border-border/24 px-5 text-sm lg:inline-flex"
               >
-                <Link href={cmsHref} prefetch={false}>CMS</Link>
+                <Link href={resolvedCmsHref} prefetch={false}>CMS</Link>
               </Button>
             ) : null}
             <Button
@@ -176,12 +201,12 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
                   : "border-border/24 bg-accent-gradient shadow-[0_10px_22px_rgba(13,13,15,0.18)]"
               )}
             >
-              <Link href="/contact" prefetch={false}>Contact</Link>
+              <Link href="/contact">Contact</Link>
             </Button>
           </div>
 
-          <div className="relative z-10 ml-auto flex items-center gap-2 lg:hidden">
-            <ThemeToggle />
+          <div className="relative z-[70] ml-auto flex items-center gap-2 lg:hidden">
+            <ThemeToggle className="h-10 w-[4.2rem] border-border/18 bg-card/62 shadow-[0_8px_20px_rgba(13,13,15,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-card/42" />
             <button
               type="button"
               onClick={() => setMobileOpen((prev) => !prev)}
@@ -191,11 +216,13 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
               className={cn(
                 "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-200",
                 mobileOpen
-                  ? "border-accentA/50 bg-accent-gradient text-ivory shadow-[0_0_0_3px_rgba(0,163,255,0.12),0_8px_20px_rgba(0,100,220,0.28)]"
+                  ? "border-accentA bg-accentA text-white ring-2 ring-white/70 shadow-[0_0_0_3px_rgba(0,163,255,0.18),0_10px_24px_rgba(0,100,220,0.32)] dark:ring-accentA/18"
                   : "border-border/28 bg-card/82 text-fg/75 hover:border-border/45 hover:bg-card hover:text-fg"
               )}
             >
-              <span className="inline-flex">{mobileOpen ? <X className="h-4.5 w-4.5" /> : <Menu className="h-4.5 w-4.5" />}</span>
+              <span className="inline-flex">
+                {mobileOpen ? <X className="h-5 w-5" strokeWidth={2.5} /> : <Menu className="h-4.5 w-4.5" strokeWidth={2.25} />}
+              </span>
             </button>
           </div>
         </div>
@@ -210,9 +237,9 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
 
             <div
               id="mobile-marketing-nav"
-              className="absolute left-3 right-3 top-full z-[60] mt-2.5 overflow-hidden rounded-[1.35rem] border border-white/[0.08] bg-graphite/[0.97] p-2 shadow-[0_0_0_1px_rgba(0,163,255,0.05),0_32px_64px_rgba(13,13,15,0.65)] backdrop-blur-2xl lg:hidden"
+              className="absolute left-3 right-3 top-full z-[60] mt-2.5 overflow-hidden rounded-[1.35rem] border border-border/24 bg-bg/95 p-2 shadow-[0_0_0_1px_rgba(0,163,255,0.05),0_32px_64px_rgba(13,13,15,0.18)] backdrop-blur-2xl dark:border-white/[0.08] dark:bg-graphite/[0.97] dark:shadow-[0_0_0_1px_rgba(0,163,255,0.05),0_32px_64px_rgba(13,13,15,0.65)] lg:hidden"
             >
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.13] to-transparent" />
+              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent dark:via-white/[0.13]" />
 
               <nav className="grid gap-px p-1">
                 {centerNav.map((item) => {
@@ -221,12 +248,11 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
                     <Link
                       key={item.href}
                       href={item.href}
-                      prefetch={false}
                       className={cn(
                         "flex items-center gap-2.5 rounded-[0.875rem] px-4 py-3.5 text-[0.9375rem] font-medium transition-colors duration-150",
                         active
-                          ? "bg-white/[0.08] text-ivory"
-                          : "text-ivory/50 hover:bg-white/[0.05] hover:text-ivory/85"
+                          ? "bg-card text-fg shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] dark:bg-white/[0.08] dark:text-ivory"
+                          : "text-fg/66 hover:bg-card/80 hover:text-fg dark:text-ivory/50 dark:hover:bg-white/[0.05] dark:hover:text-ivory/85"
                       )}
                     >
                       {active ? <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accentA shadow-[0_0_6px_rgba(0,163,255,0.7)]" /> : null}
@@ -236,21 +262,20 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
                 })}
               </nav>
 
-              <div className="mx-3 my-1.5 h-px bg-white/[0.07]" />
+              <div className="mx-3 my-1.5 h-px bg-black/8 dark:bg-white/[0.07]" />
 
               <div className="p-1">
-                {cmsHref ? (
+                {resolvedCmsHref ? (
                   <Link
-                    href={cmsHref}
+                    href={resolvedCmsHref}
                     prefetch={false}
-                    className="mb-2 flex w-full items-center justify-center rounded-[0.875rem] border border-white/[0.1] bg-card/80 px-4 py-3.5 text-[0.9375rem] font-semibold text-ivory/88 transition-colors duration-200 hover:bg-white/[0.06] hover:text-ivory"
+                    className="mb-2 flex w-full items-center justify-center rounded-[0.875rem] border border-border/24 bg-card px-4 py-3.5 text-[0.9375rem] font-semibold text-fg transition-colors duration-200 hover:bg-card/86 dark:border-white/[0.1] dark:bg-card/80 dark:text-ivory/88 dark:hover:bg-white/[0.06] dark:hover:text-ivory"
                   >
                     Open CMS
                   </Link>
                 ) : null}
                 <Link
                   href="/contact"
-                  prefetch={false}
                   className="flex w-full items-center justify-center rounded-[0.875rem] bg-accent-gradient px-4 py-3.5 text-[0.9375rem] font-semibold text-ivory shadow-[0_6px_20px_rgba(0,100,220,0.28)] transition-shadow duration-200 hover:shadow-[0_10px_28px_rgba(0,100,220,0.38)]"
                 >
                   Start a Project

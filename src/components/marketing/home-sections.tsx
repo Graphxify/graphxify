@@ -177,9 +177,9 @@ export function HomeSections({
               size="lg"
               className="w-full rounded-lg border border-border/26 px-6 text-sm !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92 sm:w-auto sm:text-base"
             >
-              <Link href="/contact" prefetch={false}>Start a Project</Link>
+              <Link href="/contact">Start a Project</Link>
             </Button>
-            <Link href="/works" prefetch={false} className="link-sweep text-sm text-fg/72 sm:text-base">
+            <Link href="/works" className="link-sweep text-sm text-fg/72 sm:text-base">
               View Our Work
             </Link>
           </div>
@@ -254,7 +254,7 @@ export function HomeSections({
             <p className="max-w-xl text-sm text-ivory/66 md:text-base">
               Every project starts with a problem and ends with a platform. Here&apos;s a selection of brands and websites we&apos;ve designed and built for Canadian businesses.
             </p>
-            <Link href="/works" prefetch={false} className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-ivory/74 transition-colors duration-300 hover:text-ivory">
+            <Link href="/works" className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-ivory/74 transition-colors duration-300 hover:text-ivory">
               View all projects
               <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
@@ -295,11 +295,11 @@ export function HomeSections({
 
             <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
               <Button asChild size="lg" className="relative overflow-hidden px-8 shadow-[0_0_30px_rgba(0,82,204,0.25)]">
-                <Link href="/contact" prefetch={false}>
+                <Link href="/contact">
                   <span className="relative z-10">Start a Project</span>
                 </Link>
               </Button>
-              <Link href="/works" prefetch={false} className="link-sweep text-sm text-fg/60 transition-colors hover:text-fg/90 sm:text-base">
+              <Link href="/works" className="link-sweep text-sm text-fg/60 transition-colors hover:text-fg/90 sm:text-base">
                 View Our Work
               </Link>
             </div>

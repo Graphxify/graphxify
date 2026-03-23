@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
+import { BackToTop } from "@/components/marketing/back-to-top";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { FooterBackgroundGradient } from "@/components/ui/hover-footer";
 import { companyContact } from "@/lib/constants";
@@ -84,6 +85,7 @@ const socialLinks = [
 export function MarketingFooter(): JSX.Element {
   return (
     <footer className="relative mt-20 overflow-hidden border-t border-border/20 bg-card/76">
+      <BackToTop />
       <FooterBackgroundGradient />
 
       <div className="container relative z-10 py-12 md:py-14 lg:py-16">

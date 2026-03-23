@@ -11,7 +11,6 @@ import {
   useState,
   type KeyboardEvent,
   type PointerEvent,
-  type TransitionEvent,
   type WheelEvent
 } from "react";
 import {
@@ -41,24 +40,6 @@ function getPerView(width: number): number {
   return 1;
 }
 
-function buildLoopSegment(items: HomeSliderProject[], count: number, fromEnd = false): HomeSliderProject[] {
-  if (items.length === 0 || count <= 0) {
-    return [];
-  }
-
-  return Array.from({ length: count }, (_, index) => {
-    if (fromEnd) {
-      const sourceIndex = (items.length - (count - index)) % items.length;
-      return items[(sourceIndex + items.length) % items.length];
-    }
-    return items[index % items.length];
-  });
-}
-
-function wrapIndex(value: number, total: number): number {
-  return ((value % total) + total) % total;
-}
-
 export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[] }): JSX.Element {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const dragStartXRef = useRef<number | null>(null);
@@ -67,50 +48,21 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
   const [perView, setPerView] = useState(1);
   const [viewportWidth, setViewportWidth] = useState(0);
   const [trackIndex, setTrackIndex] = useState(0);
-  const [animateTrack, setAnimateTrack] = useState(true);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [autoplayBlockedUntil, setAutoplayBlockedUntil] = useState(0);
+  const [autoplayDirection, setAutoplayDirection] = useState<1 | -1>(1);
 
   const totalCards = projects.length;
-  const carouselActive = totalCards > 1;
-  const cloneCount = carouselActive ? perView : 0;
+  const maxStartIndex = Math.max(totalCards - perView, 0);
+  const carouselActive = maxStartIndex > 0;
 
-  const renderCards = useMemo(() => {
-    if (!carouselActive) {
-      return projects;
-    }
-    return [...buildLoopSegment(projects, cloneCount, true), ...projects, ...buildLoopSegment(projects, cloneCount, false)];
-  }, [carouselActive, cloneCount, projects]);
-
-  const baseIndex = carouselActive ? cloneCount : 0;
-  const minRealTrackIndex = cloneCount;
-  const maxRealTrackIndex = cloneCount + totalCards - 1;
-  const minTrackIndex = minRealTrackIndex - 1;
-  const maxTrackIndex = maxRealTrackIndex + 1;
-
-  const normalizeTrackIndex = useCallback(
-    (index: number): number => {
-      if (!carouselActive) {
-        return 0;
-      }
-      const logicalIndex = wrapIndex(index - cloneCount, totalCards);
-      return logicalIndex + cloneCount;
+  const clampIndex = useCallback(
+    (value: number) => {
+      return Math.max(0, Math.min(maxStartIndex, value));
     },
-    [carouselActive, cloneCount, totalCards]
-  );
-
-  const sanitizeTrackIndex = useCallback(
-    (index: number): number => {
-      if (!carouselActive) {
-        return 0;
-      }
-
-      const normalized = index < minTrackIndex || index > maxTrackIndex ? normalizeTrackIndex(index) : index;
-      return Math.max(minTrackIndex, Math.min(maxTrackIndex, normalized));
-    },
-    [carouselActive, maxTrackIndex, minTrackIndex, normalizeTrackIndex]
+    [maxStartIndex]
   );
 
   useEffect(() => {
@@ -119,7 +71,6 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
     };
 
     updatePerView();
-    // rAF-debounce so resize fires at most once per frame
     let rafId: number;
     const onResize = () => {
       cancelAnimationFrame(rafId);
@@ -150,24 +101,28 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
   }, []);
 
   useEffect(() => {
-    setAnimateTrack(false);
-    setTrackIndex(baseIndex);
+    setTrackIndex((current) => clampIndex(current));
     setDragOffset(0);
+  }, [clampIndex, perView]);
 
-    const raf = window.requestAnimationFrame(() => {
-      setAnimateTrack(true);
-    });
+  useEffect(() => {
+    if (trackIndex >= maxStartIndex) {
+      setAutoplayDirection(-1);
+      return;
+    }
 
-    return () => window.cancelAnimationFrame(raf);
-  }, [baseIndex, totalCards, perView]);
-
-  const activeIndex = carouselActive ? wrapIndex(trackIndex - cloneCount, totalCards) : 0;
-  const indicatorCount = carouselActive ? totalCards : 1;
+    if (trackIndex <= 0) {
+      setAutoplayDirection(1);
+    }
+  }, [maxStartIndex, trackIndex]);
 
   const cardWidthPx = perView > 0 ? Math.max((viewportWidth - GAP_PX * (perView - 1)) / perView, 0) : 0;
   const stepPx = cardWidthPx + GAP_PX;
   const cardBasis = `calc((100% - ${(perView - 1) * GAP_PX}px) / ${perView})`;
   const trackTranslate = -(trackIndex * stepPx) + dragOffset;
+  const indicatorCount = carouselActive ? maxStartIndex + 1 : 1;
+  const canGoPrev = trackIndex > 0;
+  const canGoNext = trackIndex < maxStartIndex;
   const resolvedImageSizes =
     cardWidthPx > 0
       ? `${Math.max(1, Math.ceil(cardWidthPx))}px`
@@ -177,15 +132,6 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
       createSupabasePublicImageLoader({
         maxWidth: perView === 1 ? 640 : 1440,
         quality: perView === 1 ? 68 : 72,
-        resize: "cover"
-      }),
-    [perView]
-  );
-  const homeProjectCloneImageLoader = useMemo(
-    () =>
-      createSupabasePublicImageLoader({
-        maxWidth: perView === 1 ? 480 : 960,
-        quality: perView === 1 ? 58 : 64,
         resize: "cover"
       }),
     [perView]
@@ -203,14 +149,9 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
       if (!carouselActive) {
         return;
       }
-      setAnimateTrack(true);
-      setTrackIndex((prev) => {
-        const safe = sanitizeTrackIndex(prev);
-        const next = safe + direction;
-        return Math.max(minTrackIndex, Math.min(maxTrackIndex, next));
-      });
+      setTrackIndex((prev) => clampIndex(prev + direction));
     },
-    [carouselActive, maxTrackIndex, minTrackIndex, sanitizeTrackIndex]
+    [carouselActive, clampIndex]
   );
 
   const goNext = useCallback(() => moveTrack(1), [moveTrack]);
@@ -221,12 +162,10 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
       if (!carouselActive) {
         return;
       }
-      const normalizedTarget = wrapIndex(target, totalCards);
-      setAnimateTrack(true);
-      setTrackIndex(() => minRealTrackIndex + normalizedTarget);
+      setTrackIndex(clampIndex(target));
       queueAutoplayResume();
     },
-    [carouselActive, minRealTrackIndex, queueAutoplayResume, totalCards]
+    [carouselActive, clampIndex, queueAutoplayResume]
   );
 
   useEffect(() => {
@@ -237,33 +176,20 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
     const now = Date.now();
     const waitBeforeResume = Math.max(0, autoplayBlockedUntil - now);
     const delay = waitBeforeResume > 0 ? waitBeforeResume : AUTOPLAY_MS;
-    const id = window.setTimeout(() => moveTrack(1), delay);
+    const id = window.setTimeout(() => {
+      const nextDirection = trackIndex >= maxStartIndex ? -1 : trackIndex <= 0 ? 1 : autoplayDirection;
+      setAutoplayDirection(nextDirection);
+      moveTrack(nextDirection);
+    }, delay);
     return () => window.clearTimeout(id);
-  }, [autoplayBlockedUntil, carouselActive, isDragging, isHovering, moveTrack, trackIndex]);
-
-  const onTrackTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
-    if (!carouselActive || event.target !== event.currentTarget || event.propertyName !== "transform") {
-      return;
-    }
-
-    if (trackIndex < minRealTrackIndex || trackIndex > maxRealTrackIndex) {
-      const nextTrackIndex = normalizeTrackIndex(trackIndex);
-      if (nextTrackIndex !== trackIndex) {
-        setAnimateTrack(false);
-        setTrackIndex(nextTrackIndex);
-        window.requestAnimationFrame(() => setAnimateTrack(true));
-      }
-    }
-  };
+  }, [autoplayBlockedUntil, autoplayDirection, carouselActive, isDragging, isHovering, maxStartIndex, moveTrack, trackIndex]);
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (!carouselActive) {
       return;
     }
-    setTrackIndex((prev) => sanitizeTrackIndex(prev));
     dragStartXRef.current = event.clientX;
     setIsDragging(true);
-    setAnimateTrack(false);
     setDragOffset(0);
     queueAutoplayResume();
   };
@@ -272,25 +198,29 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
     if (!isDragging || dragStartXRef.current === null) {
       return;
     }
+
     const offset = event.clientX - dragStartXRef.current;
-    setDragOffset(Math.max(Math.min(offset, 170), -170));
+    const minOffset = canGoNext ? -170 : 0;
+    const maxOffset = canGoPrev ? 170 : 0;
+    setDragOffset(Math.max(Math.min(offset, maxOffset), minOffset));
   };
 
   const finishDrag = () => {
     if (!isDragging) {
       return;
     }
+
     const offset = dragOffset;
     setIsDragging(false);
     setDragOffset(0);
-    setAnimateTrack(true);
     queueAutoplayResume();
 
-    if (offset <= -DRAG_THRESHOLD_PX) {
+    if (offset <= -DRAG_THRESHOLD_PX && canGoNext) {
       goNext();
       return;
     }
-    if (offset >= DRAG_THRESHOLD_PX) {
+
+    if (offset >= DRAG_THRESHOLD_PX && canGoPrev) {
       goPrev();
     }
   };
@@ -299,6 +229,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
     if (!carouselActive) {
       return;
     }
+
     const dominantDelta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
     if (Math.abs(dominantDelta) < 26 || wheelLockRef.current) {
       return;
@@ -310,9 +241,9 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
     }, 360);
 
     queueAutoplayResume();
-    if (dominantDelta > 0) {
+    if (dominantDelta > 0 && canGoNext) {
       goNext();
-    } else {
+    } else if (dominantDelta < 0 && canGoPrev) {
       goPrev();
     }
   };
@@ -321,13 +252,15 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
     if (!carouselActive) {
       return;
     }
-    if (event.key === "ArrowRight") {
+
+    if (event.key === "ArrowRight" && canGoNext) {
       event.preventDefault();
       queueAutoplayResume();
       goNext();
       return;
     }
-    if (event.key === "ArrowLeft") {
+
+    if (event.key === "ArrowLeft" && canGoPrev) {
       event.preventDefault();
       queueAutoplayResume();
       goPrev();
@@ -347,10 +280,10 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
           <button
             type="button"
             onClick={goPrev}
-            disabled={!carouselActive}
+            disabled={!canGoPrev}
             className={cn(
               "inline-flex h-8 items-center gap-1 rounded-full border px-3 text-[0.58rem] uppercase tracking-[0.14em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-              !carouselActive
+              !canGoPrev
                 ? "cursor-not-allowed border-border/18 bg-card/54 text-fg/34"
                 : "border-border/24 bg-card/74 text-fg/74 hover:border-accentA/42 hover:bg-accent-gradient hover:text-ivory"
             )}
@@ -362,10 +295,10 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
           <button
             type="button"
             onClick={goNext}
-            disabled={!carouselActive}
+            disabled={!canGoNext}
             className={cn(
               "inline-flex h-8 items-center gap-1 rounded-full border px-3 text-[0.58rem] uppercase tracking-[0.14em] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-              !carouselActive
+              !canGoNext
                 ? "cursor-not-allowed border-border/18 bg-card/54 text-fg/34"
                 : "border-border/24 bg-card/74 text-fg/74 hover:border-accentA/42 hover:bg-accent-gradient hover:text-ivory"
             )}
@@ -394,55 +327,13 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
         <div
           className={cn(
             "flex gap-[18px] will-change-transform",
-            animateTrack && "transition-transform duration-[620ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+            !isDragging && "transition-transform duration-[620ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
           )}
           style={{ transform: `translate3d(${trackTranslate}px,0,0)` }}
-          onTransitionEnd={onTrackTransitionEnd}
         >
-          {renderCards.map((project, index) => {
-            const isClone = index < cloneCount || index >= cloneCount + totalCards;
+          {projects.map((project, index) => {
             const displayTitle = getProjectDisplayTitle(project.slug, project.title);
             const pathSlug = getProjectPathSlug(project.slug);
-            if (isClone) {
-              return (
-                <div
-                  key={`${project.slug}-${index}`}
-                  className="relative origin-center will-change-transform"
-                  style={{ flex: `0 0 ${cardBasis}` }}
-                  aria-hidden="true"
-                >
-                  <div className="group block overflow-hidden rounded-[1.15rem] border border-border/18 shadow-[0_18px_36px_rgba(13,13,15,0.12)]">
-                    <article className="relative h-[18.5rem] overflow-hidden rounded-[1.15rem] md:h-[21rem]">
-                      <Image
-                        src={project.coverImage}
-                        alt={displayTitle}
-                        fill
-                        loader={shouldBypassNextImageOptimization(project.coverImage) ? homeProjectCloneImageLoader : undefined}
-                        className="object-cover transition-[transform,filter] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] group-hover:brightness-[0.7]"
-                        sizes={resolvedImageSizes}
-                      />
-                      <span className="absolute inset-0 bg-gradient-to-b from-black/78 via-black/30 to-black/66" />
-                      <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/40 bg-black/64 px-3 py-1 text-[0.56rem] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
-                        <span className="h-1.5 w-1.5 rounded-full bg-accent-gradient" />
-                        {String(wrapIndex(index - cloneCount, Math.max(totalCards, 1)) + 1).padStart(2, "0")}
-                      </div>
-                      <div className="absolute inset-x-4 bottom-4">
-                        <div className="rounded-[0.92rem] border border-white/40 bg-black/64 p-4 shadow-[0_10px_24px_rgba(0,0,0,0.32)] backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-0.5">
-                          <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/80">{project.industry}</p>
-                          <h3 className="mt-2 line-clamp-2 text-[1.32rem] font-semibold leading-[1.05] text-white md:text-[1.6rem]">
-                            {displayTitle}
-                          </h3>
-                          <span className="mt-3 inline-flex items-center gap-1.5 text-[0.58rem] uppercase tracking-[0.14em] text-white/90">
-                            Open Project
-                            <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                          </span>
-                        </div>
-                      </div>
-                    </article>
-                  </div>
-                </div>
-              );
-            }
 
             return (
               <div
@@ -469,7 +360,7 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
 
                     <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/40 bg-black/64 px-3 py-1 text-[0.56rem] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
                       <span className="h-1.5 w-1.5 rounded-full bg-accent-gradient" />
-                      {String(wrapIndex(index - cloneCount, Math.max(totalCards, 1)) + 1).padStart(2, "0")}
+                      {String(index + 1).padStart(2, "0")}
                     </div>
 
                     <div className="absolute inset-x-4 bottom-4">
@@ -494,13 +385,13 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
 
       <div className="flex items-center justify-center gap-3 pt-1">
         {Array.from({ length: indicatorCount }).map((_, index) => {
-          const active = index === activeIndex;
+          const active = index === trackIndex;
           return (
             <button
               key={`home-slider-indicator-${index}`}
               type="button"
               onClick={() => goToSlide(index)}
-              aria-label={`Go to project ${index + 1}`}
+              aria-label={`Go to slide ${index + 1}`}
               aria-pressed={active}
               className="flex h-12 w-12 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             >

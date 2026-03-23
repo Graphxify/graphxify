@@ -1,7 +1,7 @@
 import "server-only";
 
-import { unstable_noStore as noStore } from "next/cache";
 import type { Post } from "@/db/types";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 const POST_BASE_SELECT = "id,title,slug,excerpt,content,cover_image_url,status,author_id,created_at,updated_at";
@@ -53,8 +53,7 @@ function withLegacyBlogDefaults(rows: Array<Partial<Post>>, legacySchema = false
 }
 
 export async function getPublishedPosts(): Promise<Post[]> {
-  noStore();
-  const supabase = createClient();
+  const supabase = createAdminClient() ?? createClient();
 
   const primary = await supabase
     .from("posts")
@@ -84,7 +83,7 @@ export async function getPublishedPosts(): Promise<Post[]> {
 }
 
 export async function getPublishedPostBySlug(slug: string): Promise<Post | null> {
-  const supabase = createClient();
+  const supabase = createAdminClient() ?? createClient();
 
   const primary = await supabase
     .from("posts")

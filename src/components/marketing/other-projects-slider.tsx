@@ -10,7 +10,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type TransitionEvent,
   type KeyboardEvent,
   type PointerEvent,
   type WheelEvent
@@ -40,24 +39,6 @@ function getPerView(width: number): number {
   return 1;
 }
 
-function buildLoopSegment(items: SliderProject[], count: number, fromEnd = false): SliderProject[] {
-  if (items.length === 0 || count <= 0) {
-    return [];
-  }
-
-  return Array.from({ length: count }, (_, index) => {
-    if (fromEnd) {
-      const sourceIndex = (items.length - (count - index)) % items.length;
-      return items[(sourceIndex + items.length) % items.length];
-    }
-    return items[index % items.length];
-  });
-}
-
-function wrapIndex(value: number, total: number): number {
-  return ((value % total) + total) % total;
-}
-
 export function OtherProjectsSlider({ projects }: { projects: SliderProject[] }): JSX.Element {
   const viewportRef = useRef<HTMLDivElement | null>(null);
   const dragStartXRef = useRef<number | null>(null);
@@ -66,11 +47,11 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
   const [perView, setPerView] = useState(1);
   const [viewportWidth, setViewportWidth] = useState(0);
   const [trackIndex, setTrackIndex] = useState(0);
-  const [animateTrack, setAnimateTrack] = useState(true);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   const [autoplayBlockedUntil, setAutoplayBlockedUntil] = useState(0);
+  const [autoplayDirection, setAutoplayDirection] = useState<1 | -1>(1);
 
   const uniqueProjects = useMemo(() => {
     const bySlug = new Map<string, SliderProject>();
@@ -88,46 +69,16 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
   }
 
   const displayPerView = Math.max(Math.min(perView, totalCards), 1);
-  const carouselActive = totalCards > 1;
-  const cloneCount = carouselActive ? displayPerView : 0;
+  const maxStartIndex = Math.max(totalCards - displayPerView, 0);
+  const carouselActive = maxStartIndex > 0;
+  const canGoPrev = trackIndex > 0;
+  const canGoNext = trackIndex < maxStartIndex;
 
-  const renderCards = useMemo(() => {
-    if (!carouselActive) {
-      return uniqueProjects;
-    }
-    const prefix = buildLoopSegment(uniqueProjects, cloneCount, true);
-    const suffix = buildLoopSegment(uniqueProjects, cloneCount, false);
-    return [...prefix, ...uniqueProjects, ...suffix];
-  }, [carouselActive, cloneCount, uniqueProjects]);
-
-  const baseIndex = carouselActive ? cloneCount : 0;
-  const minRealTrackIndex = cloneCount;
-  const maxRealTrackIndex = cloneCount + totalCards - 1;
-  const minTrackIndex = minRealTrackIndex - 1;
-  const maxTrackIndex = maxRealTrackIndex + 1;
-
-  const normalizeTrackIndex = useCallback(
-    (index: number): number => {
-      if (!carouselActive) {
-        return 0;
-      }
-
-      const logicalIndex = wrapIndex(index - cloneCount, totalCards);
-      return logicalIndex + cloneCount;
+  const clampIndex = useCallback(
+    (value: number) => {
+      return Math.max(0, Math.min(maxStartIndex, value));
     },
-    [carouselActive, cloneCount, totalCards]
-  );
-
-  const sanitizeTrackIndex = useCallback(
-    (index: number): number => {
-      if (!carouselActive) {
-        return 0;
-      }
-
-      const normalized = index < minTrackIndex || index > maxTrackIndex ? normalizeTrackIndex(index) : index;
-      return Math.max(minTrackIndex, Math.min(maxTrackIndex, normalized));
-    },
-    [carouselActive, maxTrackIndex, minTrackIndex, normalizeTrackIndex]
+    [maxStartIndex]
   );
 
   useEffect(() => {
@@ -166,38 +117,43 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
   }, []);
 
   useEffect(() => {
-    setAnimateTrack(false);
-    setTrackIndex(baseIndex);
+    setTrackIndex((current) => clampIndex(current));
     setDragOffset(0);
+  }, [clampIndex, displayPerView]);
 
-    const raf = window.requestAnimationFrame(() => {
-      setAnimateTrack(true);
-    });
+  useEffect(() => {
+    if (trackIndex >= maxStartIndex) {
+      setAutoplayDirection(-1);
+      return;
+    }
 
-    return () => window.cancelAnimationFrame(raf);
-  }, [baseIndex, totalCards, perView]);
+    if (trackIndex <= 0) {
+      setAutoplayDirection(1);
+    }
+  }, [maxStartIndex, trackIndex]);
 
-  const activeIndex = carouselActive ? wrapIndex(trackIndex - cloneCount, totalCards) : 0;
-  const dotCount = carouselActive ? totalCards : 1;
-  const activeDotIndex = carouselActive ? activeIndex : 0;
-
-  const cardWidthPx = displayPerView > 0 ? Math.max((viewportWidth - GAP_PX * (displayPerView - 1)) / displayPerView, 0) : 0;
+  const cardWidthPx =
+    displayPerView > 0 ? Math.max((viewportWidth - GAP_PX * (displayPerView - 1)) / displayPerView, 0) : 0;
   const stepPx = cardWidthPx + GAP_PX;
   const cardBasis = `calc((100% - ${(displayPerView - 1) * GAP_PX}px) / ${displayPerView})`;
+  const trackTranslate = -(trackIndex * stepPx) + dragOffset;
+  const dotCount = carouselActive ? maxStartIndex + 1 : 1;
+
+  const queueAutoplayResume = useCallback(() => {
+    if (!carouselActive) {
+      return;
+    }
+    setAutoplayBlockedUntil(Date.now() + AUTOPLAY_RESUME_DELAY_MS);
+  }, [carouselActive]);
 
   const moveTrack = useCallback(
     (direction: 1 | -1) => {
       if (!carouselActive) {
         return;
       }
-      setAnimateTrack(true);
-      setTrackIndex((prev) => {
-        const safe = sanitizeTrackIndex(prev);
-        const next = safe + direction;
-        return Math.max(minTrackIndex, Math.min(maxTrackIndex, next));
-      });
+      setTrackIndex((prev) => clampIndex(prev + direction));
     },
-    [carouselActive, maxTrackIndex, minTrackIndex, sanitizeTrackIndex]
+    [carouselActive, clampIndex]
   );
 
   const goNext = useCallback(() => {
@@ -208,33 +164,15 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
     moveTrack(-1);
   }, [moveTrack]);
 
-  const queueAutoplayResume = useCallback(() => {
-    if (!carouselActive) {
-      return;
-    }
-    setAutoplayBlockedUntil(Date.now() + AUTOPLAY_RESUME_DELAY_MS);
-  }, [carouselActive]);
-
   const goToLogicalSlide = useCallback(
     (target: number) => {
       if (!carouselActive) {
         return;
       }
-
-      const normalizedTarget = wrapIndex(target, totalCards);
-      setAnimateTrack(true);
-      setTrackIndex((prev) => {
-        const safe = sanitizeTrackIndex(prev);
-        const targetTrackIndex = minRealTrackIndex + normalizedTarget;
-
-        if (safe === targetTrackIndex) {
-          return safe;
-        }
-
-        return targetTrackIndex;
-      });
+      setTrackIndex(clampIndex(target));
+      queueAutoplayResume();
     },
-    [carouselActive, minRealTrackIndex, sanitizeTrackIndex, totalCards]
+    [carouselActive, clampIndex, queueAutoplayResume]
   );
 
   useEffect(() => {
@@ -247,42 +185,21 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
     const delay = waitBeforeResume > 0 ? waitBeforeResume : AUTOPLAY_MS;
 
     const id = window.setTimeout(() => {
-      moveTrack(1);
+      const nextDirection = trackIndex >= maxStartIndex ? -1 : trackIndex <= 0 ? 1 : autoplayDirection;
+      setAutoplayDirection(nextDirection);
+      moveTrack(nextDirection);
     }, delay);
 
     return () => window.clearTimeout(id);
-  }, [autoplayBlockedUntil, carouselActive, isDragging, isHovering, moveTrack, trackIndex]);
-
-  const onTrackTransitionEnd = (event: TransitionEvent<HTMLDivElement>) => {
-    if (!carouselActive || event.target !== event.currentTarget || event.propertyName !== "transform") {
-      return;
-    }
-
-    const outOfLoopRange = trackIndex < minRealTrackIndex || trackIndex > maxRealTrackIndex;
-
-    if (!outOfLoopRange) {
-      return;
-    }
-
-    const nextTrackIndex = normalizeTrackIndex(trackIndex);
-    if (nextTrackIndex === trackIndex) {
-      return;
-    }
-
-    setAnimateTrack(false);
-    setTrackIndex(nextTrackIndex);
-    window.requestAnimationFrame(() => setAnimateTrack(true));
-  };
+  }, [autoplayBlockedUntil, autoplayDirection, carouselActive, isDragging, isHovering, maxStartIndex, moveTrack, trackIndex]);
 
   const onPointerDown = (event: PointerEvent<HTMLDivElement>) => {
     if (!carouselActive) {
       return;
     }
 
-    setTrackIndex((prev) => sanitizeTrackIndex(prev));
     dragStartXRef.current = event.clientX;
     setIsDragging(true);
-    setAnimateTrack(false);
     setDragOffset(0);
     queueAutoplayResume();
   };
@@ -293,17 +210,8 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
     }
 
     const offset = event.clientX - dragStartXRef.current;
-    let minOffset = -160;
-    let maxOffset = 160;
-
-    if (trackIndex <= minTrackIndex) {
-      maxOffset = 0;
-    }
-
-    if (trackIndex >= maxTrackIndex) {
-      minOffset = 0;
-    }
-
+    const minOffset = canGoNext ? -160 : 0;
+    const maxOffset = canGoPrev ? 160 : 0;
     const clamped = Math.max(Math.min(offset, maxOffset), minOffset);
     setDragOffset(clamped);
   };
@@ -316,15 +224,14 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
     const offset = dragOffset;
     setIsDragging(false);
     setDragOffset(0);
-    setAnimateTrack(true);
     queueAutoplayResume();
 
-    if (offset <= -DRAG_THRESHOLD_PX) {
+    if (offset <= -DRAG_THRESHOLD_PX && canGoNext) {
       goNext();
       return;
     }
 
-    if (offset >= DRAG_THRESHOLD_PX) {
+    if (offset >= DRAG_THRESHOLD_PX && canGoPrev) {
       goPrev();
     }
   };
@@ -344,9 +251,10 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
       wheelLockRef.current = false;
     }, 360);
 
-    if (dominantDelta > 0) {
+    queueAutoplayResume();
+    if (dominantDelta > 0 && canGoNext) {
       goNext();
-    } else {
+    } else if (dominantDelta < 0 && canGoPrev) {
       goPrev();
     }
   };
@@ -356,13 +264,13 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
       return;
     }
 
-    if (event.key === "ArrowRight") {
+    if (event.key === "ArrowRight" && canGoNext) {
       event.preventDefault();
       goNext();
       return;
     }
 
-    if (event.key === "ArrowLeft") {
+    if (event.key === "ArrowLeft" && canGoPrev) {
       event.preventDefault();
       goPrev();
     }
@@ -373,19 +281,17 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
       return;
     }
 
-    if (event.key === "ArrowRight") {
+    if (event.key === "ArrowRight" && canGoNext) {
       event.preventDefault();
       goNext();
       return;
     }
 
-    if (event.key === "ArrowLeft") {
+    if (event.key === "ArrowLeft" && canGoPrev) {
       event.preventDefault();
       goPrev();
     }
   };
-
-  const trackTranslate = -(trackIndex * stepPx) + dragOffset;
 
   return (
     <section
@@ -400,10 +306,10 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
           <button
             type="button"
             onClick={goPrev}
-            disabled={!carouselActive}
+            disabled={!canGoPrev}
             className={cn(
               "inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-              !carouselActive
+              !canGoPrev
                 ? "cursor-not-allowed border-border/18 bg-card/54 text-fg/34"
                 : "border-border/26 bg-card/74 text-fg/74 hover:border-accentA/42 hover:text-fg"
             )}
@@ -414,10 +320,10 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
           <button
             type="button"
             onClick={goNext}
-            disabled={!carouselActive}
+            disabled={!canGoNext}
             className={cn(
               "inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-              !carouselActive
+              !canGoNext
                 ? "cursor-not-allowed border-border/18 bg-card/54 text-fg/34"
                 : "border-border/26 bg-card/74 text-fg/74 hover:border-accentA/42 hover:text-fg"
             )}
@@ -445,49 +351,13 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
         <div
           className={cn(
             "flex gap-4 will-change-transform",
-            animateTrack && "transition-transform duration-[560ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+            !isDragging && "transition-transform duration-[560ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
           )}
           style={{ transform: `translate3d(${trackTranslate}px,0,0)` }}
-          onTransitionEnd={onTrackTransitionEnd}
         >
-          {renderCards.map((item, index) => {
+          {uniqueProjects.map((item, index) => {
             const displayTitle = getProjectDisplayTitle(item.slug, item.title);
             const pathSlug = getProjectPathSlug(item.slug);
-            const isClone = index < cloneCount || index >= cloneCount + totalCards;
-            if (isClone) {
-              return (
-                <div
-                  key={`${item.slug}-${index}`}
-                  className="relative origin-center will-change-transform"
-                  style={{ flex: `0 0 ${cardBasis}` }}
-                  aria-hidden="true"
-                >
-                  <div className="group block overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)]">
-                    <article className="relative h-[16.5rem] overflow-hidden rounded-[1.05rem] md:h-[18.5rem]">
-                      <Image
-                        src={item.coverImage}
-                        alt={displayTitle}
-                        fill
-                        loader={shouldBypassNextImageOptimization(item.coverImage) ? supabasePublicImageLoader : undefined}
-                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
-                        sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                      />
-                      <span className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
-                      <span className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
-                        <span className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
-                          {displayTitle}
-                        </span>
-                      </span>
-                      <span className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                        <span className="text-[1.45rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.75rem]">
-                          {displayTitle}
-                        </span>
-                      </span>
-                    </article>
-                  </div>
-                </div>
-              );
-            }
 
             return (
               <motion.div
@@ -538,7 +408,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
         <div className="w-fit">
           <div className="flex items-center justify-center gap-3">
             {Array.from({ length: dotCount }).map((_, index) => {
-              const active = index === activeDotIndex;
+              const active = index === trackIndex;
               return (
                 <button
                   key={`dot-${index}`}
@@ -563,7 +433,6 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
           </div>
         </div>
       </div>
-
     </section>
   );
 }
