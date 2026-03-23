@@ -38,7 +38,7 @@ type CmsWorkLike = {
   layout_variant?: string | null;
   excerpt: string;
   content?: string | null;
-  cover_image_url: string | null;
+  cover_image_url?: string | null;
   gallery_images?: string[] | null;
   updated_at?: string | null;
   // CMS-managed fields
