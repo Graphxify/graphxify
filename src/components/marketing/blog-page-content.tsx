@@ -110,7 +110,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
             <span className="h-1.5 w-1.5 rounded-full bg-accentA" />
             Blogs
           </p>
-          <h1 className="mt-3 text-[clamp(2rem,5vw,4rem)] font-semibold leading-[1.06] tracking-tight md:leading-[1.02]">
+          <h1 className="mt-3 text-[clamp(2rem,5vw,4rem)] font-semibold leading-[1.12] tracking-tight md:leading-[1.08]">
             Web design, branding, and digital strategy insights for Canadian businesses.
           </h1>
           <span className="mt-4 block h-px w-24 bg-accent-gradient" />
