@@ -30,7 +30,7 @@ type HomeSliderProject = {
 
 const GAP_PX = 18;
 const DRAG_THRESHOLD_PX = 52;
-const AUTOPLAY_MS = 5600;
+const AUTOPLAY_MS = 4600;
 const AUTOPLAY_RESUME_DELAY_MS = 1400;
 
 function getPerView(width: number): number {

@@ -26,7 +26,7 @@ type SliderProject = {
 
 const GAP_PX = 16;
 const DRAG_THRESHOLD_PX = 52;
-const AUTOPLAY_MS = 5400;
+const AUTOPLAY_MS = 4400;
 const AUTOPLAY_RESUME_DELAY_MS = 1400;
 
 function getPerView(width: number): number {
