@@ -56,6 +56,26 @@ function fallbackHomeProjects(): HomeProjectPreview[] {
   });
 }
 
+function deduplicateWorksByCanonicalSlug<T extends { slug: string; updated_at?: string | null }>(works: T[]): T[] {
+  const latestByCanonicalSlug = new Map<string, T>();
+
+  for (const work of works) {
+    const canonicalSlug = resolveProjectSlugFromPathSlug(work.slug);
+    const existing = latestByCanonicalSlug.get(canonicalSlug);
+    const existingUpdated = Number.isFinite(Date.parse(existing?.updated_at ?? "")) ? Date.parse(existing?.updated_at ?? "") : 0;
+    const candidateUpdated = Number.isFinite(Date.parse(work.updated_at ?? "")) ? Date.parse(work.updated_at ?? "") : 0;
+
+    if (!existing || candidateUpdated >= existingUpdated) {
+      latestByCanonicalSlug.set(canonicalSlug, work);
+    }
+  }
+
+  return works.filter((work) => {
+    const canonicalSlug = resolveProjectSlugFromPathSlug(work.slug);
+    return latestByCanonicalSlug.get(canonicalSlug) === work;
+  });
+}
+
 function toTestimonialPreview(item: Partial<TestimonialPreview>): TestimonialPreview | null {
   if (!item.id || !item.quote || !item.name || !item.role) {
     return null;
@@ -112,32 +132,24 @@ export default async function HomePage() {
   }
 
   if (worksResult.status === "fulfilled" && worksResult.value.length > 0) {
-    const cmsBySlug = new Map<string, (typeof worksResult.value)[number]>();
-    for (const work of worksResult.value) {
+    const dedupedCmsWorks = deduplicateWorksByCanonicalSlug(worksResult.value);
+
+    homeProjects = dedupedCmsWorks.map((work, index) => {
       const canonicalSlug = resolveProjectSlugFromPathSlug(work.slug);
-      const existing = cmsBySlug.get(canonicalSlug);
-      const existingUpdated = Number.isFinite(Date.parse(existing?.updated_at ?? "")) ? Date.parse(existing?.updated_at ?? "") : 0;
-      const candidateUpdated = Number.isFinite(Date.parse(work.updated_at ?? "")) ? Date.parse(work.updated_at ?? "") : 0;
-      if (!existing || candidateUpdated >= existingUpdated) {
-        cmsBySlug.set(canonicalSlug, work);
-      }
-    }
-
-    homeProjects = homeProjects.map((project) => {
-      const cmsProject = cmsBySlug.get(project.slug);
-      const fallbackProject = getProjectBySlug(project.slug);
+      const fallbackProject = getProjectBySlug(canonicalSlug);
       const coverImageBase =
-        normalizeImage(cmsProject?.cover_image_url) ??
-        firstGalleryImage(cmsProject?.gallery_images) ??
+        normalizeImage(work.cover_image_url) ??
+        firstGalleryImage(work.gallery_images) ??
         fallbackProject?.coverImage ??
-        project.coverImage;
-      const baseProject: HomeProjectPreview = {
-        ...project,
-        id: cmsProject?.id ?? project.id,
-        coverImage: cmsProject ? withImageVersion(coverImageBase, cmsProject.updated_at ?? null) : coverImageBase
-      };
+        `/assets/work-${(index % 3) + 1}.svg`;
 
-      return withProjectCardContent(baseProject);
+      return withProjectCardContent({
+        id: work.id,
+        slug: canonicalSlug,
+        title: work.title,
+        industry: work.industry?.trim() || fallbackProject?.industry || "Digital Platform",
+        coverImage: withImageVersion(coverImageBase, work.updated_at ?? null)
+      });
     });
   }
 

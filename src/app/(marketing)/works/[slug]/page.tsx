@@ -11,7 +11,6 @@ import { getPublishedWorks } from "@/db/queries/works";
 import {
   getProjectDisplayTitle,
   getProjectPathSlug,
-  projectCardSlugs,
   resolveProjectSlugFromPathSlug,
   withProjectCardContent
 } from "@/lib/project-card-content";
@@ -439,7 +438,6 @@ async function getResolvedProjectBySlug(slug: string): Promise<ProjectDetail | n
 
 async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectDetail[]> {
   const layoutVariantMap = await getResolvedLayoutVariantMap();
-  const allowedSlugs = new Set<string>(projectCardSlugs);
   const uniqueBySlug = (items: ProjectDetail[]) => {
     const bySlug = new Map<string, ProjectDetail>();
     for (const item of items) {
@@ -452,7 +450,7 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
   const fallbackRelated = () =>
     uniqueBySlug(
       graphxifyProjects
-      .filter((project) => project.slug !== currentSlug && allowedSlugs.has(project.slug))
+      .filter((project) => project.slug !== currentSlug)
       .map((project) => withProjectCardContent(withLayoutVariant(project, layoutVariantMap.get(project.slug))))
     );
 
@@ -462,7 +460,7 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
       const cmsByCanonicalSlug = buildLatestCmsWorkByCanonicalSlug(cmsWorks as CmsWorkLike[]);
       const cmsRelated = uniqueBySlug(
         Array.from(cmsByCanonicalSlug.values())
-        .filter((work) => work.slug !== currentSlug && allowedSlugs.has(work.slug))
+        .filter((work) => work.slug !== currentSlug)
         .map((work, index) => {
           return mapCmsWorkToProject(
             work,
@@ -474,7 +472,7 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
         .map((project) => withProjectCardContent(project))
       );
 
-      const related = uniqueBySlug([...cmsRelated, ...fallbackRelated()]).slice(0, 5);
+      const related = uniqueBySlug([...cmsRelated, ...fallbackRelated()]);
 
       if (related.length > 0) {
         return related;
@@ -484,7 +482,7 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
     // Local fallback below.
   }
 
-  return fallbackRelated().slice(0, 5);
+  return fallbackRelated();
 }
 
 export async function generateStaticParams(): Promise<Params[]> {

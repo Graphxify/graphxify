@@ -139,7 +139,7 @@ export function HomeSections({
   testimonialMetrics: TestimonialMetricCard[];
   homeProjects: HomeProjectCard[];
 }): JSX.Element {
-  const projectCards = homeProjects.slice(0, 6);
+  const projectCards = homeProjects;
 
   return (
     <div className="space-y-16 pb-16 pt-4 md:space-y-20 md:pb-20 md:pt-8 lg:space-y-24 lg:pt-10">
