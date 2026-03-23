@@ -927,7 +927,7 @@ function ProjectNarrative({ project }: { project: ProjectDetail }): JSX.Element 
 
   const row2 = pairRow([
     { title: "Challenge", body: project.proof.problem },
-    hasApproach ? { title: "Approach", body: project.proof.approach } : null
+    hasApproach ? { title: "Approach", body: project.proof.approach! } : null
   ]);
 
   const row3 = pairRow([
