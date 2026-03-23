@@ -67,13 +67,17 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
   }, [pathname]);
 
   useEffect(() => {
-    if (!mobileOpen) {
-      return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.dataset.mobileMenuOpen = mobileOpen ? "true" : "false";
+
+    if (mobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = originalOverflow;
     }
 
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     return () => {
+      delete document.body.dataset.mobileMenuOpen;
       document.body.style.overflow = originalOverflow;
     };
   }, [mobileOpen]);
@@ -103,7 +107,12 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
         >
           <div className="pointer-events-none absolute inset-0 z-0 rounded-[1.25rem] ring-1 ring-white/20 dark:ring-white/10" />
 
-          <div className="relative z-10 w-40 shrink-0 sm:w-48 lg:w-[13.5rem]">
+          <div
+            className={cn(
+              "relative z-10 w-40 shrink-0 transition-[filter,opacity] duration-200 sm:w-48 lg:w-[13.5rem]",
+              mobileOpen && "blur-sm opacity-45 lg:blur-0 lg:opacity-100"
+            )}
+          >
             <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
               <GraphxifyLogo
                 alt="Graphxify"
@@ -206,7 +215,14 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
           </div>
 
           <div className="relative z-[70] ml-auto flex items-center gap-2 lg:hidden">
-            <ThemeToggle className="h-10 w-[4.2rem] border-border/18 bg-card/62 shadow-[0_8px_20px_rgba(13,13,15,0.08)] backdrop-blur-xl dark:border-white/10 dark:bg-card/42" />
+            <div
+              className={cn(
+                "transition-[filter,opacity] duration-200",
+                mobileOpen && "blur-xl opacity-15 scale-95"
+              )}
+            >
+              <ThemeToggle className="h-10 w-[4.2rem] border-border/12 bg-card/24 shadow-[0_4px_14px_rgba(13,13,15,0.05)] backdrop-blur-2xl dark:border-white/8 dark:bg-card/18" />
+            </div>
             <button
               type="button"
               onClick={() => setMobileOpen((prev) => !prev)}

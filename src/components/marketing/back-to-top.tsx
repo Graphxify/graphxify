@@ -10,6 +10,7 @@ type SmoothWindow = Window & {
 export function BackToTop(): JSX.Element {
   const [scrollPercent, setScrollPercent] = useState(0);
   const [showArrow, setShowArrow] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     let frameId = 0;
@@ -46,8 +47,28 @@ export function BackToTop(): JSX.Element {
     };
   }, []);
 
+  useEffect(() => {
+    const updateMenuState = () => {
+      setMobileMenuOpen(document.body.dataset.mobileMenuOpen === "true");
+    };
+
+    updateMenuState();
+
+    const observer = new MutationObserver(updateMenuState);
+    observer.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["data-mobile-menu-open"]
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="pointer-events-none fixed bottom-5 right-5 z-[80] md:bottom-7 md:right-7">
+    <div
+      className={`pointer-events-none fixed bottom-5 right-5 z-[80] transition-[filter,opacity,transform] duration-200 md:bottom-7 md:right-7 ${
+        mobileMenuOpen ? "blur-xl opacity-10 scale-95" : "blur-0 opacity-100 scale-100"
+      }`}
+    >
       <div className="relative h-14 w-14 md:h-16 md:w-16">
         <button
           type="button"
