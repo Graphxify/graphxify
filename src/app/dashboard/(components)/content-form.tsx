@@ -664,6 +664,152 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
             />
             <FieldErrorText id={getErrorId("metaDescription")} message={getFieldError("metaDescription")} />
           </div>
+
+          {/* ── SECTION: Open Graph ── */}
+          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Open Graph</p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="ogTitle">OG title</Label>
+              <Input
+                ref={registerFieldRef("ogTitle") as never}
+                id="ogTitle"
+                name="ogTitle"
+                defaultValue={String(item?.og_title ?? "")}
+                placeholder="Falls back to meta title then project title"
+                aria-invalid={getFieldError("ogTitle") ? true : undefined}
+                aria-describedby={getFieldError("ogTitle") ? getErrorId("ogTitle") : undefined}
+                className={getFieldClasses("ogTitle")}
+              />
+              <FieldErrorText id={getErrorId("ogTitle")} message={getFieldError("ogTitle")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ogImageAlt">OG image alt text</Label>
+              <Input
+                ref={registerFieldRef("ogImageAlt") as never}
+                id="ogImageAlt"
+                name="ogImageAlt"
+                defaultValue={String(item?.og_image_alt ?? "")}
+                placeholder="Descriptive alt text for the share image"
+                aria-invalid={getFieldError("ogImageAlt") ? true : undefined}
+                aria-describedby={getFieldError("ogImageAlt") ? getErrorId("ogImageAlt") : undefined}
+                className={getFieldClasses("ogImageAlt")}
+              />
+              <FieldErrorText id={getErrorId("ogImageAlt")} message={getFieldError("ogImageAlt")} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="ogDescription">OG description</Label>
+            <Textarea
+              ref={registerFieldRef("ogDescription") as never}
+              id="ogDescription"
+              name="ogDescription"
+              defaultValue={String(item?.og_description ?? "")}
+              placeholder="Falls back to meta description then excerpt"
+              aria-invalid={getFieldError("ogDescription") ? true : undefined}
+              aria-describedby={getFieldError("ogDescription") ? getErrorId("ogDescription") : undefined}
+              className={getFieldClasses("ogDescription")}
+            />
+            <FieldErrorText id={getErrorId("ogDescription")} message={getFieldError("ogDescription")} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="ogImage">OG image URL</Label>
+            <Input
+              ref={registerFieldRef("ogImage") as never}
+              id="ogImage"
+              name="ogImage"
+              defaultValue={String(item?.og_image ?? "")}
+              placeholder="Falls back to cover image — use a 1200×630 image"
+              aria-invalid={getFieldError("ogImage") ? true : undefined}
+              aria-describedby={getFieldError("ogImage") ? getErrorId("ogImage") : undefined}
+              className={getFieldClasses("ogImage")}
+            />
+            <FieldErrorText id={getErrorId("ogImage")} message={getFieldError("ogImage")} />
+          </div>
+
+          {/* ── SECTION: Twitter / X ── */}
+          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Twitter / X</p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="twitterTitle">Twitter title</Label>
+              <Input
+                ref={registerFieldRef("twitterTitle") as never}
+                id="twitterTitle"
+                name="twitterTitle"
+                defaultValue={String(item?.twitter_title ?? "")}
+                placeholder="Falls back to OG title"
+                aria-invalid={getFieldError("twitterTitle") ? true : undefined}
+                aria-describedby={getFieldError("twitterTitle") ? getErrorId("twitterTitle") : undefined}
+                className={getFieldClasses("twitterTitle")}
+              />
+              <FieldErrorText id={getErrorId("twitterTitle")} message={getFieldError("twitterTitle")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="twitterCard">Twitter card type</Label>
+              <select
+                ref={registerFieldRef("twitterCard") as never}
+                id="twitterCard"
+                name="twitterCard"
+                defaultValue={String(item?.twitter_card ?? "summary_large_image")}
+                className={`h-11 w-full rounded-lg border bg-card/72 px-3 text-sm text-fg ${getFieldError("twitterCard") ? "border-red-500/70 bg-red-500/6 focus-visible:ring-red-500/25" : "border-border/20"}`}
+                aria-invalid={getFieldError("twitterCard") ? true : undefined}
+                aria-describedby={getFieldError("twitterCard") ? getErrorId("twitterCard") : undefined}
+              >
+                <option value="summary_large_image">Summary with large image</option>
+                <option value="summary">Summary</option>
+              </select>
+              <FieldErrorText id={getErrorId("twitterCard")} message={getFieldError("twitterCard")} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="twitterDescription">Twitter description</Label>
+            <Textarea
+              ref={registerFieldRef("twitterDescription") as never}
+              id="twitterDescription"
+              name="twitterDescription"
+              defaultValue={String(item?.twitter_description ?? "")}
+              placeholder="Falls back to OG description"
+              aria-invalid={getFieldError("twitterDescription") ? true : undefined}
+              aria-describedby={getFieldError("twitterDescription") ? getErrorId("twitterDescription") : undefined}
+              className={getFieldClasses("twitterDescription")}
+            />
+            <FieldErrorText id={getErrorId("twitterDescription")} message={getFieldError("twitterDescription")} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="twitterImage">Twitter image URL</Label>
+            <Input
+              ref={registerFieldRef("twitterImage") as never}
+              id="twitterImage"
+              name="twitterImage"
+              defaultValue={String(item?.twitter_image ?? "")}
+              placeholder="Falls back to OG image then cover image"
+              aria-invalid={getFieldError("twitterImage") ? true : undefined}
+              aria-describedby={getFieldError("twitterImage") ? getErrorId("twitterImage") : undefined}
+              className={getFieldClasses("twitterImage")}
+            />
+            <FieldErrorText id={getErrorId("twitterImage")} message={getFieldError("twitterImage")} />
+          </div>
+
+          {/* ── SECTION: Canonical ── */}
+          <div className="space-y-2">
+            <Label htmlFor="canonicalUrl">Canonical URL</Label>
+            <Input
+              ref={registerFieldRef("canonicalUrl") as never}
+              id="canonicalUrl"
+              name="canonicalUrl"
+              defaultValue={String(item?.canonical_url ?? "")}
+              placeholder="Leave blank to use the default page URL"
+              aria-invalid={getFieldError("canonicalUrl") ? true : undefined}
+              aria-describedby={getFieldError("canonicalUrl") ? getErrorId("canonicalUrl") : undefined}
+              className={getFieldClasses("canonicalUrl")}
+            />
+            <FieldErrorText id={getErrorId("canonicalUrl")} message={getFieldError("canonicalUrl")} />
+          </div>
         </>
       ) : (
         <>
@@ -879,6 +1025,153 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
               <FieldErrorText id={getErrorId("seoDescription")} message={getFieldError("seoDescription")} />
             </div>
           </div>
+
+          {/* ── Open Graph ── */}
+          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Open Graph</p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="ogTitle">OG title</Label>
+              <Input
+                ref={registerFieldRef("ogTitle") as never}
+                id="ogTitle"
+                name="ogTitle"
+                defaultValue={String(item?.og_title ?? "")}
+                placeholder="Falls back to SEO title then blog title"
+                aria-invalid={getFieldError("ogTitle") ? true : undefined}
+                aria-describedby={getFieldError("ogTitle") ? getErrorId("ogTitle") : undefined}
+                className={getFieldClasses("ogTitle")}
+              />
+              <FieldErrorText id={getErrorId("ogTitle")} message={getFieldError("ogTitle")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ogImageAlt">OG image alt text</Label>
+              <Input
+                ref={registerFieldRef("ogImageAlt") as never}
+                id="ogImageAlt"
+                name="ogImageAlt"
+                defaultValue={String(item?.og_image_alt ?? "")}
+                placeholder="Descriptive alt text for the share image"
+                aria-invalid={getFieldError("ogImageAlt") ? true : undefined}
+                aria-describedby={getFieldError("ogImageAlt") ? getErrorId("ogImageAlt") : undefined}
+                className={getFieldClasses("ogImageAlt")}
+              />
+              <FieldErrorText id={getErrorId("ogImageAlt")} message={getFieldError("ogImageAlt")} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="ogDescription">OG description</Label>
+            <Textarea
+              ref={registerFieldRef("ogDescription") as never}
+              id="ogDescription"
+              name="ogDescription"
+              defaultValue={String(item?.og_description ?? "")}
+              placeholder="Falls back to SEO description then excerpt"
+              aria-invalid={getFieldError("ogDescription") ? true : undefined}
+              aria-describedby={getFieldError("ogDescription") ? getErrorId("ogDescription") : undefined}
+              className={getFieldClasses("ogDescription")}
+            />
+            <FieldErrorText id={getErrorId("ogDescription")} message={getFieldError("ogDescription")} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="ogImage">OG image URL</Label>
+            <Input
+              ref={registerFieldRef("ogImage") as never}
+              id="ogImage"
+              name="ogImage"
+              defaultValue={String(item?.og_image ?? "")}
+              placeholder="Falls back to cover image — use a 1200×630 image"
+              aria-invalid={getFieldError("ogImage") ? true : undefined}
+              aria-describedby={getFieldError("ogImage") ? getErrorId("ogImage") : undefined}
+              className={getFieldClasses("ogImage")}
+            />
+            <FieldErrorText id={getErrorId("ogImage")} message={getFieldError("ogImage")} />
+          </div>
+
+          {/* ── Twitter / X ── */}
+          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Twitter / X</p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="twitterTitle">Twitter title</Label>
+              <Input
+                ref={registerFieldRef("twitterTitle") as never}
+                id="twitterTitle"
+                name="twitterTitle"
+                defaultValue={String(item?.twitter_title ?? "")}
+                placeholder="Falls back to OG title"
+                aria-invalid={getFieldError("twitterTitle") ? true : undefined}
+                aria-describedby={getFieldError("twitterTitle") ? getErrorId("twitterTitle") : undefined}
+                className={getFieldClasses("twitterTitle")}
+              />
+              <FieldErrorText id={getErrorId("twitterTitle")} message={getFieldError("twitterTitle")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="twitterCard">Twitter card type</Label>
+              <select
+                ref={registerFieldRef("twitterCard") as never}
+                id="twitterCard"
+                name="twitterCard"
+                defaultValue={String(item?.twitter_card ?? "summary_large_image")}
+                className={`h-11 w-full rounded-lg border bg-card/72 px-3 text-sm text-fg ${getFieldError("twitterCard") ? "border-red-500/70 bg-red-500/6 focus-visible:ring-red-500/25" : "border-border/20"}`}
+                aria-invalid={getFieldError("twitterCard") ? true : undefined}
+                aria-describedby={getFieldError("twitterCard") ? getErrorId("twitterCard") : undefined}
+              >
+                <option value="summary_large_image">Summary with large image</option>
+                <option value="summary">Summary</option>
+              </select>
+              <FieldErrorText id={getErrorId("twitterCard")} message={getFieldError("twitterCard")} />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="twitterDescription">Twitter description</Label>
+            <Textarea
+              ref={registerFieldRef("twitterDescription") as never}
+              id="twitterDescription"
+              name="twitterDescription"
+              defaultValue={String(item?.twitter_description ?? "")}
+              placeholder="Falls back to OG description"
+              aria-invalid={getFieldError("twitterDescription") ? true : undefined}
+              aria-describedby={getFieldError("twitterDescription") ? getErrorId("twitterDescription") : undefined}
+              className={getFieldClasses("twitterDescription")}
+            />
+            <FieldErrorText id={getErrorId("twitterDescription")} message={getFieldError("twitterDescription")} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="twitterImage">Twitter image URL</Label>
+            <Input
+              ref={registerFieldRef("twitterImage") as never}
+              id="twitterImage"
+              name="twitterImage"
+              defaultValue={String(item?.twitter_image ?? "")}
+              placeholder="Falls back to OG image then cover image"
+              aria-invalid={getFieldError("twitterImage") ? true : undefined}
+              aria-describedby={getFieldError("twitterImage") ? getErrorId("twitterImage") : undefined}
+              className={getFieldClasses("twitterImage")}
+            />
+            <FieldErrorText id={getErrorId("twitterImage")} message={getFieldError("twitterImage")} />
+          </div>
+
+          {/* ── Canonical ── */}
+          <div className="space-y-2">
+            <Label htmlFor="canonicalUrl">Canonical URL</Label>
+            <Input
+              ref={registerFieldRef("canonicalUrl") as never}
+              id="canonicalUrl"
+              name="canonicalUrl"
+              defaultValue={String(item?.canonical_url ?? "")}
+              placeholder="Leave blank to use the default page URL"
+              aria-invalid={getFieldError("canonicalUrl") ? true : undefined}
+              aria-describedby={getFieldError("canonicalUrl") ? getErrorId("canonicalUrl") : undefined}
+              className={getFieldClasses("canonicalUrl")}
+            />
+            <FieldErrorText id={getErrorId("canonicalUrl")} message={getFieldError("canonicalUrl")} />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="readTimeOverride">Read time (minutes)</Label>
             <Input

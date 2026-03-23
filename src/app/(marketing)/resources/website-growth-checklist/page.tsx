@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Free Website Growth Checklist | Graphxify",
-  description: "A practical website growth checklist for Canadian service businesses covering conversion, trust, local SEO, and content fundamentals."
-};
+export const metadata: Metadata = buildMetadata({
+  title: "Free Website Growth Checklist",
+  description: "A practical website growth checklist for Canadian service businesses covering conversion, trust, local SEO, and content fundamentals.",
+  path: "/resources/website-growth-checklist",
+  image: "/images/about/about-graphxify-visual.png",
+  ogTitle: "Free Website Growth Checklist for Canadian Businesses | Graphxify",
+  ogDescription: "A practical, no-fluff checklist covering conversion, trust signals, local SEO, and content fundamentals for Canadian service businesses.",
+  ogImageAlt: "Free website growth checklist by Graphxify — conversion, trust, and SEO fundamentals"
+});
 
 const CHECKLIST_SECTIONS = [
   {

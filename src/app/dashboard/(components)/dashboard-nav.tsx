@@ -58,10 +58,10 @@ export function DashboardNav({ items }: { items: NavItem[] }): JSX.Element {
             prefetch={true}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "group relative isolate flex items-center gap-2.5 overflow-hidden rounded-xl border px-3.5 py-2.5 text-sm font-medium transition-[transform,border-color,background-color,color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:translate-y-0 active:scale-[0.985]",
+              "group relative isolate flex items-center gap-2.5 overflow-hidden rounded-xl border px-3.5 py-2.5 text-sm font-medium transition-[border-color,background-color,color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
               active
                 ? "border-accentA/40 bg-card/84 text-fg shadow-[0_16px_36px_rgba(9,18,37,0.18)]"
-                : "border-border/16 bg-card/45 text-fg/72 hover:-translate-y-0.5 hover:border-accentA/24 hover:bg-card/82 hover:text-fg hover:shadow-[0_12px_26px_rgba(9,18,37,0.14)]"
+                : "border-border/16 bg-card/45 text-fg/72 hover:border-accentA/24 hover:bg-card/82 hover:text-fg hover:shadow-[0_12px_26px_rgba(9,18,37,0.14)]"
             )}
           >
             {active ? (

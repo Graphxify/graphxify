@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import {
   useCallback,
@@ -336,48 +337,63 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
             const pathSlug = getProjectPathSlug(project.slug);
 
             return (
-              <div
+              <motion.div
                 key={`${project.slug}-${index}`}
-                className="relative origin-center will-change-transform transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[3px] active:scale-[0.993]"
+                className="relative origin-center will-change-transform"
                 style={{ flex: `0 0 ${cardBasis}` }}
+                whileHover={{ y: -5, scale: 1.012 }}
+                whileTap={{ scale: 0.988 }}
+                transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Link
                   href={`/works/${pathSlug}`}
                   aria-label={`Open project ${displayTitle}`}
                   data-cursor-label="Open"
-                  className="group block overflow-hidden rounded-[1.15rem] border border-border/18 shadow-[0_18px_36px_rgba(13,13,15,0.12)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  className="group block overflow-hidden rounded-[1.15rem] border border-border/22 shadow-[0_4px_24px_rgba(0,0,0,0.08),0_16px_40px_rgba(0,0,0,0.06)] transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55 focus-visible:ring-offset-2 focus-visible:ring-offset-bg group-hover:border-accentA/28 group-hover:shadow-[0_24px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,163,255,0.1)]"
                 >
-                  <article className="relative h-[18.5rem] overflow-hidden rounded-[1.15rem] md:h-[21rem]">
+                  <article className="relative h-[18.5rem] overflow-hidden rounded-[1.15rem] text-white md:h-[21rem]">
+                    {/* Image */}
                     <Image
                       src={project.coverImage}
                       alt={displayTitle}
                       fill
                       loader={shouldBypassNextImageOptimization(project.coverImage) ? homeProjectImageLoader : undefined}
-                      className="object-cover transition-[transform,filter] duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.02] group-hover:brightness-[0.7]"
+                      className="object-cover transition-[transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06] group-hover:brightness-[0.5]"
                       sizes={resolvedImageSizes}
                     />
-                    <span className="absolute inset-0 bg-gradient-to-b from-black/78 via-black/30 to-black/66" />
 
-                    <div className="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/40 bg-black/64 px-3 py-1 text-[0.56rem] uppercase tracking-[0.14em] text-white backdrop-blur-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-accent-gradient" />
-                      {String(index + 1).padStart(2, "0")}
-                    </div>
+                    {/* Gradient scrim — strong at bottom, clears at top */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/6" />
 
-                    <div className="absolute inset-x-4 bottom-4">
-                      <div className="rounded-[0.92rem] border border-white/40 bg-black/64 p-4 shadow-[0_10px_24px_rgba(0,0,0,0.32)] backdrop-blur-sm transition-transform duration-300 group-hover:-translate-y-0.5">
-                        <p className="text-[0.58rem] uppercase tracking-[0.16em] text-white/80">{project.industry}</p>
-                        <h3 className="mt-2 line-clamp-2 text-[1.32rem] font-semibold leading-[1.05] text-white md:text-[1.6rem]">
-                          {displayTitle}
-                        </h3>
-                        <span className="mt-3 inline-flex items-center gap-1.5 text-[0.58rem] uppercase tracking-[0.14em] text-white/90">
-                          Open Project
-                          <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                        </span>
+                    {/* Bottom content */}
+                    <div className="absolute inset-x-0 bottom-0 p-5 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1.5 md:p-6">
+
+                      {/* Industry label */}
+                      <div className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-accent-gradient px-2.5 py-[0.24rem] shadow-[0_2px_10px_rgba(0,163,255,0.28)] backdrop-blur-sm transition-[box-shadow,opacity] duration-400 group-hover:shadow-[0_0_18px_rgba(0,163,255,0.48)]">
+                        <span className="h-[3px] w-[3px] rounded-full bg-white/70" aria-hidden="true" />
+                        <span className="text-[0.52rem] font-semibold uppercase tracking-[0.2em] text-white/95">{project.industry}</span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="line-clamp-2 text-[1.38rem] font-semibold leading-[1.06] text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)] md:text-[1.62rem]">
+                        {displayTitle}
+                      </h3>
+
+                      {/* Accent rule — expands on hover */}
+                      <div className="mt-3 h-px w-7 origin-left rounded-full bg-white/20 transition-[width,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:w-10 group-hover:bg-accentA/55" />
+
+                      {/* CTA */}
+                      <div className="mt-2.5 inline-flex items-center gap-1.5 text-[0.56rem] font-semibold uppercase tracking-[0.2em] text-white/48 transition-[color,gap] duration-300 group-hover:gap-2.5 group-hover:text-accentA/88">
+                        <span>Open Project</span>
+                        <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-px group-hover:translate-x-px" />
                       </div>
                     </div>
+
+                    {/* Bottom accent bar — sweeps in on hover */}
+                    <div className="absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-gradient-to-r from-accentA to-accentB transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
                   </article>
                 </Link>
-              </div>
+              </motion.div>
             );
           })}
         </div>

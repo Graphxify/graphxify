@@ -18,7 +18,7 @@ export function ThemeToggle({ className }: ThemeToggleProps): JSX.Element {
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
       className={cn(
-        "flex h-8 w-16 cursor-pointer rounded-full p-1 shadow-[0_10px_24px_rgba(9,18,37,0.12)] transition-[transform,border-color,background-color,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(9,18,37,0.18)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg active:translate-y-0 active:scale-[0.97]",
+        "flex h-8 w-16 cursor-pointer rounded-full p-1 shadow-[0_10px_24px_rgba(9,18,37,0.12)] transition-[border-color,background-color,box-shadow] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
         isDark ? "border border-zinc-800 bg-zinc-950" : "border border-zinc-300 bg-zinc-50",
         className
       )}

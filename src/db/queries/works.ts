@@ -31,7 +31,7 @@ export async function getPublishedWorks(): Promise<Work[]> {
   // destructured form, which would make NonNullable<typeof data> resolve to `never`).
   const fullResult = await supabase
     .from("works")
-    .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,cover_image_url,gallery_images,created_at,updated_at,card_outcome,card_services,sort_order,featured,industry,platform,timeline,location,live_url,overview,challenge,approach,solution,result,meta_title,meta_description")
+    .select("id,title,slug,year,role,services,subtitle,layout_variant,excerpt,cover_image_url,gallery_images,created_at,updated_at,card_outcome,card_services,sort_order,featured,industry,platform,timeline,location,live_url,overview,challenge,approach,solution,result,meta_title,meta_description,og_title,og_description,og_image,og_image_alt,twitter_title,twitter_description,twitter_image,twitter_card,canonical_url")
     .eq("status", "published")
     .order("sort_order", { ascending: true })
     .order("year", { ascending: false });

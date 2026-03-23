@@ -14,7 +14,11 @@ export const metadata: Metadata = buildMetadata({
   title: "Web Design Services — Custom Website Design for Canadian Businesses",
   description:
     "Graphxify designs custom website interfaces built for clarity, hierarchy, and conversion. Mobile-first, accessible, and responsive across all screen sizes. Serving Toronto, Mississauga, and Ontario.",
-  path: "/services/web-design"
+  path: "/services/web-design",
+  image: "/images/about/about-graphxify-visual.png",
+  ogTitle: "Web Design — Conversion-Focused Websites | Graphxify",
+  ogDescription: "Custom, mobile-first websites designed with clear hierarchy and layouts built to guide visitors toward action — WCAG accessible, no templates.",
+  ogImageAlt: "Custom web design services by Graphxify — conversion-focused, mobile-first, accessible"
 });
 
 const deliverables = [

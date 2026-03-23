@@ -59,7 +59,7 @@ export function VersionHistoryTable({
                             <TableCell>#{version.version}</TableCell>
                             <TableCell>{version.title}</TableCell>
                             <TableCell>{version.status}</TableCell>
-                            <TableCell>{new Date(version.created_at).toLocaleString()}</TableCell>
+                            <TableCell>{new Date(version.created_at).toLocaleString("en-CA", { dateStyle: "medium", timeStyle: "short" })}</TableCell>
                             <TableCell>
                                 <ConfirmDialog
                                     title={`Restore version #${version.version}?`}

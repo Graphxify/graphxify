@@ -34,6 +34,15 @@ export type BlogCmsRecord = {
   tags?: string[] | string | null;
   seo_title?: string | null;
   seo_description?: string | null;
+  og_title?: string | null;
+  og_description?: string | null;
+  og_image?: string | null;
+  og_image_alt?: string | null;
+  twitter_title?: string | null;
+  twitter_description?: string | null;
+  twitter_image?: string | null;
+  twitter_card?: string | null;
+  canonical_url?: string | null;
   related_service?: string | null;
   read_time_override?: number | null;
 };
@@ -55,6 +64,15 @@ export type BlogPost = {
   tags: string[];
   seoTitle?: string;
   seoDescription?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  ogImageAlt?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  twitterImage?: string;
+  twitterCard?: string;
+  canonicalUrl?: string;
   /** CMS-controlled: which service page to feature below this post. Null = auto-derive from category. */
   relatedService?: RelatedServiceKey | null;
   /** Resolved read time: uses CMS override if set, otherwise derived from content word count. */
@@ -167,6 +185,15 @@ export function normalizeBlogPost(input: Partial<BlogCmsRecord>): BlogPost | nul
     tags: parseBlogTags(input.tags),
     seoTitle: getString(input.seo_title),
     seoDescription: getString(input.seo_description),
+    ogTitle: getString(input.og_title),
+    ogDescription: getString(input.og_description),
+    ogImage: getString(input.og_image),
+    ogImageAlt: getString(input.og_image_alt),
+    twitterTitle: getString(input.twitter_title),
+    twitterDescription: getString(input.twitter_description),
+    twitterImage: getString(input.twitter_image),
+    twitterCard: getString(input.twitter_card),
+    canonicalUrl: getString(input.canonical_url),
     relatedService: normalizeRelatedService(input.related_service),
     readTime:
       typeof input.read_time_override === "number" && input.read_time_override >= 1

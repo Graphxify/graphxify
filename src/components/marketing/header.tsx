@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { Button } from "@/components/ui/button";
@@ -230,77 +231,144 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
               aria-controls="mobile-marketing-nav"
               aria-label={mobileOpen ? "Close navigation menu" : "Open navigation menu"}
               className={cn(
-                "inline-flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-200",
+                "inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border transition-[border-color,background-color,box-shadow,color] duration-300",
                 mobileOpen
-                  ? "border-accentA bg-accentA text-white ring-2 ring-white/70 shadow-[0_0_0_3px_rgba(0,163,255,0.18),0_10px_24px_rgba(0,100,220,0.32)] dark:ring-accentA/18"
-                  : "border-border/28 bg-card/82 text-fg/75 hover:border-border/45 hover:bg-card hover:text-fg"
+                  ? "border-accentA bg-accent-gradient text-white shadow-[0_0_0_3px_rgba(0,163,255,0.18),0_10px_24px_rgba(0,100,220,0.32)]"
+                  : "border-border/28 bg-card/82 text-fg/75 hover:border-accentA/40 hover:bg-card hover:text-fg"
               )}
             >
-              <span className="inline-flex">
-                {mobileOpen ? <X className="h-5 w-5" strokeWidth={2.5} /> : <Menu className="h-4.5 w-4.5" strokeWidth={2.25} />}
-              </span>
+              <AnimatePresence mode="wait" initial={false}>
+                {mobileOpen ? (
+                  <motion.span
+                    key="close"
+                    className="inline-flex"
+                    initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                    exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <X className="h-5 w-5" strokeWidth={2.5} />
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="open"
+                    className="inline-flex"
+                    initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
+                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                    exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Menu className="h-[1.125rem] w-[1.125rem]" strokeWidth={2.25} />
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </button>
           </div>
         </div>
 
-        {mobileOpen ? (
-          <>
-            <div
-              aria-hidden="true"
-              onClick={() => setMobileOpen(false)}
-              className="fixed inset-0 z-40 bg-graphite/60 backdrop-blur-[3px] lg:hidden"
-            />
+        <AnimatePresence>
+          {mobileOpen && (
+            <>
+              {/* Backdrop */}
+              <motion.div
+                aria-hidden="true"
+                onClick={() => setMobileOpen(false)}
+                className="fixed inset-0 z-40 bg-graphite/65 backdrop-blur-[2px] lg:hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.22 }}
+              />
 
-            <div
-              id="mobile-marketing-nav"
-              className="absolute left-3 right-3 top-full z-[60] mt-2.5 overflow-hidden rounded-[1.35rem] border border-border/24 bg-bg/95 p-2 shadow-[0_0_0_1px_rgba(0,163,255,0.05),0_32px_64px_rgba(13,13,15,0.18)] backdrop-blur-2xl dark:border-white/[0.08] dark:bg-graphite/[0.97] dark:shadow-[0_0_0_1px_rgba(0,163,255,0.05),0_32px_64px_rgba(13,13,15,0.65)] lg:hidden"
-            >
-              <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-black/10 to-transparent dark:via-white/[0.13]" />
+              {/* Menu panel */}
+              <motion.div
+                id="mobile-marketing-nav"
+                className="absolute left-3 right-3 top-full z-[60] mt-2.5 overflow-hidden rounded-[1.35rem] border border-border/24 bg-bg/96 shadow-[0_0_0_1px_rgba(0,163,255,0.07),0_32px_64px_rgba(13,13,15,0.22)] backdrop-blur-2xl dark:border-white/[0.08] dark:bg-graphite/[0.97] dark:shadow-[0_0_0_1px_rgba(0,163,255,0.07),0_32px_64px_rgba(13,13,15,0.65)] lg:hidden"
+                initial={{ opacity: 0, y: -14, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.97 }}
+                transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {/* Accent gradient top line */}
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-accentA/55 to-transparent" />
 
-              <nav className="grid gap-px p-1">
-                {centerNav.map((item) => {
-                  const active = isRouteActive(item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-2.5 rounded-[0.875rem] px-4 py-3.5 text-[0.9375rem] font-medium transition-colors duration-150",
-                        active
-                          ? "bg-card text-fg shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] dark:bg-white/[0.08] dark:text-ivory"
-                          : "text-fg/66 hover:bg-card/80 hover:text-fg dark:text-ivory/50 dark:hover:bg-white/[0.05] dark:hover:text-ivory/85"
-                      )}
-                    >
-                      {active ? <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accentA shadow-[0_0_6px_rgba(0,163,255,0.7)]" /> : null}
-                      {item.label}
-                    </Link>
-                  );
-                })}
-              </nav>
+                {/* Nav items */}
+                <nav className="grid gap-[3px] px-2 pb-1 pt-3">
+                  {centerNav.map((item, index) => {
+                    const active = isRouteActive(item.href);
+                    return (
+                      <motion.div
+                        key={item.href}
+                        initial={{ opacity: 0, x: -12 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.055 + 0.08, duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                      >
+                        <Link
+                          href={item.href}
+                          className={cn(
+                            "group relative flex items-center gap-3 rounded-[0.875rem] px-4 py-3.5 transition-[background,color] duration-200",
+                            active
+                              ? "bg-gradient-to-r from-accentA/10 to-accentB/5 text-fg dark:text-ivory"
+                              : "text-fg/60 hover:bg-card/80 hover:text-fg dark:text-ivory/50 dark:hover:bg-white/[0.05] dark:hover:text-ivory/85"
+                          )}
+                        >
+                          {/* Left accent bar for active */}
+                          {active ? (
+                            <span
+                              aria-hidden="true"
+                              className="absolute left-0 top-1/2 h-6 w-[3px] -translate-y-1/2 rounded-r-full bg-accent-gradient"
+                            />
+                          ) : null}
+                          {/* Index number */}
+                          <span className="w-5 shrink-0 text-[0.52rem] font-semibold tabular-nums tracking-[0.1em] text-fg/26 dark:text-ivory/20">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          {/* Label */}
+                          <span className="flex-1 text-[0.9375rem] font-medium">{item.label}</span>
+                          {/* Active glow dot / hover arrow */}
+                          {active ? (
+                            <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-accentA shadow-[0_0_8px_rgba(0,163,255,0.85)]" />
+                          ) : (
+                            <ArrowRight className="h-3.5 w-3.5 -translate-x-1 opacity-0 transition-[opacity,transform] duration-200 group-hover:translate-x-0 group-hover:opacity-55" />
+                          )}
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </nav>
 
-              <div className="mx-3 my-1.5 h-px bg-black/8 dark:bg-white/[0.07]" />
+                {/* Divider */}
+                <div className="mx-4 my-1 h-px bg-gradient-to-r from-transparent via-border/22 to-transparent dark:via-white/[0.07]" />
 
-              <div className="p-1">
-                {resolvedCmsHref ? (
-                  <Link
-                    href={resolvedCmsHref}
-                    prefetch={false}
-                    className="mb-2 flex w-full items-center justify-center rounded-[0.875rem] border border-border/24 bg-card px-4 py-3.5 text-[0.9375rem] font-semibold text-fg transition-colors duration-200 hover:bg-card/86 dark:border-white/[0.1] dark:bg-card/80 dark:text-ivory/88 dark:hover:bg-white/[0.06] dark:hover:text-ivory"
-                  >
-                    Open CMS
-                  </Link>
-                ) : null}
-                <Link
-                  href="/contact"
-                  className="flex w-full items-center justify-center rounded-[0.875rem] bg-accent-gradient px-4 py-3.5 text-[0.9375rem] font-semibold text-ivory shadow-[0_6px_20px_rgba(0,100,220,0.28)] transition-shadow duration-200 hover:shadow-[0_10px_28px_rgba(0,100,220,0.38)]"
+                {/* CTA area */}
+                <motion.div
+                  className="p-2"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: centerNav.length * 0.055 + 0.1, duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  Start a Project
-                </Link>
-              </div>
-
-            </div>
-          </>
-        ) : null}
+                  {resolvedCmsHref ? (
+                    <Link
+                      href={resolvedCmsHref}
+                      prefetch={false}
+                      className="mb-2 flex w-full items-center justify-center rounded-[0.875rem] border border-border/24 bg-card px-4 py-3.5 text-[0.9375rem] font-semibold text-fg transition-colors duration-200 hover:bg-card/86 dark:border-white/[0.1] dark:bg-card/80 dark:text-ivory/88 dark:hover:bg-white/[0.06] dark:hover:text-ivory"
+                    >
+                      Open CMS
+                    </Link>
+                  ) : null}
+                  <Link
+                    href="/contact"
+                    className="group relative flex w-full items-center justify-center overflow-hidden rounded-[0.875rem] bg-accent-gradient px-4 py-3.5 text-[0.9375rem] font-semibold text-ivory shadow-[0_6px_20px_rgba(0,100,220,0.28)] transition-shadow duration-200 hover:shadow-[0_10px_30px_rgba(0,100,220,0.42)]"
+                  >
+                    {/* Shimmer sweep on hover */}
+                    <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/18 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
+                    <span className="relative">Start a Project</span>
+                  </Link>
+                </motion.div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
     </header>
   );

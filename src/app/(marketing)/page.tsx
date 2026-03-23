@@ -8,7 +8,11 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Design & Development Agency for Modern Businesses",
   description: "Graphxify is a Canadian web design and branding agency serving Toronto, Mississauga, and Ontario. We build brand identities, custom websites, and performance digital platforms for businesses across Canada.",
-  path: "/"
+  path: "/",
+  image: "/images/about/about-graphxify-visual.png",
+  ogTitle: "Brands and Websites Built for Canadian Businesses | Graphxify",
+  ogDescription: "A Toronto-based design studio helping small businesses and founders launch with a brand and website that looks credible, loads fast, and converts.",
+  ogImageAlt: "Graphxify design studio — brand identity and web design for Canadian businesses"
 });
 import { getTestimonialMetrics } from "@/db/queries/testimonial-metrics";
 import { getPublishedTestimonials } from "@/db/queries/testimonials";

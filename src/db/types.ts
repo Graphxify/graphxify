@@ -45,6 +45,15 @@ export type Post = {
   tags: string[];
   seo_title: string | null;
   seo_description: string | null;
+  og_title: string | null;
+  og_description: string | null;
+  og_image: string | null;
+  og_image_alt: string | null;
+  twitter_title: string | null;
+  twitter_description: string | null;
+  twitter_image: string | null;
+  twitter_card: string | null;
+  canonical_url: string | null;
   related_service: string | null;
   read_time_override: number | null;
   status: ContentStatus;
@@ -90,6 +99,15 @@ export type Work = {
   // SEO
   meta_title: string | null;
   meta_description: string | null;
+  og_title: string | null;
+  og_description: string | null;
+  og_image: string | null;
+  og_image_alt: string | null;
+  twitter_title: string | null;
+  twitter_description: string | null;
+  twitter_image: string | null;
+  twitter_card: string | null;
+  canonical_url: string | null;
 };
 
 export type Lead = {

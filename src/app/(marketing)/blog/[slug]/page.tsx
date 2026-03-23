@@ -339,7 +339,16 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title: post.seoTitle ?? post.title,
     description: post.seoDescription ?? post.excerpt,
     path: `/blog/${post.slug}`,
-    image: post.coverImage || "/assets/og-default.svg"
+    image: post.coverImage || "/images/about/about-graphxify-visual.png",
+    ogTitle: post.ogTitle,
+    ogDescription: post.ogDescription,
+    ogImage: post.ogImage,
+    ogImageAlt: post.ogImageAlt || `${post.title} — ${post.category} article by Graphxify`,
+    twitterTitle: post.twitterTitle,
+    twitterDescription: post.twitterDescription,
+    twitterImage: post.twitterImage,
+    twitterCard: post.twitterCard,
+    canonicalUrl: post.canonicalUrl
   });
 
   return {

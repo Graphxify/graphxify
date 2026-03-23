@@ -5,7 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 const POST_BASE_SELECT = "id,title,slug,excerpt,content,cover_image_url,status,author_id,created_at,updated_at";
-const POST_EXTENDED_SELECT = `${POST_BASE_SELECT},category,author,author_role,author_bio,tags,seo_title,seo_description,related_service,read_time_override`;
+const POST_EXTENDED_SELECT = `${POST_BASE_SELECT},category,author,author_role,author_bio,tags,seo_title,seo_description,og_title,og_description,og_image,og_image_alt,twitter_title,twitter_description,twitter_image,twitter_card,canonical_url,related_service,read_time_override`;
 type PostQueryRow = Post & { __legacySchema?: boolean };
 
 function isMissingColumnError(error: { code?: string } | null): boolean {
@@ -37,6 +37,15 @@ function withLegacyBlogDefaults(rows: Array<Partial<Post>>, legacySchema = false
       : [],
     seo_title: typeof row.seo_title === "string" ? row.seo_title : null,
     seo_description: typeof row.seo_description === "string" ? row.seo_description : null,
+    og_title: typeof row.og_title === "string" ? row.og_title : null,
+    og_description: typeof row.og_description === "string" ? row.og_description : null,
+    og_image: typeof row.og_image === "string" ? row.og_image : null,
+    og_image_alt: typeof row.og_image_alt === "string" ? row.og_image_alt : null,
+    twitter_title: typeof row.twitter_title === "string" ? row.twitter_title : null,
+    twitter_description: typeof row.twitter_description === "string" ? row.twitter_description : null,
+    twitter_image: typeof row.twitter_image === "string" ? row.twitter_image : null,
+    twitter_card: typeof row.twitter_card === "string" ? row.twitter_card : null,
+    canonical_url: typeof row.canonical_url === "string" ? row.canonical_url : null,
     related_service: typeof row.related_service === "string" ? row.related_service : null,
     read_time_override: typeof row.read_time_override === "number" ? row.read_time_override : null,
     status: row.status ?? "draft",

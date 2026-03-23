@@ -128,7 +128,7 @@ export function DashboardSidebar({ role }: SidebarProps) {
           <Button
             type="submit"
             variant="ghost"
-            className="w-full justify-start gap-2 rounded-xl border border-transparent text-fg/56 transition-[transform,border-color,background-color,color] duration-200 hover:-translate-y-0.5 hover:border-red-400/14 hover:bg-red-500/8 hover:text-red-400 active:translate-y-0 active:scale-[0.98]"
+            className="w-full justify-start gap-2 rounded-xl border border-transparent text-fg/56 transition-[border-color,background-color,color] duration-200 hover:border-red-400/14 hover:bg-red-500/8 hover:text-red-400"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
             Logout

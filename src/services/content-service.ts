@@ -162,6 +162,15 @@ function buildPostMetadataPayload(parsed: ParsedPostInput, tags: string[]) {
     tags,
     seo_title: parsed.seoTitle || null,
     seo_description: parsed.seoDescription || null,
+    og_title: parsed.ogTitle || null,
+    og_description: parsed.ogDescription || null,
+    og_image: parsed.ogImage || null,
+    og_image_alt: parsed.ogImageAlt || null,
+    twitter_title: parsed.twitterTitle || null,
+    twitter_description: parsed.twitterDescription || null,
+    twitter_image: parsed.twitterImage || null,
+    twitter_card: parsed.twitterCard || null,
+    canonical_url: parsed.canonicalUrl || null,
     related_service: parsed.relatedService || null,
     read_time_override: typeof parsed.readTimeOverride === "number" ? parsed.readTimeOverride : null
   };
@@ -179,6 +188,15 @@ function buildStoredPostMetadataPayload(version: Record<string, unknown>): Retur
     tags: Array.isArray(version.tags) ? version.tags.map((tag) => String(tag).trim()).filter(Boolean) : [],
     seo_title: typeof version.seo_title === "string" ? version.seo_title : null,
     seo_description: typeof version.seo_description === "string" ? version.seo_description : null,
+    og_title: typeof version.og_title === "string" ? version.og_title : null,
+    og_description: typeof version.og_description === "string" ? version.og_description : null,
+    og_image: typeof version.og_image === "string" ? version.og_image : null,
+    og_image_alt: typeof version.og_image_alt === "string" ? version.og_image_alt : null,
+    twitter_title: typeof version.twitter_title === "string" ? version.twitter_title : null,
+    twitter_description: typeof version.twitter_description === "string" ? version.twitter_description : null,
+    twitter_image: typeof version.twitter_image === "string" ? version.twitter_image : null,
+    twitter_card: typeof version.twitter_card === "string" ? version.twitter_card : null,
+    canonical_url: typeof version.canonical_url === "string" ? version.canonical_url : null,
     related_service: typeof version.related_service === "string" ? version.related_service || null : null,
     read_time_override: typeof version.read_time_override === "number" ? version.read_time_override : null
   };
@@ -331,6 +349,15 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
     tags: params.formData.get("tags"),
     seoTitle: params.formData.get("seoTitle"),
     seoDescription: params.formData.get("seoDescription"),
+    ogTitle: params.formData.get("ogTitle"),
+    ogDescription: params.formData.get("ogDescription"),
+    ogImage: params.formData.get("ogImage"),
+    ogImageAlt: params.formData.get("ogImageAlt"),
+    twitterTitle: params.formData.get("twitterTitle"),
+    twitterDescription: params.formData.get("twitterDescription"),
+    twitterImage: params.formData.get("twitterImage"),
+    twitterCard: params.formData.get("twitterCard") || undefined,
+    canonicalUrl: params.formData.get("canonicalUrl"),
     coverImageUrl: params.formData.get("coverImageUrl"),
     relatedService: params.formData.get("relatedService"),
     readTimeOverride: params.formData.get("readTimeOverride") || undefined,
@@ -475,7 +502,16 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     result: params.formData.get("result"),
     // SEO
     metaTitle: params.formData.get("metaTitle"),
-    metaDescription: params.formData.get("metaDescription")
+    metaDescription: params.formData.get("metaDescription"),
+    ogTitle: params.formData.get("ogTitle"),
+    ogDescription: params.formData.get("ogDescription"),
+    ogImage: params.formData.get("ogImage"),
+    ogImageAlt: params.formData.get("ogImageAlt"),
+    twitterTitle: params.formData.get("twitterTitle"),
+    twitterDescription: params.formData.get("twitterDescription"),
+    twitterImage: params.formData.get("twitterImage"),
+    twitterCard: params.formData.get("twitterCard") || undefined,
+    canonicalUrl: params.formData.get("canonicalUrl")
   });
 
   const galleryImages = sanitizeGalleryImages(parsed.galleryImages, parsed.coverImageUrl);
@@ -498,7 +534,16 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     solution: parsed.solution || null,
     result: parsed.result || null,
     meta_title: parsed.metaTitle || null,
-    meta_description: parsed.metaDescription || null
+    meta_description: parsed.metaDescription || null,
+    og_title: parsed.ogTitle || null,
+    og_description: parsed.ogDescription || null,
+    og_image: parsed.ogImage || null,
+    og_image_alt: parsed.ogImageAlt || null,
+    twitter_title: parsed.twitterTitle || null,
+    twitter_description: parsed.twitterDescription || null,
+    twitter_image: parsed.twitterImage || null,
+    twitter_card: parsed.twitterCard || null,
+    canonical_url: parsed.canonicalUrl || null
   };
 
   if (!id) {

@@ -12,7 +12,11 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "About Graphxify – Design & Development Studio",
   description: "Graphxify is a Canadian web design and branding agency delivering custom websites, brand identity systems, and digital platforms for businesses in Toronto, Mississauga, and across Ontario.",
-  path: "/about"
+  path: "/about",
+  image: "/images/about/about-graphxify-visual.png",
+  ogTitle: "About Graphxify — Toronto Design Studio",
+  ogDescription: "Built by a designer who codes. Structured brand systems and custom websites for Canadian businesses — no templates, no shortcuts.",
+  ogImageAlt: "Graphxify studio — precision-built brand systems and web design for Canadian businesses"
 });
 
 type WorkCard = {

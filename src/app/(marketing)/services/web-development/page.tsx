@@ -14,7 +14,11 @@ export const metadata: Metadata = buildMetadata({
   title: "Web Development Services — Custom Next.js Websites in Canada",
   description:
     "Graphxify builds custom websites on Next.js, not WordPress templates. Lighthouse scores above 90, Core Web Vitals optimised, and full code ownership. Serving Canadian businesses in Toronto, Mississauga, and Ontario.",
-  path: "/services/web-development"
+  path: "/services/web-development",
+  image: "/images/about/about-graphxify-visual.png",
+  ogTitle: "Web Development — Fast, Scalable Next.js Sites | Graphxify",
+  ogDescription: "Custom Next.js websites with Lighthouse 90+, Core Web Vitals optimised, and full code ownership. Built to rank, load instantly, and scale without friction.",
+  ogImageAlt: "Web development with Next.js — high-performance websites by Graphxify"
 });
 
 const deliverables = [

@@ -101,6 +101,15 @@ export const postSchema = z.object({
   tags: z.string().trim().max(240).optional().or(z.literal("")),
   seoTitle: z.string().trim().max(180).optional().or(z.literal("")),
   seoDescription: z.string().trim().max(320).optional().or(z.literal("")),
+  ogTitle: z.string().trim().max(220).optional().or(z.literal("")),
+  ogDescription: z.string().trim().max(400).optional().or(z.literal("")),
+  ogImage: imageUrlSchema.optional().or(z.literal("")),
+  ogImageAlt: z.string().trim().max(220).optional().or(z.literal("")),
+  twitterTitle: z.string().trim().max(220).optional().or(z.literal("")),
+  twitterDescription: z.string().trim().max(400).optional().or(z.literal("")),
+  twitterImage: imageUrlSchema.optional().or(z.literal("")),
+  twitterCard: z.enum(["summary", "summary_large_image"]).optional(),
+  canonicalUrl: optionalHttpUrlSchema.optional().or(z.literal("")),
   coverImageUrl: imageUrlSchema.optional().or(z.literal("")),
   relatedService: z.enum(RELATED_SERVICE_VALUES as [string, ...string[]]).optional().or(z.literal("")),
   readTimeOverride: z.coerce.number().int().min(1).max(120).optional(),
@@ -168,7 +177,16 @@ export const workSchema = z.object({
   result: z.string().trim().max(2000).optional().or(z.literal("")),
   // SEO
   metaTitle: z.string().trim().max(220).optional().or(z.literal("")),
-  metaDescription: z.string().trim().max(400).optional().or(z.literal(""))
+  metaDescription: z.string().trim().max(400).optional().or(z.literal("")),
+  ogTitle: z.string().trim().max(220).optional().or(z.literal("")),
+  ogDescription: z.string().trim().max(400).optional().or(z.literal("")),
+  ogImage: imageUrlSchema.optional().or(z.literal("")),
+  ogImageAlt: z.string().trim().max(220).optional().or(z.literal("")),
+  twitterTitle: z.string().trim().max(220).optional().or(z.literal("")),
+  twitterDescription: z.string().trim().max(400).optional().or(z.literal("")),
+  twitterImage: imageUrlSchema.optional().or(z.literal("")),
+  twitterCard: z.enum(["summary", "summary_large_image"]).optional(),
+  canonicalUrl: optionalHttpUrlSchema.optional().or(z.literal(""))
 }).superRefine((value, ctx) => {
   if (value.status !== "published") {
     return;

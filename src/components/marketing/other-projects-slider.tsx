@@ -311,7 +311,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
               "inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
               !canGoPrev
                 ? "cursor-not-allowed border-border/18 bg-card/54 text-fg/34"
-                : "border-border/26 bg-card/74 text-fg/74 hover:border-accentA/42 hover:text-fg"
+                : "border-border/26 bg-card/74 text-fg/74 hover:border-accentA/42 hover:bg-accent-gradient hover:text-ivory"
             )}
             aria-label="Previous projects"
           >
@@ -325,7 +325,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
               "inline-flex h-11 w-11 items-center justify-center rounded-full border transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
               !canGoNext
                 ? "cursor-not-allowed border-border/18 bg-card/54 text-fg/34"
-                : "border-border/26 bg-card/74 text-fg/74 hover:border-accentA/42 hover:text-fg"
+                : "border-border/26 bg-card/74 text-fg/74 hover:border-accentA/42 hover:bg-accent-gradient hover:text-ivory"
             )}
             aria-label="Next projects"
           >
@@ -336,7 +336,7 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
 
       <div
         ref={viewportRef}
-        className="overflow-hidden rounded-[1rem]"
+        className="overflow-hidden rounded-2xl"
         role="region"
         aria-label="Other projects"
         tabIndex={0}
@@ -364,38 +364,51 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                 key={`${item.slug}-${index}`}
                 className="relative origin-center will-change-transform"
                 style={{ flex: `0 0 ${cardBasis}` }}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.985 }}
-                transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+                whileHover={{ y: -5, scale: 1.012 }}
+                whileTap={{ scale: 0.988 }}
+                transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
               >
                 <Link
                   href={`/works/${pathSlug}`}
                   aria-label={`Open project ${displayTitle}`}
                   data-cursor-label="Open"
-                  className="group block overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  className="group relative block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55 focus-visible:ring-offset-3 focus-visible:ring-offset-bg"
                 >
-                  <article className="relative h-[16.5rem] overflow-hidden rounded-[1.05rem] md:h-[18.5rem]">
+                  <article className="relative h-[16.5rem] overflow-hidden rounded-2xl border border-border/20 text-white shadow-[0_4px_20px_rgba(0,0,0,0.07)] transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:border-accentA/28 group-hover:shadow-[0_24px_60px_rgba(0,0,0,0.26),0_0_0_1px_rgba(0,163,255,0.1)] md:h-[18.5rem]">
+                    {/* Image */}
                     <Image
                       src={item.coverImage}
                       alt={displayTitle}
                       fill
                       loader={shouldBypassNextImageOptimization(item.coverImage) ? supabasePublicImageLoader : undefined}
-                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.02] group-hover:brightness-[0.62]"
+                      className="object-cover transition-[transform,filter] duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.06] group-hover:brightness-[0.48]"
                       sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
                     />
-                    <span className="absolute inset-0 bg-black/12 transition-colors duration-500 group-hover:bg-black/38" />
 
-                    <span className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
-                      <span className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">
-                        {displayTitle}
-                      </span>
-                    </span>
+                    {/* Gradient scrim — concentrated at bottom for title legibility */}
+                    <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.96) 0%, rgba(0,0,0,0.68) 42%, rgba(0,0,0,0.18) 68%, transparent 100%)" }} />
 
-                    <span className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <span className="text-[1.45rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.75rem]">
+                    {/* Bottom content */}
+                    <div className="absolute inset-x-0 bottom-0 z-10 p-4 md:p-5">
+                      {/* Title — always visible */}
+                      <h3 className="line-clamp-2 text-[1.02rem] font-semibold leading-[1.12] text-white drop-shadow-[0_2px_16px_rgba(0,0,0,0.9)] transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-0.5 md:text-[1.12rem]">
                         {displayTitle}
-                      </span>
-                    </span>
+                      </h3>
+
+                      {/* Accent rule — expands on hover */}
+                      <div className="mt-2.5 h-px w-6 origin-left rounded-full bg-white/20 opacity-0 transition-[width,background-color,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] [transition-delay:40ms] group-hover:w-9 group-hover:bg-accentA/55 group-hover:opacity-100" />
+
+                      {/* CTA — revealed on hover */}
+                      <div className="mt-2 inline-flex items-center gap-1.5 opacity-0 transition-[opacity,gap] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] [transition-delay:80ms] group-hover:gap-2 group-hover:opacity-100">
+                        <span className="text-[0.52rem] font-semibold uppercase tracking-[0.2em] text-accentA/88">Open Project</span>
+                        <svg className="h-2.5 w-2.5 text-accentA/88 transition-transform duration-300 group-hover:translate-x-px" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Bottom accent bar — sweeps in on hover */}
+                    <div className="absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 bg-gradient-to-r from-accentA to-accentB transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100" />
                   </article>
                 </Link>
               </motion.div>
@@ -421,10 +434,10 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
                 >
                   <span
                     className={cn(
-                      "block h-2 w-2 rounded-full transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                      "block h-1.5 w-4 rounded-full transition-[transform,background-color,opacity] duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
                       active
-                        ? "scale-110 bg-accentA opacity-100 shadow-[0_0_0_1px_rgba(0,163,255,0.24),0_0_12px_rgba(0,82,204,0.18)]"
-                        : "bg-accentA/35 opacity-70 hover:opacity-100"
+                        ? "scale-x-[2.5] bg-accent-gradient"
+                        : "bg-border/30 opacity-80 hover:bg-border/50 hover:opacity-100"
                     )}
                   />
                 </button>

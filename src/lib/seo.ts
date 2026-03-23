@@ -6,13 +6,34 @@ export function buildMetadata(input: {
   description: string;
   path: string;
   image?: string;
+  // Per-field OG overrides (used verbatim when provided)
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  ogImageAlt?: string | null;
+  // Per-field Twitter overrides
+  twitterTitle?: string | null;
+  twitterDescription?: string | null;
+  twitterImage?: string | null;
+  twitterCard?: string | null;
+  // Canonical override
+  canonicalUrl?: string | null;
 }): Metadata {
-  const canonical = new URL(input.path, siteConfig.url).toString();
-  const image = input.image || "/assets/og-default.svg";
-  const title = `${input.title} | ${siteConfig.name}`;
+  const canonical = input.canonicalUrl?.trim() || new URL(input.path, siteConfig.url).toString();
+  const baseImage = input.image || "/images/about/about-graphxify-visual.png";
+  const pageTitle = `${input.title} | ${siteConfig.name}`;
+
+  const ogTitle = input.ogTitle?.trim() || pageTitle;
+  const ogDescription = input.ogDescription?.trim() || input.description;
+  const ogImage = input.ogImage?.trim() || baseImage;
+
+  const twitterCard = (input.twitterCard?.trim() as "summary" | "summary_large_image" | undefined) || "summary_large_image";
+  const twitterTitle = input.twitterTitle?.trim() || ogTitle;
+  const twitterDescription = input.twitterDescription?.trim() || ogDescription;
+  const twitterImage = input.twitterImage?.trim() || ogImage;
 
   return {
-    title,
+    title: pageTitle,
     description: input.description,
     metadataBase: new URL(siteConfig.url),
     icons: {
@@ -25,17 +46,17 @@ export function buildMetadata(input: {
     },
     openGraph: {
       type: "website",
-      title,
-      description: input.description,
+      title: ogTitle,
+      description: ogDescription,
       url: canonical,
       siteName: siteConfig.name,
-      images: [{ url: image }]
+      images: [{ url: ogImage, ...(input.ogImageAlt?.trim() ? { alt: input.ogImageAlt.trim() } : {}) }]
     },
     twitter: {
-      card: "summary_large_image",
-      title,
-      description: input.description,
-      images: [image]
+      card: twitterCard,
+      title: twitterTitle,
+      description: twitterDescription,
+      images: [twitterImage]
     }
   };
 }

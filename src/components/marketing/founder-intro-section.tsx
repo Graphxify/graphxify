@@ -36,8 +36,8 @@ export function FounderIntroSection({
       {showIntroLabel ? <p className="mb-6 text-center text-[0.9rem] text-fg/54">(Intro)</p> : null}
 
       <div className="grid gap-5 lg:grid-cols-[0.85fr_1.15fr] lg:gap-8">
-        <div className="relative overflow-hidden rounded-[2rem] border border-border/20 bg-card/78 p-2.5">
-          <div className="relative h-[19rem] overflow-hidden rounded-[1.65rem] sm:h-[22rem] md:h-[32rem]">
+        <div className="relative overflow-hidden rounded-[2rem] border border-border/20 bg-card/78 p-2.5 lg:h-full">
+          <div className="relative h-[19rem] overflow-hidden rounded-[1.65rem] sm:h-[22rem] md:h-[32rem] lg:h-full">
             <Image
               src={aboutGraphxifyVisual}
               alt="Graphxify brand and web systems preview"

@@ -54,6 +54,15 @@ type CmsWorkLike = {
   result?: string | null;
   meta_title?: string | null;
   meta_description?: string | null;
+  og_title?: string | null;
+  og_description?: string | null;
+  og_image?: string | null;
+  og_image_alt?: string | null;
+  twitter_title?: string | null;
+  twitter_description?: string | null;
+  twitter_image?: string | null;
+  twitter_card?: string | null;
+  canonical_url?: string | null;
 };
 
 const galleryNotes: Record<LayoutVariant, string> = {
@@ -517,7 +526,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
   const canonicalPathSlug = getProjectPathSlug(project.slug);
 
-  const cmsWork = project as ProjectDetail & { meta_title?: string | null; meta_description?: string | null };
+  const cmsWork = project as CmsWorkLike;
 
   const autoTitle = buildCaseStudyTitle(project.title, project.industry);
 
@@ -525,7 +534,16 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title: cmsWork.meta_title?.trim() || autoTitle,
     description: cmsWork.meta_description?.trim() || project.excerpt,
     path: `/works/${canonicalPathSlug}`,
-    image: project.coverImage
+    image: project.coverImage,
+    ogTitle: cmsWork.og_title,
+    ogDescription: cmsWork.og_description,
+    ogImage: cmsWork.og_image,
+    ogImageAlt: cmsWork.og_image_alt || `${project.title}${project.industry ? ` — ${project.industry} project` : " project"} by Graphxify`,
+    twitterTitle: cmsWork.twitter_title,
+    twitterDescription: cmsWork.twitter_description,
+    twitterImage: cmsWork.twitter_image,
+    twitterCard: cmsWork.twitter_card,
+    canonicalUrl: cmsWork.canonical_url
   });
 }
 
@@ -867,6 +885,20 @@ function ProjectInfoRail({ project }: { project: ProjectDetail }): JSX.Element {
   );
 }
 
+function NarrativeCard({ title, body }: { title: string; body: string }): JSX.Element {
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-border/14 bg-card/50 px-6 py-7 transition-[border-color,background-color] duration-300 hover:border-accentA/20 hover:bg-card/68 md:px-8 md:py-8">
+      {/* Left accent rail */}
+      <span aria-hidden className="absolute bottom-5 left-0 top-5 w-[3px] rounded-r-full bg-accent-gradient opacity-50 transition-opacity duration-300 group-hover:opacity-100" />
+      {/* Top hairline */}
+      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/28 to-transparent" />
+      {/* Label */}
+      <p className="mb-5 text-[0.56rem] uppercase tracking-[0.22em] text-fg/38">{title}</p>
+      <p className="text-sm leading-[1.82] text-fg/66">{body}</p>
+    </div>
+  );
+}
+
 function ProjectNarrative({ project }: { project: ProjectDetail }): JSX.Element | null {
   const hasRichContent =
     project.overview.length > 40 &&
@@ -876,6 +908,9 @@ function ProjectNarrative({ project }: { project: ProjectDetail }): JSX.Element 
     return null;
   }
 
+  const hasApproach = Boolean(project.proof.approach?.trim());
+  const hasOutcome = Boolean(project.proof.outcome?.trim());
+
   type NarrativeItem = { title: string; body: string };
 
   function pairRow(items: Array<NarrativeItem | null>): JSX.Element | null {
@@ -883,11 +918,8 @@ function ProjectNarrative({ project }: { project: ProjectDetail }): JSX.Element 
     if (filtered.length === 0) return null;
     return (
       <div className={cn("grid gap-4", filtered.length > 1 ? "md:grid-cols-2" : "")}>
-        {filtered.map(({ title, body }) => (
-          <div key={title} className="rounded-xl border border-border/10 bg-card/40 px-6 py-7 md:px-8 md:py-8">
-            <p className="mb-3.5 text-[0.57rem] uppercase tracking-[0.2em] text-fg/36">{title}</p>
-            <p className="text-sm leading-[1.78] text-fg/62">{body}</p>
-          </div>
+        {filtered.map((item) => (
+          <NarrativeCard key={item.title} {...item} />
         ))}
       </div>
     );
@@ -895,27 +927,32 @@ function ProjectNarrative({ project }: { project: ProjectDetail }): JSX.Element 
 
   const row2 = pairRow([
     { title: "Challenge", body: project.proof.problem },
-    project.proof.approach ? { title: "Approach", body: project.proof.approach } : null
+    hasApproach ? { title: "Approach", body: project.proof.approach } : null
   ]);
 
   const row3 = pairRow([
     { title: "Solution", body: project.proof.solution },
-    { title: "Result", body: project.proof.outcome }
+    hasOutcome ? { title: "Result", body: project.proof.outcome } : null
   ]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Section label */}
-      <div className="flex items-center gap-2.5">
-        <span className="h-1.5 w-1.5 rounded-full bg-accentA" aria-hidden="true" />
-        <p className="text-xs uppercase tracking-[0.2em] text-fg/50">Case Study</p>
+      <div className="flex items-center gap-3">
+        <span aria-hidden className="h-[2px] w-7 rounded-full bg-accent-gradient" />
+        <p className="text-[0.6rem] uppercase tracking-[0.24em] text-fg/48">Case Study</p>
+        <span aria-hidden className="h-px flex-1 bg-border/14" />
       </div>
 
-      {/* Row 1 — Overview: full-width dominant card */}
-      <div className="relative overflow-hidden rounded-2xl border border-border/14 bg-card/60 px-7 py-9 md:px-10 md:py-11">
-        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/40 to-transparent" />
-        <p className="mb-4 text-[0.57rem] uppercase tracking-[0.2em] text-fg/36">Overview</p>
-        <p className="max-w-[64ch] text-[0.96rem] leading-[1.8] text-fg/70">{project.overview}</p>
+      {/* Row 1 — Overview: full-width hero card */}
+      <div className="group relative overflow-hidden rounded-2xl border border-accentA/16 bg-gradient-to-br from-accentA/[0.07] via-card/65 to-card/50 px-7 py-9 transition-[border-color] duration-300 hover:border-accentA/28 md:px-10 md:py-11">
+        {/* Decorative orb */}
+        <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accentA/8 blur-2xl" />
+        {/* Top gradient hairline */}
+        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/50 to-transparent" />
+        {/* Label */}
+        <p className="mb-5 text-[0.56rem] uppercase tracking-[0.22em] text-fg/38">Overview</p>
+        <p className="relative max-w-[64ch] text-[0.97rem] leading-[1.82] text-fg/70">{project.overview}</p>
       </div>
 
       {/* Row 2 — Challenge + Approach */}

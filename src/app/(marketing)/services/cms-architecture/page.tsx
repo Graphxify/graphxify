@@ -14,7 +14,11 @@ export const metadata: Metadata = buildMetadata({
   title: "CMS Architecture — Structured Content Systems for Canadian Businesses",
   description:
     "Graphxify designs structured content management systems with defined roles, workflows, and content models your team can manage confidently. Delivered standalone or as part of a web development engagement.",
-  path: "/services/cms-architecture"
+  path: "/services/cms-architecture",
+  image: "/images/about/about-graphxify-visual.png",
+  ogTitle: "CMS Architecture — Content Systems Your Team Can Own | Graphxify",
+  ogDescription: "We build the structure, workflows, and content models your team needs to publish confidently — no developer required for day-to-day updates.",
+  ogImageAlt: "CMS architecture and structured content systems designed by Graphxify"
 });
 
 const deliverables = [
