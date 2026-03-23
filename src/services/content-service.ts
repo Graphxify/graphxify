@@ -195,7 +195,7 @@ function buildStoredPostMetadataPayload(version: Record<string, unknown>): Retur
     twitter_title: typeof version.twitter_title === "string" ? version.twitter_title : null,
     twitter_description: typeof version.twitter_description === "string" ? version.twitter_description : null,
     twitter_image: typeof version.twitter_image === "string" ? version.twitter_image : null,
-    twitter_card: typeof version.twitter_card === "string" ? version.twitter_card : null,
+    twitter_card: typeof version.twitter_card === "string" ? version.twitter_card as "summary" | "summary_large_image" : null,
     canonical_url: typeof version.canonical_url === "string" ? version.canonical_url : null,
     related_service: typeof version.related_service === "string" ? version.related_service || null : null,
     read_time_override: typeof version.read_time_override === "number" ? version.read_time_override : null
