@@ -713,6 +713,63 @@ function GalleryB({
   );
 }
 
+function GalleryBossMedClinic({
+  images,
+  seed
+}: {
+  images: ProjectImage[];
+  seed: number;
+}): JSX.Element {
+  const ordered = rotateItems(images, seed);
+  const ROW = STRICT_GRID_ROW_UNIT_PX;
+  const GAP = STRICT_GRID_GAP_PX;
+
+  return (
+    <div
+      className="grid grid-cols-1 gap-[12px] [grid-auto-flow:dense] sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-12"
+      style={{ gridAutoRows: `${ROW}px`, gap: `${GAP}px` }}
+    >
+      {/* Left: tall mobile mockup */}
+      <div
+        className="col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-5 min-h-0 box-border"
+        style={{ gridRow: "span 32 / span 32", minHeight: `${32 * ROW}px` }}
+      >
+        <GalleryFrame image={ordered[0]} className="h-full w-full" accent="corner" />
+      </div>
+
+      {/* Right: one large single showcase card */}
+      <div
+        className="col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-7 min-h-0 box-border"
+        style={{ gridRow: "span 32 / span 32", minHeight: `${32 * ROW}px` }}
+      >
+        <GalleryFrame image={ordered[1]} className="h-full w-full" accent="corner" />
+      </div>
+
+      {/* Full-width showcase */}
+      <div
+        className="col-span-1 sm:col-span-2 lg:col-span-6 xl:col-span-12 min-h-0 box-border"
+        style={{ gridRow: "span 18 / span 18", minHeight: `${18 * ROW}px` }}
+      >
+        <GalleryFrame image={ordered[2]} className="h-full w-full" />
+      </div>
+
+      {/* Bottom two — equal halves */}
+      <div
+        className="col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6 min-h-0 box-border"
+        style={{ gridRow: "span 14 / span 14", minHeight: `${14 * ROW}px` }}
+      >
+        <GalleryFrame image={ordered[3]} className="h-full w-full" />
+      </div>
+      <div
+        className="col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6 min-h-0 box-border"
+        style={{ gridRow: "span 14 / span 14", minHeight: `${14 * ROW}px` }}
+      >
+        <GalleryFrame image={ordered[4]} className="h-full w-full" accent="corner" />
+      </div>
+    </div>
+  );
+}
+
 function GalleryC({
   images,
   seed,
@@ -801,6 +858,7 @@ function ProjectVisualGallery({ project }: { project: ProjectDetail }): JSX.Elem
   const isLukaHairSalon = projectPathSlug === "luka-hair-salon";
 
   if (project.layoutVariant === "A") return <GalleryA images={images} seed={seed} showHeroDominantLabel={!isLukaHairSalon} />;
+  if (project.layoutVariant === "B" && isBossRaam) return <GalleryBossMedClinic images={images} seed={seed} />;
   if (project.layoutVariant === "B") return <GalleryB images={images} seed={seed} showEditorialLabel={!isBossRaam} />;
   if (project.layoutVariant === "C") return <GalleryC images={images} seed={seed} showSplitShowcaseLabel={!isPharmacyOnKing} />;
   if (project.layoutVariant === "D") return <GalleryD images={images} seed={seed} />;
