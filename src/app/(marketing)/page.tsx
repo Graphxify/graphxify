@@ -29,6 +29,7 @@ type TestimonialPreview = {
   name: string;
   role: string;
   image_url?: string | null;
+  rating?: number;
 };
 
 type TestimonialMetricPreview = {
@@ -91,7 +92,8 @@ function toTestimonialPreview(item: Partial<TestimonialPreview>): TestimonialPre
     quote: item.quote,
     name: item.name,
     role: item.role,
-    image_url: item.image_url ?? null
+    image_url: item.image_url ?? null,
+    rating: item.rating
   };
 }
 

@@ -8,6 +8,8 @@ type TestimonialCard = {
   quote: string;
   name: string;
   role: string;
+  image_url?: string | null;
+  rating?: number;
 };
 
 type TestimonialMetricCard = {

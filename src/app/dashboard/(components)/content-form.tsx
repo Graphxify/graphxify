@@ -257,7 +257,6 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
         <>
           <input type="hidden" name="year" defaultValue={workYearValue} />
           <input type="hidden" name="services" defaultValue={workServicesDefault} />
-          <input type="hidden" name="layoutVariant" defaultValue={workLayoutVariantValue} />
 
           {/* ── SECTION: Core ── */}
           <p className="text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Core</p>
@@ -383,6 +382,22 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
                 {canPublish ? <option value="published">Published</option> : null}
               </select>
               <FieldErrorText id={getErrorId("status")} message={getFieldError("status")} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="layoutVariant">Gallery layout</Label>
+              <select
+                id="layoutVariant"
+                name="layoutVariant"
+                className="h-11 w-full rounded-lg border border-border/20 bg-card/72 px-3 text-sm text-fg"
+                defaultValue={workLayoutVariantValue}
+              >
+                <option value="A">A — Hero dominant (1 / 2 / 1 / 2)</option>
+                <option value="B">B — Asymmetrical editorial</option>
+                <option value="C">C — Split showcase</option>
+                <option value="D">D — Organic masonry</option>
+                <option value="E">E — Alternating rhythm</option>
+                <option value="F">F — Framed sequence</option>
+              </select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="sortOrder">Sort order</Label>

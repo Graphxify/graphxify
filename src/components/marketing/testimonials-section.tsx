@@ -1,14 +1,17 @@
 "use client";
 
+import Image from "next/image";
 import { Star } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { testimonials as fallbackTestimonials } from "@/lib/constants";
+import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 
 type TestimonialInput = {
   id: string;
   quote: string;
   name: string;
   role: string;
+  image_url?: string | null;
   rating?: number;
 };
 
@@ -79,9 +82,22 @@ function TestimonialCard({ item }: { item: TestimonialInput }): JSX.Element {
 
       {/* Attribution */}
       <footer className="mt-6 flex items-center gap-3">
-        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-accentA/80 to-accentA/50 text-xs font-semibold text-white/90">
-          {initials}
-        </span>
+        {item.image_url ? (
+          <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full">
+            <Image
+              src={item.image_url}
+              alt={item.name}
+              fill
+              unoptimized={shouldBypassNextImageOptimization(item.image_url)}
+              className="object-cover"
+              sizes="40px"
+            />
+          </div>
+        ) : (
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-accentA/80 to-accentA/50 text-xs font-semibold text-white/90">
+            {initials}
+          </span>
+        )}
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-fg/90">{item.name}</p>
           <p className="truncate text-xs text-fg/48">{item.role}</p>
@@ -276,6 +292,7 @@ export function TestimonialsSection({
       quote: item.quote,
       name: item.name,
       role: item.role,
+      image_url: "image_url" in item ? (item as TestimonialInput).image_url : null,
       rating: "rating" in item ? (item as TestimonialInput).rating : 5,
     }));
   }, [items]);

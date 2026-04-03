@@ -1,3 +1,7 @@
+// ISR: re-render at most once per 60 s; serve cached version between revalidations.
+// On-demand revalidatePath() is also called by content-service on every CMS save.
+export const revalidate = 60;
+
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -119,7 +123,14 @@ function getFallbackGallerySources(coverImage: string): string[] {
 }
 
 function ensureExactGallerySources(primary: string[], fallback: string[], coverImage: string): string[] {
-  const candidateSources = uniqueStrings([...primary, ...fallback, ...getFallbackGallerySources(coverImage)]).filter(
+  // When CMS gallery images exist, cycle through them only — never mix in SVG placeholders.
+  const cmsSources = uniqueStrings(primary);
+  if (cmsSources.length > 0) {
+    return Array.from({ length: REQUIRED_GALLERY_IMAGES }, (_, i) => cmsSources[i % cmsSources.length]);
+  }
+
+  // No CMS images: use hardcoded fallback images, then SVGs as last resort.
+  const candidateSources = uniqueStrings([...fallback, ...getFallbackGallerySources(coverImage)]).filter(
     (src) => src !== coverImage
   );
   const usableSources = candidateSources.length > 0 ? candidateSources : getFallbackGallerySources(coverImage);
@@ -315,9 +326,14 @@ function mapCmsWorkToProject(
   const imageVersion = work.updated_at ?? null;
   const layoutSectionTitle = work.role?.trim() || fallbackProject?.layoutSectionTitle || "Visual Layout";
   const normalizedCmsGallerySources = uniqueStrings(Array.isArray(work.gallery_images) ? work.gallery_images : []);
+  const explicitCover = normalizeImageSrc(work.cover_image_url);
   const coverImageBase =
-    normalizeImageSrc(work.cover_image_url) ?? normalizedCmsGallerySources[0] ?? fallbackProject?.coverImage ?? "/assets/work-1.svg";
-  const cmsGallerySources = normalizedCmsGallerySources.filter((src) => src !== coverImageBase);
+    explicitCover ?? normalizedCmsGallerySources[0] ?? fallbackProject?.coverImage ?? "/assets/work-1.svg";
+  // Only remove the cover from gallery sources when it was explicitly set as the hero —
+  // if the cover was derived from the first gallery image, keep all uploads intact.
+  const cmsGallerySources = explicitCover
+    ? normalizedCmsGallerySources.filter((src) => src !== coverImageBase)
+    : normalizedCmsGallerySources;
   // Only use hardcoded project images to pad the gallery when CMS provides none.
   // When CMS has gallery images, repeat only those (plus the SVG placeholders as a last resort)
   // so the hardcoded images from a previous project version never bleed through.
@@ -422,8 +438,20 @@ function mapCmsWorkToProject(
       approach: cmsApproach,
       solution: cmsSolution,
       outcome: cmsResult
-    }
-  };
+    },
+    // SEO fields passed through so generateMetadata can read them via `project as CmsWorkLike`
+    meta_title: work.meta_title ?? null,
+    meta_description: work.meta_description ?? null,
+    og_title: work.og_title ?? null,
+    og_description: work.og_description ?? null,
+    og_image: work.og_image ?? null,
+    og_image_alt: work.og_image_alt ?? null,
+    twitter_title: work.twitter_title ?? null,
+    twitter_description: work.twitter_description ?? null,
+    twitter_image: work.twitter_image ?? null,
+    twitter_card: work.twitter_card ?? null,
+    canonical_url: work.canonical_url ?? null
+  } as unknown as ProjectDetail;
 }
 
 async function getResolvedProjectBySlug(slug: string): Promise<ProjectDetail | null> {
@@ -554,7 +582,7 @@ function getGalleryImages(project: ProjectDetail): ProjectImage[] {
 function GalleryFrame({
   image,
   className,
-  accent = "none"
+  accent: _accent = "none"
 }: {
   image: ProjectImage;
   className?: string;
@@ -720,7 +748,9 @@ function GalleryBossMedClinic({
   images: ProjectImage[];
   seed: number;
 }): JSX.Element {
-  const ordered = rotateItems(images, seed);
+  // Deduplicate by src so cycling padding never causes the same image to appear twice.
+  const unique = Array.from(new Map(images.map((img) => [img.src, img])).values());
+  const ordered = rotateItems(unique, seed);
   const ROW = STRICT_GRID_ROW_UNIT_PX;
   const GAP = STRICT_GRID_GAP_PX;
 
