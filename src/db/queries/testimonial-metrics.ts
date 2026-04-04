@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import {
   isTestimonialMetricsTableMissing,
@@ -30,7 +31,7 @@ function normalizeMetricRow(row: Record<string, unknown>): FallbackTestimonialMe
 }
 
 export async function getTestimonialMetrics() {
-  const supabase = createAdminClient() ?? createClient();
+  const supabase = createAdminClient() ?? createPublicClient();
   const { data, error } = await supabase
     .from("testimonial_metrics")
     .select("*")

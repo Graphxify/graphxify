@@ -3,6 +3,7 @@ import "server-only";
 import type { Work } from "@/db/types";
 import { getProjectDisplayTitle } from "@/lib/project-card-content";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 
 function withCanonicalWorkTitle<T extends { slug: string; title: string }>(item: T): T {
@@ -23,7 +24,7 @@ function deduplicateWorksBySlug<T extends { slug: string }>(rows: T[]): T[] {
 }
 
 export async function getPublishedWorks(): Promise<Work[]> {
-  const supabase = createAdminClient() ?? createClient();
+  const supabase = createAdminClient() ?? createPublicClient();
 
   // Fetch with the full column list (requires migration work-cms-fields.sql to have been run).
   // We store the result WITHOUT immediately destructuring so TypeScript does not narrow

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 import { isTestimonialsTableMissing, readFallbackTestimonials } from "@/lib/testimonial-fallback";
 
@@ -49,7 +50,7 @@ function normalizeTestimonialRow(row: Record<string, unknown>): TestimonialRow |
 }
 
 export async function getPublishedTestimonials() {
-  const supabase = createAdminClient() ?? createClient();
+  const supabase = createAdminClient() ?? createPublicClient();
   const { data, error } = await supabase
     .from("testimonials")
     .select("*")

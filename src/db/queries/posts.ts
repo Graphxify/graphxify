@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Post } from "@/db/types";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
 
 const POST_BASE_SELECT = "id,title,slug,excerpt,content,cover_image_url,status,author_id,created_at,updated_at";
@@ -62,7 +63,7 @@ function withLegacyBlogDefaults(rows: Array<Partial<Post>>, legacySchema = false
 }
 
 export async function getPublishedPosts(): Promise<Post[]> {
-  const supabase = createAdminClient() ?? createClient();
+  const supabase = createAdminClient() ?? createPublicClient();
 
   const primary = await supabase
     .from("posts")
@@ -92,7 +93,7 @@ export async function getPublishedPosts(): Promise<Post[]> {
 }
 
 export async function getPublishedPostBySlug(slug: string): Promise<Post | null> {
-  const supabase = createAdminClient() ?? createClient();
+  const supabase = createAdminClient() ?? createPublicClient();
 
   const primary = await supabase
     .from("posts")

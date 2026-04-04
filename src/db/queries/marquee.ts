@@ -1,6 +1,6 @@
 import "server-only";
 
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 
 export type MarqueeItem = {
   id: string;
@@ -14,7 +14,7 @@ export type MarqueeItem = {
 
 /** Enabled items only — used by the public homepage. */
 export async function getMarqueeItems(): Promise<MarqueeItem[]> {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("marquee_items")
     .select("id, image_url_dark, image_url_light, label, sort_order, enabled, created_at")
@@ -27,7 +27,7 @@ export async function getMarqueeItems(): Promise<MarqueeItem[]> {
 
 /** All items (enabled + disabled) — used by the CMS dashboard. */
 export async function getAllMarqueeItems(): Promise<MarqueeItem[]> {
-  const supabase = createClient();
+  const supabase = createPublicClient();
   const { data, error } = await supabase
     .from("marquee_items")
     .select("id, image_url_dark, image_url_light, label, sort_order, enabled, created_at")

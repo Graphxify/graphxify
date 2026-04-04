@@ -49,6 +49,14 @@ const nextConfig: NextConfig = {
   },
   reactStrictMode: true,
   experimental: {
+    // Next.js 15 sets staleTimes.dynamic = 0 by default, which means dynamically-
+    // rendered pages are never cached client-side. Set to 30s so the Router Cache
+    // holds RSC payloads after first navigation, making back/forward and repeat
+    // visits to the same page instant within a 30-second window.
+    staleTimes: {
+      dynamic: 30,
+      static: 300,
+    },
     // Tree-shake barrel exports — eliminates unused icons/components from bundle
     optimizePackageImports: [
       "lucide-react",
