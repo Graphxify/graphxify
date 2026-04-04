@@ -26,22 +26,8 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
     const supabase = createBrowserSupabaseClient();
     let mounted = true;
 
-    const syncSession = async () => {
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
-
-      if (mounted) {
-        setResolvedCmsHref(session?.user ? "/dashboard" : null);
-      }
-    };
-
-    syncSession().catch(() => {
-      if (mounted) {
-        setResolvedCmsHref(null);
-      }
-    });
-
+    // onAuthStateChange fires INITIAL_SESSION immediately on subscribe —
+    // no need for a separate getSession() call.
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, session) => {
