@@ -1,4 +1,9 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false, nocache: true },
+};
 import { Plus, ExternalLink } from "lucide-react";
 import { DashboardSidebar } from "@/app/dashboard/(components)/sidebar";
 import { Breadcrumbs } from "@/app/dashboard/(components)/breadcrumbs";

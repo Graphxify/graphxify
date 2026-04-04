@@ -37,9 +37,12 @@ export function buildMetadata(input: {
     description: input.description,
     metadataBase: new URL(siteConfig.url),
     icons: {
-      icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-      shortcut: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-      apple: [{ url: "/apple-icon.svg", type: "image/svg+xml" }]
+      icon: [
+        { url: "/icon.png", type: "image/png", sizes: "512x512" },
+        { url: "/icon.svg", type: "image/svg+xml" },
+      ],
+      shortcut: [{ url: "/favicon.ico" }],
+      apple: [{ url: "/apple-icon.png", type: "image/png", sizes: "180x180" }],
     },
     alternates: {
       canonical

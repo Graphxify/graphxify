@@ -9,7 +9,30 @@ const extraImageHosts = (process.env.NEXT_PUBLIC_IMAGE_DOMAINS || "")
   .map((d) => d.trim())
   .filter(Boolean);
 
+// Private routes that should never be indexed by search engines.
+// The X-Robots-Tag header is the server-authoritative way to enforce this —
+// it works even when crawlers ignore <meta> tags or the robots.txt disallow.
+const NOINDEX_PATHS = [
+  "/dashboard/:path*",
+  "/admin/:path*",
+  "/api/:path*",
+  "/auth/:path*",
+  "/newsletter/:path*",
+  "/reset-password/:path*",
+];
+
+const NOINDEX_HEADER = {
+  key: "X-Robots-Tag",
+  value: "noindex, nofollow, noarchive",
+};
+
 const nextConfig: NextConfig = {
+  async headers() {
+    return NOINDEX_PATHS.map((source) => ({
+      source,
+      headers: [NOINDEX_HEADER],
+    }));
+  },
   images: {
     qualities: [75],
     formats: ["image/avif", "image/webp"],
