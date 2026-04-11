@@ -33,6 +33,17 @@ const nextConfig: NextConfig = {
       headers: [NOINDEX_HEADER],
     }));
   },
+  async redirects() {
+    return [
+      // Duplicate homepage variant indexed by Google
+      { source: "/index", destination: "/", permanent: true },
+      // Old singular path → correct plural
+      { source: "/work", destination: "/works", permanent: true },
+      // Legacy flat project URLs → correct /works/[slug] structure
+      { source: "/flyupline", destination: "/works/flyup-line", permanent: true },
+      { source: "/mbmdesigns", destination: "/works", permanent: true },
+    ];
+  },
   images: {
     qualities: [75],
     formats: ["image/avif", "image/webp"],
