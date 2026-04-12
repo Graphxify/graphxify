@@ -1,8 +1,22 @@
+/**
+ * Ensures the site URL always uses the canonical www subdomain.
+ * Handles the case where NEXT_PUBLIC_SITE_URL is set to the non-www
+ * variant on Vercel, which previously caused sitemap/canonical mismatches.
+ */
+function resolveCanonicalUrl(): string {
+  const raw = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.graphxify.com").replace(/\/+$/, "");
+  // Auto-correct non-www production URL → www
+  if (raw === "https://graphxify.com") {
+    return "https://www.graphxify.com";
+  }
+  return raw;
+}
+
 export const siteConfig = {
   name: "GRAPHXIFY",
   description:
     "Graphxify is a Canadian web design and branding agency serving Toronto, Mississauga, and Ontario businesses. We deliver brand systems, custom websites, and digital platforms built to perform.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  url: resolveCanonicalUrl()
 };
 
 export const companyContact = {

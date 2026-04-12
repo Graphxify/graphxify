@@ -28,7 +28,7 @@ export function optionalEnv(name: string): string | undefined {
 }
 
 export const env = {
-  NEXT_PUBLIC_SITE_URL: readEnv("NEXT_PUBLIC_SITE_URL", "http://localhost:3000"),
+  NEXT_PUBLIC_SITE_URL: readEnv("NEXT_PUBLIC_SITE_URL", "https://www.graphxify.com"),
   NEXT_PUBLIC_SUPABASE_URL: readEnv("NEXT_PUBLIC_SUPABASE_URL", "https://cajxvhcrfgpyyqohlkfp.supabase.co"),
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: optionalEnv("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: readEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", ""),
