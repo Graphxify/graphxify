@@ -7,6 +7,11 @@ import { graphxifyProjects } from "@/lib/project-details";
 
 type SitemapEntry = MetadataRoute.Sitemap[number];
 
+// Stable "last content update" date for static pages. A fixed value (rather than
+// `new Date()` on every request) gives Google a trustworthy <lastmod> instead of
+// one that appears to change on every crawl. Bump this when static page copy changes.
+const CONTENT_LAST_UPDATED = new Date("2026-07-08T00:00:00Z");
+
 // ── Static routes ─────────────────────────────────────────────────────────────
 // Each entry carries its own SEO weight and update cadence.
 const STATIC_ROUTES: Array<{
@@ -30,7 +35,7 @@ const STATIC_ROUTES: Array<{
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+  const now = CONTENT_LAST_UPDATED;
 
   // ── Blog posts ──────────────────────────────────────────────────────────────
   // Fetched from Supabase; falls back to empty array on error so the

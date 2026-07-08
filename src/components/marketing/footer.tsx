@@ -13,6 +13,7 @@ const footerGroups = [
       { label: "Services", href: "/services" },
       { label: "About", href: "/about" },
       { label: "Blog", href: "/blog" },
+      { label: "Free Website Checklist", href: "/resources/website-growth-checklist" },
       { label: "Contact", href: "/contact" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" }

@@ -165,7 +165,7 @@ export function HomeSections({
             />
             <h1 className="mx-auto flex max-w-full flex-col items-center text-center text-[clamp(1.32rem,7vw,5.1rem)] font-semibold leading-[0.98] tracking-[-0.035em] text-black dark:text-white sm:leading-[0.95]">
               <span className="block whitespace-nowrap">
-                <span className="gradient-text">Brands</span> and websites
+                <span className="gradient-text">Systems</span> and websites
               </span>
               <span className="mt-1.5 block whitespace-nowrap md:mt-2">
                 built for modern
