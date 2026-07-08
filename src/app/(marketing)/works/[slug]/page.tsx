@@ -1,6 +1,9 @@
 // ISR: re-render at most once per 60 s; serve cached version between revalidations.
 // On-demand revalidatePath() is also called by content-service on every CMS save.
 export const revalidate = 60;
+// Only slugs from generateStaticParams are served (it has a hardcoded fallback),
+// so any other /works/* URL returns a real 404 instead of a soft-404 200.
+export const dynamicParams = false;
 
 import Image from "next/image";
 import Link from "next/link";
@@ -545,11 +548,16 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const project = await getResolvedProjectBySlug(slug);
   if (!project) {
-    return buildMetadata({
-      title: "Project Not Found",
-      description: "Project item not found.",
-      path: `/works/${slug}`
-    });
+    // Unknown slug: keep it out of the index (ISR can serve the not-found render
+    // with a 200, so noindex prevents a soft-404 from ever being indexed).
+    return {
+      ...buildMetadata({
+        title: "Project Not Found",
+        description: "Project item not found.",
+        path: `/works/${slug}`
+      }),
+      robots: { index: false, follow: false }
+    };
   }
 
   const canonicalPathSlug = getProjectPathSlug(project.slug);

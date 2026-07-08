@@ -15,6 +15,10 @@ import { siteConfig } from "@/lib/constants";
 import { blogPostingJsonLd, breadcrumbListJsonLd, buildMetadata } from "@/lib/seo";
 
 export const revalidate = 30;
+// Only slugs returned by generateStaticParams are served; any other /blog/* URL
+// returns a real 404 (not a soft-404 200). Existing posts still update via ISR;
+// a newly published post becomes reachable on the next deploy.
+export const dynamicParams = false;
 
 type Params = { slug: string };
 
@@ -402,7 +406,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { slug } = await params;
   const post = await getPublishedBlogBySlug(slug);
   if (!post) {
-    return buildMetadata({ title: "Blog Not Found", description: "Blog item not found.", path: `/blog/${slug}` });
+    // Unknown slug: keep it out of the index (ISR can serve the not-found render
+    // with a 200, so noindex prevents a soft-404 from ever being indexed).
+    return {
+      ...buildMetadata({ title: "Blog Not Found", description: "Blog item not found.", path: `/blog/${slug}` }),
+      robots: { index: false, follow: false }
+    };
   }
 
   const base = buildMetadata({
@@ -436,6 +445,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export async function generateStaticParams(): Promise<Params[]> {
   const posts = await getPublishedBlogSummaries();
+  // With dynamicParams = false, an empty result would 404 every post. The site
+  // always has published posts, so treat empty as a build-time DB failure and
+  // abort the build (keeping the previous deploy live) rather than ship 404s.
+  if (posts.length === 0) {
+    throw new Error("generateStaticParams: no published blog posts found at build time");
+  }
   return posts.map((post) => ({ slug: post.slug }));
 }
 
