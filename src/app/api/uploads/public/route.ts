@@ -6,12 +6,13 @@ import { logger } from "@/lib/logger";
 export const runtime = "nodejs";
 
 const MAX_FILE_SIZE = 8 * 1024 * 1024; // 8 MB
+// NOTE: image/svg+xml is intentionally excluded — SVGs can embed executable
+// JavaScript and would be served from the public storage origin (stored XSS).
 const ALLOWED_TYPES = [
   "image/jpeg",
   "image/png",
   "image/gif",
   "image/webp",
-  "image/svg+xml",
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",

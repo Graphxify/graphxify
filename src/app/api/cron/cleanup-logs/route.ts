@@ -17,8 +17,14 @@ const RETENTION_DAYS = 7;
  * Triggered weekly by Vercel Cron (see vercel.json).
  */
 async function runCleanup(request: Request) {
+    // SECURITY: fail closed. If no secret is configured, refuse to run rather
+    // than allowing unauthenticated deletion of audit logs / version history.
     const authHeader = request.headers.get("authorization");
-    if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+    if (!CRON_SECRET) {
+        logger.error("Cleanup refused: CRON_SECRET is not configured");
+        return NextResponse.json({ error: "Cron not configured" }, { status: 503 });
+    }
+    if (authHeader !== `Bearer ${CRON_SECRET}`) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

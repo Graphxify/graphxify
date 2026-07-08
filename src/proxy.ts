@@ -169,5 +169,7 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin", "/admin/:path*", "/auth/callback"],
+  // NOTE: /api is included so inbound x-cms-uid/x-cms-role headers are stripped on API
+  // routes too. Without this, a client could forge x-cms-role to escalate privileges.
+  matcher: ["/dashboard/:path*", "/admin", "/admin/:path*", "/auth/callback", "/api/:path*"],
 };

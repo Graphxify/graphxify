@@ -110,50 +110,47 @@ export const getCurrentProfile = cache(async function getCurrentProfile(): Promi
     } = await supabase.auth.getUser();
 
     if (user?.id === fwdUid) {
-      const metadata = (user.user_metadata ?? {}) as Record<string, unknown>;
-      let displayName =
-        typeof metadata.full_name === "string"
-          ? metadata.full_name
-          : typeof metadata.display_name === "string"
-            ? metadata.display_name
-            : null;
-      let avatarUrl =
-        typeof metadata.avatar_url === "string"
-          ? metadata.avatar_url
-          : typeof metadata.picture === "string"
-            ? metadata.picture
-            : null;
+      // SECURITY: the forwarded x-cms-role header is only an identity hint. The role and
+      // status used for authorization are ALWAYS read from the database here — never taken
+      // from the header — so a spoofed x-cms-role cannot escalate privileges even if a route
+      // somehow bypasses the middleware header stripping.
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("role,status,display_name,avatar_url")
+        .eq("id", fwdUid)
+        .maybeSingle();
 
-      if (!displayName || !avatarUrl) {
-        const { data: profileData } = await supabase
-          .from("profiles")
-          .select("display_name,avatar_url")
-          .eq("id", fwdUid)
-          .maybeSingle();
+      if (profileData) {
+        const metadata = (user.user_metadata ?? {}) as Record<string, unknown>;
+        const displayName =
+          (typeof metadata.full_name === "string" ? metadata.full_name : null) ??
+          (typeof metadata.display_name === "string" ? metadata.display_name : null) ??
+          (typeof profileData.display_name === "string" ? profileData.display_name : null);
+        const avatarUrl =
+          (typeof metadata.avatar_url === "string" ? metadata.avatar_url : null) ??
+          (typeof metadata.picture === "string" ? metadata.picture : null) ??
+          (typeof profileData.avatar_url === "string" ? profileData.avatar_url : null);
 
-        if (!displayName && typeof profileData?.display_name === "string") {
-          displayName = profileData.display_name;
-        }
-        if (!avatarUrl && typeof profileData?.avatar_url === "string") {
-          avatarUrl = profileData.avatar_url;
-        }
+        const dbRole = typeof profileData.role === "string" ? profileData.role : DEFAULT_ROLE;
+
+        return {
+          id: fwdUid,
+          email: user.email ?? "",
+          role: normalizeRole(dbRole),
+          rawRole: dbRole,
+          status: normalizeAccountStatus(
+            typeof profileData.status === "string" ? profileData.status : DEFAULT_STATUS
+          ),
+          displayName,
+          avatarUrl,
+          createdAt: null,
+          lastLogin: null,
+          lastActivity: null,
+          lastPasswordChange: null,
+          forcePasswordReset: false,
+          forceLogoutAt: null
+        };
       }
-
-      return {
-        id: fwdUid,
-        email: user.email ?? "",
-        role: normalizeRole(fwdRole),
-        rawRole: fwdRole,
-        status: "active" as AccountStatus, // Middleware only sets headers for non-blocked users
-        displayName,
-        avatarUrl,
-        createdAt: null,
-        lastLogin: null,
-        lastActivity: null,
-        lastPasswordChange: null,
-        forcePasswordReset: false,
-        forceLogoutAt: null
-      };
     }
   }
 

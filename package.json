@@ -6,7 +6,7 @@
     "dev": "next dev --turbo",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint . --ext .js,.cjs,.mjs",
+    "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
     "sync:blog": "node scripts/sync-original-blog-to-cms.mjs"
   },
@@ -27,8 +27,8 @@
     "framer-motion": "^12.5.0",
     "lenis": "^1.3.18",
     "lucide-react": "^0.474.0",
-    "next": "^16.1.6",
-    "nodemailer": "^8.0.1",
+    "next": "^16.2.10",
+    "nodemailer": "^9.0.3",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "recharts": "^2.15.1",
@@ -37,6 +37,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@next/eslint-plugin-next": "^16.2.10",
     "@types/node": "^22.10.5",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^18.3.18",
@@ -45,6 +46,7 @@
     "eslint": "^9.39.3",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.63.0"
   }
 }

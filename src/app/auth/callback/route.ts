@@ -15,7 +15,11 @@ type SupabaseCookieOptions = {
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/dashboard";
+  // SECURITY: only allow same-origin relative redirects. `//host` and absolute
+  // URLs are rejected to prevent an open redirect after authentication.
+  const nextParam = searchParams.get("next");
+  const next =
+    nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/dashboard";
 
   if (!code) {
     return NextResponse.redirect(new URL("/admin?error=unknown", request.url));

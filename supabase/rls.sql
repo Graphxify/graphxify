@@ -23,6 +23,8 @@ as $$
   select exists (
     select 1 from public.profiles p
     where p.id = auth.uid() and p.role = 'admin'
+      and p.status = 'active'
+      and (p.disabled_until is null or p.disabled_until < now())
   );
 $$;
 
@@ -36,6 +38,8 @@ as $$
   select exists (
     select 1 from public.profiles p
     where p.id = auth.uid() and p.role = 'editor'
+      and p.status = 'active'
+      and (p.disabled_until is null or p.disabled_until < now())
   );
 $$;
 
@@ -49,6 +53,8 @@ as $$
   select exists (
     select 1 from public.profiles p
     where p.id = auth.uid() and p.role = 'moderator'
+      and p.status = 'active'
+      and (p.disabled_until is null or p.disabled_until < now())
   );
 $$;
 
@@ -62,6 +68,8 @@ as $$
   select exists (
     select 1 from public.profiles p
     where p.id = auth.uid() and p.role in ('editor', 'moderator')
+      and p.status = 'active'
+      and (p.disabled_until is null or p.disabled_until < now())
   );
 $$;
 
@@ -199,12 +207,18 @@ begin
       end if;
     end if;
 
+    -- A non-admin editing their own row may not change any privileged column.
+    -- role_id/permissions/disabled_until were previously unguarded, allowing
+    -- self-escalation to admin via the sync_profile_role_columns trigger.
     if auth.uid() = old.id and not public.is_admin() then
       if new.role is distinct from old.role
+        or new.role_id is distinct from old.role_id
+        or new.permissions is distinct from old.permissions
         or new.status is distinct from old.status
         or new.force_password_reset is distinct from old.force_password_reset
-        or new.force_logout_at is distinct from old.force_logout_at then
-        raise exception 'Only admins can change role or security status';
+        or new.force_logout_at is distinct from old.force_logout_at
+        or new.disabled_until is distinct from old.disabled_until then
+        raise exception 'Only admins can change role, permissions, or security status';
       end if;
     end if;
 
@@ -478,10 +492,11 @@ on public.newsletter_subscribers
 for insert
 with check (true);
 
+-- Subscriber emails are PII: restrict to admin/moderator (not editors via is_staff()).
 create policy "newsletter_staff_select"
 on public.newsletter_subscribers
 for select
-using (public.is_admin() or public.is_staff());
+using (public.is_admin() or public.is_moderator());
 
 -- Audit policies
 drop policy if exists "audit_logs_staff_select" on public.audit_logs;

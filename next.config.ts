@@ -26,12 +26,30 @@ const NOINDEX_HEADER = {
   value: "noindex, nofollow, noarchive",
 };
 
+// Baseline hardening headers applied to every response. These are safe defaults
+// that do not affect rendering. A Content-Security-Policy is deliberately left
+// out here because it needs per-app tuning (Next inline scripts, framer-motion,
+// analytics) — add it separately once the allowed sources are enumerated.
+const SECURITY_HEADERS = [
+  { key: "X-Frame-Options", value: "SAMEORIGIN" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+];
+
 const nextConfig: NextConfig = {
   async headers() {
-    return NOINDEX_PATHS.map((source) => ({
-      source,
-      headers: [NOINDEX_HEADER],
-    }));
+    return [
+      { source: "/:path*", headers: SECURITY_HEADERS },
+      ...NOINDEX_PATHS.map((source) => ({
+        source,
+        headers: [NOINDEX_HEADER],
+      })),
+    ];
   },
   async redirects() {
     return [

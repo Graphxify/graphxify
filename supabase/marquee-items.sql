@@ -32,10 +32,11 @@ DO $$ BEGIN
     FOR SELECT USING (true);
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
--- Only authenticated users can write
+-- Only CMS staff (admin/editor/moderator) can write — not every logged-in user.
+DROP POLICY IF EXISTS "marquee_items_auth_write" ON public.marquee_items;
 DO $$ BEGIN
-  CREATE POLICY "marquee_items_auth_write" ON public.marquee_items
-    FOR ALL USING (auth.role() = 'authenticated');
+  CREATE POLICY "marquee_items_staff_write" ON public.marquee_items
+    FOR ALL USING (public.can_access_works()) WITH CHECK (public.can_access_works());
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 -- Fill image_url_light for any rows migrated from the old single-column schema
