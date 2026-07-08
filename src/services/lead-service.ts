@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/provider";
+import { rateLimit } from "@/lib/rate-limit";
 import { isNotificationEnabled } from "@/lib/email/notification-settings";
 import { leadAutoReplyTemplate, leadNotificationTemplate } from "@/lib/email/templates";
 import { env } from "@/lib/env";
@@ -140,18 +141,42 @@ export async function createLead(payload: PublicLeadInput): Promise<{ id: string
   // Branded auto-reply to the person who submitted the form. Best-effort: a
   // failure here must never affect the saved lead or the owner notification,
   // so it's isolated in its own try/catch and its result is not surfaced.
+  //
+  // SECURITY: the recipient address is attacker-controlled, so an unguarded
+  // auto-reply is an email-reflection/bombing vector (submit repeatedly with a
+  // victim's address, or rotate addresses to abuse our SMTP). Gate it on two
+  // rate limits before sending:
+  //   • per-recipient — at most one auto-reply per email address per hour, so a
+  //     single victim can't be bombed by repeated submissions;
+  //   • global cap — a ceiling on total auto-replies per hour to protect SMTP
+  //     reputation/quota against distributed abuse.
+  // (These are backed by Upstash when configured; CAPTCHA on the form is the
+  // stronger defense and remains a recommended follow-up.)
   try {
-    const autoReply = leadAutoReplyTemplate({ name });
-    const autoReplyResult = await sendEmail({
-      to: email,
-      replyTo: env.OWNER_NOTIFY_EMAIL || undefined,
-      ...autoReply
-    });
-    if (!autoReplyResult.ok) {
-      logger.warn("Lead auto-reply not delivered", {
+    const normalizedEmail = email.trim().toLowerCase();
+    const [perRecipient, globalCap] = await Promise.all([
+      rateLimit({ key: normalizedEmail, route: "lead-autoreply", limit: 1, windowSec: 3600 }),
+      rateLimit({ key: "all", route: "lead-autoreply-global", limit: 60, windowSec: 3600 })
+    ]);
+
+    if (!perRecipient.allowed || !globalCap.allowed) {
+      logger.warn("Lead auto-reply suppressed by rate limit", {
         leadId: data.id,
-        reason: autoReplyResult.error
+        reason: perRecipient.allowed ? "global-cap" : "per-recipient"
       });
+    } else {
+      const autoReply = leadAutoReplyTemplate({ name });
+      const autoReplyResult = await sendEmail({
+        to: email,
+        replyTo: env.OWNER_NOTIFY_EMAIL || undefined,
+        ...autoReply
+      });
+      if (!autoReplyResult.ok) {
+        logger.warn("Lead auto-reply not delivered", {
+          leadId: data.id,
+          reason: autoReplyResult.error
+        });
+      }
     }
   } catch (err) {
     logger.error("Lead auto-reply failed", {
