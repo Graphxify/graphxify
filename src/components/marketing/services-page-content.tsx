@@ -54,7 +54,7 @@ const servicesData: ServicePillar[] = [
     title: "Brand Systems",
     description: "Positioning, identity, and scalable brand foundations.",
     icon: Fingerprint,
-    body: "We build complete brand identity systems for Canadian businesses that need to look credible from day one. Logo suite, typography, colour palette, brand voice, and usage documentation are all delivered together so your brand stays consistent across your website, social, print, and pitch materials without needing a designer to make every decision.",
+    body: "We build complete brand identity systems for modern businesses that need to look credible from day one. Logo suite, typography, colour palette, brand voice, and usage documentation are all delivered together so your brand stays consistent across your website, social, print, and pitch materials without needing a designer to make every decision.",
     deliverables: [
       "Logo suite (primary, secondary, icon)",
       "Typography system with font files",
@@ -94,7 +94,7 @@ const servicesData: ServicePillar[] = [
     title: "Web Development",
     description: "Scalable builds engineered for performance.",
     icon: Terminal,
-    body: "We build custom websites on Next.js, not WordPress templates, delivering Lighthouse performance scores above 90 out of the box. You own the code outright with no recurring plugin subscriptions, and the architecture is built to scale with your business over the next five years. Optimised for Google Core Web Vitals and Canadian accessibility requirements.",
+    body: "We build custom websites on Next.js, not WordPress templates, delivering Lighthouse performance scores above 90 out of the box. You own the code outright with no recurring plugin subscriptions, and the architecture is built to scale with your business over the next five years. Optimised for Google Core Web Vitals and WCAG accessibility standards.",
     deliverables: [
       "Custom Next.js codebase (you own it outright)",
       "Lighthouse scores above 90 across all metrics",

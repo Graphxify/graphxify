@@ -137,7 +137,7 @@ export function MarketingFooter(): JSX.Element {
               </li>
               <li className="inline-flex items-center gap-2.5">
                 <MapPin className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <span>Toronto, Canada</span>
+                <span>Remote · Worldwide</span>
               </li>
             </ul>
           </div>

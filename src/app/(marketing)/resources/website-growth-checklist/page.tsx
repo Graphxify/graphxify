@@ -3,11 +3,11 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Free Website Growth Checklist",
-  description: "A practical website growth checklist for Canadian service businesses covering conversion, trust, local SEO, and content fundamentals.",
+  description: "A practical website growth checklist for service businesses covering conversion, trust, SEO, and content fundamentals.",
   path: "/resources/website-growth-checklist",
   image: "/images/about/about-graphxify-visual.png",
-  ogTitle: "Free Website Growth Checklist for Canadian Businesses | Graphxify",
-  ogDescription: "A practical, no-fluff checklist covering conversion, trust signals, local SEO, and content fundamentals for Canadian service businesses.",
+  ogTitle: "Free Website Growth Checklist for Modern Businesses | Graphxify",
+  ogDescription: "A practical, no-fluff checklist covering conversion, trust signals, SEO, and content fundamentals for service businesses.",
   ogImageAlt: "Free website growth checklist by Graphxify — conversion, trust, and SEO fundamentals"
 });
 
@@ -57,7 +57,7 @@ export default function WebsiteGrowthChecklistPage() {
             Website Growth Checklist
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-fg/62 md:text-base">
-            A concise checklist for Canadian service businesses that want a website that looks credible, earns trust, and converts more visitors into inquiries.
+            A concise checklist for service businesses that want a website that looks credible, earns trust, and converts more visitors into inquiries.
           </p>
         </div>
 

@@ -11,7 +11,7 @@ import { siteConfig } from "@/lib/constants";
 import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
 
 const servicesSchemaData = [
-  { name: "Brand Identity & Brand Systems", description: "Logo systems, typography, colour palettes, brand voice, and brand guidelines for Canadian businesses." },
+  { name: "Brand Identity & Brand Systems", description: "Logo systems, typography, colour palettes, brand voice, and brand guidelines for modern businesses." },
   { name: "Web Design", description: "Custom website interface design built for clarity, hierarchy, and conversion — mobile-first, responsive layouts." },
   { name: "Web Development", description: "Custom-coded websites on modern frameworks like Next.js, built for performance, security, and long-term maintainability." },
   { name: "CMS Architecture", description: "Structured content management systems with defined roles, workflows, and content models your team can manage confidently." }
@@ -22,7 +22,7 @@ function servicesPageJsonLd() {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Graphxify Services",
-    description: "Web design, branding, web development, and CMS services for Canadian businesses.",
+    description: "Web design, branding, web development, and CMS services for businesses worldwide.",
     url: `${siteConfig.url}/services`,
     itemListElement: servicesSchemaData.map((service, index) => ({
       "@type": "ListItem",
@@ -36,7 +36,7 @@ function servicesPageJsonLd() {
           name: siteConfig.name,
           url: siteConfig.url
         },
-        areaServed: { "@type": "Country", name: "Canada" }
+        areaServed: "Worldwide"
       }
     }))
   };
@@ -44,11 +44,11 @@ function servicesPageJsonLd() {
 
 export const metadata: Metadata = buildMetadata({
   title: "Web Design & Branding Services for Growing Businesses",
-  description: "Professional web design, branding, web development, and CMS services for Canadian businesses. Graphxify serves Toronto, Mississauga, and businesses across Ontario with structured, high-performance digital solutions.",
+  description: "Professional web design, branding, web development, and CMS services for businesses worldwide. Graphxify delivers structured, high-performance digital solutions to businesses everywhere.",
   path: "/services",
   image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Web Design, Branding & Development Services | Graphxify",
-  ogDescription: "Brand identity, web design, custom development, and CMS architecture — four focused services built for Canadian businesses ready to grow.",
+  ogDescription: "Brand identity, web design, custom development, and CMS architecture — four focused services built for modern businesses ready to grow.",
   ogImageAlt: "Graphxify services — brand systems, web design, web development, and CMS architecture"
 });
 

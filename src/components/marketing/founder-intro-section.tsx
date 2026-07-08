@@ -22,7 +22,7 @@ const focusItems = [
 ] as const;
 
 const founderCopy =
-  "Graphxify is a Toronto-based studio led by a designer who also builds, which means your project is never passed between people who do not communicate. We handle brand identity, web design, and development in one place, so what gets designed is exactly what gets built. No handoffs, no gaps, no surprises.";
+  "Graphxify is an independent studio led by a designer who also builds, which means your project is never passed between people who do not communicate. We handle brand identity, web design, and development in one place, so what gets designed is exactly what gets built. No handoffs, no gaps, no surprises.";
 
 export function FounderIntroSection({
   className,

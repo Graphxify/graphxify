@@ -11,9 +11,9 @@ import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Development Services — Custom Next.js Websites in Canada",
+  title: "Web Development Services — Custom Next.js Websites Worldwide",
   description:
-    "Graphxify builds custom websites on Next.js, not WordPress templates. Lighthouse scores above 90, Core Web Vitals optimised, and full code ownership. Serving Canadian businesses in Toronto, Mississauga, and Ontario.",
+    "Graphxify builds custom websites on Next.js, not WordPress templates. Lighthouse scores above 90, Core Web Vitals optimised, and full code ownership. Serving businesses worldwide.",
   path: "/services/web-development",
   image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Web Development — Fast, Scalable Next.js Sites | Graphxify",
@@ -54,7 +54,7 @@ const relatedProjects = [
     pathSlug: "boss-raam-pharmacy",
     title: "BOSS Medical Clinic",
     industry: "Healthcare / Medical Clinic",
-    outcome: "Full website build with service-driven layout and clear content structure for a Canadian medical clinic.",
+    outcome: "Full website build with service-driven layout and clear content structure for a medical clinic.",
     liveUrl: "https://www.bossmedclinic.com/"
   },
   {
@@ -69,15 +69,15 @@ const relatedProjects = [
 const relatedPosts = [
   {
     slug: "custom-web-development-vs-wordpress-canada",
-    label: "Custom Web Development vs. WordPress: A Guide for Canadian Business Owners"
+    label: "Custom Web Development vs. WordPress: A Guide for Business Owners"
   },
   {
     slug: "professional-website-business-growth-canada",
-    label: "How a Professional Website Drives Real Business Growth in Canada"
+    label: "How a Professional Website Drives Real Business Growth"
   },
   {
     slug: "mobile-first-website-canadian-small-businesses-2026",
-    label: "Why Canadian Small Businesses Need a Mobile-First Website in 2026"
+    label: "Why Small Businesses Need a Mobile-First Website in 2026"
   }
 ];
 
@@ -93,7 +93,7 @@ function serviceJsonLd() {
       name: siteConfig.name,
       url: siteConfig.url
     },
-    areaServed: { "@type": "Country", name: "Canada" },
+    areaServed: "Worldwide",
     url: `${siteConfig.url}/services/web-development`
   };
 }

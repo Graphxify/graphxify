@@ -49,7 +49,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
   const [activeCategory, setActiveCategory] = useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
   const [subscribeModal, setSubscribeModal] = useState(false);
-  const [subscribeMessage, setSubscribeMessage] = useState("Check your inbox for the checklist. You will also receive practical insights on web design, branding, and digital strategy for Canadian businesses.");
+  const [subscribeMessage, setSubscribeMessage] = useState("Check your inbox for the checklist. You will also receive practical insights on web design, branding, and digital strategy for modern businesses.");
   const [subscribeEmail, setSubscribeEmail] = useState("");
   const [subscribeLoading, setSubscribeLoading] = useState(false);
   const [subscribeError, setSubscribeError] = useState("");
@@ -111,11 +111,11 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
             Blogs
           </p>
           <h1 className="mt-3 text-[clamp(2rem,5vw,4rem)] font-semibold leading-[1.12] tracking-tight md:leading-[1.08]">
-            Web design, branding, and digital strategy insights for Canadian businesses.
+            Web design, branding, and digital strategy insights for modern businesses.
           </h1>
           <span className="mt-4 block h-px w-24 bg-accent-gradient" />
           <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.04rem]">
-            Practical guides to help Toronto, Mississauga, and Canadian businesses build better websites, stronger brands, and smarter digital strategy.
+            Practical guides to help businesses worldwide build better websites, stronger brands, and smarter digital strategy.
           </p>
         </div>
       </SectionReveal>
@@ -311,14 +311,14 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
               </h2>
 
               <p className="mt-3 max-w-sm text-sm leading-relaxed text-fg/60">
-                Subscribe to the Graphxify newsletter and receive a practical checklist covering the essential elements every Canadian business website needs to attract customers and convert visitors.
+                Subscribe to the Graphxify newsletter and receive a practical checklist covering the essential elements every business website needs to attract customers and convert visitors.
               </p>
 
               {/* Benefit bullets — hint at the resource without giving it away */}
               <ul className="mt-5 space-y-2.5" aria-label="Checklist includes">
                 {[
-                  "Web design, branding, and local SEO essentials",
-                  "Written specifically for Canadian business owners",
+                  "Web design, branding, and SEO essentials",
+                  "Written specifically for business owners",
                   "Practical steps you can act on right away"
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm text-fg/62">

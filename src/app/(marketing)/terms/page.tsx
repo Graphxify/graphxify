@@ -253,7 +253,7 @@ export default function TermsPage(): JSX.Element {
 
         <SectionShell num="12" title="Governing Law">
           <p>
-            These Terms &amp; Conditions are governed by the laws of the Province of Ontario and the applicable federal laws of Canada. Any disputes arising from a project engagement will be subject to the exclusive jurisdiction of the courts of Ontario.
+            These Terms &amp; Conditions are governed by the applicable laws of the jurisdiction in which Graphxify operates. Any disputes arising from a project engagement will be subject to the exclusive jurisdiction of the competent courts of that jurisdiction.
           </p>
           <p className="mt-3">
             We genuinely hope it never comes to that. If there&rsquo;s a problem, contact us first and we&rsquo;ll work to resolve it directly.
@@ -292,7 +292,7 @@ export default function TermsPage(): JSX.Element {
             </p>
             <p>
               <span className="text-fg/56">Location: </span>
-              <span>Toronto, Canada</span>
+              <span>Remote · Worldwide</span>
             </p>
           </div>
           <p className="mt-4">

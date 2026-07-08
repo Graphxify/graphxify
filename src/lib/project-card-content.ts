@@ -40,7 +40,7 @@ export const projectCardContent: readonly ProjectCardContentItem[] = [
     pathSlug: "pharmacy-on-king",
     industry: "Healthcare / Pharmacy",
     cardServices: ["Website Design", "UI/UX"],
-    cardOutcome: "An accessible, trust-focused website for a community-focused Canadian pharmacy.",
+    cardOutcome: "An accessible, trust-focused website for a community-focused pharmacy.",
     title: "Pharmacy On King",
     liveUrl: "https://pharmacyonking.ca/"
   },

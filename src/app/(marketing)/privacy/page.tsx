@@ -63,7 +63,7 @@ export default function PrivacyPage(): JSX.Element {
 
         <SectionShell num="01" title="Who We Are">
           <p>
-            Graphxify is a premium digital agency based in Toronto, Canada. We design and build brand systems,
+            Graphxify is a premium digital agency working with clients worldwide. We design and build brand systems,
             high-performance websites, and structured CMS architecture for founders and growth-stage companies.
           </p>
           <p className="mt-3">
@@ -258,7 +258,7 @@ export default function PrivacyPage(): JSX.Element {
             </p>
             <p>
               <span className="text-fg/56">Location: </span>
-              <span>Toronto, Canada</span>
+              <span>Remote · Worldwide</span>
             </p>
           </div>
         </SectionShell>

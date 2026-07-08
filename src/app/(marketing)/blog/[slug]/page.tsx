@@ -26,7 +26,30 @@ type ContentBlock =
   | { type: "quote"; text: string }
   | { type: "callout"; label: "Note" | "Tip" | "Key Insight"; text: string }
   | { type: "code"; lang: string; code: string }
-  | { type: "image"; src: string; alt: string; caption?: string };
+  | { type: "image"; src: string; alt: string; caption?: string }
+  | { type: "table"; header: string[]; rows: string[][] };
+
+/** Splits a markdown table row like `| a | b |` into trimmed cells. */
+function splitTableRow(line: string): string[] {
+  let s = line.trim();
+  if (s.startsWith("|")) s = s.slice(1);
+  if (s.endsWith("|")) s = s.slice(0, -1);
+  return s.split("|").map((cell) => cell.trim());
+}
+
+/** True if a line is a markdown table separator, e.g. `|---|:--:|`. */
+function isTableSeparator(line: string): boolean {
+  if (!line.includes("-") || !line.includes("|")) return false;
+  const cells = splitTableRow(line);
+  return cells.length > 0 && cells.every((cell) => /^:?-{1,}:?$/.test(cell));
+}
+
+/** True if `lines[idx]` starts a markdown table (header row + separator row). */
+function isTableStart(lines: string[], idx: number): boolean {
+  const header = (lines[idx] ?? "").trim();
+  const separator = (lines[idx + 1] ?? "").trim();
+  return header.includes("|") && !isTableSeparator(header) && isTableSeparator(separator);
+}
 
 const SUPABASE_HOST = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
@@ -159,6 +182,20 @@ function parseContentBlocks(content: string): ContentBlock[] {
       continue;
     }
 
+    if (isTableStart(lines, i)) {
+      const header = splitTableRow(line);
+      i += 2; // skip the header row and the separator row
+      const rows: string[][] = [];
+      while (i < lines.length) {
+        const rowLine = (lines[i] ?? "").trim();
+        if (!rowLine || !rowLine.includes("|")) break;
+        rows.push(splitTableRow(rowLine));
+        i += 1;
+      }
+      blocks.push({ type: "table", header, rows });
+      continue;
+    }
+
     const isOrdered = /^\d+\.\s+/.test(line);
     const isBullet = /^[-*]\s+/.test(line);
     if (isOrdered || isBullet) {
@@ -196,7 +233,8 @@ function parseContentBlocks(content: string): ContentBlock[] {
         /^>\s?/.test(current) ||
         /^(NOTE|TIP|KEY INSIGHT)\s*:/i.test(current) ||
         /^\d+\.\s+/.test(current) ||
-        /^[-*]\s+/.test(current)
+        /^[-*]\s+/.test(current) ||
+        isTableStart(lines, i)
       ) {
         break;
       }
@@ -304,6 +342,38 @@ function PostContentRenderer({ content }: { content: string }): JSX.Element {
               </div>
               {block.caption ? <figcaption className="px-3 py-2 text-xs text-fg/56">{block.caption}</figcaption> : null}
             </figure>
+          );
+        }
+
+        if (block.type === "table") {
+          return (
+            <div key={key} className="overflow-x-auto rounded-xl border border-border/16 bg-bg/46">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b border-border/22">
+                    {block.header.map((cell, cellIndex) => (
+                      <th
+                        key={`${key}-th${cellIndex}`}
+                        className="whitespace-nowrap px-4 py-2.5 text-left font-semibold text-fg/82"
+                      >
+                        {renderInline(cell, `${key}-th${cellIndex}`)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {block.rows.map((row, rowIndex) => (
+                    <tr key={`${key}-tr${rowIndex}`} className="border-b border-border/12 last:border-0">
+                      {row.map((cell, cellIndex) => (
+                        <td key={`${key}-td${rowIndex}-${cellIndex}`} className="px-4 py-2.5 align-top text-fg/74">
+                          {renderInline(cell, `${key}-td${rowIndex}-${cellIndex}`)}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           );
         }
 
@@ -494,7 +564,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
       {((): JSX.Element | null => {
         const SERVICE_DISPLAY: Record<string, { label: string; href: string; desc: string }> = {
           "brand-systems": { label: "Brand Systems", href: "/services/brand-systems", desc: "Logo suite, typography, colour palette, and brand guidelines as one system." },
-          "web-design": { label: "Web Design", href: "/services/web-design", desc: "Visual design, UX strategy, and responsive UI for Canadian businesses." },
+          "web-design": { label: "Web Design", href: "/services/web-design", desc: "Visual design, UX strategy, and responsive UI for modern businesses." },
           "web-development": { label: "Web Development", href: "/services/web-development", desc: "Custom Next.js builds with full code ownership and Lighthouse scores above 90." },
           "cms-architecture": { label: "CMS Architecture", href: "/services/cms-architecture", desc: "Structured content systems your team can manage without developer involvement." }
         };

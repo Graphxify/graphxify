@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact Graphxify – Start Your Project",
-  description: "Get in touch with Graphxify — a Canadian web design and branding agency serving Toronto, Mississauga, and Ontario. Tell us about your project and receive a clear, honest proposal.",
+  description: "Get in touch with Graphxify — a web design and branding agency serving businesses worldwide. Tell us about your project and receive a clear, honest proposal.",
   path: "/contact",
   image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Start a Project — Work with Graphxify",

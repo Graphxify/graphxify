@@ -22,12 +22,12 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Web Design & Branding Portfolio",
   description:
-    "Explore Graphxify's portfolio of web design, branding, and custom development projects for Canadian businesses. Real work delivering brand identity, high-performance websites, and scalable digital platforms.",
+    "Explore Graphxify's portfolio of web design, branding, and custom development projects for businesses worldwide. Real work delivering brand identity, high-performance websites, and scalable digital platforms.",
   path: "/works",
   image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Portfolio — Real Projects by Graphxify",
-  ogDescription: "Brand identities, custom websites, and digital platforms for Canadian businesses. Every project is built for performance, clarity, and long-term impact.",
-  ogImageAlt: "Graphxify portfolio — web design and branding case studies for Canadian businesses"
+  ogDescription: "Brand identities, custom websites, and digital platforms for businesses worldwide. Every project is built for performance, clarity, and long-term impact.",
+  ogImageAlt: "Graphxify portfolio — web design and branding case studies for modern businesses"
 });
 
 type WorkCard = {

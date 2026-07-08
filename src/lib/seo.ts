@@ -78,18 +78,7 @@ export function organizationJsonLd() {
     description: siteConfig.description,
     telephone: "+16475700334",
     email: "info@graphxify.com",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Mississauga",
-      addressRegion: "Ontario",
-      addressCountry: "CA"
-    },
-    areaServed: [
-      { "@type": "City", name: "Toronto" },
-      { "@type": "City", name: "Mississauga" },
-      { "@type": "State", name: "Ontario" },
-      { "@type": "Country", name: "Canada" }
-    ],
+    areaServed: "Worldwide",
     knowsAbout: ["Web Design", "Web Development", "Brand Identity", "Branding", "Digital Strategy", "CMS Architecture"],
     priceRange: "$$"
   };

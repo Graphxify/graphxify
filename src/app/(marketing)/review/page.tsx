@@ -9,7 +9,7 @@ export const metadata: Metadata = buildMetadata({
   path: "/review",
   image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Leave a Review — Share Your Graphxify Experience",
-  ogDescription: "Worked with Graphxify? Share your experience and help other Canadian businesses discover what's possible with great design.",
+  ogDescription: "Worked with Graphxify? Share your experience and help other businesses discover what's possible with great design.",
   ogImageAlt: "Leave a review for Graphxify — web design and branding studio",
   twitterCard: "summary"
 });

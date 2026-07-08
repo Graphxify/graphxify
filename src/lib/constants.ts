@@ -15,7 +15,7 @@ function resolveCanonicalUrl(): string {
 export const siteConfig = {
   name: "GRAPHXIFY",
   description:
-    "Graphxify is a Canadian web design and branding agency serving Toronto, Mississauga, and Ontario businesses. We deliver brand systems, custom websites, and digital platforms built to perform.",
+    "Graphxify is a web design and branding agency serving businesses worldwide. We deliver brand systems, custom websites, and digital platforms built to perform.",
   url: resolveCanonicalUrl()
 };
 

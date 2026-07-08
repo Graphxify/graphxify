@@ -369,7 +369,7 @@ function mapCmsWorkToProject(
   const cmsScope: Array<{ label: string; value: string }> = [];
   const cmsPlatform = work.platform?.trim() || fallbackScope.find(({ label }) => label.toLowerCase() === "platform")?.value;
   const cmsTimeline = work.timeline?.trim() || fallbackScope.find(({ label }) => label.toLowerCase() === "timeline")?.value || String(work.year);
-  const cmsLocation = work.location?.trim() || "Canada";
+  const cmsLocation = work.location?.trim() || "Remote";
   if (cmsPlatform) cmsScope.push({ label: "Platform", value: cmsPlatform });
   cmsScope.push({ label: "Timeline", value: cmsTimeline });
   cmsScope.push({ label: "Location", value: cmsLocation });
@@ -967,7 +967,7 @@ function ProjectInfoRail({ project }: { project: ProjectDetail }): JSX.Element {
       </div>
       <div>
         <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Location</p>
-        <p className="mt-1.5 text-sm leading-snug text-fg/76">Canada</p>
+        <p className="mt-1.5 text-sm leading-snug text-fg/76">Remote</p>
       </div>
     </div>
   );

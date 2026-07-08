@@ -184,7 +184,7 @@ export const graphxifyProjects: ProjectDetail[] = [
     scope: [
       { label: "Platform", value: "Web" },
       { label: "Timeline", value: "3–4 Weeks" },
-      { label: "Location", value: "Canada" }
+      { label: "Location", value: "Remote" }
     ],
     tabPanels: {
       story: {
@@ -306,7 +306,7 @@ export const graphxifyProjects: ProjectDetail[] = [
     scope: [
       { label: "Platform", value: "Brand Identity System" },
       { label: "Timeline", value: "4 Weeks" },
-      { label: "Location", value: "Canada" }
+      { label: "Location", value: "Remote" }
     ],
     tabPanels: {
       story: {
@@ -348,7 +348,7 @@ export const graphxifyProjects: ProjectDetail[] = [
     roles: ["Web Designer", "Frontend Developer"],
     overview:
       "BOSS Medical Clinic offers a range of medical services and needed a platform that reflects professionalism while presenting information in a structured and accessible way for patients.",
-    excerpt: "A modern, trustworthy website built for a Canadian medical clinic.",
+    excerpt: "A modern, trustworthy website built for a medical clinic.",
     content:
       "The structure focused on making services, contact information, and pharmacy details easy to find, communicating professionalism and accessibility throughout.",
     coverImage: "/assets/work-3.svg",
@@ -428,7 +428,7 @@ export const graphxifyProjects: ProjectDetail[] = [
     scope: [
       { label: "Platform", value: "Web" },
       { label: "Timeline", value: "3–4 Weeks" },
-      { label: "Location", value: "Canada" }
+      { label: "Location", value: "Remote" }
     ],
     tabPanels: {
       story: {
@@ -550,7 +550,7 @@ export const graphxifyProjects: ProjectDetail[] = [
     scope: [
       { label: "Platform", value: "Web" },
       { label: "Timeline", value: "2–3 Weeks" },
-      { label: "Location", value: "Canada" }
+      { label: "Location", value: "Remote" }
     ],
     tabPanels: {
       story: {
@@ -672,7 +672,7 @@ export const graphxifyProjects: ProjectDetail[] = [
     scope: [
       { label: "Platform", value: "Web" },
       { label: "Timeline", value: "2–3 Weeks" },
-      { label: "Location", value: "Canada" }
+      { label: "Location", value: "Remote" }
     ],
     tabPanels: {
       story: {
@@ -794,7 +794,7 @@ export const graphxifyProjects: ProjectDetail[] = [
     scope: [
       { label: "Platform", value: "Web" },
       { label: "Timeline", value: "2–3 Weeks" },
-      { label: "Location", value: "Canada" }
+      { label: "Location", value: "Remote" }
     ],
     tabPanels: {
       story: {

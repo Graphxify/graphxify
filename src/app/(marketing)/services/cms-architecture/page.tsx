@@ -11,7 +11,7 @@ import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "CMS Architecture — Structured Content Systems for Canadian Businesses",
+  title: "CMS Architecture — Structured Content Systems for Modern Businesses",
   description:
     "Graphxify designs structured content management systems with defined roles, workflows, and content models your team can manage confidently. Delivered standalone or as part of a web development engagement.",
   path: "/services/cms-architecture",
@@ -45,11 +45,11 @@ const guidance = [
 const relatedPosts = [
   {
     slug: "professional-website-business-growth-canada",
-    label: "How a Professional Website Drives Real Business Growth in Canada"
+    label: "How a Professional Website Drives Real Business Growth"
   },
   {
     slug: "custom-web-development-vs-wordpress-canada",
-    label: "Custom Web Development vs. WordPress: A Guide for Canadian Business Owners"
+    label: "Custom Web Development vs. WordPress: A Guide for Business Owners"
   }
 ];
 
@@ -59,13 +59,13 @@ function serviceJsonLd() {
     "@type": "Service",
     name: "CMS Architecture",
     description:
-      "Structured content management systems with defined roles, workflows, and content models for Canadian businesses that need to publish independently.",
+      "Structured content management systems with defined roles, workflows, and content models for modern businesses that need to publish independently.",
     provider: {
       "@type": "Organization",
       name: siteConfig.name,
       url: siteConfig.url
     },
-    areaServed: { "@type": "Country", name: "Canada" },
+    areaServed: "Worldwide",
     url: `${siteConfig.url}/services/cms-architecture`
   };
 }

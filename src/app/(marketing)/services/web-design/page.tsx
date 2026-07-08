@@ -11,9 +11,9 @@ import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Design Services — Custom Website Design for Canadian Businesses",
+  title: "Web Design Services — Custom Website Design for Modern Businesses",
   description:
-    "Graphxify designs custom website interfaces built for clarity, hierarchy, and conversion. Mobile-first, accessible, and responsive across all screen sizes. Serving Toronto, Mississauga, and Ontario.",
+    "Graphxify designs custom website interfaces built for clarity, hierarchy, and conversion. Mobile-first, accessible, and responsive across all screen sizes. Serving businesses worldwide.",
   path: "/services/web-design",
   image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Web Design — Conversion-Focused Websites | Graphxify",
@@ -60,15 +60,15 @@ const relatedProjects = [
 const relatedPosts = [
   {
     slug: "how-to-choose-web-design-agency-canada",
-    label: "How to Choose a Web Design Agency in Canada"
+    label: "How to Choose the Right Web Design Agency"
   },
   {
     slug: "mobile-first-website-canadian-small-businesses-2026",
-    label: "Why Canadian Small Businesses Need a Mobile-First Website in 2026"
+    label: "Why Small Businesses Need a Mobile-First Website in 2026"
   },
   {
     slug: "professional-website-business-growth-canada",
-    label: "How a Professional Website Drives Real Business Growth in Canada"
+    label: "How a Professional Website Drives Real Business Growth"
   }
 ];
 
@@ -78,13 +78,13 @@ function serviceJsonLd() {
     "@type": "Service",
     name: "Web Design",
     description:
-      "Custom website interface design built for clarity, hierarchy, and conversion — mobile-first, responsive, accessible layouts for Canadian businesses.",
+      "Custom website interface design built for clarity, hierarchy, and conversion — mobile-first, responsive, accessible layouts for modern businesses.",
     provider: {
       "@type": "Organization",
       name: siteConfig.name,
       url: siteConfig.url
     },
-    areaServed: { "@type": "Country", name: "Canada" },
+    areaServed: "Worldwide",
     url: `${siteConfig.url}/services/web-design`
   };
 }

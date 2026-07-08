@@ -155,7 +155,7 @@ export function HomeSections({
       <section className="container pt-0 md:pt-2">
         <div className="mx-auto max-w-[940px]">
           <div className="mx-auto flex w-fit items-center justify-center rounded-full border border-border/18 bg-card/72 px-3.5 py-1.5 text-center shadow-[0_8px_22px_rgba(13,13,15,0.08)]">
-            <p className="text-sm text-fg/66">Canadian Design Studio</p>
+            <p className="text-sm text-fg/66">Independent Design Studio</p>
           </div>
 
           <div className="relative mt-6">
@@ -168,7 +168,7 @@ export function HomeSections({
                 <span className="gradient-text">Brands</span> and websites
               </span>
               <span className="mt-1.5 block whitespace-nowrap md:mt-2">
-                built for Canadian
+                built for modern
               </span>
               <span className="mt-1.5 block whitespace-nowrap md:mt-2">
                 <span className="gradient-text">businesses</span> ready to grow
@@ -177,7 +177,7 @@ export function HomeSections({
           </div>
 
           <p className="mx-auto mt-5 max-w-3xl text-center text-[0.96rem] text-black dark:text-white md:text-[1.14rem]">
-            Graphxify is a Toronto-based design studio. We help small businesses and founders launch with a brand and website that looks credible, loads fast, and converts.
+            Graphxify is an independent design studio. We help small businesses and founders launch with a brand and website that looks credible, loads fast, and converts.
           </p>
 
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -297,7 +297,7 @@ export function HomeSections({
 
           <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-white/12 pb-4">
             <p className="max-w-xl text-sm text-ivory/66 md:text-base">
-              Every project starts with a problem and ends with a platform. Here&apos;s a selection of brands and websites we&apos;ve designed and built for Canadian businesses.
+              Every project starts with a problem and ends with a platform. Here&apos;s a selection of brands and websites we&apos;ve designed and built for businesses worldwide.
             </p>
             <Link href="/works" className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-ivory/74 transition-colors duration-300 hover:text-ivory">
               View all projects

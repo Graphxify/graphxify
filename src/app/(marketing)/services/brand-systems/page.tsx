@@ -11,9 +11,9 @@ import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Brand Systems — Visual Identity Design for Canadian Businesses",
+  title: "Brand Systems — Visual Identity Design for Modern Businesses",
   description:
-    "Graphxify builds complete brand identity systems: logo suite, typography, colour palette, brand voice, and brand guidelines. Full-system branding for Canadian businesses delivered in 2–3 weeks.",
+    "Graphxify builds complete brand identity systems: logo suite, typography, colour palette, brand voice, and brand guidelines. Full-system branding for modern businesses delivered in 2–3 weeks.",
   path: "/services/brand-systems",
   image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Brand Systems — Logo, Identity & Visual Strategy | Graphxify",
@@ -54,18 +54,18 @@ const relatedProjects = [
     pathSlug: "boss-raam-pharmacy",
     title: "BOSS Medical Clinic",
     industry: "Healthcare / Medical Clinic",
-    outcome: "Brand identity and website built to communicate authority and credibility for a modern Canadian clinic."
+    outcome: "Brand identity and website built to communicate authority and credibility for a modern clinic."
   }
 ];
 
 const relatedPosts = [
   {
     slug: "brand-identity-canadian-businesses",
-    label: "What Makes a Strong Brand Identity for Canadian Businesses"
+    label: "What Makes a Strong Brand Identity"
   },
   {
     slug: "how-to-choose-web-design-agency-canada",
-    label: "How to Choose a Web Design Agency in Canada"
+    label: "How to Choose the Right Web Design Agency"
   }
 ];
 
@@ -75,13 +75,13 @@ function serviceJsonLd() {
     "@type": "Service",
     name: "Brand Systems",
     description:
-      "Complete brand identity design including logo suite, typography, colour palette, and brand guidelines for Canadian businesses.",
+      "Complete brand identity design including logo suite, typography, colour palette, and brand guidelines for modern businesses.",
     provider: {
       "@type": "Organization",
       name: siteConfig.name,
       url: siteConfig.url
     },
-    areaServed: { "@type": "Country", name: "Canada" },
+    areaServed: "Worldwide",
     url: `${siteConfig.url}/services/brand-systems`
   };
 }
