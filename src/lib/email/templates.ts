@@ -152,6 +152,42 @@ export function leadNotificationTemplate(input: {
   };
 }
 
+/* ── Contact Form Auto-Reply (sent to the person who submitted) ── */
+
+export function leadAutoReplyTemplate(input: { name: string }) {
+  const firstName = input.name.trim().split(/\s+/)[0] || "there";
+
+  const body = `
+    ${h2("Thanks for reaching out")}
+    <p style="margin:0 0 16px;font-size:14px;color:${TEXT_COLOR};line-height:1.6;">
+      Hi <strong>${escapeHtml(firstName)}</strong>,
+    </p>
+    <p style="margin:0 0 16px;font-size:14px;color:${TEXT_COLOR};line-height:1.6;">
+      Thanks for getting in touch with Graphxify. We've received your message, and a real person on our team is reviewing it now — you can expect a thoughtful reply within one business day (usually much sooner).
+    </p>
+    <p style="margin:0 0 8px;font-size:14px;color:${TEXT_COLOR};line-height:1.6;">
+      In the meantime, feel free to explore some of our recent work:
+    </p>
+    ${ctaButton("View Our Work", "https://www.graphxify.com/works")}
+    ${divider()}
+    <p style="margin:0 0 12px;font-size:13px;color:${MUTED_COLOR};line-height:1.6;">
+      This is an automated confirmation that your message was received. If you'd like to add anything, just reply to this email and it'll reach our team directly.
+    </p>
+    <p style="margin:0;font-size:14px;color:${TEXT_COLOR};line-height:1.6;">— The Graphxify Team</p>
+  `;
+
+  return {
+    subject: "We received your message — Graphxify",
+    text:
+      `Hi ${firstName},\n\n` +
+      `Thanks for getting in touch with Graphxify. We've received your message, and a real person on our team is reviewing it now — you can expect a reply within one business day (usually much sooner).\n\n` +
+      `In the meantime, feel free to explore our recent work: https://www.graphxify.com/works\n\n` +
+      `If you'd like to add anything, just reply to this email and it'll reach our team directly.\n\n` +
+      `— The Graphxify Team`,
+    html: baseLayout("Thanks for reaching out", body)
+  };
+}
+
 /* ── Newsletter Welcome / Checklist Delivery ── */
 
 export function newsletterWelcomeTemplate(input: {

@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { logAuditEvent } from "@/lib/audit";
 import { sendEmail } from "@/lib/email/provider";
 import { isNotificationEnabled } from "@/lib/email/notification-settings";
-import { leadNotificationTemplate } from "@/lib/email/templates";
+import { leadAutoReplyTemplate, leadNotificationTemplate } from "@/lib/email/templates";
 import { env } from "@/lib/env";
 import { leadSchema, publicLeadSchema } from "@/lib/validation/schemas";
 import { logger } from "@/lib/logger";
@@ -134,6 +134,29 @@ export async function createLead(payload: PublicLeadInput): Promise<{ id: string
       leadId: data.id,
       source: parsedPublic.source,
       reason: notification.reason
+    });
+  }
+
+  // Branded auto-reply to the person who submitted the form. Best-effort: a
+  // failure here must never affect the saved lead or the owner notification,
+  // so it's isolated in its own try/catch and its result is not surfaced.
+  try {
+    const autoReply = leadAutoReplyTemplate({ name });
+    const autoReplyResult = await sendEmail({
+      to: email,
+      replyTo: env.OWNER_NOTIFY_EMAIL || undefined,
+      ...autoReply
+    });
+    if (!autoReplyResult.ok) {
+      logger.warn("Lead auto-reply not delivered", {
+        leadId: data.id,
+        reason: autoReplyResult.error
+      });
+    }
+  } catch (err) {
+    logger.error("Lead auto-reply failed", {
+      leadId: data.id,
+      error: err instanceof Error ? err.message : "unknown"
     });
   }
 
