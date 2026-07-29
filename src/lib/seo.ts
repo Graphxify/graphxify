@@ -5,6 +5,22 @@ import { siteConfig } from "@/lib/constants";
 const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const;
 
 /**
+ * Appends " | GRAPHXIFY" unless the title already ends with the brand.
+ *
+ * CMS-authored `meta_title` / `seo_title` values are typically written with the
+ * brand already on the end ("… Case Study | Graphxify"). Appending
+ * unconditionally produced "… | Graphxify | GRAPHXIFY" on every CMS-driven page,
+ * which wastes the ~60 characters Google will actually render and gets the tail
+ * truncated. Matching is case-insensitive so either casing is recognised.
+ */
+function withBrandSuffix(title: string): string {
+  const trimmed = title.trim();
+  const brand = siteConfig.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const alreadyBranded = new RegExp(`[|\\u2013\\u2014-]\\s*${brand}\\s*$`, "i").test(trimmed);
+  return alreadyBranded ? trimmed : `${trimmed} | ${siteConfig.name}`;
+}
+
+/**
  * Builds the URL of a generated 1200x630 Open Graph card for a page.
  * Used as the default share image so every page gets a correctly
  * proportioned card instead of one shared square image.
@@ -42,7 +58,7 @@ export function buildMetadata(input: {
   // (a real cover photo, or a CMS override) to replace it.
   const generatedImage = ogImageUrl(input.title, input.ogEyebrow);
   const baseImage = input.image?.trim() || generatedImage;
-  const pageTitle = `${input.title} | ${siteConfig.name}`;
+  const pageTitle = withBrandSuffix(input.title);
 
   const ogTitle = input.ogTitle?.trim() || pageTitle;
   const ogDescription = input.ogDescription?.trim() || input.description;
