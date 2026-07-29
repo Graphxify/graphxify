@@ -25,8 +25,7 @@ UPDATE works SET
   twitter_title       = 'FlyUp Line — Travel Platform Redesign | Graphxify',
   twitter_description = 'A responsive travel platform redesigned to simplify the booking experience and drive conversion — delivered by Graphxify for FlyUp Line.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/flyup-line'
+  twitter_card        = 'summary_large_image'
 WHERE slug = 'northline-enterprise-replatform';
 
 
@@ -41,8 +40,7 @@ UPDATE works SET
   twitter_title       = 'Maven — Women''s Fashion Brand Identity | Graphxify',
   twitter_description = 'A complete brand identity system for a contemporary women''s fashion label — built on typographic precision, restrained colour, and a confident visual language.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/maven'
+  twitter_card        = 'summary_large_image'
 WHERE slug = 'vertex-brand-operations';
 
 
@@ -57,8 +55,7 @@ UPDATE works SET
   twitter_title       = 'BOSS Medical Clinic — Healthcare Web Design | Graphxify',
   twitter_description = 'A professional, accessible website for a medical clinic — designed to communicate trust, simplify service navigation, and convert patients online.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/boss-medical-clinic'
+  twitter_card        = 'summary_large_image'
 WHERE slug = 'axis-growth-platform';
 
 
@@ -73,8 +70,7 @@ UPDATE works SET
   twitter_title       = 'Pharmacy On King — Healthcare Web Design | Graphxify',
   twitter_description = 'A clean, structured website for a community pharmacy — built to surface services, hours, and contact information clearly across every device.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/pharmacy-on-king'
+  twitter_card        = 'summary_large_image'
 WHERE slug = 'lumen-commerce-redesign';
 
 
@@ -89,8 +85,7 @@ UPDATE works SET
   twitter_title       = 'Luka Hair Salon — Beauty Brand & Web Design | Graphxify',
   twitter_description = 'Brand identity and website for an upscale hair salon — designed to project confidence, elegance, and make booking effortless for clients.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/luka-hair-salon'
+  twitter_card        = 'summary_large_image'
 WHERE slug = 'atlas-fintech-experience-hub';
 
 
@@ -105,8 +100,7 @@ UPDATE works SET
   twitter_title       = 'King Medical Arts Pharmacy — Healthcare Web Design | Graphxify',
   twitter_description = 'A professional pharmacy website designed to make services, location, and contact easy to find — built for clarity, trust, and mobile performance.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/king-medical-art-pharmacy'
+  twitter_card        = 'summary_large_image'
 WHERE slug = 'meridian-health-network-portal';
 
 
@@ -184,9 +178,13 @@ SET twitter_card = 'summary_large_image'
 WHERE status = 'published'
   AND (twitter_card IS NULL OR twitter_card = '');
 
--- canonical_url: derive from slug (update this if your domain differs)
-UPDATE posts
-SET canonical_url = 'https://graphxify.com/blog/' || slug
-WHERE status = 'published'
-  AND (canonical_url IS NULL OR canonical_url = '')
-  AND slug IS NOT NULL AND slug <> '';
+-- canonical_url: deliberately NOT seeded.
+--
+-- This block used to set 'https://graphxify.com/blog/' || slug — the NON-www
+-- host, which 308-redirects to www. That made every post declare a canonical
+-- pointing at a redirect, a self-conflicting signal.
+--
+-- Leaving canonical_url NULL is correct: buildMetadata() computes the canonical
+-- from siteConfig.url, which resolves to the www host. Only set canonical_url
+-- per-row when a page genuinely needs to point somewhere else (e.g. syndicated
+-- content), and always use the www host if you do.

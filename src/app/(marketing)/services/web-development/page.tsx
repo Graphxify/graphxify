@@ -67,15 +67,15 @@ const relatedProjects = [
 
 const relatedPosts = [
   {
-    slug: "custom-web-development-vs-wordpress-canada",
+    slug: "custom-web-development-vs-wordpress",
     label: "Custom Web Development vs. WordPress: A Guide for Business Owners"
   },
   {
-    slug: "professional-website-business-growth-canada",
+    slug: "professional-website-business-growth",
     label: "How a Professional Website Drives Real Business Growth"
   },
   {
-    slug: "mobile-first-website-canadian-small-businesses-2026",
+    slug: "mobile-first-website-small-businesses",
     label: "Why Small Businesses Need a Mobile-First Website in 2026"
   }
 ];

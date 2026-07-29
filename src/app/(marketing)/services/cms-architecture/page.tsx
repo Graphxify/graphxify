@@ -43,11 +43,11 @@ const guidance = [
 
 const relatedPosts = [
   {
-    slug: "professional-website-business-growth-canada",
+    slug: "professional-website-business-growth",
     label: "How a Professional Website Drives Real Business Growth"
   },
   {
-    slug: "custom-web-development-vs-wordpress-canada",
+    slug: "custom-web-development-vs-wordpress",
     label: "Custom Web Development vs. WordPress: A Guide for Business Owners"
   }
 ];

@@ -12,12 +12,12 @@ const ENV_FILES = [".env.local", ".env"];
 
 // related_service values from demo-content.ts
 const RELATED_SERVICE_MAP = {
-  "how-to-choose-web-design-agency-canada": "web-design",
-  "mobile-first-website-canadian-small-businesses-2026": "web-design",
-  "brand-identity-canadian-businesses": "brand-systems",
-  "custom-web-development-vs-wordpress-canada": "web-development",
-  "professional-website-business-growth-canada": null,
-  "local-seo-canadian-businesses-getting-found-google": null
+  "how-to-choose-a-web-design-agency": "web-design",
+  "mobile-first-website-small-businesses": "web-design",
+  "what-makes-a-strong-brand-identity": "brand-systems",
+  "custom-web-development-vs-wordpress": "web-development",
+  "professional-website-business-growth": null,
+  "local-seo-getting-found-on-google": null
 };
 
 function loadEnvFile(filePath) {

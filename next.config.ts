@@ -26,6 +26,19 @@ const NOINDEX_HEADER = {
   value: "noindex, nofollow, noarchive",
 };
 
+// Blog posts originally published for a Canada-only audience. The copy was
+// rewritten for a worldwide audience but the slugs still read "-canada", which
+// contradicted the positioning. Slugs were migrated in Supabase; these pairs
+// keep the old URLs alive as permanent redirects.
+const LEGACY_BLOG_SLUG_REDIRECTS: ReadonlyArray<readonly [string, string]> = [
+  ["how-to-choose-web-design-agency-canada", "how-to-choose-a-web-design-agency"],
+  ["mobile-first-website-canadian-small-businesses-2026", "mobile-first-website-small-businesses"],
+  ["brand-identity-canadian-businesses", "what-makes-a-strong-brand-identity"],
+  ["custom-web-development-vs-wordpress-canada", "custom-web-development-vs-wordpress"],
+  ["professional-website-business-growth-canada", "professional-website-business-growth"],
+  ["local-seo-canadian-businesses-getting-found-google", "local-seo-getting-found-on-google"],
+];
+
 // Baseline hardening headers applied to every response. These are safe defaults
 // that do not affect rendering. A Content-Security-Policy is deliberately left
 // out here because it needs per-app tuning (Next inline scripts, framer-motion,
@@ -60,6 +73,14 @@ const nextConfig: NextConfig = {
       // Legacy flat project URLs → correct /works/[slug] structure
       { source: "/flyupline", destination: "/works/flyup-line", permanent: true },
       { source: "/mbmdesigns", destination: "/works", permanent: true },
+      // Canada-legacy blog slugs → global slugs. The posts were rewritten to a
+      // worldwide audience but their URLs still said Canada; these 301s preserve
+      // whatever ranking history the old URLs earned. Do not remove.
+      ...LEGACY_BLOG_SLUG_REDIRECTS.map(([from, to]) => ({
+        source: `/blog/${from}`,
+        destination: `/blog/${to}`,
+        permanent: true,
+      })),
     ];
   },
   images: {

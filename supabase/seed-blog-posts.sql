@@ -11,9 +11,14 @@
 --   1. Run schema.sql to ensure the posts table exists.
 --   2. Run add-related-service.sql to ensure the related_service column exists.
 --
--- NOTE: Slugs are retained from the original posts (some end in "-canada") to keep
--- existing URLs and inbound links working. The content itself is written for a
--- global audience.
+-- NOTE: Slugs were migrated off their original "-canada" / "canadian" forms once
+-- the copy was rewritten for a worldwide audience. The old URLs are preserved as
+-- permanent redirects via LEGACY_BLOG_SLUG_REDIRECTS in next.config.ts — keep the
+-- two in sync if any slug changes again.
+--
+-- canonical_url is deliberately left NULL: the app computes the correct
+-- https://www.graphxify.com/... canonical. Hardcoding it previously pinned every
+-- post to the non-www host, which 308-redirects.
 
 INSERT INTO public.posts (
   id,
@@ -39,7 +44,7 @@ INSERT INTO public.posts (
 (
   'a1000000-0000-0000-0000-000000000001',
   'How to Choose the Right Web Design Agency',
-  'how-to-choose-web-design-agency-canada',
+  'how-to-choose-a-web-design-agency',
   'Your website is your most valuable sales asset. Here''s a practical framework for evaluating and selecting the right web design partner for your business.',
   $p1$## Why Your Choice of Web Design Agency Matters
 
@@ -108,7 +113,7 @@ The best web design agency for your business is one that understands your goals,
 
 Take your time, ask hard questions, and look beyond the pitch deck. A website is a long-term asset. The agency you choose will shape not just the launch, but how easy (or painful) the next two years of managing and growing that site will be.
 
-If you want to understand how your mobile experience factors into this decision, read our guide on [why your business needs a mobile-first website in 2026](/blog/mobile-first-website-canadian-small-businesses-2026).
+If you want to understand how your mobile experience factors into this decision, read our guide on [why your business needs a mobile-first website in 2026](/blog/mobile-first-website-small-businesses).
 
 ## Ready to Evaluate Graphxify?
 
@@ -131,7 +136,7 @@ We work with businesses worldwide to build websites that perform and convert. If
 (
   'a1000000-0000-0000-0000-000000000002',
   'Why Small Businesses Need a Mobile-First Website in 2026',
-  'mobile-first-website-canadian-small-businesses-2026',
+  'mobile-first-website-small-businesses',
   'More than 70% of web traffic now comes from mobile devices. If your website wasn''t designed for mobile first, you''re losing customers before they even read your first sentence.',
   $p2$## The Mobile Reality
 
@@ -195,7 +200,7 @@ Consumers have high expectations. When they land on a slow, hard-to-use mobile s
 
 A professionally designed, mobile-first website isn't a luxury for established brands. It's table stakes for any business that wants to grow in 2026.
 
-If you're weighing whether to patch your current site or rebuild properly, our guide on [custom web development vs. WordPress](/blog/custom-web-development-vs-wordpress-canada) walks through the technical decision in detail.
+If you're weighing whether to patch your current site or rebuild properly, our guide on [custom web development vs. WordPress](/blog/custom-web-development-vs-wordpress) walks through the technical decision in detail.
 
 ## Get a Mobile-First Website That Performs
 
@@ -218,7 +223,7 @@ Graphxify builds high-performance, mobile-first websites for businesses worldwid
 (
   'a1000000-0000-0000-0000-000000000003',
   'What Makes a Strong Brand Identity',
-  'brand-identity-canadian-businesses',
+  'what-makes-a-strong-brand-identity',
   'A logo is not a brand. Learn what a complete brand identity system includes, why it matters, and how to build one that actually works in market.',
   $p3$## The Difference Between a Logo and a Brand
 
@@ -285,7 +290,7 @@ A professional [branding agency](/services) will typically run a process that in
 
 This is different from getting a logo designed. The strategy phase is what separates a brand that resonates from one that just looks nice.
 
-If you're considering a rebrand or building your brand identity for the first time, the investment in doing it properly — with a qualified agency partner — is one of the highest-ROI decisions you'll make in your business's lifecycle. To understand how brand quality translates to measurable revenue, see our article on [how a professional website drives real business growth](/blog/professional-website-business-growth-canada).
+If you're considering a rebrand or building your brand identity for the first time, the investment in doing it properly — with a qualified agency partner — is one of the highest-ROI decisions you'll make in your business's lifecycle. To understand how brand quality translates to measurable revenue, see our article on [how a professional website drives real business growth](/blog/professional-website-business-growth).
 
 ## Build a Brand That Actually Works
 
@@ -308,7 +313,7 @@ Graphxify designs brand identity systems for businesses worldwide — from first
 (
   'a1000000-0000-0000-0000-000000000004',
   'Custom Web Development vs. WordPress: A Guide for Business Owners',
-  'custom-web-development-vs-wordpress-canada',
+  'custom-web-development-vs-wordpress',
   'WordPress powers 43% of the web. But that doesn''t mean it''s right for your business. Here''s how to make the right technical decision for your business website.',
   $p4$## The Question Every Business Owner Asks
 
@@ -393,7 +398,7 @@ The worst outcome is choosing WordPress to save money, then paying for a full re
 
 TIP: If you're evaluating a web development agency, ask them what they recommend and why — then ask what they'd recommend if budget weren't a constraint. The gap between those two answers tells you a lot about their thinking.
 
-Whatever platform you choose, performance on mobile is non-negotiable. See our guide on [mobile-first website design](/blog/mobile-first-website-canadian-small-businesses-2026) for the specific metrics that matter for Google rankings and conversions.
+Whatever platform you choose, performance on mobile is non-negotiable. See our guide on [mobile-first website design](/blog/mobile-first-website-small-businesses) for the specific metrics that matter for Google rankings and conversions.
 
 ## Talk to a Web Development Agency
 
@@ -416,7 +421,7 @@ Graphxify builds custom websites using Next.js and modern headless CMS architect
 (
   'a1000000-0000-0000-0000-000000000005',
   'How a Professional Website Drives Real Business Growth',
-  'professional-website-business-growth-canada',
+  'professional-website-business-growth',
   'A great website doesn''t just look good — it generates leads, builds trust, and converts visitors into customers. Here''s what separates a website that performs from one that just exists.',
   $p5$## Your Website Is Either Working or It Isn't
 
@@ -485,7 +490,7 @@ If your current website isn't generating the leads your business needs, the firs
 
 These questions have measurable answers — and the answers tell you exactly where to focus. For businesses ready to treat their website as a growth asset, the opportunity is significant. The businesses in your market that invest in their digital presence consistently out-earn those that don't.
 
-Getting found on Google is part of the equation too. Read our guide on [local SEO for getting found on Google](/blog/local-seo-canadian-businesses-getting-found-google) for a practical playbook on making your site visible in your market.
+Getting found on Google is part of the equation too. Read our guide on [local SEO for getting found on Google](/blog/local-seo-getting-found-on-google) for a practical playbook on making your site visible in your market.
 
 ## Your Website Should Be Working Harder
 
@@ -508,7 +513,7 @@ Graphxify designs and builds websites for businesses worldwide that are built to
 (
   'a1000000-0000-0000-0000-000000000006',
   'Local SEO: Getting Found on Google in Your City',
-  'local-seo-canadian-businesses-getting-found-google',
+  'local-seo-getting-found-on-google',
   'Most local businesses leave enormous amounts of revenue on the table because potential customers can''t find them on Google. Here''s a clear, actionable local SEO strategy for 2026.',
   $p6$## Why Local SEO Is the Highest-ROI Digital Investment for Local Businesses
 
@@ -602,7 +607,7 @@ If you do nothing else, start here:
 
 These three steps take less than two hours and will produce measurable results within 30–60 days.
 
-Local SEO only works if the website it points to converts visitors into leads. For a complete picture, read our guide on [how a professional website drives real business growth](/blog/professional-website-business-growth-canada).
+Local SEO only works if the website it points to converts visitors into leads. For a complete picture, read our guide on [how a professional website drives real business growth](/blog/professional-website-business-growth).
 
 ## Need a Website That Ranks and Converts?
 

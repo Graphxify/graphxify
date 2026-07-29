@@ -26,8 +26,7 @@ UPDATE works SET
   twitter_title       = 'FlyUp Line — Travel Platform Redesign | Graphxify',
   twitter_description = 'A responsive travel platform redesigned to simplify the booking experience and drive conversion — delivered by Graphxify for FlyUp Line.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/flyup-line'
+  twitter_card        = 'summary_large_image'
 WHERE slug IN ('northline-enterprise-replatform', 'flyup-line');
 
 
@@ -42,8 +41,7 @@ UPDATE works SET
   twitter_title       = 'Maven — Women''s Fashion Brand Identity | Graphxify',
   twitter_description = 'A complete brand identity system for a contemporary women''s fashion label — built on typographic precision, restrained colour, and a confident visual language.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/maven'
+  twitter_card        = 'summary_large_image'
 WHERE slug IN ('vertex-brand-operations', 'maven');
 
 
@@ -58,8 +56,7 @@ UPDATE works SET
   twitter_title       = 'BOSS Medical Clinic — Healthcare Web Design | Graphxify',
   twitter_description = 'A professional, accessible website for a medical clinic — designed to communicate trust, simplify service navigation, and convert patients online.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/boss-medical-clinic'
+  twitter_card        = 'summary_large_image'
 WHERE slug IN ('axis-growth-platform', 'boss-medical-clinic', 'boss-raam-pharmacy');
 
 
@@ -74,8 +71,7 @@ UPDATE works SET
   twitter_title       = 'Pharmacy On King — Healthcare Web Design | Graphxify',
   twitter_description = 'A clean, structured website for a community pharmacy — built to surface services, hours, and contact information clearly across every device.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/pharmacy-on-king'
+  twitter_card        = 'summary_large_image'
 WHERE slug IN ('lumen-commerce-redesign', 'pharmacy-on-king', 'orion-saas-relaunch');
 
 
@@ -90,8 +86,7 @@ UPDATE works SET
   twitter_title       = 'Luka Hair Salon — Beauty Brand & Web Design | Graphxify',
   twitter_description = 'Brand identity and website for an upscale hair salon — designed to project confidence, elegance, and make booking effortless for clients.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/luka-hair-salon'
+  twitter_card        = 'summary_large_image'
 WHERE slug IN ('atlas-fintech-experience-hub', 'luka-hair-salon', 'solace-investor-relations-portal');
 
 
@@ -106,8 +101,7 @@ UPDATE works SET
   twitter_title       = 'King Medical Arts Pharmacy — Healthcare Web Design | Graphxify',
   twitter_description = 'A professional pharmacy website designed to make services, location, and contact easy to find — built for clarity, trust, and mobile performance.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
-  twitter_card        = 'summary_large_image',
-  canonical_url       = 'https://graphxify.com/works/king-medical-art-pharmacy'
+  twitter_card        = 'summary_large_image'
 WHERE slug IN ('meridian-health-network-portal', 'king-medical-art-pharmacy', 'kite-commerce-experience-refresh');
 
 

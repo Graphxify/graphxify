@@ -10,7 +10,7 @@ type SitemapEntry = MetadataRoute.Sitemap[number];
 // Stable "last content update" date for static pages. A fixed value (rather than
 // `new Date()` on every request) gives Google a trustworthy <lastmod> instead of
 // one that appears to change on every crawl. Bump this when static page copy changes.
-const CONTENT_LAST_UPDATED = new Date("2026-07-08T00:00:00Z");
+const CONTENT_LAST_UPDATED = new Date("2026-07-29T00:00:00Z");
 
 // ── Static routes ─────────────────────────────────────────────────────────────
 // Each entry carries its own SEO weight and update cadence.
@@ -22,6 +22,7 @@ const STATIC_ROUTES: Array<{
   { path: "",                             priority: 1.0, changeFrequency: "weekly"  },
   { path: "/works",                       priority: 0.9, changeFrequency: "weekly"  },
   { path: "/services",                    priority: 0.9, changeFrequency: "monthly" },
+  { path: "/pricing",                     priority: 0.9, changeFrequency: "monthly" },
   { path: "/services/web-design",         priority: 0.8, changeFrequency: "monthly" },
   { path: "/services/web-development",    priority: 0.8, changeFrequency: "monthly" },
   { path: "/services/brand-systems",      priority: 0.8, changeFrequency: "monthly" },

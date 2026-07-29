@@ -58,15 +58,15 @@ const relatedProjects = [
 
 const relatedPosts = [
   {
-    slug: "how-to-choose-web-design-agency-canada",
+    slug: "how-to-choose-a-web-design-agency",
     label: "How to Choose the Right Web Design Agency"
   },
   {
-    slug: "mobile-first-website-canadian-small-businesses-2026",
+    slug: "mobile-first-website-small-businesses",
     label: "Why Small Businesses Need a Mobile-First Website in 2026"
   },
   {
-    slug: "professional-website-business-growth-canada",
+    slug: "professional-website-business-growth",
     label: "How a Professional Website Drives Real Business Growth"
   }
 ];

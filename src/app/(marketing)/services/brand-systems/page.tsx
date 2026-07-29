@@ -59,11 +59,11 @@ const relatedProjects = [
 
 const relatedPosts = [
   {
-    slug: "brand-identity-canadian-businesses",
+    slug: "what-makes-a-strong-brand-identity",
     label: "What Makes a Strong Brand Identity"
   },
   {
-    slug: "how-to-choose-web-design-agency-canada",
+    slug: "how-to-choose-a-web-design-agency",
     label: "How to Choose the Right Web Design Agency"
   }
 ];
