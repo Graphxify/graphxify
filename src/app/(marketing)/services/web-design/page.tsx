@@ -15,7 +15,6 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Graphxify designs custom website interfaces built for clarity, hierarchy, and conversion. Mobile-first, accessible, and responsive across all screen sizes. Serving businesses worldwide.",
   path: "/services/web-design",
-  image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Web Design — Conversion-Focused Websites | Graphxify",
   ogDescription: "Custom, mobile-first websites designed with clear hierarchy and layouts built to guide visitors toward action — WCAG accessible, no templates.",
   ogImageAlt: "Custom web design services by Graphxify — conversion-focused, mobile-first, accessible"

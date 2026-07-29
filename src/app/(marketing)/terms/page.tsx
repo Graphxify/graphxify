@@ -6,7 +6,6 @@ export const metadata: Metadata = buildMetadata({
   title: "Terms & Conditions",
   description: "The terms that govern how Graphxify works with clients, covering project agreements, IP ownership, payment, and everything in between.",
   path: "/terms",
-  image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Terms & Conditions | Graphxify",
   ogDescription: "The terms that govern how Graphxify works with clients — covering project agreements, IP ownership, payment, and everything in between.",
   ogImageAlt: "Graphxify terms and conditions",

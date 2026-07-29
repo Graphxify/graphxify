@@ -50,35 +50,38 @@ const HomeProjectsSlider = dynamic(
   }
 );
 
+// Fallback client logos, used only when the CMS marquee table is empty.
+// `alt` must be the real client name — it is the only thing screen readers
+// and crawlers get from this section.
 const stripLogos: StripLogo[] = [
   {
     key: "marquee-logo-01",
-    alt: "Marquee logo 01",
+    alt: "FlyUp Line",
     baseName: "marquee-logo-01"
   },
   {
     key: "marquee-logo-02",
-    alt: "Marquee logo 02",
+    alt: "MBM Interior & Exterior",
     baseName: "marquee-logo-02"
   },
   {
     key: "marquee-logo-03",
-    alt: "Marquee logo 03",
+    alt: "Maven",
     baseName: "marquee-logo-03"
   },
   {
     key: "marquee-logo-04",
-    alt: "Marquee logo 04",
+    alt: "Beity Eats",
     baseName: "marquee-logo-04"
   },
   {
     key: "marquee-logo-05",
-    alt: "Marquee logo 05",
+    alt: "Pharmacy on King",
     baseName: "marquee-logo-05"
   },
   {
     key: "marquee-logo-06",
-    alt: "Marquee logo 06",
+    alt: "Kaffecino",
     baseName: "marquee-logo-06"
   }
 ];

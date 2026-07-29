@@ -2,17 +2,22 @@ import type { Metadata } from "next";
 import { ReviewForm } from "@/components/marketing/review-form";
 import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = buildMetadata({
-  title: "Leave a Review",
-  description:
-    "Share your experience working with Graphxify. Your testimonial helps us grow and improve.",
-  path: "/review",
-  image: "/images/about/about-graphxify-visual.png",
-  ogTitle: "Leave a Review — Share Your Graphxify Experience",
-  ogDescription: "Worked with Graphxify? Share your experience and help other businesses discover what's possible with great design.",
-  ogImageAlt: "Leave a review for Graphxify — web design and branding studio",
-  twitterCard: "summary"
-});
+export const metadata: Metadata = {
+  ...buildMetadata({
+    title: "Leave a Review",
+    description:
+      "Share your experience working with Graphxify. Your testimonial helps us grow and improve.",
+    path: "/review",
+    ogTitle: "Leave a Review — Share Your Graphxify Experience",
+    ogDescription: "Worked with Graphxify? Share your experience and help other businesses discover what's possible with great design.",
+    ogImageAlt: "Leave a review for Graphxify — web design and branding studio",
+    twitterCard: "summary"
+  }),
+  // Utility page: a bare form with no standalone search value, and it is
+  // intentionally absent from the sitemap. Keep it crawlable for clients who
+  // receive the link directly, but out of the index.
+  robots: { index: false, follow: true }
+};
 
 export default function ReviewPage(): JSX.Element {
   return (

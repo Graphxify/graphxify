@@ -15,7 +15,6 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Graphxify builds complete brand identity systems: logo suite, typography, colour palette, brand voice, and brand guidelines. Full-system branding for modern businesses delivered in 2–3 weeks.",
   path: "/services/brand-systems",
-  image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Brand Systems — Logo, Identity & Visual Strategy | Graphxify",
   ogDescription: "A complete visual identity built from the ground up: logo, colour, typography, and messaging that works consistently across every touchpoint. Delivered in 2–3 weeks.",
   ogImageAlt: "Brand identity and visual systems by Graphxify — logo, colour, and typography design"

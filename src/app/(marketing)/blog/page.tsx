@@ -10,7 +10,6 @@ export const metadata: Metadata = buildMetadata({
   title: "Web Design & Digital Strategy Blog",
   description: "Practical guides on web design, web development, and branding for modern businesses. Insights from Graphxify, a web design and branding agency serving businesses worldwide.",
   path: "/blog",
-  image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Web Design & Branding Insights | Graphxify Blog",
   ogDescription: "Practical guides on web design, branding, and digital strategy for business owners and founders — written by the team at Graphxify.",
   ogImageAlt: "Graphxify blog — web design and branding insights for modern businesses"

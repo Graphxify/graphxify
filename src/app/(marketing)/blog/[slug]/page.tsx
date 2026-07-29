@@ -418,7 +418,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title: post.seoTitle ?? post.title,
     description: post.seoDescription ?? post.excerpt,
     path: `/blog/${post.slug}`,
-    image: post.coverImage || "/images/about/about-graphxify-visual.png",
+    // Falls through to a generated 1200x630 OG card when the post has no cover.
+    image: post.coverImage || undefined,
+    ogEyebrow: post.category,
     ogTitle: post.ogTitle,
     ogDescription: post.ogDescription,
     ogImage: post.ogImage,

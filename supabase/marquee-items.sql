@@ -65,14 +65,16 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- Seed the 6 logos (skip if already present via unique constraint)
+-- Seed the 6 logos (skip if already present via unique constraint).
+-- `label` is rendered as the <img alt> on the homepage marquee, so it must be
+-- the real client name — it is the only thing screen readers and crawlers see.
 INSERT INTO public.marquee_items (image_url_dark, image_url_light, label, sort_order, enabled) VALUES
-  ('/images/marquee/marquee-logo-01-dark.svg', '/images/marquee/marquee-logo-01-light.svg', 'Client logo 1', 1, true),
-  ('/images/marquee/marquee-logo-02-dark.svg', '/images/marquee/marquee-logo-02-light.svg', 'Client logo 2', 2, true),
-  ('/images/marquee/marquee-logo-03-dark.svg', '/images/marquee/marquee-logo-03-light.svg', 'Client logo 3', 3, true),
-  ('/images/marquee/marquee-logo-04-dark.svg', '/images/marquee/marquee-logo-04-light.svg', 'Client logo 4', 4, true),
-  ('/images/marquee/marquee-logo-05-dark.svg', '/images/marquee/marquee-logo-05-light.svg', 'Client logo 5', 5, true),
-  ('/images/marquee/marquee-logo-06-dark.svg', '/images/marquee/marquee-logo-06-light.svg', 'Client logo 6', 6, true)
+  ('/images/marquee/marquee-logo-01-dark.svg', '/images/marquee/marquee-logo-01-light.svg', 'FlyUp Line', 1, true),
+  ('/images/marquee/marquee-logo-02-dark.svg', '/images/marquee/marquee-logo-02-light.svg', 'MBM Interior & Exterior', 2, true),
+  ('/images/marquee/marquee-logo-03-dark.svg', '/images/marquee/marquee-logo-03-light.svg', 'Maven', 3, true),
+  ('/images/marquee/marquee-logo-04-dark.svg', '/images/marquee/marquee-logo-04-light.svg', 'Beity Eats', 4, true),
+  ('/images/marquee/marquee-logo-05-dark.svg', '/images/marquee/marquee-logo-05-light.svg', 'Pharmacy on King', 5, true),
+  ('/images/marquee/marquee-logo-06-dark.svg', '/images/marquee/marquee-logo-06-light.svg', 'Kaffecino', 6, true)
 ON CONFLICT (image_url_dark) DO UPDATE
   SET image_url_light = EXCLUDED.image_url_light,
       label = EXCLUDED.label;

@@ -5,7 +5,6 @@ export const metadata: Metadata = buildMetadata({
   title: "Free Website Growth Checklist",
   description: "A practical website growth checklist for service businesses covering conversion, trust, SEO, and content fundamentals.",
   path: "/resources/website-growth-checklist",
-  image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Free Website Growth Checklist for Modern Businesses | Graphxify",
   ogDescription: "A practical, no-fluff checklist covering conversion, trust signals, SEO, and content fundamentals for service businesses.",
   ogImageAlt: "Free website growth checklist by Graphxify — conversion, trust, and SEO fundamentals"

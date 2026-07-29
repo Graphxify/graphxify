@@ -46,7 +46,6 @@ export const metadata: Metadata = buildMetadata({
   title: "Web Design & Branding Services for Growing Businesses",
   description: "Professional web design, branding, web development, and CMS services for businesses worldwide. Graphxify delivers structured, high-performance digital solutions to businesses everywhere.",
   path: "/services",
-  image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Web Design, Branding & Development Services | Graphxify",
   ogDescription: "Brand identity, web design, custom development, and CMS architecture — four focused services built for modern businesses ready to grow.",
   ogImageAlt: "Graphxify services — brand systems, web design, web development, and CMS architecture"

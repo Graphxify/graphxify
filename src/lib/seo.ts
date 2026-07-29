@@ -1,11 +1,29 @@
 import type { Metadata } from "next";
 import { siteConfig } from "@/lib/constants";
 
+/** Generated OG cards are always rendered at this size by /og. */
+const OG_IMAGE_SIZE = { width: 1200, height: 630 } as const;
+
+/**
+ * Builds the URL of a generated 1200x630 Open Graph card for a page.
+ * Used as the default share image so every page gets a correctly
+ * proportioned card instead of one shared square image.
+ */
+export function ogImageUrl(title: string, eyebrow?: string): string {
+  const params = new URLSearchParams({ title });
+  if (eyebrow) {
+    params.set("eyebrow", eyebrow);
+  }
+  return `/og?${params.toString()}`;
+}
+
 export function buildMetadata(input: {
   title: string;
   description: string;
   path: string;
   image?: string;
+  /** Eyebrow line on the generated OG card. Ignored when `image` is set. */
+  ogEyebrow?: string;
   // Per-field OG overrides (used verbatim when provided)
   ogTitle?: string | null;
   ogDescription?: string | null;
@@ -20,7 +38,10 @@ export function buildMetadata(input: {
   canonicalUrl?: string | null;
 }): Metadata {
   const canonical = input.canonicalUrl?.trim() || new URL(input.path, siteConfig.url).toString();
-  const baseImage = input.image || "/images/about/about-graphxify-visual.png";
+  // Default to a generated 1200x630 card. Callers may still pass `image`
+  // (a real cover photo, or a CMS override) to replace it.
+  const generatedImage = ogImageUrl(input.title, input.ogEyebrow);
+  const baseImage = input.image?.trim() || generatedImage;
   const pageTitle = `${input.title} | ${siteConfig.name}`;
 
   const ogTitle = input.ogTitle?.trim() || pageTitle;
@@ -53,7 +74,16 @@ export function buildMetadata(input: {
       description: ogDescription,
       url: canonical,
       siteName: siteConfig.name,
-      images: [{ url: ogImage, ...(input.ogImageAlt?.trim() ? { alt: input.ogImageAlt.trim() } : {}) }]
+      images: [
+        {
+          url: ogImage,
+          // Only declare dimensions for cards we generate — we know those are
+          // exactly 1200x630. Asserting a size for arbitrary CMS images would
+          // make scrapers letterbox or stretch them.
+          ...(ogImage.startsWith("/og?") ? OG_IMAGE_SIZE : {}),
+          ...(input.ogImageAlt?.trim() ? { alt: input.ogImageAlt.trim() } : {})
+        }
+      ]
     },
     twitter: {
       card: twitterCard,
@@ -64,10 +94,29 @@ export function buildMetadata(input: {
   };
 }
 
+/**
+ * Public social profiles. Used as schema.org `sameAs` so search engines can
+ * consolidate these accounts with the site into a single entity.
+ */
+export const socialProfiles = [
+  "https://www.facebook.com/Graphxify",
+  "https://www.instagram.com/graphxify",
+  "https://www.tiktok.com/@graphxify",
+  "https://www.behance.net/graphxify"
+] as const;
+
+/**
+ * NOTE ON TYPE: this is deliberately `ProfessionalService` (a subtype of
+ * Organization) and NOT `LocalBusiness`. Google requires a physical `address`
+ * on LocalBusiness; without one the node is invalid and can be discarded
+ * wholesale. If a real street address and a Google Business Profile are ever
+ * added, switch back to ["LocalBusiness", "ProfessionalService"] and include
+ * `address` + `geo` at the same time — not before.
+ */
 export function organizationJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": ["LocalBusiness", "ProfessionalService"],
+    "@type": "ProfessionalService",
     "@id": `${siteConfig.url}/#organization`,
     name: siteConfig.name,
     url: siteConfig.url,
@@ -75,11 +124,13 @@ export function organizationJsonLd() {
       "@type": "ImageObject",
       url: `${siteConfig.url}/assets/logo-mark.svg`
     },
+    image: `${siteConfig.url}/og`,
     description: siteConfig.description,
     telephone: "+16475700334",
     email: "info@graphxify.com",
     areaServed: "Worldwide",
     knowsAbout: ["Web Design", "Web Development", "Brand Identity", "Branding", "Digital Strategy", "CMS Architecture"],
+    sameAs: [...socialProfiles],
     priceRange: "$$"
   };
 }

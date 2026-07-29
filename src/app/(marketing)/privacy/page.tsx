@@ -6,7 +6,6 @@ export const metadata: Metadata = buildMetadata({
   title: "Privacy Policy",
   description: "How Graphxify collects, handles, and protects your data, written plainly so you actually know what's going on.",
   path: "/privacy",
-  image: "/images/about/about-graphxify-visual.png",
   ogTitle: "Privacy Policy | Graphxify",
   ogDescription: "How Graphxify collects, handles, and protects your data — written plainly so you actually know what's going on.",
   ogImageAlt: "Graphxify privacy policy — data handling and protection",
