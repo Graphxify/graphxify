@@ -23,6 +23,7 @@ const STATIC_ROUTES: Array<{
   { path: "/works",                       priority: 0.9, changeFrequency: "weekly"  },
   { path: "/services",                    priority: 0.9, changeFrequency: "monthly" },
   { path: "/pricing",                     priority: 0.9, changeFrequency: "monthly" },
+  { path: "/process",                     priority: 0.7, changeFrequency: "monthly" },
   { path: "/services/web-design",         priority: 0.8, changeFrequency: "monthly" },
   { path: "/services/web-development",    priority: 0.8, changeFrequency: "monthly" },
   { path: "/services/brand-systems",      priority: 0.8, changeFrequency: "monthly" },

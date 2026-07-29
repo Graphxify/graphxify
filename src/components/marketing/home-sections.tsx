@@ -5,6 +5,7 @@ import { ArrowUpRight, Blocks, Fingerprint, Layout, Mail, Minus, PackageCheck, P
 import { Button } from "@/components/ui/button";
 import { DeferredLeadForm, DeferredTestimonialsSection } from "@/components/marketing/deferred-home-islands";
 import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
+import { NewsletterSignup } from "@/components/marketing/newsletter-signup";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { companyContact, faqs, services } from "@/lib/constants";
 
@@ -421,6 +422,12 @@ export function HomeSections({
             </details>
           ))}
         </div>
+      </SectionReveal>
+
+      {/* Soft conversion path for visitors not ready to enquire yet. Sits before
+          the contact form so the hard CTA still closes the page. */}
+      <SectionReveal className="container mt-6 md:mt-8" effect="up">
+        <NewsletterSignup source="home" idPrefix="home" />
       </SectionReveal>
 
       <SectionReveal className="container" effect="zoom">

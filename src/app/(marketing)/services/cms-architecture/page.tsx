@@ -6,6 +6,8 @@ import { ArrowRight, ArrowUpRight, Blocks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
+import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
+import { ServicePricingCallout } from "@/components/marketing/service-pricing-callout";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
@@ -49,6 +51,25 @@ const relatedPosts = [
   {
     slug: "custom-web-development-vs-wordpress",
     label: "Custom Web Development vs. WordPress: A Guide for Business Owners"
+  }
+];
+
+const serviceFaqs: ServiceFaqItem[] = [
+  {
+    q: "Which CMS do you use?",
+    a: "It depends on the content model, not on a favourite. We have built on headless setups backed by Postgres as well as established platforms. The structure matters far more than the brand name on it."
+  },
+  {
+    q: "Can my team really update the site without a developer?",
+    a: "That is the entire point. We design the content model around what your team actually publishes, then set up roles and workflows so people can only change what they should. You get a training guide as part of the handover."
+  },
+  {
+    q: "Is CMS work sold on its own?",
+    a: "Usually it is part of a website build, which is why the pricing below reflects the Professional Website tier. Standalone CMS migrations for an existing site are quoted separately — get in touch and we will scope it."
+  },
+  {
+    q: "What if we outgrow the initial structure?",
+    a: "The content model is documented, so extending it later is a defined change rather than a rebuild. That documentation is a deliverable, not an afterthought."
   }
 ];
 
@@ -225,6 +246,17 @@ export default function CmsArchitecturePage() {
               </Link>
             </p>
           </div>
+        </SectionReveal>
+
+        {/* Pricing */}
+        <SectionReveal className="container mt-10 md:mt-14" effect="up">
+          <ServicePricingCallout tierKey="professional-website"
+            note="CMS architecture is normally delivered inside a website build, so the figure shown is the Professional Website tier. Standalone CMS migrations are quoted separately." />
+        </SectionReveal>
+
+        {/* FAQ */}
+        <SectionReveal className="container mt-10 md:mt-14" effect="up">
+          <ServiceFaq items={serviceFaqs} />
         </SectionReveal>
 
         {/* CTA */}

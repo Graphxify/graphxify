@@ -4,16 +4,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, BookOpen, Check, Clock, ListChecks, Loader2, Mail, Sparkles } from "lucide-react";
+import { ArrowUpRight, BookOpen, Clock, Sparkles } from "lucide-react";
+import { NewsletterSignup } from "@/components/marketing/newsletter-signup";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { Button } from "@/components/ui/button";
-import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
-import { Input } from "@/components/ui/input";
-import { SubmissionModal } from "@/components/ui/submission-modal";
-import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
-import { BLOG_CATEGORIES, estimateReadTime, type BlogCategory, type BlogPostSummary } from "@/lib/blog";
+import { BLOG_CATEGORIES, type BlogCategory, type BlogPostSummary } from "@/lib/blog";
 import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
-import { newsletterSubscriptionSchema } from "@/lib/validation/schemas";
 
 const CATEGORY_FILTERS = ["All", ...BLOG_CATEGORIES] as const;
 const INITIAL_VISIBLE_COUNT = 6;
@@ -48,12 +44,6 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
   const reducedMotion = useReducedMotion();
   const [activeCategory, setActiveCategory] = useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
-  const [subscribeModal, setSubscribeModal] = useState(false);
-  const [subscribeMessage, setSubscribeMessage] = useState("Check your inbox for the checklist. You will also receive practical insights on web design, branding, and digital strategy for modern businesses.");
-  const [subscribeEmail, setSubscribeEmail] = useState("");
-  const [subscribeLoading, setSubscribeLoading] = useState(false);
-  const [subscribeError, setSubscribeError] = useState("");
-  const [subscribeFieldErrors, setSubscribeFieldErrors] = useState<FormFieldErrors>({});
 
   const featuredBlog = blogs[0];
   const remainingBlogs = blogs.slice(1);
@@ -73,34 +63,6 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
     setVisibleCount(INITIAL_VISIBLE_COUNT);
   }
 
-  async function onSubscribeSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
-    event.preventDefault();
-    setSubscribeError("");
-    setSubscribeFieldErrors({});
-
-    const payload = { email: subscribeEmail.trim() };
-    const parsed = newsletterSubscriptionSchema.safeParse(payload);
-    if (!parsed.success) {
-      setSubscribeFieldErrors(fieldErrorsFromZod(parsed.error));
-      return;
-    }
-
-    setSubscribeLoading(true);
-
-    try {
-      const result = await submitJsonForm("/api/newsletter", parsed.data);
-      if (result.success) {
-        setSubscribeEmail("");
-        setSubscribeMessage(result.message);
-        setSubscribeModal(true);
-      } else {
-        setSubscribeFieldErrors(result.fieldErrors ?? {});
-        setSubscribeError(result.message);
-      }
-    } finally {
-      setSubscribeLoading(false);
-    }
-  }
 
   return (
     <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
@@ -288,112 +250,7 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
       </SectionReveal>
 
       <SectionReveal className="container mt-10 md:mt-14" effect="zoom">
-        <div className="section-shell relative overflow-hidden border-accentA/16 bg-card/82 p-7 md:p-10 lg:p-12">
-
-          {/* Ambient glows */}
-          <span className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-accentA/9 blur-[80px]" />
-          <span className="pointer-events-none absolute -bottom-16 -right-16 h-48 w-48 rounded-full bg-accentB/7 blur-[70px]" />
-
-          {/* Top shimmer accent */}
-          <span className="absolute inset-x-0 top-0 h-px bg-accent-gradient opacity-50" />
-
-          <div className="relative z-10 grid items-start gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
-
-            {/* ── Left: value proposition ── */}
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-accentA/26 bg-accentA/10 px-3 py-1.5 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-accentA">
-                <ListChecks className="h-3 w-3" />
-                Free Resource
-              </div>
-
-              <h2 className="mt-4 text-2xl font-semibold leading-[1.1] md:text-[1.8rem]">
-                Free Website Growth Checklist
-              </h2>
-
-              <p className="mt-3 max-w-sm text-sm leading-relaxed text-fg/60">
-                Subscribe to the Graphxify newsletter and receive a practical checklist covering the essential elements every business website needs to attract customers and convert visitors.
-              </p>
-
-              {/* Benefit bullets — hint at the resource without giving it away */}
-              <ul className="mt-5 space-y-2.5" aria-label="Checklist includes">
-                {[
-                  "Web design, branding, and SEO essentials",
-                  "Written specifically for business owners",
-                  "Practical steps you can act on right away"
-                ].map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm text-fg/62">
-                    <span className="mt-[0.2rem] flex h-4 w-4 shrink-0 items-center justify-center rounded border border-accentA/30 bg-accentA/10 text-accentA">
-                      <Check className="h-2.5 w-2.5" aria-hidden="true" />
-                    </span>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* ── Right: form ── */}
-            <div className="lg:pt-2">
-              <form onSubmit={onSubscribeSubmit} className="space-y-3" aria-label="Newsletter signup form">
-                <FormAlert message={subscribeError} />
-
-                <Input
-                  type="email"
-                  required
-                  value={subscribeEmail}
-                  onChange={(event) => {
-                    setSubscribeEmail(event.target.value);
-                    setSubscribeError("");
-                    setSubscribeFieldErrors((current) => {
-                      if (!current.email) return current;
-                      const next = { ...current };
-                      delete next.email;
-                      return next;
-                    });
-                  }}
-                  placeholder="Your email address"
-                  className="h-12 rounded-xl border-border/22 bg-bg/64 px-4 text-sm placeholder:text-fg/40 placeholder:opacity-100 focus:border-accentA/40"
-                  aria-label="Email address"
-                  aria-invalid={Boolean(subscribeFieldErrors.email)}
-                />
-                <FieldErrorText id="blog-subscribe-email-error" message={subscribeFieldErrors.email} />
-
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="h-12 w-full px-6"
-                  disabled={subscribeLoading}
-                >
-                  {subscribeLoading ? (
-                    <span className="inline-flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Sending...
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-2">
-                      <ListChecks className="h-4 w-4" />
-                      Get the Checklist
-                    </span>
-                  )}
-                </Button>
-              </form>
-
-              {/* Trust signal */}
-              <p className="mt-4 text-[0.7rem] leading-relaxed text-fg/40">
-                No spam. Only practical insights for business websites.{" "}
-                <span className="text-fg/28">Unsubscribe anytime.</span>
-              </p>
-            </div>
-          </div>
-
-          <SubmissionModal
-            open={subscribeModal}
-            onClose={() => setSubscribeModal(false)}
-            type="success"
-            title="Checklist on its way!"
-            message={subscribeMessage}
-            autoDismiss={6000}
-          />
-        </div>
+        <NewsletterSignup source="blog" idPrefix="blog" />
       </SectionReveal>
     </div>
   );

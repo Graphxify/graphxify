@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await subscribeToNewsletter({ email: parsed.data.email, source: "blog" });
+    const result = await subscribeToNewsletter({ email: parsed.data.email, source: parsed.data.source ?? "blog" });
     const message =
       result.state === "already_subscribed"
         ? "You're already subscribed. We'll keep you on the list."

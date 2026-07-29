@@ -12,6 +12,7 @@ const footerGroups = [
       { label: "Works", href: "/works" },
       { label: "Services", href: "/services" },
       { label: "Pricing", href: "/pricing" },
+      { label: "Process", href: "/process" },
       { label: "About", href: "/about" },
       { label: "Blog", href: "/blog" },
       { label: "Free Website Checklist", href: "/resources/website-growth-checklist" },

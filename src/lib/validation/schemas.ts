@@ -82,7 +82,10 @@ export const publicLeadSchema = z.object({
 });
 
 export const newsletterSubscriptionSchema = z.object({
-  email: z.string().trim().email("Enter a valid email address.").max(180, "Email must be under 180 characters.")
+  email: z.string().trim().email("Enter a valid email address.").max(180, "Email must be under 180 characters."),
+  // Which placement produced the signup. Whitelisted rather than free text so a
+  // client cannot write arbitrary values into the subscriber table.
+  source: z.enum(["blog", "home", "checklist"]).optional()
 });
 
 export const postSchema = z.object({

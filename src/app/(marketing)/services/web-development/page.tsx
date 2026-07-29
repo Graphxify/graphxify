@@ -6,6 +6,8 @@ import { ArrowRight, ArrowUpRight, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
+import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
+import { ServicePricingCallout } from "@/components/marketing/service-pricing-callout";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
@@ -77,6 +79,25 @@ const relatedPosts = [
   {
     slug: "mobile-first-website-small-businesses",
     label: "Why Small Businesses Need a Mobile-First Website in 2026"
+  }
+];
+
+const serviceFaqs: ServiceFaqItem[] = [
+  {
+    q: "Why Next.js and not WordPress?",
+    a: "Speed, security, and control. There are no plugins to break, no theme to fight, and no monthly patching treadmill. We wrote a full comparison if you want the detail — see Related Reading below."
+  },
+  {
+    q: "Do I own the code?",
+    a: "Yes, outright. The repository is yours, deployed to your own hosting account. You are never locked in to us, and any competent Next.js developer can pick it up."
+  },
+  {
+    q: "Can you rebuild my existing site?",
+    a: "Yes, and it is a large share of what we do. We migrate content, preserve your URLs with redirects so rankings survive, and improve performance in the process."
+  },
+  {
+    q: "What happens after launch?",
+    a: "You get documentation and a handover session so your team can run the site. We stay available for changes, but you are not obliged to keep paying us to keep the site working."
   }
 ];
 
@@ -257,6 +278,16 @@ export default function WebDevelopmentPage() {
               .
             </p>
           </div>
+        </SectionReveal>
+
+        {/* Pricing */}
+        <SectionReveal className="container mt-10 md:mt-14" effect="up">
+          <ServicePricingCallout tierKey="professional-website" />
+        </SectionReveal>
+
+        {/* FAQ */}
+        <SectionReveal className="container mt-10 md:mt-14" effect="up">
+          <ServiceFaq items={serviceFaqs} />
         </SectionReveal>
 
         {/* CTA */}

@@ -8,6 +8,7 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
+import { pricingTiers as tiers, tierPriceNumeric } from "@/lib/pricing";
 import { siteConfig } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
@@ -22,81 +23,6 @@ export const metadata: Metadata = buildMetadata({
   ogImageAlt: "Graphxify pricing — starting prices for brand identity and website projects"
 });
 
-/**
- * Tiers deliberately mirror the four "Project Scope" options in the contact
- * form (see BUDGET_OPTIONS in contact-page-content.tsx) so the pricing page and
- * the enquiry form describe the same packages. Keep the two in sync.
- *
- * Deliverables are drawn from the matching /services/* pages rather than
- * invented here, so a client reading both sees one consistent scope.
- */
-const tiers = [
-  {
-    key: "brand-identity",
-    name: "Brand Identity",
-    price: "1,200",
-    timeline: "2 to 3 weeks",
-    summary: "A complete visual identity built from scratch — for new businesses, or ones that have outgrown a DIY logo.",
-    serviceHref: "/services/brand-systems",
-    includes: [
-      "Logo suite (primary, secondary, icon)",
-      "Typography system with font files",
-      "Colour palette with hex, RGB, and CMYK",
-      "Brand guidelines document (PDF)",
-      "Social media templates",
-      "Full asset export package"
-    ]
-  },
-  {
-    key: "starter-website",
-    name: "Starter Website",
-    price: "2,000",
-    timeline: "3 to 4 weeks",
-    summary: "A focused, custom-built site that covers the essentials properly — the right starting point for most small businesses.",
-    serviceHref: "/services/web-design",
-    featured: true,
-    includes: [
-      "Up to 5 custom-designed pages",
-      "Mobile-first, responsive layouts",
-      "Custom Next.js build (you own the code)",
-      "Contact forms and analytics",
-      "Basic CMS so you can edit content",
-      "Accessibility review (WCAG guidelines)"
-    ]
-  },
-  {
-    key: "professional-website",
-    name: "Professional Website",
-    price: "4,500",
-    timeline: "4 to 6 weeks",
-    summary: "A larger custom site with a full content system, built for businesses that publish regularly and care about search.",
-    serviceHref: "/services/web-development",
-    includes: [
-      "Everything in Starter Website",
-      "8 to 15 pages with custom layouts",
-      "Full CMS with roles and workflows",
-      "Technical SEO and structured data",
-      "Lighthouse scores above 90",
-      "Integrations (CRM, forms, analytics)"
-    ]
-  },
-  {
-    key: "full-brand-website",
-    name: "Full Brand + Website",
-    price: "6,500",
-    timeline: "6 to 8 weeks",
-    summary: "Brand and website designed together as one system, in a single engagement — nothing retrofitted afterwards.",
-    serviceHref: "/services",
-    includes: [
-      "Complete brand identity package",
-      "Professional Website build",
-      "Brand applied across every touchpoint",
-      "Content model design and documentation",
-      "Editor training guide",
-      "Post-launch handover and documentation"
-    ]
-  }
-] as const;
 
 const priceFactors = [
   {
@@ -171,12 +97,12 @@ function pricingJsonLd() {
         areaServed: "Worldwide",
         offers: {
           "@type": "Offer",
-          price: tier.price.replace(/,/g, ""),
+          price: tierPriceNumeric(tier),
           priceCurrency: "USD",
           // Published figures are floors, not exact quotes.
           priceSpecification: {
             "@type": "PriceSpecification",
-            minPrice: tier.price.replace(/,/g, ""),
+            minPrice: tierPriceNumeric(tier),
             priceCurrency: "USD",
             valueAddedTaxIncluded: false
           },
@@ -237,12 +163,12 @@ export default function PricingPage() {
               <article
                 key={tier.key}
                 className={`section-shell relative flex flex-col p-6 md:p-8 ${
-                  "featured" in tier && tier.featured
+                  tier.featured
                     ? "border-accentA/26 bg-card/85"
                     : "border-border/18 bg-card/74"
                 }`}
               >
-                {"featured" in tier && tier.featured ? (
+                {tier.featured ? (
                   <span className="absolute right-6 top-6 rounded-full border border-accentA/24 bg-accentA/[0.07] px-3 py-1 text-[0.6rem] uppercase tracking-[0.16em] text-accentA">
                     Most requested
                   </span>
@@ -270,7 +196,7 @@ export default function PricingPage() {
                 </ul>
 
                 <div className="mt-7 flex flex-wrap items-center gap-3">
-                  <Button asChild size="sm" variant={"featured" in tier && tier.featured ? "default" : "secondary"}>
+                  <Button asChild size="sm" variant={tier.featured ? "default" : "secondary"}>
                     <Link href="/contact">Start a Project</Link>
                   </Button>
                   <Link

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { NewsletterSignup } from "@/components/marketing/newsletter-signup";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -75,6 +76,15 @@ export default function WebsiteGrowthChecklistPage() {
             </section>
           ))}
         </div>
+
+        {/* Capture, not a gate: the checklist stays readable and indexable, but
+            visitors who want it in their inbox (and future guides) can subscribe. */}
+        <NewsletterSignup
+          source="checklist"
+          idPrefix="checklist"
+          heading="Want this in your inbox?"
+          blurb="Subscribe and we'll email you this checklist to keep, plus practical guides on web design, branding, and growing a business website."
+        />
       </div>
     </main>
   );

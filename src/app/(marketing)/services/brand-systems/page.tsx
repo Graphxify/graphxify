@@ -6,6 +6,8 @@ import { ArrowRight, ArrowUpRight, Fingerprint } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
+import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
+import { ServicePricingCallout } from "@/components/marketing/service-pricing-callout";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
@@ -65,6 +67,25 @@ const relatedPosts = [
   {
     slug: "how-to-choose-a-web-design-agency",
     label: "How to Choose the Right Web Design Agency"
+  }
+];
+
+const serviceFaqs: ServiceFaqItem[] = [
+  {
+    q: "How long does a brand identity take?",
+    a: "Two to three weeks for a complete identity, assuming feedback comes back within a couple of days at each stage. Rushed brand work tends to produce brand work you replace in a year."
+  },
+  {
+    q: "What if I already have a logo I like?",
+    a: "Then we keep it. Plenty of projects start with a usable logo and need everything around it — type, colour, and the rules for applying them consistently. We will tell you honestly if the logo is holding you back."
+  },
+  {
+    q: "Do I own the files?",
+    a: "Yes, outright. You receive the full export package — source files, web and print formats, and the guidelines document. Nothing is licensed back to you."
+  },
+  {
+    q: "Can you do brand without a website?",
+    a: "Yes. Brand Identity is a standalone engagement. Many clients do brand first and build the site later, which works well because the site then has something to be designed against."
   }
 ];
 
@@ -236,6 +257,16 @@ export default function BrandSystemsPage() {
               </Link>
             </p>
           </div>
+        </SectionReveal>
+
+        {/* Pricing */}
+        <SectionReveal className="container mt-10 md:mt-14" effect="up">
+          <ServicePricingCallout tierKey="brand-identity" />
+        </SectionReveal>
+
+        {/* FAQ */}
+        <SectionReveal className="container mt-10 md:mt-14" effect="up">
+          <ServiceFaq items={serviceFaqs} />
         </SectionReveal>
 
         {/* CTA */}
