@@ -14,7 +14,7 @@ import { siteConfig } from "@/lib/constants";
 export const metadata: Metadata = buildMetadata({
   title: "Pricing — What a Brand and Website Cost",
   description:
-    "Transparent starting prices for brand identity, websites, and full brand-and-website projects. Custom-built, no templates, no page builders. See what each package includes and what changes the price.",
+    "Starting prices for brand identity, websites, and full brand-and-website projects. Custom-built, no templates — see what each package includes.",
   path: "/pricing",
   ogEyebrow: "Pricing",
   ogTitle: "Pricing — Brand and Website Projects | Graphxify",

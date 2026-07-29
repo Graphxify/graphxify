@@ -43,8 +43,8 @@ function servicesPageJsonLd() {
 }
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Design & Branding Services for Growing Businesses",
-  description: "Professional web design, branding, web development, and CMS services for businesses worldwide. Graphxify delivers structured, high-performance digital solutions to businesses everywhere.",
+  title: "Web Design, Branding & Development Services",
+  description: "Web design, branding, web development, and CMS services for businesses worldwide. Structured, high-performance digital work from Graphxify.",
   path: "/services",
   ogTitle: "Web Design, Branding & Development Services | Graphxify",
   ogDescription: "Brand identity, web design, custom development, and CMS architecture — four focused services built for modern businesses ready to grow.",

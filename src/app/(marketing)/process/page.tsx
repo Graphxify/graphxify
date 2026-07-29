@@ -15,7 +15,7 @@ import { siteConfig } from "@/lib/constants";
 export const metadata: Metadata = buildMetadata({
   title: "Our Process — How a Project Actually Runs",
   description:
-    "The four stages of a Graphxify project: Discover, Structure, Design, Build & Ship. What happens at each stage, what you receive, what we need from you, and how long it takes.",
+    "The four stages of a Graphxify project: Discover, Structure, Design, Build & Ship. What happens at each, what you get, and how long it takes.",
   path: "/process",
   ogEyebrow: "Process",
   ogTitle: "How We Work — The Graphxify Process",

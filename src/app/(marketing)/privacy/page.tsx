@@ -4,7 +4,7 @@ import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Privacy Policy",
-  description: "How Graphxify collects, handles, and protects your data, written plainly so you actually know what's going on.",
+  description: "How Graphxify collects, handles, and protects your personal data — written plainly so you know exactly what happens with your information.",
   path: "/privacy",
   ogTitle: "Privacy Policy | Graphxify",
   ogDescription: "How Graphxify collects, handles, and protects your data — written plainly so you actually know what's going on.",

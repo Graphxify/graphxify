@@ -13,9 +13,9 @@ import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Brand Systems — Visual Identity Design for Modern Businesses",
+  title: "Brand Systems — Visual Identity Design",
   description:
-    "Graphxify builds complete brand identity systems: logo suite, typography, colour palette, brand voice, and brand guidelines. Full-system branding for modern businesses delivered in 2–3 weeks.",
+    "Complete brand identity systems: logo suite, typography, colour palette, brand voice, and guidelines — delivered in two to three weeks.",
   path: "/services/brand-systems",
   ogTitle: "Brand Systems — Logo, Identity & Visual Strategy | Graphxify",
   ogDescription: "A complete visual identity built from the ground up: logo, colour, typography, and messaging that works consistently across every touchpoint. Delivered in 2–3 weeks.",

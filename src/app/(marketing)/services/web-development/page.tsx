@@ -13,9 +13,9 @@ import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Development Services — Custom Next.js Websites Worldwide",
+  title: "Web Development — Custom Next.js Websites",
   description:
-    "Graphxify builds custom websites on Next.js, not WordPress templates. Lighthouse scores above 90, Core Web Vitals optimised, and full code ownership. Serving businesses worldwide.",
+    "Custom websites built on Next.js, not WordPress templates. Lighthouse scores above 90, Core Web Vitals optimised, and full code ownership.",
   path: "/services/web-development",
   ogTitle: "Web Development — Fast, Scalable Next.js Sites | Graphxify",
   ogDescription: "Custom Next.js websites with Lighthouse 90+, Core Web Vitals optimised, and full code ownership. Built to rank, load instantly, and scale without friction.",

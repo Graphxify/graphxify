@@ -22,7 +22,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Web Design & Branding Portfolio",
   description:
-    "Explore Graphxify's portfolio of web design, branding, and custom development projects for businesses worldwide. Real work delivering brand identity, high-performance websites, and scalable digital platforms.",
+    "Explore Graphxify's portfolio of web design, branding, and development work — real brand identities and high-performance sites for businesses worldwide.",
   path: "/works",
   ogTitle: "Portfolio — Real Projects by Graphxify",
   ogDescription: "Brand identities, custom websites, and digital platforms for businesses worldwide. Every project is built for performance, clarity, and long-term impact.",

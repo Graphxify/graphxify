@@ -13,9 +13,9 @@ import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "CMS Architecture — Structured Content Systems for Modern Businesses",
+  title: "CMS Architecture — Structured Content Systems",
   description:
-    "Graphxify designs structured content management systems with defined roles, workflows, and content models your team can manage confidently. Delivered standalone or as part of a web development engagement.",
+    "Structured content management systems with defined roles, workflows, and content models your team can manage confidently, without a developer.",
   path: "/services/cms-architecture",
   ogTitle: "CMS Architecture — Content Systems Your Team Can Own | Graphxify",
   ogDescription: "We build the structure, workflows, and content models your team needs to publish confidently — no developer required for day-to-day updates.",

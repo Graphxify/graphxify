@@ -16,8 +16,8 @@
 
 -- ── FlyUp Line ──────────────────────────────────────────────────────────────
 UPDATE works SET
-  meta_title          = 'FlyUp Line — Travel Platform & Web Design Case Study | Graphxify',
-  meta_description    = 'Graphxify redesigned the FlyUp Line travel platform to simplify the booking experience, build traveller trust, and drive conversion. See the UX strategy and design approach.',
+  meta_title          = 'FlyUp Line — Travel Platform Case Study | Graphxify',
+  meta_description    = 'Graphxify redesigned the FlyUp Line travel platform to simplify booking, build traveller trust, and drive conversion. See the design approach.',
   og_title            = 'FlyUp Line — Travel Platform Redesign | Graphxify',
   og_description      = 'A responsive travel platform redesigned to simplify the booking experience and drive conversion — delivered by Graphxify for FlyUp Line.',
   og_image            = COALESCE(cover_image_url, og_image),
@@ -31,8 +31,8 @@ WHERE slug = 'northline-enterprise-replatform';
 
 -- ── Maven ────────────────────────────────────────────────────────────────────
 UPDATE works SET
-  meta_title          = 'Maven — Women''s Fashion Brand Identity Case Study | Graphxify',
-  meta_description    = 'Graphxify built a complete brand identity for Maven — a contemporary women''s fashion label defined by typographic precision, restrained colour, and confident visual language.',
+  meta_title          = 'Maven — Fashion Brand Identity Case Study | Graphxify',
+  meta_description    = 'A complete brand identity for Maven — a contemporary women''s fashion label built on typographic precision and a confident visual language.',
   og_title            = 'Maven — Women''s Fashion Brand Identity | Graphxify',
   og_description      = 'A complete brand identity system for a contemporary women''s fashion label — built on typographic precision, restrained colour, and a confident visual language.',
   og_image            = COALESCE(cover_image_url, og_image),
@@ -46,7 +46,7 @@ WHERE slug = 'vertex-brand-operations';
 
 -- ── BOSS Medical Clinic ──────────────────────────────────────────────────────
 UPDATE works SET
-  meta_title          = 'BOSS Medical Clinic — Healthcare Website Design Case Study | Graphxify',
+  meta_title          = 'BOSS Medical Clinic — Healthcare Case Study | Graphxify',
   meta_description    = 'Graphxify designed BOSS Medical Clinic''s website to communicate clinical authority while guiding patients through services with clarity and ease.',
   og_title            = 'BOSS Medical Clinic — Healthcare Web Design | Graphxify',
   og_description      = 'A professional, accessible website for a medical clinic — designed to communicate trust, simplify service navigation, and convert patients online.',
@@ -61,8 +61,8 @@ WHERE slug = 'axis-growth-platform';
 
 -- ── Pharmacy On King ─────────────────────────────────────────────────────────
 UPDATE works SET
-  meta_title          = 'Pharmacy On King — Community Pharmacy Web Design Case Study | Graphxify',
-  meta_description    = 'Graphxify built a clear, structured website for Pharmacy On King — making services, hours, and contact information easy to find for every patient, on every device.',
+  meta_title          = 'Pharmacy On King — Pharmacy Website Case Study | Graphxify',
+  meta_description    = 'A clear, structured website for Pharmacy On King — making services, hours, and contact details easy to find for every patient, on any device.',
   og_title            = 'Pharmacy On King — Healthcare Web Design | Graphxify',
   og_description      = 'A clean, structured website for a community pharmacy — built to surface services, hours, and contact information clearly across every device.',
   og_image            = COALESCE(cover_image_url, og_image),
@@ -76,7 +76,7 @@ WHERE slug = 'lumen-commerce-redesign';
 
 -- ── Luka Hair Salon ──────────────────────────────────────────────────────────
 UPDATE works SET
-  meta_title          = 'Luka Hair Salon — Beauty Brand & Website Design Case Study | Graphxify',
+  meta_title          = 'Luka Hair Salon — Salon Branding Case Study | Graphxify',
   meta_description    = 'Graphxify designed Luka Hair Salon''s brand identity and website to communicate elegance, attract new clients, and make booking effortless from any device.',
   og_title            = 'Luka Hair Salon — Beauty Brand & Web Design | Graphxify',
   og_description      = 'Brand identity and website for an upscale hair salon — designed to project confidence, elegance, and make booking effortless for clients.',
@@ -91,8 +91,8 @@ WHERE slug = 'atlas-fintech-experience-hub';
 
 -- ── King Medical Arts Pharmacy ───────────────────────────────────────────────
 UPDATE works SET
-  meta_title          = 'King Medical Arts Pharmacy — Healthcare Website Case Study | Graphxify',
-  meta_description    = 'Graphxify built King Medical Arts Pharmacy''s website to improve service accessibility, establish professional credibility, and help patients find what they need with ease.',
+  meta_title          = 'King Medical Arts Pharmacy — Case Study | Graphxify',
+  meta_description    = 'How Graphxify built King Medical Arts Pharmacy''s website to improve service accessibility and help patients find what they need with ease.',
   og_title            = 'King Medical Arts Pharmacy — Healthcare Web Design | Graphxify',
   og_description      = 'A professional pharmacy website designed to make services, location, and contact easy to find — built for clarity, trust, and mobile performance.',
   og_image            = COALESCE(cover_image_url, og_image),

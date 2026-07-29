@@ -6,8 +6,8 @@ import { HomeSections } from "@/components/marketing/home-sections";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Design & Development Agency for Modern Businesses",
-  description: "Graphxify is a web design and branding agency serving businesses worldwide. We build brand identities, custom websites, and performance digital platforms for businesses everywhere.",
+  title: "Web Design & Branding Agency for Businesses",
+  description: "Graphxify is a web design and branding agency for businesses worldwide. We build brand identities, custom websites, and digital platforms that perform.",
   path: "/",
   ogTitle: "Brands and Websites Built for Modern Businesses | Graphxify",
   ogDescription: "An independent design studio helping small businesses and founders launch with a brand and website that looks credible, loads fast, and converts.",

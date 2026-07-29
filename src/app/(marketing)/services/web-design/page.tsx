@@ -13,9 +13,9 @@ import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Design Services — Custom Website Design for Modern Businesses",
+  title: "Web Design Services — Custom Website Design",
   description:
-    "Graphxify designs custom website interfaces built for clarity, hierarchy, and conversion. Mobile-first, accessible, and responsive across all screen sizes. Serving businesses worldwide.",
+    "Custom website interface design built for clarity, hierarchy, and conversion. Mobile-first, accessible, and responsive across every screen size.",
   path: "/services/web-design",
   ogTitle: "Web Design — Conversion-Focused Websites | Graphxify",
   ogDescription: "Custom, mobile-first websites designed with clear hierarchy and layouts built to guide visitors toward action — WCAG accessible, no templates.",
