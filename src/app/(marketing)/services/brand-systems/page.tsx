@@ -52,7 +52,7 @@ const relatedProjects = [
     outcome: "A refined visual identity designed to communicate elegance and attract premium salon clients."
   },
   {
-    pathSlug: "boss-raam-pharmacy",
+    pathSlug: "boss-medical-clinic",
     title: "BOSS Medical Clinic",
     industry: "Healthcare / Medical Clinic",
     outcome: "Brand identity and website built to communicate authority and credibility for a modern clinic."

@@ -73,6 +73,11 @@ const nextConfig: NextConfig = {
       // Legacy flat project URLs → correct /works/[slug] structure
       { source: "/flyupline", destination: "/works/flyup-line", permanent: true },
       { source: "/mbmdesigns", destination: "/works", permanent: true },
+      // Legacy case-study path. `legacySlugToCanonicalSlug` in
+      // project-card-content.ts maps this alias internally, but the /works/[slug]
+      // route now returns a real 404 for unknown slugs, so the alias needs an
+      // actual redirect to stay reachable.
+      { source: "/works/boss-raam-pharmacy", destination: "/works/boss-medical-clinic", permanent: true },
       // Canada-legacy blog slugs → global slugs. The posts were rewritten to a
       // worldwide audience but their URLs still said Canada; these 301s preserve
       // whatever ranking history the old URLs earned. Do not remove.

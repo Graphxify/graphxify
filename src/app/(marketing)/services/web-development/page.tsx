@@ -52,7 +52,7 @@ const relatedProjects = [
     liveUrl: "https://flyupline.com/"
   },
   {
-    pathSlug: "boss-raam-pharmacy",
+    pathSlug: "boss-medical-clinic",
     title: "BOSS Medical Clinic",
     industry: "Healthcare / Medical Clinic",
     outcome: "Full website build with service-driven layout and clear content structure for a medical clinic.",
