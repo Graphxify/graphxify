@@ -86,7 +86,7 @@ const servicesData: ServicePillar[] = [
     bestFor: "Businesses with a clear brand ready to build or redesign their website",
     typicalProject: "4 to 8 pages across a 2 to 4 week design phase",
     businessOutcome: "A website visitors understand and engage with from the first scroll",
-    microProof: "We design interfaces aligned with WCAG accessibility guidelines so websites are usable, inclusive, and built with AODA requirements in mind."
+    microProof: "We design interfaces aligned with WCAG accessibility guidelines so websites are usable and inclusive for every visitor, on any device."
   },
   {
     key: "web-development",

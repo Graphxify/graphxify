@@ -176,8 +176,8 @@ export default function WebDesignPage() {
                   </div>
                 ))}
                 <div className="rounded-xl border border-accentA/14 bg-accentA/[0.045] px-5 py-4 text-sm italic leading-relaxed text-fg/60">
-                  We design interfaces aligned with WCAG accessibility guidelines so websites are usable, inclusive, and
-                  built with AODA requirements in mind.
+                  We design interfaces aligned with WCAG accessibility guidelines so websites are usable and inclusive
+                  for every visitor, on any device.
                 </div>
               </div>
             </div>
