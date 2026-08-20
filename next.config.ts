@@ -78,6 +78,9 @@ const nextConfig: NextConfig = {
       // route now returns a real 404 for unknown slugs, so the alias needs an
       // actual redirect to stay reachable.
       { source: "/works/boss-raam-pharmacy", destination: "/works/boss-medical-clinic", permanent: true },
+      // /pricing was published briefly and indexed; the page has since been
+      // removed along with all published figures. Redirect rather than 404.
+      { source: "/pricing", destination: "/services", permanent: true },
       // Canada-legacy blog slugs → global slugs. The posts were rewritten to a
       // worldwide audience but their URLs still said Canada; these 301s preserve
       // whatever ranking history the old URLs earned. Do not remove.

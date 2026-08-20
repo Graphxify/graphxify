@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
-import { ServicePricingCallout } from "@/components/marketing/service-pricing-callout";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
@@ -65,7 +64,7 @@ const serviceFaqs: ServiceFaqItem[] = [
   },
   {
     q: "Is CMS work sold on its own?",
-    a: "Usually it is part of a website build, which is why the pricing below reflects the Professional Website tier. Standalone CMS migrations for an existing site are quoted separately — get in touch and we will scope it."
+    a: "Usually it is part of a website build rather than a separate line item. Standalone CMS migrations for an existing site are quoted separately — get in touch and we will scope it."
   },
   {
     q: "What if we outgrow the initial structure?",
@@ -246,12 +245,6 @@ export default function CmsArchitecturePage() {
               </Link>
             </p>
           </div>
-        </SectionReveal>
-
-        {/* Pricing */}
-        <SectionReveal className="container mt-10 md:mt-14" effect="up">
-          <ServicePricingCallout tierKey="professional-website"
-            note="CMS architecture is normally delivered inside a website build, so the figure shown is the Professional Website tier. Standalone CMS migrations are quoted separately." />
         </SectionReveal>
 
         {/* FAQ */}

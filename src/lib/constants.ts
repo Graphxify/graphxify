@@ -29,7 +29,6 @@ export const marketingNav = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
-  { href: "/pricing", label: "Pricing" },
   { href: "/works", label: "Works" },
   { href: "/blog", label: "Blog" },
   { href: "/contact", label: "Contact" }

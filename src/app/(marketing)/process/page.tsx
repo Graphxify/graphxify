@@ -204,7 +204,7 @@ export default function ProcessPage() {
                 </Link>
               </Button>
               <Button asChild variant="secondary" size="lg" className="px-6">
-                <Link href="/pricing">See Pricing</Link>
+                <Link href="/services">See Services</Link>
               </Button>
             </div>
           </div>
@@ -314,11 +314,7 @@ export default function ProcessPage() {
         <SectionReveal className="container mt-10 md:mt-14" effect="up">
           <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
             <p className="text-sm text-fg/60">
-              Want the numbers?{" "}
-              <Link href="/pricing" className="link-sweep text-accentA hover:text-accentA/80">
-                See pricing
-              </Link>
-              . Want to see the output?{" "}
+              Want to see the output?{" "}
               <Link href="/works" className="link-sweep text-accentA hover:text-accentA/80">
                 Browse the work
               </Link>

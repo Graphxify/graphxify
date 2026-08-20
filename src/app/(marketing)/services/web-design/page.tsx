@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
-import { ServicePricingCallout } from "@/components/marketing/service-pricing-callout";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
@@ -264,12 +263,6 @@ export default function WebDesignPage() {
               .
             </p>
           </div>
-        </SectionReveal>
-
-        {/* Pricing */}
-        <SectionReveal className="container mt-10 md:mt-14" effect="up">
-          <ServicePricingCallout tierKey="starter-website"
-            note="Design is priced as part of a website build. The Starter Website tier covers up to five pages; larger sites are quoted from the Professional Website tier upward." />
         </SectionReveal>
 
         {/* FAQ */}

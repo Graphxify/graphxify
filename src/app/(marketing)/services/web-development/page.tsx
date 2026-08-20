@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
-import { ServicePricingCallout } from "@/components/marketing/service-pricing-callout";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
 import { siteConfig } from "@/lib/constants";
@@ -278,11 +277,6 @@ export default function WebDevelopmentPage() {
               .
             </p>
           </div>
-        </SectionReveal>
-
-        {/* Pricing */}
-        <SectionReveal className="container mt-10 md:mt-14" effect="up">
-          <ServicePricingCallout tierKey="professional-website" />
         </SectionReveal>
 
         {/* FAQ */}
