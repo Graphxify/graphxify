@@ -347,7 +347,6 @@ export function HomeProjectsSlider({ projects }: { projects: HomeSliderProject[]
               >
                 <Link
                   href={`/works/${pathSlug}`}
-                  aria-label={`Open project ${displayTitle}`}
                   data-cursor-label="Open"
                   className="group block overflow-hidden rounded-[1.15rem] border border-border/22 shadow-[0_4px_24px_rgba(0,0,0,0.08),0_16px_40px_rgba(0,0,0,0.06)] transition-[border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55 focus-visible:ring-offset-2 focus-visible:ring-offset-bg group-hover:border-accentA/28 group-hover:shadow-[0_24px_60px_rgba(0,0,0,0.22),0_0_0_1px_rgba(0,163,255,0.1)]"
                 >

@@ -393,7 +393,6 @@ export function AboutPageContent({
                   href={`/works/${getProjectPathSlug(work.slug)}`}
                   className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                   data-cursor-label="Open"
-                  aria-label={`Open project ${displayTitle}`}
                 >
                   <article className="relative h-[20rem] overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] md:h-[22rem]">
                     <div className="absolute inset-0">

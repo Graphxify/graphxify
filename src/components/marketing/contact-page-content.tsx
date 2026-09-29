@@ -30,6 +30,7 @@ import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
+import { trackConversion } from "@/lib/analytics-events";
 import { companyContact } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { publicLeadSchema } from "@/lib/validation/schemas";
@@ -304,6 +305,7 @@ export function ContactPageContent(): JSX.Element {
       });
 
       if (result.success) {
+        trackConversion({ name: "lead_submitted", properties: { form: "contact_page" } });
         const notificationStatus = result.data?.notification?.status;
         const hasWarning = notificationStatus === "failed" || notificationStatus === "skipped";
         form.reset();
@@ -623,7 +625,7 @@ export function ContactPageContent(): JSX.Element {
             <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
               <div className="flex items-center gap-2">
                 <Clock3 className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <h2 className="text-lg font-semibold">We respond within 24 hours</h2>
+                <h2 className="text-lg font-semibold">We typically respond within 24 hours</h2>
               </div>
               <p className="mt-2 text-sm text-fg/66">
                 You will hear back from a real person, not an automated reply. We review every inquiry and respond with a clear next step.

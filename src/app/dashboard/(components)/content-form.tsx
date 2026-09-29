@@ -503,13 +503,13 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
+              <Label htmlFor="location">Client location / market</Label>
               <Input
                 ref={registerFieldRef("location") as never}
                 id="location"
                 name="location"
                 defaultValue={String(item?.location ?? "")}
-                placeholder="e.g. Remote, New York, London"
+                placeholder="Client's city or main market, e.g. Toronto, Canada. Leave empty if unknown."
                 aria-invalid={getFieldError("location") ? true : undefined}
                 aria-describedby={getFieldError("location") ? getErrorId("location") : undefined}
                 className={getFieldClasses("location")}

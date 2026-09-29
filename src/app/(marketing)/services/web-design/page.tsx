@@ -8,8 +8,8 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
-import { siteConfig } from "@/lib/constants";
+import { getProjectCardContent } from "@/lib/project-card-content";
+import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, serviceJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Web Design Services — Custom Website Design",
@@ -36,26 +36,25 @@ const guidance = [
   { label: "Business outcome", value: "A website visitors understand and engage with from the first scroll" }
 ];
 
+// Name + industry come from the confirmed-facts registry (single source).
 const relatedProjects = [
   {
     pathSlug: "flyup-line",
-    title: "FlyUp Line",
-    industry: "Travel and Aviation",
     outcome: "Structured interface designed to simplify flight discovery and build trust from first visit."
   },
   {
     pathSlug: "pharmacy-on-king",
-    title: "Pharmacy On King",
-    industry: "Healthcare / Pharmacy",
     outcome: "Clear, accessible layout that helps patients find services and contact information without friction."
   },
   {
     pathSlug: "king-medical-art-pharmacy",
-    title: "King Medical Arts Pharmacy",
-    industry: "Healthcare / Pharmacy",
     outcome: "Professional website designed to serve a medical arts pharmacy with structure and clarity."
   }
-];
+]
+  .map((project) => {
+    const facts = getProjectCardContent(project.pathSlug);
+    return { ...project, title: facts?.title ?? project.pathSlug, industry: facts?.industry ?? "" };
+  });
 
 const relatedPosts = [
   {
@@ -91,34 +90,17 @@ const serviceFaqs: ServiceFaqItem[] = [
   }
 ];
 
-function serviceJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: "Web Design",
-    description:
-      "Custom website interface design built for clarity, hierarchy, and conversion — mobile-first, responsive, accessible layouts for modern businesses.",
-    provider: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url
-    },
-    areaServed: "Worldwide",
-    url: `${siteConfig.url}/services/web-design`
-  };
-}
-
 export default function WebDesignPage() {
   const breadcrumbs = breadcrumbListJsonLd([
-    { name: "Home", url: siteConfig.url },
-    { name: "Services", url: `${siteConfig.url}/services` },
-    { name: "Web Design", url: `${siteConfig.url}/services/web-design` }
+    { name: "Home", url: canonicalUrl("/") },
+    { name: "Services", url: canonicalUrl("/services") },
+    { name: "Web Design", url: canonicalUrl("/services/web-design") }
   ]);
 
   return (
     <>
-      <JsonLd data={breadcrumbs as Record<string, unknown>} />
-      <JsonLd data={serviceJsonLd() as Record<string, unknown>} />
+      <JsonLd data={breadcrumbs} />
+      <JsonLd data={serviceJsonLd("web-design")} />
 
       <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
         {/* Hero */}

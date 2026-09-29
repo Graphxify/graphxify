@@ -81,7 +81,7 @@ export type BlogPost = {
 
 export type BlogPostSummary = Pick<
   BlogPost,
-  "id" | "title" | "slug" | "excerpt" | "coverImage" | "publishedAt" | "category" | "authorName" | "seoTitle" | "seoDescription"
+  "id" | "title" | "slug" | "excerpt" | "coverImage" | "publishedAt" | "updatedAt" | "category" | "authorName" | "seoTitle" | "seoDescription"
 > & {
   /** Pre-computed from full content so index and detail page always match. */
   readTime: string;
@@ -210,6 +210,7 @@ export function toBlogPostSummary(post: BlogPost): BlogPostSummary {
     excerpt: post.excerpt,
     coverImage: post.coverImage,
     publishedAt: post.publishedAt,
+    updatedAt: post.updatedAt,
     category: post.category,
     authorName: post.authorName,
     seoTitle: post.seoTitle,

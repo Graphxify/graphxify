@@ -6,41 +6,8 @@ import { getPublishedWorks } from "@/db/queries/works";
 import { normalizeImage, firstGalleryImage, withImageVersion } from "@/lib/content-helpers";
 import { projectCardContent, resolveProjectSlugFromPathSlug, withProjectCardContent } from "@/lib/project-card-content";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buildMetadata } from "@/lib/seo";
-import { siteConfig } from "@/lib/constants";
+import { breadcrumbListJsonLd, buildMetadata, canonicalUrl, servicesItemListJsonLd } from "@/lib/seo";
 import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
-
-const servicesSchemaData = [
-  { name: "Brand Identity & Brand Systems", description: "Logo systems, typography, colour palettes, brand voice, and brand guidelines for modern businesses." },
-  { name: "Web Design", description: "Custom website interface design built for clarity, hierarchy, and conversion — mobile-first, responsive layouts." },
-  { name: "Web Development", description: "Custom-coded websites on modern frameworks like Next.js, built for performance, security, and long-term maintainability." },
-  { name: "CMS Architecture", description: "Structured content management systems with defined roles, workflows, and content models your team can manage confidently." }
-];
-
-function servicesPageJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Graphxify Services",
-    description: "Web design, branding, web development, and CMS services for businesses worldwide.",
-    url: `${siteConfig.url}/services`,
-    itemListElement: servicesSchemaData.map((service, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@type": "Service",
-        name: service.name,
-        description: service.description,
-        provider: {
-          "@type": "Organization",
-          name: siteConfig.name,
-          url: siteConfig.url
-        },
-        areaServed: "Worldwide"
-      }
-    }))
-  };
-}
 
 export const metadata: Metadata = buildMetadata({
   title: "Web Design, Branding & Development Services",
@@ -117,7 +84,13 @@ export default async function ServicesPage() {
   const works = await getWorkCards();
   return (
     <>
-      <JsonLd data={servicesPageJsonLd() as Record<string, unknown>} />
+      <JsonLd data={servicesItemListJsonLd()} />
+      <JsonLd
+        data={breadcrumbListJsonLd([
+          { name: "Home", url: canonicalUrl("/") },
+          { name: "Services", url: canonicalUrl("/services") }
+        ])}
+      />
       <ServicesPageContent works={works.slice(0, 3)} />
     </>
   );

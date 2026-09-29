@@ -52,8 +52,22 @@ export function withImageVersion(src: string, version: string | null | undefined
     return nextQuery.length > 0 ? `${path}?${nextQuery}` : path;
 }
 
+/**
+ * Whether a CMS (Supabase Storage) image should skip next/image optimisation.
+ *
+ * Default: optimise. Supabase originals are full-size uploads (0.7–1.4 MB PNG/JPG
+ * each); served `unoptimized` they made case-study pages ~7 MB and pushed blog
+ * LCP past 10 s in Lighthouse. Through next/image the same files are resized per
+ * `sizes` and served as AVIF/WebP (e.g. a 675 KB 1920px JPG → 58 KB 1200px WebP).
+ * The storage host is already allow-listed in next.config.ts `remotePatterns`.
+ *
+ * Escape hatch: set NEXT_PUBLIC_BYPASS_SUPABASE_IMAGE_OPTIMIZATION=true to restore
+ * the old behaviour (e.g. if the Vercel image-optimisation quota is ever exceeded).
+ */
+const BYPASS_SUPABASE_IMAGE_OPTIMIZATION = process.env.NEXT_PUBLIC_BYPASS_SUPABASE_IMAGE_OPTIMIZATION === "true";
+
 export function shouldBypassNextImageOptimization(src: string): boolean {
-    if (!/^https?:\/\//i.test(src)) {
+    if (!BYPASS_SUPABASE_IMAGE_OPTIMIZATION || !/^https?:\/\//i.test(src)) {
         return false;
     }
 

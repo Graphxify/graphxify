@@ -1,84 +1,12 @@
 -- Seed works, testimonials, and auxiliary content.
 -- Original public blog articles are synced into the CMS with `npm run sync:blog`.
 
-with seed_author as (
-  select id from public.profiles order by created_at asc limit 1
-)
-insert into public.works (title, slug, year, role, services, excerpt, content, cover_image_url, status, author_id)
-values
-  (
-    'Northline Enterprise Replatform',
-    'northline-enterprise-replatform',
-    2025,
-    'Lead Product Partner',
-    array['Research','UX','Engineering'],
-    'Unified marketing and CMS stack with measurable conversion lift.',
-    'Enterprise replatform case study with measurable improvements in velocity and performance.',
-    '/assets/work-1.svg',
-    'published',
-    (select id from seed_author)
-  ),
-  (
-    'Vertex Brand Operations',
-    'vertex-brand-operations',
-    2025,
-    'Design Systems',
-    array['Brand','Design System'],
-    'Brand governance toolkit for multi-team campaign delivery.',
-    'Cross-functional design and engineering operations case study.',
-    '/assets/work-2.svg',
-    'published',
-    (select id from seed_author)
-  ),
-  (
-    'Axis Growth Platform',
-    'axis-growth-platform',
-    2024,
-    'Full-Stack Delivery',
-    array['Web','CMS','Analytics'],
-    'Performance-first website and publishing model for growth teams.',
-    'Content operations platform built with governance and measurement.',
-    '/assets/work-3.svg',
-    'published',
-    (select id from seed_author)
-  ),
-  (
-    'Orion SaaS Relaunch',
-    'orion-saas-relaunch',
-    2024,
-    'Platform Engineering',
-    array['Platform','SEO','CRO'],
-    'Rebuilt acquisition funnel and CMS governance for faster campaign velocity.',
-    'Detailed implementation showcasing role-based workflows and content QA.',
-    '/assets/work-fallback.svg',
-    'published',
-    (select id from seed_author)
-  ),
-  (
-    'Solace Investor Relations Portal',
-    'solace-investor-relations-portal',
-    2023,
-    'Systems Integration',
-    array['Architecture','UI','Data'],
-    'High-trust information architecture for investor and press workflows.',
-    'Case study focused on compliance-safe publishing and approval operations.',
-    '/assets/work-fallback.svg',
-    'published',
-    (select id from seed_author)
-  ),
-  (
-    'Kite Commerce Experience Refresh',
-    'kite-commerce-experience-refresh',
-    2023,
-    'Experience Design',
-    array['UX','Motion','Performance'],
-    'Modernized the front-end experience with strict Lighthouse targets.',
-    'Case study describing SSR-first architecture and selective hydration.',
-    '/assets/work-fallback.svg',
-    'published',
-    (select id from seed_author)
-  )
-on conflict (slug) do nothing;
+-- REMOVED 2026-09-29: this block inserted six fictional template case studies
+-- ("Northline Enterprise Replatform", "Orion SaaS Relaunch", …) as *published*
+-- works with invented claims ("measurable conversion lift"). The production rows
+-- now use real public slugs (flyup-line, maven, …), so `on conflict (slug) do
+-- nothing` no longer protected anything: re-running this seed would have
+-- published six fake projects. Real case studies are managed in the CMS.
 
 with seed_author as (
   select id from public.profiles order by created_at asc limit 1

@@ -8,14 +8,16 @@ export const dynamicParams = false;
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ProjectLightboxImage } from "@/components/marketing/project-details-interactive";
 import { OtherProjectsSlider } from "@/components/marketing/other-projects-slider";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
+import { JsonLd } from "@/components/seo/json-ld";
 import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
 import { Button } from "@/components/ui/button";
 import { getPublishedWorks } from "@/db/queries/works";
 import {
+  applyConfirmedCopy,
   getProjectDisplayTitle,
   getProjectPathSlug,
   resolveProjectSlugFromPathSlug,
@@ -29,7 +31,7 @@ import {
   type ProjectImage
 } from "@/lib/project-details";
 import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
-import { buildCaseStudyTitle, buildMetadata } from "@/lib/seo";
+import { breadcrumbListJsonLd, buildCaseStudyTitle, buildMetadata, canonicalUrl, caseStudyJsonLd } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 type Params = { slug: string };
@@ -153,7 +155,7 @@ function ensureExactGalleryImages(
       : [
           {
             src: coverImage,
-            alt: `${title} visual 1`,
+            alt: `${title} project by Graphxify, gallery image 1`,
             caption: fallbackCaption
           }
         ];
@@ -162,7 +164,7 @@ function ensureExactGalleryImages(
     const source = baseImages[index % baseImages.length];
     return {
       src: source.src,
-      alt: `${title} visual ${index + 1}`,
+      alt: `${title} project by Graphxify, gallery image ${index + 1}`,
       caption: source.caption || fallbackCaption
     };
   });
@@ -174,6 +176,22 @@ function variantForSlug(slug: string, index = 0): LayoutVariant {
     hash = (hash * 31 + slug.charCodeAt(charIndex)) >>> 0;
   }
   return layoutCycle[hash % layoutCycle.length];
+}
+
+/**
+ * CMS `works.location` = the CLIENT's location / primary market (not
+ * Graphxify's). Until 2026-09-29 the column defaulted to 'Canada' and a bulk
+ * migration wrote that default into every row, so the exact legacy value is not
+ * trustworthy per-project data. It is ignored here until the data fix in
+ * supabase/drafts/confirmed-facts-2026-09-29.sql has cleared it; after that,
+ * editors can enter real values (e.g. "Toronto, Canada") and they render.
+ */
+const LEGACY_BULK_LOCATION = "canada";
+
+function getClientLocation(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  if (!trimmed || trimmed.toLowerCase() === LEGACY_BULK_LOCATION) return null;
+  return trimmed;
 }
 
 function toUnixMs(value: string | null | undefined): number {
@@ -319,12 +337,31 @@ function withLayoutVariant(project: ProjectDetail, layoutVariant: LayoutVariant 
   };
 }
 
+const CORRECTED_CMS_TEXT_FIELDS = [
+  "subtitle", "excerpt", "content", "overview", "challenge", "approach", "solution", "result",
+  "meta_title", "meta_description", "og_title", "og_description", "og_image_alt",
+  "twitter_title", "twitter_description"
+] as const;
+
+/** Applies the confirmed-facts copy corrections to every CMS text field that renders. */
+function withConfirmedCopy(work: CmsWorkLike): CmsWorkLike {
+  const corrected: CmsWorkLike = { ...work };
+  for (const field of CORRECTED_CMS_TEXT_FIELDS) {
+    const value = corrected[field];
+    if (typeof value === "string") {
+      (corrected as Record<string, unknown>)[field] = applyConfirmedCopy(work.slug, value);
+    }
+  }
+  return corrected;
+}
+
 function mapCmsWorkToProject(
-  work: CmsWorkLike,
+  rawWork: CmsWorkLike,
   fallbackProject: ProjectDetail | null,
   index = 0,
   forcedLayoutVariant?: LayoutVariant
 ): ProjectDetail {
+  const work = withConfirmedCopy(rawWork);
   const displayTitle = getProjectDisplayTitle(work.slug, work.title);
   const imageVersion = work.updated_at ?? null;
   const layoutSectionTitle = work.role?.trim() || fallbackProject?.layoutSectionTitle || "Visual Layout";
@@ -350,7 +387,7 @@ function mapCmsWorkToProject(
     gallerySources.length > 0
       ? gallerySources.map((src, imageIndex) => ({
           src: withImageVersion(src, imageVersion),
-          alt: `${displayTitle} visual ${imageIndex + 1}`,
+          alt: `${displayTitle} project by Graphxify, gallery image ${imageIndex + 1}`,
           caption: work.excerpt
         }))
       : [];
@@ -372,10 +409,10 @@ function mapCmsWorkToProject(
   const cmsScope: Array<{ label: string; value: string }> = [];
   const cmsPlatform = work.platform?.trim() || fallbackScope.find(({ label }) => label.toLowerCase() === "platform")?.value;
   const cmsTimeline = work.timeline?.trim() || fallbackScope.find(({ label }) => label.toLowerCase() === "timeline")?.value || String(work.year);
-  const cmsLocation = work.location?.trim() || "Remote";
   if (cmsPlatform) cmsScope.push({ label: "Platform", value: cmsPlatform });
   cmsScope.push({ label: "Timeline", value: cmsTimeline });
-  cmsScope.push({ label: "Location", value: cmsLocation });
+  const clientLocation = getClientLocation(work.location);
+  if (clientLocation) cmsScope.push({ label: "Client location", value: clientLocation });
 
   // Case study content: CMS fields first, local fallback second
   const cmsOverview = work.overview?.trim() || fallbackProject?.overview || content;
@@ -394,48 +431,13 @@ function mapCmsWorkToProject(
     year: Number.isFinite(work.year) ? work.year : fallbackProject?.year ?? new Date().getFullYear(),
     industry: work.industry?.trim() || fallbackProject?.industry || "Digital Product",
     services,
-    tools: fallbackProject?.tools ?? [],
-    roles: fallbackProject?.roles ?? ["Delivery Partner"],
     overview: cmsOverview,
     excerpt,
     content,
     coverImage,
     liveUrl: work.live_url?.trim() || fallbackProject?.liveUrl,
-    timelineSteps: fallbackProject?.timelineSteps ?? [],
-    metrics: fallbackProject?.metrics ?? [],
     images,
-    testimonial: fallbackProject?.testimonial ?? {
-      quote: "Project details and outcomes can be managed from the Graphxify CMS.",
-      name: "Graphxify Team",
-      role: "Creative Partner",
-      company: "Graphxify"
-    },
-    links: fallbackProject?.links ?? [
-      { label: "Start a project", href: "/contact" },
-      { label: "View all works", href: "/works" }
-    ],
-    chapters: fallbackProject?.chapters ?? [],
     scope: cmsScope,
-    tabPanels: fallbackProject?.tabPanels ?? {
-      story: {
-        heading: "Project Story",
-        body: excerpt,
-        points: services.slice(0, 3),
-        images: images.map((image) => image.src).slice(0, 3)
-      },
-      designSystem: {
-        heading: "Design System",
-        body: excerpt,
-        points: services.slice(0, 3),
-        images: images.map((image) => image.src).slice(0, 3)
-      },
-      results: {
-        heading: "Results",
-        body: excerpt,
-        points: services.slice(0, 3),
-        images: images.map((image) => image.src).slice(0, 3)
-      }
-    },
     proof: {
       problem: cmsChallenge,
       approach: cmsApproach,
@@ -526,21 +528,20 @@ async function getResolvedRelatedProjects(currentSlug: string): Promise<ProjectD
 }
 
 export async function generateStaticParams(): Promise<Params[]> {
-  const fallbackSlugs = graphxifyProjects.map((project) => project.slug);
-  const fallbackPathSlugs = fallbackSlugs.map((slug) => getProjectPathSlug(slug));
+  // Only the public path slug of each project is prerendered. Internal CMS
+  // slugs and legacy aliases are permanent redirects in next.config.ts
+  // (legacyWorkPathRedirects), so they never render as duplicate 200 pages.
+  const fallbackPathSlugs = graphxifyProjects.map((project) => getProjectPathSlug(project.slug));
 
   try {
     const cmsWorks = await getPublishedWorks();
-    const slugs = new Set<string>([...fallbackSlugs, ...fallbackPathSlugs]);
+    const slugs = new Set<string>(fallbackPathSlugs);
     cmsWorks.forEach((work) => {
-      const canonicalSlug = resolveProjectSlugFromPathSlug(work.slug);
-      slugs.add(work.slug);
-      slugs.add(canonicalSlug);
-      slugs.add(getProjectPathSlug(canonicalSlug));
+      slugs.add(getProjectPathSlug(resolveProjectSlugFromPathSlug(work.slug)));
     });
     return Array.from(slugs).map((slug) => ({ slug }));
   } catch {
-    return Array.from(new Set([...fallbackSlugs, ...fallbackPathSlugs])).map((slug) => ({ slug }));
+    return Array.from(new Set(fallbackPathSlugs)).map((slug) => ({ slug }));
   }
 }
 
@@ -932,14 +933,18 @@ const SERVICE_ROUTE_MAP: Record<string, string> = {
 };
 
 function ProjectInfoRail({ project }: { project: ProjectDetail }): JSX.Element {
-  const platformValue =
-    project.scope.find(({ label }) => label.toLowerCase() === "platform")?.value ??
-    (project.tools.length > 0 ? project.tools[0] : "Web");
+  const platformValue = project.scope.find(({ label }) => label.toLowerCase() === "platform")?.value ?? "Web";
+  const clientLocation = project.scope.find(({ label }) => label === "Client location")?.value;
 
   const services = project.services.length > 0 ? project.services.slice(0, 3) : ["Brand and Web"];
 
   return (
-    <div className="grid grid-cols-2 gap-x-5 gap-y-5 rounded-xl border border-border/14 bg-bg/42 px-5 py-5 sm:grid-cols-3 md:px-7 md:py-6 lg:grid-cols-5">
+    <div
+      className={cn(
+        "grid grid-cols-2 gap-x-5 gap-y-5 rounded-xl border border-border/14 bg-bg/42 px-5 py-5 sm:grid-cols-3 md:px-7 md:py-6",
+        clientLocation ? "lg:grid-cols-5" : "lg:grid-cols-4"
+      )}
+    >
       <div>
         <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Industry</p>
         <p className="mt-1.5 text-sm leading-snug text-fg/76">{project.industry}</p>
@@ -973,10 +978,13 @@ function ProjectInfoRail({ project }: { project: ProjectDetail }): JSX.Element {
         <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Timeline</p>
         <p className="mt-1.5 text-sm leading-snug text-fg/76">{getProjectTimeline(project)}</p>
       </div>
-      <div>
-        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Location</p>
-        <p className="mt-1.5 text-sm leading-snug text-fg/76">Remote</p>
-      </div>
+      {/* Client / project market. Rendered only when the CMS holds a real value. */}
+      {clientLocation ? (
+        <div>
+          <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Client location</p>
+          <p className="mt-1.5 text-sm leading-snug text-fg/76">{clientLocation}</p>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -989,7 +997,7 @@ function NarrativeCard({ title, body }: { title: string; body: string }): JSX.El
       {/* Top hairline */}
       <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/28 to-transparent" />
       {/* Label */}
-      <p className="mb-5 text-[0.56rem] uppercase tracking-[0.22em] text-fg/38">{title}</p>
+      <h3 className="mb-5 text-[0.56rem] font-normal uppercase tracking-[0.22em] text-fg/38">{title}</h3>
       <p className="text-sm leading-[1.82] text-fg/66">{body}</p>
     </div>
   );
@@ -1036,7 +1044,7 @@ function ProjectNarrative({ project }: { project: ProjectDetail }): JSX.Element 
       {/* Section label */}
       <div className="flex items-center gap-3">
         <span aria-hidden className="h-[2px] w-7 rounded-full bg-accent-gradient" />
-        <p className="text-[0.6rem] uppercase tracking-[0.24em] text-fg/48">Case Study</p>
+        <h2 className="text-[0.6rem] font-normal uppercase tracking-[0.24em] text-fg/48">Case Study</h2>
         <span aria-hidden className="h-px flex-1 bg-border/14" />
       </div>
 
@@ -1047,7 +1055,7 @@ function ProjectNarrative({ project }: { project: ProjectDetail }): JSX.Element 
         {/* Top gradient hairline */}
         <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/50 to-transparent" />
         {/* Label */}
-        <p className="mb-5 text-[0.56rem] uppercase tracking-[0.22em] text-fg/38">Overview</p>
+        <h3 className="mb-5 text-[0.56rem] font-normal uppercase tracking-[0.22em] text-fg/38">Overview</h3>
         <p className="relative max-w-[64ch] text-[0.97rem] leading-[1.82] text-fg/70">{project.overview}</p>
       </div>
 
@@ -1089,16 +1097,40 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
 
   const canonicalPathSlug = getProjectPathSlug(project.slug);
   if (slug !== canonicalPathSlug) {
-    redirect(`/works/${canonicalPathSlug}`);
+    // Safety net only — known aliases are already 308s in next.config.ts.
+    permanentRedirect(`/works/${canonicalPathSlug}`);
   }
 
   const otherProjects = await getResolvedRelatedProjects(project.slug);
+  const casePath = `/works/${canonicalPathSlug}`;
+  const cmsWork = project as unknown as CmsWorkLike;
 
   return (
-    <main className="relative -mt-28 sm:-mt-32 lg:-mt-40">
+    // <article>, not <main>: the marketing layout already provides the single <main> landmark.
+    <article className="relative -mt-28 sm:-mt-32 lg:-mt-40">
+        <JsonLd
+          data={caseStudyJsonLd({
+            title: project.title,
+            description: cmsWork.meta_description?.trim() || project.excerpt,
+            path: casePath,
+            industry: project.industry,
+            services: project.services,
+            images: [project.coverImage, ...project.images.map((image) => image.src)].filter(
+              (src) => !src.startsWith("/assets/")
+            ),
+            liveUrl: project.liveUrl
+          })}
+        />
+        <JsonLd
+          data={breadcrumbListJsonLd([
+            { name: "Home", url: canonicalUrl("/") },
+            { name: "Work", url: canonicalUrl("/works") },
+            { name: project.title, url: canonicalUrl(casePath) }
+          ])}
+        />
         <ContentRefreshListener pathPrefixes={["/works"]} />
         <section className="pointer-events-none sticky top-0 z-0 h-[100svh] overflow-hidden">
-          <Image src={project.coverImage} alt={project.title} fill className="object-cover" sizes="100vw" priority unoptimized={shouldBypassNextImageOptimization(project.coverImage)} />
+          <Image src={project.coverImage} alt={`${project.title} project cover image by Graphxify`} fill className="object-cover" sizes="100vw" priority unoptimized={shouldBypassNextImageOptimization(project.coverImage)} />
           <div aria-hidden className="absolute inset-0 bg-black/48" />
           <div className="absolute inset-0 flex items-center">
             <div className="container">
@@ -1138,6 +1170,6 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
             <OtherProjectsSlider projects={otherProjects} />
           </div>
         </section>
-    </main>
+    </article>
   );
 }

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
+import { trackConversion } from "@/lib/analytics-events";
 import { cn } from "@/lib/utils";
 import { publicLeadSchema } from "@/lib/validation/schemas";
 
@@ -74,6 +75,7 @@ export function LeadForm(): JSX.Element {
       const result = await submitJsonForm<LeadSubmitResponse>("/api/leads", parsed.data);
 
       if (result.success) {
+        trackConversion({ name: "lead_submitted", properties: { form: "quick_form" } });
         const notificationStatus = result.data?.notification?.status;
         const hasWarning = notificationStatus === "failed" || notificationStatus === "skipped";
         form.reset();

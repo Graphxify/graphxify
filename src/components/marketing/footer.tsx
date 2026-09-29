@@ -101,15 +101,15 @@ export function MarketingFooter(): JSX.Element {
                 className="h-auto w-[8.9rem] md:w-[9.8rem]"
               />
             </Link>
-            <h3 className="text-2xl font-semibold text-fg md:text-[1.8rem]">Built on structure. Designed to scale.</h3>
+            <p className="text-2xl font-semibold text-fg md:text-[1.8rem]">Built on structure. Designed to scale.</p>
             <p className="max-w-md text-sm leading-relaxed text-fg/72">
               Brand systems, web platforms, and structured CMS architecture designed and built as one cohesive system.
             </p>
           </div>
 
           {footerGroups.map((group) => (
-            <div key={group.title}>
-              <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-fg/64">{group.title}</h4>
+            <nav key={group.title} aria-label={`Footer ${group.title.toLowerCase()}`}>
+              <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-fg/64">{group.title}</h2>
               <ul className="space-y-2.5">
                 {group.links.map((item) => (
                   <li key={item.href}>
@@ -119,11 +119,11 @@ export function MarketingFooter(): JSX.Element {
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
           ))}
 
           <div>
-            <h4 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-fg/64">Direct Contact</h4>
+            <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-fg/64">Direct Contact</h2>
             <ul className="space-y-3 text-sm text-fg/78">
               <li>
                 <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex items-center gap-2.5 hover:text-fg">
@@ -139,7 +139,7 @@ export function MarketingFooter(): JSX.Element {
               </li>
               <li className="inline-flex items-center gap-2.5">
                 <MapPin className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <span>Remote · Worldwide</span>
+                <span>{companyContact.locationLine}</span>
               </li>
             </ul>
           </div>
@@ -153,7 +153,7 @@ export function MarketingFooter(): JSX.Element {
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={item.label}
+                aria-label={`Graphxify on ${item.label}`}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-fg/30 bg-transparent text-fg/76 transition hover:-translate-y-0.5 hover:border-transparent hover:bg-accent-gradient hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               >
                 <item.Icon className="h-5 w-5" />

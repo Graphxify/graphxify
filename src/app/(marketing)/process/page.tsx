@@ -9,8 +9,7 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
-import { siteConfig } from "@/lib/constants";
+import { buildMetadata, breadcrumbListJsonLd, canonicalUrl } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Our Process — How a Project Actually Runs",
@@ -151,33 +150,15 @@ const processFaqs: ServiceFaqItem[] = [
   }
 ];
 
-function processJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "HowTo",
-    name: "How a Graphxify project runs",
-    description: "The four stages of a brand and website project: Discover, Structure, Design, Build & Ship.",
-    url: `${siteConfig.url}/process`,
-    step: stages.map((stage, index) => ({
-      "@type": "HowToStep",
-      position: index + 1,
-      name: stage.title,
-      text: stage.summary,
-      url: `${siteConfig.url}/process#stage-${stage.num}`
-    }))
-  };
-}
-
 export default function ProcessPage() {
   const breadcrumbs = breadcrumbListJsonLd([
-    { name: "Home", url: siteConfig.url },
-    { name: "Process", url: `${siteConfig.url}/process` }
+    { name: "Home", url: canonicalUrl("/") },
+    { name: "Process", url: canonicalUrl("/process") }
   ]);
 
   return (
     <>
-      <JsonLd data={breadcrumbs as Record<string, unknown>} />
-      <JsonLd data={processJsonLd() as Record<string, unknown>} />
+      <JsonLd data={breadcrumbs} />
 
       <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
         {/* Hero */}

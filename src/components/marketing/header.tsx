@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { createClient as createBrowserSupabaseClient } from "@/lib/supabase/browser";
 import { marketingNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -23,22 +22,34 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
   const contactActive = isRouteActive("/contact");
 
   useEffect(() => {
-    const supabase = createBrowserSupabaseClient();
-    let mounted = true;
+    // The CMS button is only for signed-in staff. Supabase-js (~200 KB) used to
+    // load on every public page just to find that out; now it is fetched only
+    // when a Supabase auth cookie ("sb-<ref>-auth-token", possibly chunked) is
+    // present, so anonymous visitors and crawlers never download it.
+    if (!/(?:^|;\s*)sb-[^=;]*-auth-token(?:\.\d+)?=/.test(document.cookie)) {
+      return;
+    }
 
-    // onAuthStateChange fires INITIAL_SESSION immediately on subscribe —
-    // no need for a separate getSession() call.
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (mounted) {
-        setResolvedCmsHref(session?.user ? "/dashboard" : null);
-      }
+    let mounted = true;
+    let unsubscribe: (() => void) | null = null;
+
+    void import("@/lib/supabase/browser").then(({ createClient }) => {
+      if (!mounted) return;
+      // onAuthStateChange fires INITIAL_SESSION immediately on subscribe —
+      // no need for a separate getSession() call.
+      const {
+        data: { subscription }
+      } = createClient().auth.onAuthStateChange((_event, session) => {
+        if (mounted) {
+          setResolvedCmsHref(session?.user ? "/dashboard" : null);
+        }
+      });
+      unsubscribe = () => subscription.unsubscribe();
     });
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      unsubscribe?.();
     };
   }, []);
 
@@ -111,7 +122,7 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
             </Link>
           </div>
 
-          <nav className="relative z-10 hidden flex-1 items-center justify-center gap-1 lg:flex">
+          <nav aria-label="Primary" className="relative z-10 hidden flex-1 items-center justify-center gap-1 lg:flex">
             {centerNav.map((item) => {
               const active = isRouteActive(item.href);
               const isServices = item.href === "/services";
@@ -130,7 +141,7 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
                     {item.label}
                   </Link>
                   {isServices ? (
-                    <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 translate-y-1 pt-2 opacity-0 transition-[opacity,visibility,transform] duration-200 ease-out group-hover/services:visible group-hover/services:translate-y-0 group-hover/services:opacity-100">
+                    <div className="invisible absolute left-1/2 top-full z-50 -translate-x-1/2 translate-y-1 pt-2 opacity-0 transition-[opacity,visibility,transform] duration-200 ease-out group-hover/services:visible group-hover/services:translate-y-0 group-hover/services:opacity-100 group-focus-within/services:visible group-focus-within/services:translate-y-0 group-focus-within/services:opacity-100">
                       <div className="relative min-w-[14.5rem] overflow-hidden rounded-[1rem] border border-border/22 bg-bg py-2 shadow-[0_20px_48px_rgba(13,13,15,0.28)]">
                         {/* top accent line */}
                         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/30 to-transparent" />
@@ -279,7 +290,7 @@ export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null })
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-accentA/55 to-transparent" />
 
                 {/* Nav items */}
-                <nav className="grid gap-[3px] px-2 pb-1 pt-3">
+                <nav aria-label="Mobile" className="grid gap-[3px] px-2 pb-1 pt-3">
                   {centerNav.map((item, index) => {
                     const active = isRouteActive(item.href);
                     return (

@@ -94,10 +94,10 @@ const servicesData: ServicePillar[] = [
     title: "Web Development",
     description: "Scalable builds engineered for performance.",
     icon: Terminal,
-    body: "We build custom websites on Next.js, not WordPress templates, delivering Lighthouse performance scores above 90 out of the box. You own the code outright with no recurring plugin subscriptions, and the architecture is built to scale with your business over the next five years. Optimised for Google Core Web Vitals and WCAG accessibility standards.",
+    body: "We build custom websites on Next.js, not WordPress templates, engineered to a Lighthouse 90+ performance target. You own the code outright with no recurring plugin subscriptions, and the architecture is built to scale with your business over the next five years. Optimised for Google Core Web Vitals and WCAG accessibility standards.",
     deliverables: [
       "Custom Next.js codebase (you own it outright)",
-      "Lighthouse scores above 90 across all metrics",
+      "Performance budget targeting Lighthouse 90+",
       "Core Web Vitals optimisation",
       "Deployment to Vercel or your preferred host",
       "Integrations (CRM, forms, analytics)",
@@ -105,8 +105,8 @@ const servicesData: ServicePillar[] = [
     ],
     bestFor: "Companies ready to move off WordPress, page builders, or outdated custom sites",
     typicalProject: "4 to 8 week build depending on scope",
-    businessOutcome: "A site that loads fast, ranks better, and doesn't need a developer for routine updates",
-    microProof: "Built on Next.js 15 with server components, static generation, and edge caching. No plugin subscriptions. No recurring platform fees."
+    businessOutcome: "A site that loads fast, is technically sound for search, and doesn't need a developer for routine updates",
+    microProof: "Built on Next.js with server components, static generation, and edge caching. No plugin subscriptions. No recurring platform fees."
   },
   {
     key: "cms-architecture",
@@ -541,7 +541,10 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
 
                   {/* Visual column */}
                   <div className={!textFirst ? "lg:order-1" : ""}>
-                    <ServiceVisual serviceKey={service.key} />
+                    {/* Decorative animated mock-up; its numbers are illustrative, not claims. */}
+                    <div aria-hidden="true">
+                      <ServiceVisual serviceKey={service.key} />
+                    </div>
                   </div>
                 </div>
 
@@ -735,7 +738,6 @@ export function ServicesPageContent({ works }: { works: ServiceWorkPreview[] }):
                   href={`/works/${getProjectPathSlug(work.slug)}`}
                   className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
                   data-cursor-label="Open"
-                  aria-label={`Open project ${displayTitle}`}
                 >
                   <article className="relative h-[20rem] overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] md:h-[22rem]">
                     <div className="absolute inset-0">

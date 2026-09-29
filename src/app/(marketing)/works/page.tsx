@@ -9,6 +9,7 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { normalizeImage, firstGalleryImage, withImageVersion, shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import {
+  applyConfirmedCopy,
   getProjectCardContent,
   getProjectDisplayTitle,
   getProjectPathSlug,
@@ -17,7 +18,8 @@ import {
   withProjectCardContent
 } from "@/lib/project-card-content";
 import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
-import { buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { breadcrumbListJsonLd, buildMetadata, canonicalUrl, worksCollectionJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Web Design & Branding Portfolio",
@@ -66,8 +68,9 @@ async function getWorkCards(): Promise<WorkCard[]> {
         title: cms.title ?? fallback?.title ?? cardMeta?.title ?? "",
         coverImage: withImageVersion(coverImageBase, cms.updated_at ?? null),
         industry: cms.industry || cardMeta?.industry || fallback?.industry || "",
-        cardServices: cmsCardServices ?? cardMeta?.cardServices ?? [],
-        cardOutcome: cms.card_outcome || cardMeta?.cardOutcome || ""
+        // Confirmed service facts (e.g. FlyUp Line branding) take precedence over CMS tags.
+        cardServices: (cardMeta?.services ? cardMeta.cardServices : null) ?? cmsCardServices ?? cardMeta?.cardServices ?? [],
+        cardOutcome: applyConfirmedCopy(canonicalSlug, cms.card_outcome) || cardMeta?.cardOutcome || ""
       });
     });
 
@@ -119,6 +122,20 @@ export default async function WorksPage() {
 
   return (
     <>
+      <JsonLd
+        data={worksCollectionJsonLd(
+          works.map((work) => ({
+            title: getProjectDisplayTitle(work.slug, work.title),
+            path: `/works/${getProjectPathSlug(work.slug)}`
+          }))
+        )}
+      />
+      <JsonLd
+        data={breadcrumbListJsonLd([
+          { name: "Home", url: canonicalUrl("/") },
+          { name: "Work", url: canonicalUrl("/works") }
+        ])}
+      />
       <ContentRefreshListener pathPrefixes={["/works"]} />
       <section className="pb-16 pt-10 md:pb-20 md:pt-12">
       {/* ── Hero Header ── */}
@@ -166,7 +183,6 @@ export default async function WorksPage() {
                 key={work.id}
                 href={`/works/${getProjectPathSlug(work.slug)}`}
                 className="group relative block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                aria-label={`Open project ${displayTitle}`}
                 data-cursor-label="View"
               >
                 <article className="relative h-[24rem] overflow-hidden rounded-2xl border border-border/20 text-white shadow-[0_4px_24px_rgba(0,0,0,0.07)] transition-[transform,border-color,box-shadow] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-2 group-hover:border-accentA/30 group-hover:shadow-[0_28px_64px_rgba(0,0,0,0.26),0_0_0_1px_rgba(0,163,255,0.1)] md:h-[28rem]">
@@ -174,7 +190,7 @@ export default async function WorksPage() {
                   <div className="absolute inset-0">
                     <Image
                       src={work.coverImage}
-                      alt={displayTitle}
+                      alt={`${displayTitle}${work.industry ? ` (${work.industry})` : ""} project cover by Graphxify`}
                       fill
                       priority={index < 2}
                       unoptimized={shouldBypassNextImageOptimization(work.coverImage)}
