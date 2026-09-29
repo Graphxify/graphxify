@@ -49,7 +49,7 @@ const CHECKLIST_SECTIONS = [
 
 export default function WebsiteGrowthChecklistPage() {
   return (
-    <main className="container py-16 md:py-24">
+    <article className="container py-16 md:py-24">
       <div className="mx-auto max-w-4xl space-y-8">
         <div className="section-shell border-border/18 bg-card/78 p-8 md:p-10">
           <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Free Resource</p>
@@ -86,6 +86,6 @@ export default function WebsiteGrowthChecklistPage() {
           blurb="Subscribe and we'll email you this checklist to keep, plus practical guides on web design, branding, and growing a business website."
         />
       </div>
-    </main>
+    </article>
   );
 }

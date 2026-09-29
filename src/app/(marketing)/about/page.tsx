@@ -10,8 +10,8 @@ import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "About Graphxify – Design & Development Studio",
-  description: "Graphxify is a web design and branding agency delivering custom websites, brand identity systems, and digital platforms for businesses worldwide.",
+  title: "About — Web Design, Branding & Development Studio",
+  description: "Graphxify is a web design and development agency based in Canada. Custom websites, brand identity systems and CMS builds for businesses worldwide.",
   path: "/about",
   ogTitle: "About Graphxify — Design & Development Studio",
   ogDescription: "Built by a designer who codes. Structured brand systems and custom websites for modern businesses — no templates, no shortcuts.",

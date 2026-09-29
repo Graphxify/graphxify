@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
-    "sync:blog": "node scripts/sync-original-blog-to-cms.mjs"
+    "sync:blog": "node scripts/sync-original-blog-to-cms.mjs",
+    "indexnow:submit": "node scripts/indexnow-submit.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.2",

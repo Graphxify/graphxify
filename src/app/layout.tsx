@@ -7,14 +7,22 @@ import { Providers } from "@/app/providers";
 import { MarketingFooter } from "@/components/marketing/footer";
 import { ChunkLoadRecovery } from "@/components/runtime/chunk-load-recovery";
 
-import { buildMetadata } from "@/lib/seo";
+import { siteConfig } from "@/lib/constants";
 
-export const metadata: Metadata = buildMetadata({
-  title: "Web Design & Branding Agency",
-  description:
-    "Graphxify builds enterprise-grade marketing websites and CMS systems with performance, governance, and growth in mind.",
-  path: "/"
-});
+// Site-wide defaults only. Deliberately NO `alternates.canonical` here: a
+// canonical set in the root layout is inherited by every route that does not
+// override it (404s, dashboard, auth pages), which pointed them all at "/".
+// Each public page sets its own self-referencing canonical via buildMetadata().
+export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
+  title: `Web Design & Development Agency | ${siteConfig.name}`,
+  description: siteConfig.description,
+  applicationName: siteConfig.name,
+  openGraph: {
+    type: "website",
+    siteName: siteConfig.name
+  }
+};
 
 const enableAnalytics = process.env.NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS === "true";
 const enableSpeedInsights = process.env.NEXT_PUBLIC_ENABLE_VERCEL_SPEED_INSIGHTS === "true";

@@ -13,17 +13,70 @@ function resolveCanonicalUrl(): string {
 }
 
 export const siteConfig = {
-  name: "GRAPHXIFY",
+  // Entity name used in titles, Open Graph and schema.org. The logo wordmark is
+  // styled uppercase, but every piece of body copy, the copyright line and the
+  // CMS-authored titles spell it "Graphxify" — so that is the canonical name and
+  // the uppercase form is declared as an alternateName in the Organization JSON-LD.
+  name: "Graphxify",
+  alternateName: "GRAPHXIFY",
+  // Machine-facing positioning (metadata, schema, llms.txt). "Studio" still
+  // appears in creative brand copy where it reads naturally.
   description:
-    "Graphxify is a web design and branding agency serving businesses worldwide. We deliver brand systems, custom websites, and digital platforms built to perform.",
-  url: resolveCanonicalUrl()
+    "Graphxify is a web design and development agency based in Canada, working with businesses worldwide. We deliver brand systems, custom websites and CMS builds.",
+  url: resolveCanonicalUrl(),
+  /** Square raster brand mark (512x512) used as the schema.org logo. */
+  logoPath: "/icon.png"
 };
 
 export const companyContact = {
   email: "info@graphxify.com",
-  phoneDisplay: "(647)-570-0334",
-  phoneHref: "+16475700334"
+  phoneDisplay: "+1 (647) 570-0334",
+  phoneHref: "+16475700334",
+  // "Based in Canada. Working with businesses worldwide." Country only — there
+  // is no public office address, and none should be implied.
+  country: "CA",
+  locationLine: "Based in Canada · Working worldwide",
+  serviceArea: "Worldwide"
 } as const;
+
+/**
+ * The four real service pages. Single source for the schema.org `Service`
+ * entities, the /services ItemList, llms.txt and the service nav. Descriptions
+ * paraphrase each page's own copy — keep them factual (no performance scores or
+ * outcome claims here, since these are machine-read statements of fact).
+ */
+export const serviceCatalog = [
+  {
+    key: "brand-systems",
+    name: "Brand Systems",
+    path: "/services/brand-systems",
+    description:
+      "Brand identity design including logo suite, typography, colour palette, brand voice and brand guidelines for modern businesses."
+  },
+  {
+    key: "web-design",
+    name: "Web Design",
+    path: "/services/web-design",
+    description:
+      "Custom website interface design built for clarity, hierarchy and conversion: mobile-first, responsive layouts designed to WCAG guidelines."
+  },
+  {
+    key: "web-development",
+    name: "Web Development",
+    path: "/services/web-development",
+    description:
+      "Custom-coded websites built on Next.js for performance, security and long-term maintainability, with full code ownership for the client."
+  },
+  {
+    key: "cms-architecture",
+    name: "CMS Architecture",
+    path: "/services/cms-architecture",
+    description:
+      "Structured content management systems with defined roles, workflows and content models, so teams can publish without developer help."
+  }
+] as const;
+
+export type ServiceKey = (typeof serviceCatalog)[number]["key"];
 
 export const marketingNav = [
   { href: "/", label: "Home" },
@@ -69,11 +122,10 @@ export const testimonials = [
   }
 ] as const;
 
-export const testimonialMetricsDefault = [
-  { id: "metric-01", value: "26+", label: "Finalized Projects", sort_order: 0 },
-  { id: "metric-02", value: "98%", label: "Client satisfaction rate", sort_order: 1 },
-  { id: "metric-03", value: "10M", label: "Gross Revenue", sort_order: 2 }
-] as const;
+// Intentionally empty. The previous fallback ("26+ Finalized Projects", "98%
+// Client satisfaction rate", "10M Gross Revenue") had no supporting records.
+// Real, evidenced metrics belong in the CMS testimonial_metrics table.
+export const testimonialMetricsDefault: ReadonlyArray<{ id: string; value: string; label: string; sort_order: number }> = [];
 
 export const faqs = [
   {
@@ -107,7 +159,7 @@ export const services = [
     key: "web-development",
     title: "Web Development",
     body: "We build fast, reliable websites using Next.js, engineered for performance, SEO, and long-term maintainability without unnecessary complexity.",
-    outcome: "Loads instantly, ranks better, and scales without friction."
+    outcome: "Fast by design, technically sound for search, and built to scale."
   },
   {
     key: "cms-architecture",

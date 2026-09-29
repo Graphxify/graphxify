@@ -12,7 +12,7 @@ import { estimateReadTime, selectRelatedBlogPosts } from "@/lib/blog";
 import { getPublishedBlogBySlug, getPublishedBlogSummaries } from "@/lib/blog-data";
 import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { siteConfig } from "@/lib/constants";
-import { blogPostingJsonLd, breadcrumbListJsonLd, buildMetadata } from "@/lib/seo";
+import { blogPostingJsonLd, breadcrumbListJsonLd, buildMetadata, canonicalUrl } from "@/lib/seo";
 
 export const revalidate = 30;
 // Only slugs returned by generateStaticParams are served; any other /blog/* URL
@@ -68,10 +68,14 @@ function formatDate(value?: string): string {
   if (!value) return "Latest";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Latest";
+  // Pinned to UTC: CMS dates are stored as UTC midnights, so formatting in the
+  // server's local zone could print the previous day and disagree with the
+  // datePublished in the JSON-LD.
   return date.toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
-    year: "numeric"
+    year: "numeric",
+    timeZone: "UTC"
   });
 }
 
@@ -276,11 +280,11 @@ function renderInline(text: string, keyPrefix: string): React.ReactNode {
       const [, label, href] = linkMatch;
       const isInternal = href.startsWith("/");
       return isInternal ? (
-        <Link key={`${keyPrefix}-l${i}`} href={href} className="text-accentA underline-offset-2 hover:underline">
+        <Link key={`${keyPrefix}-l${i}`} href={href} className="text-accentA underline decoration-accentA/40 underline-offset-2 hover:decoration-accentA">
           {label}
         </Link>
       ) : (
-        <a key={`${keyPrefix}-l${i}`} href={href} target="_blank" rel="noopener noreferrer" className="text-accentA underline-offset-2 hover:underline">
+        <a key={`${keyPrefix}-l${i}`} href={href} target="_blank" rel="noopener noreferrer" className="text-accentA underline decoration-accentA/40 underline-offset-2 hover:decoration-accentA">
           {label}
         </a>
       );
@@ -429,7 +433,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     twitterDescription: post.twitterDescription,
     twitterImage: post.twitterImage,
     twitterCard: post.twitterCard,
-    canonicalUrl: post.canonicalUrl
+    canonicalUrl: post.canonicalUrl,
+    rss: true
   });
 
   return {
@@ -438,6 +443,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       ...base.openGraph,
       type: "article",
       publishedTime: post.publishedAt,
+      ...(post.updatedAt ? { modifiedTime: post.updatedAt } : {}),
       authors: [post.authorName],
       section: post.category,
       tags: post.tags.length > 0 ? post.tags : undefined
@@ -486,27 +492,38 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
             title: post.title,
             description: post.excerpt,
             path: `/blog/${post.slug}`,
-            datePublished: post.publishedAt || new Date().toISOString(),
+            // Real CMS dates only — never "now", which would fake freshness.
+            datePublished: post.publishedAt,
             dateModified: post.updatedAt || post.publishedAt,
             authorName: post.authorName,
             image: post.coverImage,
             keywords: post.tags,
-            section: post.category
-          }) as Record<string, unknown>
+            section: post.category,
+            wordCount: post.content.trim().split(/\s+/).filter(Boolean).length
+          })
         }
       />
       <JsonLd
         data={
           breadcrumbListJsonLd([
-            { name: "Home", url: siteConfig.url },
-            { name: "Blog", url: `${siteConfig.url}/blog` },
-            { name: post.title, url: `${siteConfig.url}/blog/${post.slug}` }
-          ]) as Record<string, unknown>
+            { name: "Home", url: canonicalUrl("/") },
+            { name: "Blog", url: canonicalUrl("/blog") },
+            { name: post.title, url: canonicalUrl(`/blog/${post.slug}`) }
+          ])
         }
       />
 
       <SectionReveal className="container" effect="up">
         <div className="mx-auto max-w-4xl">
+          <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-2 text-xs text-fg/44">
+            <Link href="/blog" className="transition-colors hover:text-fg/70">
+              Blog
+            </Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page" className="min-w-0 truncate text-fg/70">
+              {post.title}
+            </span>
+          </nav>
           <p className="inline-flex w-fit items-center rounded-full border border-border/16 bg-bg/48 px-2.5 py-1 text-[0.64rem] uppercase tracking-[0.14em] text-fg/62">
             {post.category}
           </p>
@@ -515,7 +532,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
           <div className="mt-4 flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.14em] text-fg/56">
             <span>{post.authorName}</span>
             <span className="h-1 w-1 rounded-full bg-fg/36" />
-            <span>{publishedAt}</span>
+            {post.publishedAt ? <time dateTime={post.publishedAt}>{publishedAt}</time> : <span>{publishedAt}</span>}
             <span className="h-1 w-1 rounded-full bg-fg/36" />
             <span>{readingTime}</span>
           </div>
@@ -582,7 +599,7 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
         const SERVICE_DISPLAY: Record<string, { label: string; href: string; desc: string }> = {
           "brand-systems": { label: "Brand Systems", href: "/services/brand-systems", desc: "Logo suite, typography, colour palette, and brand guidelines as one system." },
           "web-design": { label: "Web Design", href: "/services/web-design", desc: "Visual design, UX strategy, and responsive UI for modern businesses." },
-          "web-development": { label: "Web Development", href: "/services/web-development", desc: "Custom Next.js builds with full code ownership and Lighthouse scores above 90." },
+          "web-development": { label: "Web Development", href: "/services/web-development", desc: "Custom Next.js builds with full code ownership, engineered for performance." },
           "cms-architecture": { label: "CMS Architecture", href: "/services/cms-architecture", desc: "Structured content systems your team can manage without developer involvement." }
         };
         // CMS-controlled relatedService field wins; fall back to category-based mapping
@@ -628,7 +645,6 @@ export default async function BlogPostPage({ params }: { params: Promise<Params>
               key={item.id}
               href={`/blog/${item.slug}`}
               className="group flex h-full flex-col overflow-hidden rounded-[1.1rem] border border-border/18 bg-card/72 transition-all duration-200 hover:-translate-y-0.5 hover:border-border/34 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              aria-label={`Open blog ${item.title}`}
             >
               <div className="relative aspect-[16/10] overflow-hidden border-b border-border/14">
                 <Image

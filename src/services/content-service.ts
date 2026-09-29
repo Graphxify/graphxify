@@ -11,6 +11,7 @@ import { normalizeBlogCategory } from "@/lib/blog";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { getProjectPathSlug } from "@/lib/project-card-content";
+import { queueIndexNowSubmission } from "@/lib/indexnow";
 import { postSchema, workSchema } from "@/lib/validation/schemas";
 
 type ContentClient = ReturnType<typeof createClient> | NonNullable<ReturnType<typeof createAdminClient>>;
@@ -314,6 +315,28 @@ function getWorkRevalidationPaths(slug: string): string[] {
   return ["/", "/works", `/works/${getProjectPathSlug(slug)}`, `/works/${slug}`, "/dashboard/works"];
 }
 
+/**
+ * IndexNow pings for content that is already live (or just went away).
+ * Brand-new posts/works are NOT pinged here: /blog/[slug] and /works/[slug] use
+ * dynamicParams = false, so a new URL 404s until the next deploy — submit those
+ * after deploying with `npm run indexnow:submit -- <url>` (docs/INDEXNOW-SETUP.md).
+ */
+function queueContentIndexNow(params: {
+  type: PublishContentType;
+  slug: string;
+  previousSlug?: string | null;
+  wasPublished: boolean;
+  isPublished: boolean;
+}): void {
+  if (!params.wasPublished && !params.isPublished) return;
+  const toPath = (slug: string) => (params.type === "post" ? `/blog/${slug}` : `/works/${getProjectPathSlug(slug)}`);
+  const paths = [toPath(params.slug), params.type === "post" ? "/blog" : "/works"];
+  if (params.previousSlug && params.previousSlug !== params.slug) {
+    paths.push(toPath(params.previousSlug));
+  }
+  queueIndexNowSubmission(paths);
+}
+
 async function notifyPublish(type: PublishContentType, title: string, slug: string): Promise<void> {
   if (!env.OWNER_NOTIFY_EMAIL) {
     return;
@@ -409,7 +432,7 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
 
   const { data: existing, error: existingError } = await supabase
     .from("posts")
-    .select("author_id,status")
+    .select("author_id,status,slug")
     .eq("id", id)
     .maybeSingle();
 
@@ -465,6 +488,13 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
   }
 
   revalidatePaths(getPostRevalidationPaths(parsed.slug));
+  queueContentIndexNow({
+    type: "post",
+    slug: parsed.slug,
+    previousSlug: typeof existing.slug === "string" ? existing.slug : null,
+    wasPublished: existing.status === "published",
+    isPublished: parsed.status === "published"
+  });
   return { id };
 }
 
@@ -629,7 +659,7 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
 
   const { data: existing, error: existingError } = await supabase
     .from("works")
-    .select("author_id,status")
+    .select("author_id,status,slug")
     .eq("id", id)
     .maybeSingle();
 
@@ -719,6 +749,13 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
   }
 
   revalidatePaths(getWorkRevalidationPaths(parsed.slug));
+  queueContentIndexNow({
+    type: "work",
+    slug: parsed.slug,
+    previousSlug: typeof existing.slug === "string" ? existing.slug : null,
+    wasPublished: existing.status === "published",
+    isPublished: parsed.status === "published"
+  });
   return { id };
 }
 
@@ -891,6 +928,7 @@ export async function deletePost(postId: string): Promise<void> {
   assertCanDeletePost(profile);
 
   const supabase = getWriteClient();
+  const { data: deleted } = await supabase.from("posts").select("slug,status").eq("id", postId).maybeSingle();
   const { error } = await supabase.from("posts").delete().eq("id", postId);
   if (error) {
     throw error;
@@ -907,6 +945,9 @@ export async function deletePost(postId: string): Promise<void> {
   });
 
   revalidatePaths(getPostRevalidationPaths());
+  if (deleted?.status === "published" && typeof deleted.slug === "string") {
+    queueContentIndexNow({ type: "post", slug: deleted.slug, wasPublished: true, isPublished: false });
+  }
 }
 
 export async function deleteWork(workId: string): Promise<void> {
@@ -914,6 +955,7 @@ export async function deleteWork(workId: string): Promise<void> {
   assertCanDeleteWork(profile);
 
   const supabase = getWriteClient();
+  const { data: deleted } = await supabase.from("works").select("slug,status").eq("id", workId).maybeSingle();
   const { error } = await supabase.from("works").delete().eq("id", workId);
   if (error) {
     throw error;
@@ -930,4 +972,7 @@ export async function deleteWork(workId: string): Promise<void> {
   });
 
   revalidatePaths(["/works", "/dashboard/works"]);
+  if (deleted?.status === "published" && typeof deleted.slug === "string") {
+    queueContentIndexNow({ type: "work", slug: deleted.slug, wasPublished: true, isPublished: false });
+  }
 }

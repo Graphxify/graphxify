@@ -1,10 +1,13 @@
-import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, Blocks, Fingerprint, Layout, Mail, Minus, PackageCheck, Phone, Plus, Sparkles, Terminal, Timer, Zap, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DeferredLeadForm, DeferredTestimonialsSection } from "@/components/marketing/deferred-home-islands";
 import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
+// Imported directly (not next/dynamic): it is server-rendered either way, and the
+// loading boundary streamed the project links into a hidden <div> outside
+// <main> in the initial HTML.
+import { HomeProjectsSlider } from "@/components/marketing/home-projects-slider";
 import { NewsletterSignup } from "@/components/marketing/newsletter-signup";
 import { SectionReveal } from "@/components/marketing/section-reveal";
 import { companyContact, faqs, services } from "@/lib/constants";
@@ -43,13 +46,6 @@ type CmsMarqueeItem = {
   image_url_light: string;
   label: string;
 };
-
-const HomeProjectsSlider = dynamic(
-  () => import("@/components/marketing/home-projects-slider").then((mod) => mod.HomeProjectsSlider),
-  {
-    loading: () => <div className="h-[18.5rem] rounded-[1.2rem] border border-border/18 bg-card/40 md:h-[21rem]" />
-  }
-);
 
 // Fallback client logos, used only when the CMS marquee table is empty.
 // `alt` must be the real client name — it is the only thing screen readers
@@ -181,7 +177,7 @@ export function HomeSections({
           </div>
 
           <p className="mx-auto mt-5 max-w-3xl text-center text-[0.96rem] text-black dark:text-white md:text-[1.14rem]">
-            Graphxify is an independent design studio. We help small businesses and founders launch with a brand and website that looks credible, loads fast, and converts.
+            Graphxify is an independent web design and development agency. We help small businesses and founders launch with a brand and website that looks credible, loads fast, and converts.
           </p>
 
           <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
@@ -200,8 +196,10 @@ export function HomeSections({
           <div className="mt-9 flex justify-center">
             <div className="inline-grid grid-cols-3 divide-x divide-border/12 overflow-hidden rounded-2xl border border-border/14 bg-card/60 shadow-[0_8px_28px_rgba(13,13,15,0.07)]">
               {([
-                { icon: PackageCheck, stat: "26+", label: "Projects delivered" },
-                { icon: Timer, stat: "4 to 8 wks", label: "Average launch" },
+                // Counted from the published case studies actually shown on the site.
+                { icon: PackageCheck, stat: String(projectCards.length), label: "Published case studies" },
+                // Graphxify's stated process range (see /process), not a measured average.
+                { icon: Timer, stat: "4 to 8 wks", label: "Typical launch" },
                 { icon: Zap, stat: "24h", label: "Response time" }
               ] as const).map(({ icon: Icon, stat, label }) => (
                 <div key={stat} className="flex flex-col items-center gap-2 px-5 py-4 sm:px-7">
@@ -439,7 +437,7 @@ export function HomeSections({
             <p className="max-w-[46rem] text-sm leading-relaxed text-fg/64">
               A new brand, a website redesign, or a CMS setup. Whatever stage you are at, we would love to hear about it.
               <br />
-              We respond within 24 hours with clear next steps. No jargon, no pressure.
+              We typically respond within 24 hours with clear next steps. No jargon, no pressure.
             </p>
 
             <DeferredLeadForm />

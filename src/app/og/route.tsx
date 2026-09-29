@@ -28,11 +28,28 @@ function clamp(value: string, max: number): string {
   return trimmed.length > max ? `${trimmed.slice(0, max - 1).trimEnd()}…` : trimmed;
 }
 
-export function GET(request: NextRequest): ImageResponse {
+/**
+ * The real Graphxify wordmark (white variant, made for dark backgrounds), read
+ * from the site's own public asset so the card always matches the live brand.
+ * Falls back to a text wordmark if the asset cannot be fetched.
+ */
+async function loadWordmark(origin: string): Promise<string | null> {
+  try {
+    const response = await fetch(new URL("/images/branding/graphxify-logo-light.svg", origin));
+    if (!response.ok) return null;
+    const svg = await response.text();
+    return `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
+
+export async function GET(request: NextRequest): Promise<ImageResponse> {
   const { searchParams } = request.nextUrl;
 
   const title = clamp(searchParams.get("title") || "Brand systems and web platforms, built as one system.", 110);
-  const eyebrow = clamp(searchParams.get("eyebrow") || "Design & Development Studio", 42);
+  const eyebrow = clamp(searchParams.get("eyebrow") || "Web Design & Development", 42);
+  const wordmark = await loadWordmark(request.nextUrl.origin);
 
   return new ImageResponse(
     (
@@ -62,25 +79,13 @@ export function GET(request: NextRequest): ImageResponse {
         />
 
         {/* Wordmark */}
-        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-          <div
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 11,
-              background: `linear-gradient(135deg, ${ACCENT_A} 0%, ${ACCENT_B} 100%)`
-            }}
-          />
-          <div
-            style={{
-              fontSize: 27,
-              fontWeight: 700,
-              letterSpacing: 6,
-              color: IVORY
-            }}
-          >
-            GRAPHXIFY
-          </div>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          {wordmark ? (
+            // eslint-disable-next-line @next/next/no-img-element -- ImageResponse (satori) renders plain <img>
+            <img src={wordmark} width={235} height={52} alt="Graphxify" />
+          ) : (
+            <div style={{ fontSize: 27, fontWeight: 700, letterSpacing: 6, color: IVORY }}>GRAPHXIFY</div>
+          )}
         </div>
 
         {/* Title block */}

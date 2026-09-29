@@ -8,22 +8,22 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
-import { siteConfig } from "@/lib/constants";
+import { getProjectCardContent } from "@/lib/project-card-content";
+import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, serviceJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Web Development — Custom Next.js Websites",
   description:
-    "Custom websites built on Next.js, not WordPress templates. Lighthouse scores above 90, Core Web Vitals optimised, and full code ownership.",
+    "Custom websites built on Next.js, not WordPress templates. Engineered to a Lighthouse 90+ performance target, with full code ownership.",
   path: "/services/web-development",
   ogTitle: "Web Development — Fast, Scalable Next.js Sites | Graphxify",
-  ogDescription: "Custom Next.js websites with Lighthouse 90+, Core Web Vitals optimised, and full code ownership. Built to rank, load instantly, and scale without friction.",
+  ogDescription: "Custom Next.js websites engineered to a Lighthouse 90+ performance target, with a technically sound SEO foundation and full code ownership.",
   ogImageAlt: "Web development with Next.js — high-performance websites by Graphxify"
 });
 
 const deliverables = [
   "Custom Next.js codebase (you own it outright)",
-  "Lighthouse scores above 90 across all metrics",
+  "Performance budget targeting Lighthouse 90+",
   "Core Web Vitals optimisation",
   "Deployment to Vercel or your preferred host",
   "Integrations (CRM, forms, analytics)",
@@ -38,33 +38,32 @@ const guidance = [
   { label: "Typical project", value: "4 to 8 week build depending on scope" },
   {
     label: "Business outcome",
-    value: "A site that loads fast, ranks better, and doesn't need a developer for routine updates"
+    value: "A site that loads fast, is technically sound for search, and doesn't need a developer for routine updates"
   }
 ];
 
+// Name + industry come from the confirmed-facts registry (single source).
 const relatedProjects = [
   {
     pathSlug: "flyup-line",
-    title: "FlyUp Line",
-    industry: "Travel and Aviation",
     outcome: "Responsive platform with a streamlined booking flow and optimised performance across devices.",
     liveUrl: "https://flyupline.com/"
   },
   {
     pathSlug: "boss-medical-clinic",
-    title: "BOSS Medical Clinic",
-    industry: "Healthcare / Medical Clinic",
     outcome: "Full website build with service-driven layout and clear content structure for a medical clinic.",
     liveUrl: "https://www.bossmedclinic.com/"
   },
   {
     pathSlug: "pharmacy-on-king",
-    title: "Pharmacy On King",
-    industry: "Healthcare / Pharmacy",
     outcome: "Responsive website with intuitive navigation and clear service presentation for a community pharmacy.",
     liveUrl: "https://pharmacyonking.ca/"
   }
-];
+]
+  .map((project) => {
+    const facts = getProjectCardContent(project.pathSlug);
+    return { ...project, title: facts?.title ?? project.pathSlug, industry: facts?.industry ?? "" };
+  });
 
 const relatedPosts = [
   {
@@ -100,34 +99,17 @@ const serviceFaqs: ServiceFaqItem[] = [
   }
 ];
 
-function serviceJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: "Web Development",
-    description:
-      "Custom websites built on Next.js with Lighthouse scores above 90, Core Web Vitals optimisation, and full code ownership. No WordPress. No page builders.",
-    provider: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url
-    },
-    areaServed: "Worldwide",
-    url: `${siteConfig.url}/services/web-development`
-  };
-}
-
 export default function WebDevelopmentPage() {
   const breadcrumbs = breadcrumbListJsonLd([
-    { name: "Home", url: siteConfig.url },
-    { name: "Services", url: `${siteConfig.url}/services` },
-    { name: "Web Development", url: `${siteConfig.url}/services/web-development` }
+    { name: "Home", url: canonicalUrl("/") },
+    { name: "Services", url: canonicalUrl("/services") },
+    { name: "Web Development", url: canonicalUrl("/services/web-development") }
   ]);
 
   return (
     <>
-      <JsonLd data={breadcrumbs as Record<string, unknown>} />
-      <JsonLd data={serviceJsonLd() as Record<string, unknown>} />
+      <JsonLd data={breadcrumbs} />
+      <JsonLd data={serviceJsonLd("web-development")} />
 
       <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
         {/* Hero */}
@@ -149,8 +131,8 @@ export default function WebDevelopmentPage() {
             </h1>
             <span className="mt-4 block h-px w-24 bg-accent-gradient" />
             <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.08rem]">
-              We build custom websites on Next.js — not WordPress templates — delivering Lighthouse performance scores
-              above 90 out of the box. You own the code outright with no recurring plugin subscriptions, and the
+              We build custom websites on Next.js — not WordPress templates — engineered to a Lighthouse 90+
+              performance target. You own the code outright with no recurring plugin subscriptions, and the
               architecture is built to scale with your business over the next five years.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3">

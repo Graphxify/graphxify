@@ -87,7 +87,6 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
           <Link
             href={`/blog/${featuredBlog.slug}`}
             className="group block rounded-[1.2rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-            aria-label={`Open featured blog ${featuredBlog.title}`}
           >
             <article className="section-shell relative overflow-hidden border-border/18 bg-card/74 p-5 transition-[border-color] duration-150 group-hover:border-border/32 md:p-7">
               <span className="pointer-events-none absolute -right-20 -top-20 z-0 h-60 w-60 rounded-full bg-accentA/6 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
@@ -185,7 +184,6 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
                 <Link
                   href={`/blog/${blog.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-[1.1rem] border border-border/18 bg-card/72 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-border/34 hover:shadow-[0_8px_30px_rgba(0,0,0,0.24)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                  aria-label={`Open blog ${blog.title}`}
                 >
                   <div className="relative block aspect-[16/10] overflow-hidden border-b border-border/14">
                     <Image

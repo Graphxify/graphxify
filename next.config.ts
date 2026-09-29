@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { legacyWorkPathRedirects } from "./src/lib/project-card-content";
 
 const supabaseHost = process.env.NEXT_PUBLIC_SUPABASE_URL
   ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
@@ -54,10 +55,16 @@ const SECURITY_HEADERS = [
   },
 ];
 
+// Vercel preview deployments (*.vercel.app branch/PR URLs) serve the same
+// content as production. Keep them out of every index; production
+// (VERCEL_ENV=production) and local builds are unaffected.
+const IS_PREVIEW_DEPLOYMENT = process.env.VERCEL_ENV === "preview";
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
       { source: "/:path*", headers: SECURITY_HEADERS },
+      ...(IS_PREVIEW_DEPLOYMENT ? [{ source: "/:path*", headers: [NOINDEX_HEADER] }] : []),
       ...NOINDEX_PATHS.map((source) => ({
         source,
         headers: [NOINDEX_HEADER],
@@ -73,11 +80,16 @@ const nextConfig: NextConfig = {
       // Legacy flat project URLs → correct /works/[slug] structure
       { source: "/flyupline", destination: "/works/flyup-line", permanent: true },
       { source: "/mbmdesigns", destination: "/works", permanent: true },
-      // Legacy case-study path. `legacySlugToCanonicalSlug` in
-      // project-card-content.ts maps this alias internally, but the /works/[slug]
-      // route now returns a real 404 for unknown slugs, so the alias needs an
-      // actual redirect to stay reachable.
-      { source: "/works/boss-raam-pharmacy", destination: "/works/boss-medical-clinic", permanent: true },
+      // Case-study aliases verified to be the SAME project as the target:
+      // internal keys (e.g. /works/axis-growth-platform), which production served
+      // as duplicate 200 pages of the real case study, and the verified rename
+      // /works/boss-raam-pharmacy. Unrelated template/demo slugs are deliberately
+      // NOT redirected — they 404. See docs/SEO-AI-SEARCH-QC-REPORT.md §1.
+      ...legacyWorkPathRedirects().map(([from, to]) => ({
+        source: `/works/${from}`,
+        destination: `/works/${to}`,
+        permanent: true
+      })),
       // /pricing was published briefly and indexed; the page has since been
       // removed along with all published figures. Redirect rather than 404.
       { source: "/pricing", destination: "/services", permanent: true },

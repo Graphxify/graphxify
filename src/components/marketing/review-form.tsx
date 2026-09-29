@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
 import { Textarea } from "@/components/ui/textarea";
 import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
+import { trackConversion } from "@/lib/analytics-events";
 import { publicReviewSchema } from "@/lib/validation/schemas";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
@@ -105,6 +106,7 @@ export function ReviewForm(): JSX.Element {
       const result = await submitJsonForm<ReviewSubmitResponse>("/api/reviews", parsed.data);
 
       if (result.success) {
+        trackConversion({ name: "review_submitted" });
         const notificationStatus = result.data?.notification?.status;
         const hasWarning = notificationStatus === "failed" || notificationStatus === "skipped";
         form.reset();

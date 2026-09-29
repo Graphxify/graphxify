@@ -13,17 +13,17 @@ WHERE slug = 'northline-enterprise-replatform';
 
 -- ── Maven ──────────────────────────────────────────────────────────────────
 UPDATE works SET
-  og_title            = 'Maven — Women''s Fashion Brand Identity | Graphxify',
-  og_description      = 'A complete brand identity system for a contemporary women''s fashion label — built on typographic precision, restrained colour, and a confident visual language.',
+  og_title            = 'Maven — Fashion Brand Identity | Graphxify',
+  og_description      = 'A complete brand identity system for a contemporary fashion label — built on typographic precision, restrained colour, and a confident visual language.',
   og_image_alt        = 'Maven brand identity — logo, typography, and design system by Graphxify',
   twitter_card        = 'summary_large_image'
 WHERE slug = 'vertex-brand-operations';
 
--- ── BOSS Medical Clinic ─────────────────────────────────────────────────────
+-- ── B.O.S.S. Medical Clinic ─────────────────────────────────────────────────────
 UPDATE works SET
-  og_title            = 'BOSS Medical Clinic — Healthcare Web Design | Graphxify',
+  og_title            = 'B.O.S.S. Medical Clinic — Healthcare Web Design | Graphxify',
   og_description      = 'A professional, accessible website for a medical clinic — designed to communicate trust, simplify service navigation, and convert patients online.',
-  og_image_alt        = 'BOSS Medical Clinic website — healthcare web design by Graphxify',
+  og_image_alt        = 'B.O.S.S. Medical Clinic website — healthcare web design by Graphxify',
   twitter_card        = 'summary_large_image'
 WHERE slug = 'axis-growth-platform';
 

@@ -9,7 +9,7 @@ alter table public.works
   add column if not exists industry         text,
   add column if not exists platform         text,
   add column if not exists timeline         text,
-  add column if not exists location         text default 'Canada',
+  add column if not exists location         text,
   add column if not exists live_url         text,
   add column if not exists overview         text,
   add column if not exists challenge        text,

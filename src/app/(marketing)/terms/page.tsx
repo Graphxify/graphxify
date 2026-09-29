@@ -291,7 +291,7 @@ export default function TermsPage(): JSX.Element {
             </p>
             <p>
               <span className="text-fg/56">Location: </span>
-              <span>Remote · Worldwide</span>
+              <span>Based in Canada · Working worldwide</span>
             </p>
           </div>
           <p className="mt-4">

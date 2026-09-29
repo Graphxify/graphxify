@@ -32,27 +32,27 @@ WHERE slug = 'northline-enterprise-replatform';
 -- ── Maven ────────────────────────────────────────────────────────────────────
 UPDATE works SET
   meta_title          = 'Maven — Fashion Brand Identity Case Study | Graphxify',
-  meta_description    = 'A complete brand identity for Maven — a contemporary women''s fashion label built on typographic precision and a confident visual language.',
-  og_title            = 'Maven — Women''s Fashion Brand Identity | Graphxify',
-  og_description      = 'A complete brand identity system for a contemporary women''s fashion label — built on typographic precision, restrained colour, and a confident visual language.',
+  meta_description    = 'A complete brand identity for Maven — a contemporary fashion label built on typographic precision and a confident visual language.',
+  og_title            = 'Maven — Fashion Brand Identity | Graphxify',
+  og_description      = 'A complete brand identity system for a contemporary fashion label — built on typographic precision, restrained colour, and a confident visual language.',
   og_image            = COALESCE(cover_image_url, og_image),
   og_image_alt        = 'Maven brand identity — logo, typography, and design system by Graphxify',
-  twitter_title       = 'Maven — Women''s Fashion Brand Identity | Graphxify',
-  twitter_description = 'A complete brand identity system for a contemporary women''s fashion label — built on typographic precision, restrained colour, and a confident visual language.',
+  twitter_title       = 'Maven — Fashion Brand Identity | Graphxify',
+  twitter_description = 'A complete brand identity system for a contemporary fashion label — built on typographic precision, restrained colour, and a confident visual language.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
   twitter_card        = 'summary_large_image'
 WHERE slug = 'vertex-brand-operations';
 
 
--- ── BOSS Medical Clinic ──────────────────────────────────────────────────────
+-- ── B.O.S.S. Medical Clinic ──────────────────────────────────────────────────────
 UPDATE works SET
-  meta_title          = 'BOSS Medical Clinic — Healthcare Case Study | Graphxify',
-  meta_description    = 'Graphxify designed BOSS Medical Clinic''s website to communicate clinical authority while guiding patients through services with clarity and ease.',
-  og_title            = 'BOSS Medical Clinic — Healthcare Web Design | Graphxify',
+  meta_title          = 'B.O.S.S. Medical Clinic — Healthcare Case Study | Graphxify',
+  meta_description    = 'Graphxify designed B.O.S.S. Medical Clinic''s website to communicate clinical authority while guiding patients through services with clarity and ease.',
+  og_title            = 'B.O.S.S. Medical Clinic — Healthcare Web Design | Graphxify',
   og_description      = 'A professional, accessible website for a medical clinic — designed to communicate trust, simplify service navigation, and convert patients online.',
   og_image            = COALESCE(cover_image_url, og_image),
-  og_image_alt        = 'BOSS Medical Clinic website — healthcare web design by Graphxify',
-  twitter_title       = 'BOSS Medical Clinic — Healthcare Web Design | Graphxify',
+  og_image_alt        = 'B.O.S.S. Medical Clinic website — healthcare web design by Graphxify',
+  twitter_title       = 'B.O.S.S. Medical Clinic — Healthcare Web Design | Graphxify',
   twitter_description = 'A professional, accessible website for a medical clinic — designed to communicate trust, simplify service navigation, and convert patients online.',
   twitter_image       = COALESCE(cover_image_url, twitter_image, og_image),
   twitter_card        = 'summary_large_image'

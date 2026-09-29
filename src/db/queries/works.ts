@@ -1,7 +1,8 @@
 import "server-only";
 
 import type { Work } from "@/db/types";
-import { getProjectDisplayTitle } from "@/lib/project-card-content";
+import { findProjectFactDrift, getProjectDisplayTitle } from "@/lib/project-card-content";
+import { logger } from "@/lib/logger";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createPublicClient } from "@/lib/supabase/public";
 import { createClient } from "@/lib/supabase/server";
@@ -23,6 +24,22 @@ function deduplicateWorksBySlug<T extends { slug: string }>(rows: T[]): T[] {
   return Array.from(uniqueBySlug.values());
 }
 
+let driftReported = false;
+
+/**
+ * Logs (once per server process, so once per build) every CMS value that
+ * contradicts a confirmed project fact in lib/project-card-content.ts. The site
+ * already renders the confirmed fact; this tells editors which CMS fields to fix
+ * (see supabase/drafts/confirmed-facts-2026-09-29.sql).
+ */
+function reportProjectFactDrift(rows: ReadonlyArray<{ slug: string }>): void {
+  if (driftReported) return;
+  driftReported = true;
+  for (const item of findProjectFactDrift(rows)) {
+    logger.warn("[project-facts] CMS value differs from confirmed fact", item);
+  }
+}
+
 export async function getPublishedWorks(): Promise<Work[]> {
   const supabase = createAdminClient() ?? createPublicClient();
 
@@ -38,7 +55,9 @@ export async function getPublishedWorks(): Promise<Work[]> {
     .order("year", { ascending: false });
 
   if (!fullResult.error) {
-    return deduplicateWorksBySlug(fullResult.data ?? []) as Work[];
+    const rows = deduplicateWorksBySlug(fullResult.data ?? []) as Work[];
+    reportProjectFactDrift(rows);
+    return rows;
   }
 
   // If any column doesn't exist yet (migration not run), retry with base columns so

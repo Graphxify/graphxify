@@ -8,8 +8,7 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
-import { siteConfig } from "@/lib/constants";
+import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, serviceJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "CMS Architecture — Structured Content Systems",
@@ -72,34 +71,17 @@ const serviceFaqs: ServiceFaqItem[] = [
   }
 ];
 
-function serviceJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: "CMS Architecture",
-    description:
-      "Structured content management systems with defined roles, workflows, and content models for modern businesses that need to publish independently.",
-    provider: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url
-    },
-    areaServed: "Worldwide",
-    url: `${siteConfig.url}/services/cms-architecture`
-  };
-}
-
 export default function CmsArchitecturePage() {
   const breadcrumbs = breadcrumbListJsonLd([
-    { name: "Home", url: siteConfig.url },
-    { name: "Services", url: `${siteConfig.url}/services` },
-    { name: "CMS Architecture", url: `${siteConfig.url}/services/cms-architecture` }
+    { name: "Home", url: canonicalUrl("/") },
+    { name: "Services", url: canonicalUrl("/services") },
+    { name: "CMS Architecture", url: canonicalUrl("/services/cms-architecture") }
   ]);
 
   return (
     <>
-      <JsonLd data={breadcrumbs as Record<string, unknown>} />
-      <JsonLd data={serviceJsonLd() as Record<string, unknown>} />
+      <JsonLd data={breadcrumbs} />
+      <JsonLd data={serviceJsonLd("cms-architecture")} />
 
       <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
         {/* Hero */}

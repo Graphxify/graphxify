@@ -7,6 +7,7 @@ import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
 import { SubmissionModal } from "@/components/ui/submission-modal";
 import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
+import { trackConversion } from "@/lib/analytics-events";
 import { newsletterSubscriptionSchema } from "@/lib/validation/schemas";
 
 /**
@@ -71,6 +72,7 @@ export function NewsletterSignup({
     try {
       const result = await submitJsonForm("/api/newsletter", { ...parsed.data, source });
       if (result.success) {
+        trackConversion({ name: "newsletter_subscribed", properties: { placement: source } });
         setEmail("");
         setMessage(result.message);
         setModalOpen(true);

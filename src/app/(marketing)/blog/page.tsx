@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { BlogPageContent } from "@/components/marketing/blog-page-content";
 import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
+import { JsonLd } from "@/components/seo/json-ld";
 import { getPublishedBlogSummaries } from "@/lib/blog-data";
-import { buildMetadata } from "@/lib/seo";
+import { blogJsonLd, breadcrumbListJsonLd, buildMetadata, canonicalUrl } from "@/lib/seo";
 
 export const revalidate = 30;
 
@@ -12,13 +13,21 @@ export const metadata: Metadata = buildMetadata({
   path: "/blog",
   ogTitle: "Web Design & Branding Insights | Graphxify Blog",
   ogDescription: "Practical guides on web design, branding, and digital strategy for business owners and founders — written by the team at Graphxify.",
-  ogImageAlt: "Graphxify blog — web design and branding insights for modern businesses"
+  ogImageAlt: "Graphxify blog — web design and branding insights for modern businesses",
+  rss: true
 });
 
 export default async function BlogPage() {
   const blogs = await getPublishedBlogSummaries();
   return (
     <>
+      <JsonLd data={blogJsonLd(blogs)} />
+      <JsonLd
+        data={breadcrumbListJsonLd([
+          { name: "Home", url: canonicalUrl("/") },
+          { name: "Blog", url: canonicalUrl("/blog") }
+        ])}
+      />
       <ContentRefreshListener pathPrefixes={["/blog"]} />
       <BlogPageContent blogs={blogs} />
     </>

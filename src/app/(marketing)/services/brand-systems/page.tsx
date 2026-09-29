@@ -8,8 +8,8 @@ import { SectionReveal } from "@/components/marketing/section-reveal";
 import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
 import { JsonLd } from "@/components/seo/json-ld";
-import { buildMetadata, breadcrumbListJsonLd } from "@/lib/seo";
-import { siteConfig } from "@/lib/constants";
+import { getProjectCardContent } from "@/lib/project-card-content";
+import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, serviceJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Brand Systems — Visual Identity Design",
@@ -36,27 +36,26 @@ const guidance = [
   { label: "Business outcome", value: "Look credible and consistent everywhere your business appears" }
 ];
 
+// Name + industry come from the confirmed-facts registry (single source).
 const relatedProjects = [
   {
     pathSlug: "maven",
-    title: "Maven",
-    industry: "Fashion and Streetwear",
     outcome:
-      "Complete brand identity system built for a minimalist streetwear concept, scaled across apparel and digital."
+      "Complete brand identity system built for a minimalist fashion label, scaled across apparel and digital."
   },
   {
     pathSlug: "luka-hair-salon",
-    title: "Luka Hair Salon",
-    industry: "Beauty and Hair Salon",
     outcome: "A refined visual identity designed to communicate elegance and attract premium salon clients."
   },
   {
     pathSlug: "boss-medical-clinic",
-    title: "BOSS Medical Clinic",
-    industry: "Healthcare / Medical Clinic",
     outcome: "Brand identity and website built to communicate authority and credibility for a modern clinic."
   }
-];
+]
+  .map((project) => {
+    const facts = getProjectCardContent(project.pathSlug);
+    return { ...project, title: facts?.title ?? project.pathSlug, industry: facts?.industry ?? "" };
+  });
 
 const relatedPosts = [
   {
@@ -88,34 +87,17 @@ const serviceFaqs: ServiceFaqItem[] = [
   }
 ];
 
-function serviceJsonLd() {
-  return {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    name: "Brand Systems",
-    description:
-      "Complete brand identity design including logo suite, typography, colour palette, and brand guidelines for modern businesses.",
-    provider: {
-      "@type": "Organization",
-      name: siteConfig.name,
-      url: siteConfig.url
-    },
-    areaServed: "Worldwide",
-    url: `${siteConfig.url}/services/brand-systems`
-  };
-}
-
 export default function BrandSystemsPage() {
   const breadcrumbs = breadcrumbListJsonLd([
-    { name: "Home", url: siteConfig.url },
-    { name: "Services", url: `${siteConfig.url}/services` },
-    { name: "Brand Systems", url: `${siteConfig.url}/services/brand-systems` }
+    { name: "Home", url: canonicalUrl("/") },
+    { name: "Services", url: canonicalUrl("/services") },
+    { name: "Brand Systems", url: canonicalUrl("/services/brand-systems") }
   ]);
 
   return (
     <>
-      <JsonLd data={breadcrumbs as Record<string, unknown>} />
-      <JsonLd data={serviceJsonLd() as Record<string, unknown>} />
+      <JsonLd data={breadcrumbs} />
+      <JsonLd data={serviceJsonLd("brand-systems")} />
 
       <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
         {/* Hero */}

@@ -370,7 +370,6 @@ export function OtherProjectsSlider({ projects }: { projects: SliderProject[] })
               >
                 <Link
                   href={`/works/${pathSlug}`}
-                  aria-label={`Open project ${displayTitle}`}
                   data-cursor-label="Open"
                   className="group relative block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/55 focus-visible:ring-offset-3 focus-visible:ring-offset-bg"
                 >
