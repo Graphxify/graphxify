@@ -406,3 +406,18 @@ Same safeguards (one transaction, keyed by id + `updated_at`, one-row assertion,
 | content (unrendered) | Women's fashion branding often leans heavily on soft visuals … feels feminine without being delicate, … | Fashion branding often leans heavily on soft visuals … feels elegant without being delicate, … (identical to the already-updated `challenge` field) |
 
 Verified afterwards: no "women", "feminine" or "streetwear" wording remains anywhere in the Maven record. It's still published, and the slug is unchanged. **Project drift check: 0 conflicts.**
+
+## Follow-up: broken social-share images (2026-09-29)
+
+One guarded transaction, keyed by id + `updated_at` + the exact broken URL, asserted to affect 3 rows. Covers were not touched.
+
+| Record | Field | Old (missing Storage object) | New |
+|---|---|---|---|
+| boss-medical-clinic | og_image | `media/1772678202381-sj7css7xph.png` | NULL |
+| boss-medical-clinic | twitter_image | `media/1772678202381-sj7css7xph.png` | NULL |
+| king-medical-art-pharmacy | og_image | `media/1772679226367-619z7xbeblj.png` | NULL |
+| king-medical-art-pharmacy | twitter_image | `media/1772679226367-619z7xbeblj.png` | NULL |
+| pharmacy-on-king | og_image | `media/1772678786543-yakwrllzsxr.png` | NULL |
+| pharmacy-on-king | twitter_image | `media/1772678786543-yakwrllzsxr.png` | NULL |
+
+Fallback now emitted: each project's existing cover image (all return HTTP 200).
