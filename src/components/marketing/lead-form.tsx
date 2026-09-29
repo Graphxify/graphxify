@@ -75,7 +75,7 @@ export function LeadForm(): JSX.Element {
       const result = await submitJsonForm<LeadSubmitResponse>("/api/leads", parsed.data);
 
       if (result.success) {
-        trackConversion({ name: "lead_submitted", properties: { form: "quick_form" } });
+        trackConversion({ name: "contact_form_submit", properties: { form: "quick_form" } });
         const notificationStatus = result.data?.notification?.status;
         const hasWarning = notificationStatus === "failed" || notificationStatus === "skipped";
         form.reset();

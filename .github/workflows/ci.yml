@@ -5,9 +5,28 @@ on:
     branches: ["**"]
   pull_request:
 
+# Read-only token: CI never pushes, deploys or writes anywhere.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # PUBLIC build configuration only, from repository variables (Settings → Secrets
+    # and variables → Actions → Variables). The Supabase publishable key is shipped to
+    # every browser and is limited by RLS. No service-role key, database password or
+    # other secret is available here; the build and tests only read public content and
+    # the browser tests never submit forms.
+    env:
+      NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'https://www.graphxify.com' }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+      NEXT_TELEMETRY_DISABLED: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -15,14 +34,55 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+
+      - name: Check public build configuration
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "::error::Set the NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY repository variables (public values only)."
+            exit 1
+          fi
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Lint
+        run: npm run lint
 
       - name: Typecheck
         run: npm run typecheck
 
       - name: Build
         run: npm run build
+
+      - name: Start production server
+        run: |
+          npm run start -- -p 3000 > server.log 2>&1 &
+          npx --yes wait-on@8 --timeout 60000 http://localhost:3000/robots.txt
+
+      - name: SEO regression suite
+        run: npm run test:seo
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Unit and browser tests
+        env:
+          PLAYWRIGHT_BASE_URL: http://localhost:3000
+        run: npx playwright test
+
+      - name: Lighthouse CI
+        run: npx --yes @lhci/cli@0.15.x autorun
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            playwright-report
+            .lighthouseci
+            server.log
+          retention-days: 14
+          if-no-files-found: ignore

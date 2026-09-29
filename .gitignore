@@ -11,3 +11,12 @@ yarn-error.log*
 pnpm-debug.log*
 .DS_Store
 *.tsbuildinfo
+
+# Test output
+playwright-report
+test-results
+.lighthouseci
+
+# Any other env file (keep examples committable)
+.env.*
+!.env.example

@@ -1080,7 +1080,7 @@ function ProjectLiveLinkAction({ project }: { project: ProjectDetail }): JSX.Ele
   return (
     <div className="w-full md:w-auto md:shrink-0">
       <Button asChild className="w-full md:w-auto">
-        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" data-analytics-project={resolveProjectSlugFromPathSlug(project.slug)}>
           Visit Site
         </a>
       </Button>

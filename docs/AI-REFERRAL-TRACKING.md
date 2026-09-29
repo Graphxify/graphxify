@@ -1,5 +1,7 @@
 # Measuring referral traffic from AI assistants
 
+> **Update (2026-09-29):** GA4 is now implemented (gated on `NEXT_PUBLIC_GA_MEASUREMENT_ID`) and the lead event is now `contact_form_submit` / `project_inquiry`. For current measurement, see [AI-REFERRAL-MEASUREMENT.md](AI-REFERRAL-MEASUREMENT.md) and [GA4-SETUP.md](GA4-SETUP.md). This page is kept for its background on the limits of referral data.
+
 ## What exists today
 
 - **Vercel Web Analytics**, mounted in `src/app/layout.tsx` only when `NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS=true`, and **Speed Insights** (`NEXT_PUBLIC_ENABLE_VERCEL_SPEED_INSIGHTS=true`). It's cookieless and does SPA route tracking automatically, with one implementation and no duplicate page views.

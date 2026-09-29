@@ -12,7 +12,9 @@ import { marketingNav } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 export function MarketingHeader({ cmsHref = null }: { cmsHref?: string | null }): JSX.Element {
-  const pathname = usePathname();
+  const rawPathname = usePathname();
+  // Vercel prerenders the homepage as "/index"; normalise so server and client agree (avoids hydration error #418).
+  const pathname = !rawPathname || rawPathname === "/index" ? "/" : rawPathname;
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resolvedCmsHref, setResolvedCmsHref] = useState<string | null>(cmsHref);
