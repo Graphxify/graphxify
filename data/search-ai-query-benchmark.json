@@ -1,0 +1,594 @@
+{
+  "_note": "Query benchmark for search and AI-visibility monitoring. Each query's 'checks' array is intentionally empty: append one object per REAL check using check_record_format. Never record expected, assumed or estimated results.",
+  "version": 1,
+  "created": "2026-09-29",
+  "site": "https://www.graphxify.com",
+  "check_record_format": {
+    "date": "YYYY-MM-DD",
+    "surface": "google | bing | chatgpt | perplexity | claude | gemini | copilot | google-ai-mode",
+    "mentioned": "true | false",
+    "position": "number | null (organic rank, search surfaces only)",
+    "cited_url": "string | null",
+    "description_accurate": "yes | no | partial | n/a",
+    "notes": "string",
+    "checked_by": "initials"
+  },
+  "queries": [
+    {
+      "id": "q001",
+      "category": "brand",
+      "intent": "navigational",
+      "query": "Graphxify",
+      "target_url": "https://www.graphxify.com",
+      "checks": []
+    },
+    {
+      "id": "q002",
+      "category": "brand",
+      "intent": "navigational",
+      "query": "Graphxify web design",
+      "target_url": "https://www.graphxify.com",
+      "checks": []
+    },
+    {
+      "id": "q003",
+      "category": "brand",
+      "intent": "navigational",
+      "query": "Graphxify agency",
+      "target_url": "https://www.graphxify.com/about",
+      "checks": []
+    },
+    {
+      "id": "q004",
+      "category": "brand",
+      "intent": "informational",
+      "query": "what is Graphxify",
+      "target_url": "https://www.graphxify.com/about",
+      "checks": []
+    },
+    {
+      "id": "q005",
+      "category": "brand",
+      "intent": "informational",
+      "query": "who is behind Graphxify",
+      "target_url": "https://www.graphxify.com/about",
+      "checks": []
+    },
+    {
+      "id": "q006",
+      "category": "brand",
+      "intent": "navigational",
+      "query": "Graphxify contact",
+      "target_url": "https://www.graphxify.com/contact",
+      "checks": []
+    },
+    {
+      "id": "q007",
+      "category": "brand",
+      "intent": "navigational",
+      "query": "Graphxify portfolio",
+      "target_url": "https://www.graphxify.com/works",
+      "checks": []
+    },
+    {
+      "id": "q008",
+      "category": "brand",
+      "intent": "informational",
+      "query": "Graphxify reviews",
+      "target_url": "https://www.graphxify.com/about",
+      "checks": []
+    },
+    {
+      "id": "q009",
+      "category": "brand",
+      "intent": "informational",
+      "query": "is Graphxify a Canadian agency",
+      "target_url": "https://www.graphxify.com/about",
+      "checks": []
+    },
+    {
+      "id": "q010",
+      "category": "brand",
+      "intent": "navigational",
+      "query": "Graphxify blog",
+      "target_url": "https://www.graphxify.com/blog",
+      "checks": []
+    },
+    {
+      "id": "q011",
+      "category": "service",
+      "intent": "commercial",
+      "query": "web design agency Canada",
+      "target_url": "https://www.graphxify.com/services/web-design",
+      "checks": []
+    },
+    {
+      "id": "q012",
+      "category": "service",
+      "intent": "commercial",
+      "query": "website design agency for small businesses",
+      "target_url": "https://www.graphxify.com/services/web-design",
+      "checks": []
+    },
+    {
+      "id": "q013",
+      "category": "service",
+      "intent": "commercial",
+      "query": "custom website design company",
+      "target_url": "https://www.graphxify.com/services/web-design",
+      "checks": []
+    },
+    {
+      "id": "q014",
+      "category": "service",
+      "intent": "commercial",
+      "query": "web design and development agency",
+      "target_url": "https://www.graphxify.com/services",
+      "checks": []
+    },
+    {
+      "id": "q015",
+      "category": "service",
+      "intent": "commercial",
+      "query": "web development agency Canada",
+      "target_url": "https://www.graphxify.com/services/web-development",
+      "checks": []
+    },
+    {
+      "id": "q016",
+      "category": "service",
+      "intent": "commercial",
+      "query": "custom web development company",
+      "target_url": "https://www.graphxify.com/services/web-development",
+      "checks": []
+    },
+    {
+      "id": "q017",
+      "category": "service",
+      "intent": "commercial",
+      "query": "Next.js development agency",
+      "target_url": "https://www.graphxify.com/services/web-development",
+      "checks": []
+    },
+    {
+      "id": "q018",
+      "category": "service",
+      "intent": "commercial",
+      "query": "brand identity design agency",
+      "target_url": "https://www.graphxify.com/services/brand-systems",
+      "checks": []
+    },
+    {
+      "id": "q019",
+      "category": "service",
+      "intent": "commercial",
+      "query": "brand systems design studio",
+      "target_url": "https://www.graphxify.com/services/brand-systems",
+      "checks": []
+    },
+    {
+      "id": "q020",
+      "category": "service",
+      "intent": "commercial",
+      "query": "logo and brand identity for small business",
+      "target_url": "https://www.graphxify.com/services/brand-systems",
+      "checks": []
+    },
+    {
+      "id": "q021",
+      "category": "service",
+      "intent": "commercial",
+      "query": "headless CMS development agency",
+      "target_url": "https://www.graphxify.com/services/cms-architecture",
+      "checks": []
+    },
+    {
+      "id": "q022",
+      "category": "service",
+      "intent": "commercial",
+      "query": "CMS architecture consultant",
+      "target_url": "https://www.graphxify.com/services/cms-architecture",
+      "checks": []
+    },
+    {
+      "id": "q023",
+      "category": "service",
+      "intent": "commercial",
+      "query": "website redesign agency",
+      "target_url": "https://www.graphxify.com/services/web-design",
+      "checks": []
+    },
+    {
+      "id": "q024",
+      "category": "service",
+      "intent": "commercial",
+      "query": "UX and website design studio",
+      "target_url": "https://www.graphxify.com/services/web-design",
+      "checks": []
+    },
+    {
+      "id": "q025",
+      "category": "service",
+      "intent": "commercial",
+      "query": "web design agency working with international clients",
+      "target_url": "https://www.graphxify.com/services",
+      "checks": []
+    },
+    {
+      "id": "q026",
+      "category": "service",
+      "intent": "commercial",
+      "query": "hire a web design agency",
+      "target_url": "https://www.graphxify.com/contact",
+      "checks": []
+    },
+    {
+      "id": "q027",
+      "category": "service",
+      "intent": "commercial",
+      "query": "website design for startups",
+      "target_url": "https://www.graphxify.com/services/web-design",
+      "checks": []
+    },
+    {
+      "id": "q028",
+      "category": "industry",
+      "intent": "commercial",
+      "query": "pharmacy website design",
+      "target_url": "https://www.graphxify.com/works/pharmacy-on-king",
+      "checks": []
+    },
+    {
+      "id": "q029",
+      "category": "industry",
+      "intent": "commercial",
+      "query": "pharmacy website design agency",
+      "target_url": "https://www.graphxify.com/works/king-medical-art-pharmacy",
+      "checks": []
+    },
+    {
+      "id": "q030",
+      "category": "industry",
+      "intent": "commercial",
+      "query": "medical clinic website design",
+      "target_url": "https://www.graphxify.com/works/boss-medical-clinic",
+      "checks": []
+    },
+    {
+      "id": "q031",
+      "category": "industry",
+      "intent": "commercial",
+      "query": "healthcare clinic website designer",
+      "target_url": "https://www.graphxify.com/works/boss-medical-clinic",
+      "checks": []
+    },
+    {
+      "id": "q032",
+      "category": "industry",
+      "intent": "commercial",
+      "query": "hair salon website design",
+      "target_url": "https://www.graphxify.com/works/luka-hair-salon",
+      "checks": []
+    },
+    {
+      "id": "q033",
+      "category": "industry",
+      "intent": "commercial",
+      "query": "salon website designer",
+      "target_url": "https://www.graphxify.com/works/luka-hair-salon",
+      "checks": []
+    },
+    {
+      "id": "q034",
+      "category": "industry",
+      "intent": "commercial",
+      "query": "fashion brand website design",
+      "target_url": "https://www.graphxify.com/works/maven",
+      "checks": []
+    },
+    {
+      "id": "q035",
+      "category": "industry",
+      "intent": "commercial",
+      "query": "fashion brand identity and website",
+      "target_url": "https://www.graphxify.com/works/maven",
+      "checks": []
+    },
+    {
+      "id": "q036",
+      "category": "industry",
+      "intent": "commercial",
+      "query": "moving company website and branding",
+      "target_url": "https://www.graphxify.com/works/flyup-line",
+      "checks": []
+    },
+    {
+      "id": "q037",
+      "category": "case-study",
+      "intent": "navigational",
+      "query": "FlyUp Line website",
+      "target_url": "https://www.graphxify.com/works/flyup-line",
+      "checks": []
+    },
+    {
+      "id": "q038",
+      "category": "case-study",
+      "intent": "informational",
+      "query": "who designed the FlyUp Line website",
+      "target_url": "https://www.graphxify.com/works/flyup-line",
+      "checks": []
+    },
+    {
+      "id": "q039",
+      "category": "case-study",
+      "intent": "navigational",
+      "query": "Maven brand website",
+      "target_url": "https://www.graphxify.com/works/maven",
+      "checks": []
+    },
+    {
+      "id": "q040",
+      "category": "case-study",
+      "intent": "informational",
+      "query": "who designed the Maven website",
+      "target_url": "https://www.graphxify.com/works/maven",
+      "checks": []
+    },
+    {
+      "id": "q041",
+      "category": "case-study",
+      "intent": "navigational",
+      "query": "Pharmacy On King website",
+      "target_url": "https://www.graphxify.com/works/pharmacy-on-king",
+      "checks": []
+    },
+    {
+      "id": "q042",
+      "category": "case-study",
+      "intent": "navigational",
+      "query": "B.O.S.S. Medical Clinic website",
+      "target_url": "https://www.graphxify.com/works/boss-medical-clinic",
+      "checks": []
+    },
+    {
+      "id": "q043",
+      "category": "case-study",
+      "intent": "navigational",
+      "query": "King Medical Arts Pharmacy website",
+      "target_url": "https://www.graphxify.com/works/king-medical-art-pharmacy",
+      "checks": []
+    },
+    {
+      "id": "q044",
+      "category": "case-study",
+      "intent": "navigational",
+      "query": "Luka Hair Salon website",
+      "target_url": "https://www.graphxify.com/works/luka-hair-salon",
+      "checks": []
+    },
+    {
+      "id": "q045",
+      "category": "informational",
+      "intent": "informational",
+      "query": "how to choose a web design agency",
+      "target_url": "https://www.graphxify.com/blog/how-to-choose-a-web-design-agency",
+      "checks": []
+    },
+    {
+      "id": "q046",
+      "category": "informational",
+      "intent": "informational",
+      "query": "questions to ask a web design agency",
+      "target_url": "https://www.graphxify.com/blog/how-to-choose-a-web-design-agency",
+      "checks": []
+    },
+    {
+      "id": "q047",
+      "category": "informational",
+      "intent": "informational",
+      "query": "what to look for in a web design agency",
+      "target_url": "https://www.graphxify.com/blog/how-to-choose-a-web-design-agency",
+      "checks": []
+    },
+    {
+      "id": "q048",
+      "category": "informational",
+      "intent": "informational",
+      "query": "mobile-first website for small business",
+      "target_url": "https://www.graphxify.com/blog/mobile-first-website-small-businesses",
+      "checks": []
+    },
+    {
+      "id": "q049",
+      "category": "informational",
+      "intent": "informational",
+      "query": "why mobile-first design matters",
+      "target_url": "https://www.graphxify.com/blog/mobile-first-website-small-businesses",
+      "checks": []
+    },
+    {
+      "id": "q050",
+      "category": "informational",
+      "intent": "informational",
+      "query": "what makes a strong brand identity",
+      "target_url": "https://www.graphxify.com/blog/what-makes-a-strong-brand-identity",
+      "checks": []
+    },
+    {
+      "id": "q051",
+      "category": "informational",
+      "intent": "informational",
+      "query": "elements of a brand identity",
+      "target_url": "https://www.graphxify.com/blog/what-makes-a-strong-brand-identity",
+      "checks": []
+    },
+    {
+      "id": "q052",
+      "category": "informational",
+      "intent": "informational",
+      "query": "custom web development vs WordPress",
+      "target_url": "https://www.graphxify.com/blog/custom-web-development-vs-wordpress",
+      "checks": []
+    },
+    {
+      "id": "q053",
+      "category": "informational",
+      "intent": "informational",
+      "query": "is WordPress good for a business website",
+      "target_url": "https://www.graphxify.com/blog/custom-web-development-vs-wordpress",
+      "checks": []
+    },
+    {
+      "id": "q054",
+      "category": "informational",
+      "intent": "informational",
+      "query": "how a professional website helps business growth",
+      "target_url": "https://www.graphxify.com/blog/professional-website-business-growth",
+      "checks": []
+    },
+    {
+      "id": "q055",
+      "category": "informational",
+      "intent": "informational",
+      "query": "benefits of a professional website",
+      "target_url": "https://www.graphxify.com/blog/professional-website-business-growth",
+      "checks": []
+    },
+    {
+      "id": "q056",
+      "category": "informational",
+      "intent": "informational",
+      "query": "how to get found on Google as a local business",
+      "target_url": "https://www.graphxify.com/blog/local-seo-getting-found-on-google",
+      "checks": []
+    },
+    {
+      "id": "q057",
+      "category": "informational",
+      "intent": "informational",
+      "query": "local SEO basics for small businesses",
+      "target_url": "https://www.graphxify.com/blog/local-seo-getting-found-on-google",
+      "checks": []
+    },
+    {
+      "id": "q058",
+      "category": "informational",
+      "intent": "informational",
+      "query": "website growth checklist",
+      "target_url": "https://www.graphxify.com/resources/website-growth-checklist",
+      "checks": []
+    },
+    {
+      "id": "q059",
+      "category": "informational",
+      "intent": "informational",
+      "query": "website launch checklist for small business",
+      "target_url": "https://www.graphxify.com/resources/website-growth-checklist",
+      "checks": []
+    },
+    {
+      "id": "q060",
+      "category": "informational",
+      "intent": "informational",
+      "query": "web design process steps",
+      "target_url": "https://www.graphxify.com/process",
+      "checks": []
+    },
+    {
+      "id": "q061",
+      "category": "informational",
+      "intent": "informational",
+      "query": "how long does a website design project take",
+      "target_url": "https://www.graphxify.com/process",
+      "checks": []
+    },
+    {
+      "id": "q062",
+      "category": "informational",
+      "intent": "informational",
+      "query": "what happens in a website discovery phase",
+      "target_url": "https://www.graphxify.com/process",
+      "checks": []
+    },
+    {
+      "id": "q063",
+      "category": "ai-assistant",
+      "intent": "commercial",
+      "query": "recommend a web design agency for a small business",
+      "target_url": "https://www.graphxify.com/services/web-design",
+      "checks": []
+    },
+    {
+      "id": "q064",
+      "category": "ai-assistant",
+      "intent": "commercial",
+      "query": "recommend a design studio for a pharmacy website",
+      "target_url": "https://www.graphxify.com/works/pharmacy-on-king",
+      "checks": []
+    },
+    {
+      "id": "q065",
+      "category": "ai-assistant",
+      "intent": "commercial",
+      "query": "which agencies design websites for medical clinics",
+      "target_url": "https://www.graphxify.com/works/boss-medical-clinic",
+      "checks": []
+    },
+    {
+      "id": "q066",
+      "category": "ai-assistant",
+      "intent": "commercial",
+      "query": "small web design studios based in Canada",
+      "target_url": "https://www.graphxify.com/about",
+      "checks": []
+    },
+    {
+      "id": "q067",
+      "category": "ai-assistant",
+      "intent": "commercial",
+      "query": "agency that does branding and web design together",
+      "target_url": "https://www.graphxify.com/services/brand-systems",
+      "checks": []
+    },
+    {
+      "id": "q068",
+      "category": "ai-assistant",
+      "intent": "informational",
+      "query": "what services does Graphxify offer",
+      "target_url": "https://www.graphxify.com/services",
+      "checks": []
+    },
+    {
+      "id": "q069",
+      "category": "ai-assistant",
+      "intent": "informational",
+      "query": "where is Graphxify based",
+      "target_url": "https://www.graphxify.com/about",
+      "checks": []
+    },
+    {
+      "id": "q070",
+      "category": "ai-assistant",
+      "intent": "informational",
+      "query": "how do I contact Graphxify",
+      "target_url": "https://www.graphxify.com/contact",
+      "checks": []
+    },
+    {
+      "id": "q071",
+      "category": "ai-assistant",
+      "intent": "informational",
+      "query": "what projects has Graphxify worked on",
+      "target_url": "https://www.graphxify.com/works",
+      "checks": []
+    },
+    {
+      "id": "q072",
+      "category": "ai-assistant",
+      "intent": "informational",
+      "query": "summarize the Graphxify web design process",
+      "target_url": "https://www.graphxify.com/process",
+      "checks": []
+    }
+  ]
+}

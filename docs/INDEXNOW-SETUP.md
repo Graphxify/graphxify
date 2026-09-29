@@ -1,5 +1,7 @@
 # IndexNow setup
 
+> **Status (2026-09-29):** steps 1–3 are done. The key was generated and stored only as the encrypted Production variable `INDEXNOW_KEY` in Vercel. For the live state, see [INDEXNOW-PRODUCTION-STATUS.md](INDEXNOW-PRODUCTION-STATUS.md).
+
 IndexNow lets Graphxify notify participating search engines (Bing, and through the shared protocol Yandex, Seznam, Naver and others) the moment a URL is created, meaningfully updated or deleted. **Google does not use IndexNow.** Google discovers changes through the sitemap and normal crawling.
 
 ## What's already built (inert until a key is set)

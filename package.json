@@ -9,7 +9,11 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit --incremental false",
     "sync:blog": "node scripts/sync-original-blog-to-cms.mjs",
-    "indexnow:submit": "node scripts/indexnow-submit.mjs"
+    "indexnow:submit": "node scripts/indexnow-submit.mjs",
+    "test:seo": "node scripts/seo-check.mjs",
+    "check:production-seo": "node scripts/seo-check.mjs --production",
+    "test:e2e": "playwright test",
+    "test:unit": "playwright test --project=unit"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.2",
@@ -39,6 +43,7 @@
   },
   "devDependencies": {
     "@next/eslint-plugin-next": "^16.2.10",
+    "@playwright/test": "^1.63.0",
     "@types/node": "^22.10.5",
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^18.3.18",

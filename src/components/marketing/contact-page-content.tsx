@@ -305,7 +305,7 @@ export function ContactPageContent(): JSX.Element {
       });
 
       if (result.success) {
-        trackConversion({ name: "lead_submitted", properties: { form: "contact_page" } });
+        trackConversion({ name: "contact_form_submit", properties: { form: "contact_page" } });
         const notificationStatus = result.data?.notification?.status;
         const hasWarning = notificationStatus === "failed" || notificationStatus === "skipped";
         form.reset();

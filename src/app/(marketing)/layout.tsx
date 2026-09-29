@@ -1,3 +1,4 @@
+import { SiteAnalytics } from "@/components/analytics/site-analytics";
 import { MarketingHeader } from "@/components/marketing/header";
 import { MarketingPerformanceEffects } from "@/components/motion/marketing-performance-effects";
 import { PageTransition } from "@/components/motion/page-transition";
@@ -12,6 +13,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <JsonLd data={websiteJsonLd()} />
       <MarketingPerformanceEffects />
       <MarketingRouteWarmup />
+      <SiteAnalytics />
       <MarketingHeader />
       <PageTransition>
         <main className="relative z-10">{children}</main>
