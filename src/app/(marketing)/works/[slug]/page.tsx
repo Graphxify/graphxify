@@ -5,17 +5,23 @@ export const revalidate = 60;
 // so any other /works/* URL returns a real 404 instead of a soft-404 200.
 export const dynamicParams = false;
 
-import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
-import { ProjectLightboxImage } from "@/components/marketing/project-details-interactive";
-import { OtherProjectsSlider } from "@/components/marketing/other-projects-slider";
-import { SiteCtaSection } from "@/components/marketing/site-cta-section";
+import { ArrowLink } from "@/components/site/arrow-link";
+import { Breadcrumbs } from "@/components/site/breadcrumbs";
+import { CtaBlock } from "@/components/site/cta-block";
+import { ProjectCard } from "@/components/site/project-card";
+import { ProjectStage } from "@/components/site/project-stage";
+import { Reveal } from "@/components/site/reveal";
+import { SectionIntro } from "@/components/site/section-intro";
+import { CaseGallery } from "@/components/work/case-gallery";
+import { CaseHero, CaseOverview, CaseStory } from "@/components/work/case-study";
+import { getImageRatio, packRows } from "@/components/work/gallery-layout";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
-import { Button } from "@/components/ui/button";
 import { getPublishedWorks } from "@/db/queries/works";
+import { getProjectArt, resolveProjectRenders } from "@/lib/project-art";
 import {
   applyConfirmedCopy,
   getProjectDisplayTitle,
@@ -30,12 +36,9 @@ import {
   type ProjectDetail,
   type ProjectImage
 } from "@/lib/project-details";
-import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
 import { breadcrumbListJsonLd, buildCaseStudyTitle, buildMetadata, canonicalUrl, caseStudyJsonLd } from "@/lib/seo";
-import { cn } from "@/lib/utils";
 
 type Params = { slug: string };
-type AccentMode = "none" | "corner" | "hairline" | "ring";
 type CmsWorkLike = {
   id: string;
   title: string;
@@ -72,15 +75,6 @@ type CmsWorkLike = {
   twitter_image?: string | null;
   twitter_card?: string | null;
   canonical_url?: string | null;
-};
-
-const galleryNotes: Record<LayoutVariant, string> = {
-  A: "Hero dominant rhythm with intentional 1 / 2 / 1 / 2 pacing.",
-  B: "Asymmetrical editorial composition with portrait, stack, spread, and squares.",
-  C: "Split showcase sequence: two-up, centered spread, then a clean three-up finish.",
-  D: "Organic masonry collage with tight packing and mixed image orientations.",
-  E: "Alternating cadence from full-width to triple row and balanced two-up close.",
-  F: "Framed sequence with centered lead, offset pair, spread, and balanced close."
 };
 
 const layoutCycle: LayoutVariant[] = ["A", "B", "C", "D", "E", "F"];
@@ -215,25 +209,6 @@ function buildLatestCmsWorkByCanonicalSlug(cmsWorks: CmsWorkLike[]): Map<string,
   }
 
   return byCanonicalSlug;
-}
-
-function seedFromSlug(slug: string): number {
-  let hash = 17;
-  for (let index = 0; index < slug.length; index += 1) {
-    hash = (hash * 33 + slug.charCodeAt(index)) >>> 0;
-  }
-  return hash;
-}
-
-function rotateItems<T>(items: T[], seed: number): T[] {
-  if (items.length <= 1) {
-    return items;
-  }
-  const start = seed % items.length;
-  if (start === 0) {
-    return items;
-  }
-  return [...items.slice(start), ...items.slice(0, start)];
 }
 
 function normalizeLayoutVariant(value: string | null | undefined): LayoutVariant | null {
@@ -584,335 +559,13 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   });
 }
 
+/** Gallery for display: padded set from the data layer, de-duplicated so no image repeats on the page. */
 function getGalleryImages(project: ProjectDetail): ProjectImage[] {
-  return ensureExactGalleryImages(project.images, project.title, project.excerpt, project.coverImage);
-}
-
-function GalleryFrame({
-  image,
-  className,
-  accent: _accent = "none"
-}: {
-  image: ProjectImage;
-  className?: string;
-  accent?: AccentMode;
-}): JSX.Element {
-  const accentStamp = false;
-  const accentHairline = false;
-  const accentFocusRing = false;
-
-  return (
-    <ProjectLightboxImage
-      image={image}
-      className={cn("h-full w-full box-border", className)}
-      sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
-      hideCaption
-      wipeReveal
-      accentStamp={accentStamp}
-      accentHairline={accentHairline}
-      accentFocusRing={accentFocusRing}
-    />
-  );
-}
-
-type StrictGridTileSpec = {
-  tileClassName: string;
-  rowSpan: number;
-  accent?: AccentMode;
-};
-
-const STRICT_GRID_ROW_UNIT_PX = 12;
-const STRICT_GRID_GAP_PX = 12;
-
-const strictGridPatterns: Record<LayoutVariant, StrictGridTileSpec[]> = {
-  A: [
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-6 xl:col-span-12", rowSpan: 24, accent: "hairline" },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 16 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 16 },
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-6 xl:col-span-12", rowSpan: 22, accent: "ring" },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 14 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 14 }
-  ],
-  B: [
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-5", rowSpan: 32, accent: "corner" },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-7", rowSpan: 16 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-7", rowSpan: 16, accent: "corner" },
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-6 xl:col-span-12", rowSpan: 18 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 14 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 14, accent: "corner" }
-  ],
-  C: [
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 18 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 18 },
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-6 xl:col-span-12", rowSpan: 16, accent: "ring" },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 xl:col-span-4", rowSpan: 14 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 xl:col-span-4", rowSpan: 14 },
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-4", rowSpan: 14 }
-  ],
-  D: [
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 xl:col-span-5", rowSpan: 20, accent: "hairline" },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 xl:col-span-3", rowSpan: 20 },
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-2 xl:col-span-4", rowSpan: 20, accent: "corner" },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-4 xl:col-span-7", rowSpan: 15 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 xl:col-span-5", rowSpan: 15, accent: "hairline" },
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-6 xl:col-span-12", rowSpan: 16 }
-  ],
-  E: [
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-6 xl:col-span-12", rowSpan: 20 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 xl:col-span-4", rowSpan: 16 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 xl:col-span-4", rowSpan: 16 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 xl:col-span-4", rowSpan: 16, accent: "ring" },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 16 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 16 }
-  ],
-  F: [
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-2 lg:col-start-3 xl:col-span-6 xl:col-start-4", rowSpan: 20, accent: "ring" },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 lg:col-start-1 xl:col-span-3 xl:col-start-1", rowSpan: 20 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-2 lg:col-start-5 xl:col-span-3 xl:col-start-10", rowSpan: 20, accent: "corner" },
-    { tileClassName: "col-span-1 sm:col-span-2 lg:col-span-6 xl:col-span-12", rowSpan: 18, accent: "hairline" },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 16 },
-    { tileClassName: "col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6", rowSpan: 16 }
-  ]
-};
-
-function StrictGridGallery({
-  images,
-  seed,
-  variant
-}: {
-  images: ProjectImage[];
-  seed: number;
-  variant: LayoutVariant;
-}): JSX.Element {
-  const orderedImages = rotateItems(images, seed);
-  const pattern = strictGridPatterns[variant];
-
-  return (
-    <div
-      className="grid grid-cols-1 gap-[12px] [grid-auto-flow:dense] sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-12"
-      style={{ gridAutoRows: `${STRICT_GRID_ROW_UNIT_PX}px`, gap: `${STRICT_GRID_GAP_PX}px` }}
-    >
-      {orderedImages.map((image, index) => {
-        const tile = pattern[index % pattern.length];
-        return (
-          <div
-            key={`${variant}-${image.src}-${index}`}
-            className={cn("min-h-0 box-border leading-none", tile.tileClassName)}
-            style={{
-              gridRow: `span ${tile.rowSpan} / span ${tile.rowSpan}`,
-              minHeight: `${tile.rowSpan * STRICT_GRID_ROW_UNIT_PX}px`
-            }}
-          >
-            <GalleryFrame image={image} className="h-full w-full" accent={tile.accent ?? "none"} />
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-function GalleryA({
-  images,
-  seed,
-  showHeroDominantLabel = true
-}: {
-  images: ProjectImage[];
-  seed: number;
-  showHeroDominantLabel?: boolean;
-}): JSX.Element {
-  return (
-    <div className="space-y-4">
-      {showHeroDominantLabel ? (
-        <div className="flex items-center gap-3">
-          <span aria-hidden className="h-[2px] w-20 bg-accent-gradient" />
-          <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Hero Dominant · 1 / 2 / 1 / 2</p>
-        </div>
-      ) : null}
-      <StrictGridGallery images={images} seed={seed} variant="A" />
-    </div>
-  );
-}
-
-function GalleryB({
-  images,
-  seed,
-  showEditorialLabel = true
-}: {
-  images: ProjectImage[];
-  seed: number;
-  showEditorialLabel?: boolean;
-}): JSX.Element {
-  return (
-    <div className="space-y-4">
-      {showEditorialLabel ? <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Asymmetrical Editorial</p> : null}
-      <StrictGridGallery images={images} seed={seed} variant="B" />
-    </div>
-  );
-}
-
-function GalleryBossMedClinic({
-  images,
-  seed
-}: {
-  images: ProjectImage[];
-  seed: number;
-}): JSX.Element {
-  // Deduplicate by src so cycling padding never causes the same image to appear twice.
-  const unique = Array.from(new Map(images.map((img) => [img.src, img])).values());
-  const ordered = rotateItems(unique, seed);
-  const ROW = STRICT_GRID_ROW_UNIT_PX;
-  const GAP = STRICT_GRID_GAP_PX;
-
-  return (
-    <div
-      className="grid grid-cols-1 gap-[12px] [grid-auto-flow:dense] sm:grid-cols-2 lg:grid-cols-6 xl:grid-cols-12"
-      style={{ gridAutoRows: `${ROW}px`, gap: `${GAP}px` }}
-    >
-      {/* Left: tall mobile mockup */}
-      <div
-        className="col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-5 min-h-0 box-border"
-        style={{ gridRow: "span 32 / span 32", minHeight: `${32 * ROW}px` }}
-      >
-        <GalleryFrame image={ordered[0]} className="h-full w-full" accent="corner" />
-      </div>
-
-      {/* Right: one large single showcase card */}
-      <div
-        className="col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-7 min-h-0 box-border"
-        style={{ gridRow: "span 32 / span 32", minHeight: `${32 * ROW}px` }}
-      >
-        <GalleryFrame image={ordered[1]} className="h-full w-full" accent="corner" />
-      </div>
-
-      {/* Full-width showcase */}
-      <div
-        className="col-span-1 sm:col-span-2 lg:col-span-6 xl:col-span-12 min-h-0 box-border"
-        style={{ gridRow: "span 18 / span 18", minHeight: `${18 * ROW}px` }}
-      >
-        <GalleryFrame image={ordered[2]} className="h-full w-full" />
-      </div>
-
-      {/* Bottom two — equal halves */}
-      <div
-        className="col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6 min-h-0 box-border"
-        style={{ gridRow: "span 14 / span 14", minHeight: `${14 * ROW}px` }}
-      >
-        <GalleryFrame image={ordered[3]} className="h-full w-full" />
-      </div>
-      <div
-        className="col-span-1 sm:col-span-1 lg:col-span-3 xl:col-span-6 min-h-0 box-border"
-        style={{ gridRow: "span 14 / span 14", minHeight: `${14 * ROW}px` }}
-      >
-        <GalleryFrame image={ordered[4]} className="h-full w-full" accent="corner" />
-      </div>
-    </div>
-  );
-}
-
-function GalleryC({
-  images,
-  seed,
-  showSplitShowcaseLabel = true
-}: {
-  images: ProjectImage[];
-  seed: number;
-  showSplitShowcaseLabel?: boolean;
-}): JSX.Element {
-  return (
-    <div className="space-y-4">
-      {showSplitShowcaseLabel ? (
-        <div className="relative">
-          <span aria-hidden className="absolute -left-3 top-0 h-full w-px bg-border/22 md:-left-5" />
-          <span aria-hidden className="absolute -left-3 top-8 h-24 w-px bg-accent-gradient md:-left-5" />
-          <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Split Grid Showcase</p>
-        </div>
-      ) : null}
-      <StrictGridGallery images={images} seed={seed} variant="C" />
-    </div>
-  );
-}
-
-function GalleryD({ images, seed }: { images: ProjectImage[]; seed: number }): JSX.Element {
-  return (
-    <StrictGridGallery images={images} seed={seed} variant="D" />
-  );
-}
-
-function GalleryE({
-  images,
-  seed,
-  showRhythmIndicator = true
-}: {
-  images: ProjectImage[];
-  seed: number;
-  showRhythmIndicator?: boolean;
-}): JSX.Element {
-  const ordered = rotateItems(images, seed);
-  const activeIndicatorIndex = seed % REQUIRED_GALLERY_IMAGES;
-
-  return (
-    <div className="space-y-4">
-      {showRhythmIndicator ? (
-        <div className="inline-flex items-center gap-2 rounded-full border border-border/20 bg-bg/58 px-3 py-2">
-          {ordered.map((_, index) => (
-            <span
-              key={`dot-${index}`}
-              aria-hidden
-              className={cn("h-1.5 w-1.5 rounded-full", index === activeIndicatorIndex ? "bg-accent-gradient" : "bg-border/35")}
-            />
-          ))}
-          <span className="pl-2 text-[0.58rem] uppercase tracking-[0.14em] text-fg/58">Alternating Rhythm</span>
-        </div>
-      ) : null}
-      <StrictGridGallery images={ordered} seed={0} variant="E" />
-    </div>
-  );
-}
-
-function GalleryF({
-  images,
-  seed,
-  showShowcaseLabel = true
-}: {
-  images: ProjectImage[];
-  seed: number;
-  showShowcaseLabel?: boolean;
-}): JSX.Element {
-  return (
-    <div className="space-y-4">
-      {showShowcaseLabel ? <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/56">Framed Showcase</p> : null}
-      <StrictGridGallery images={images} seed={seed} variant="F" />
-    </div>
-  );
-}
-
-function ProjectVisualGallery({ project }: { project: ProjectDetail }): JSX.Element {
-  const images = getGalleryImages(project);
-  const seed = seedFromSlug(project.slug);
-  const projectPathSlug = getProjectPathSlug(project.slug);
-  const isFlyUpLine = projectPathSlug === "flyup-line";
-  const isMaven = projectPathSlug === "maven";
-  const isBossRaam = projectPathSlug === "boss-medical-clinic";
-  const isPharmacyOnKing = projectPathSlug === "pharmacy-on-king";
-  const isLukaHairSalon = projectPathSlug === "luka-hair-salon";
-
-  if (project.layoutVariant === "A") return <GalleryA images={images} seed={seed} showHeroDominantLabel={!isLukaHairSalon} />;
-  if (project.layoutVariant === "B" && isBossRaam) return <GalleryBossMedClinic images={images} seed={seed} />;
-  if (project.layoutVariant === "B") return <GalleryB images={images} seed={seed} showEditorialLabel={!isBossRaam} />;
-  if (project.layoutVariant === "C") return <GalleryC images={images} seed={seed} showSplitShowcaseLabel={!isPharmacyOnKing} />;
-  if (project.layoutVariant === "D") return <GalleryD images={images} seed={seed} />;
-  if (project.layoutVariant === "E") return <GalleryE images={images} seed={seed} showRhythmIndicator={!isFlyUpLine} />;
-  return <GalleryF images={images} seed={seed} showShowcaseLabel={!isMaven} />;
-}
-
-function getVisualLayoutNote(project: ProjectDetail): string {
-  const note = project.excerpt?.trim();
-  return note && note.length > 0 ? note : galleryNotes[project.layoutVariant];
-}
-
-function getVisualLayoutSectionTitle(project: ProjectDetail): string {
-  const title = project.layoutSectionTitle?.trim();
-  return title && title.length > 0 ? title : "Visual Layout";
+  const padded = ensureExactGalleryImages(project.images, project.title, project.excerpt, project.coverImage);
+  return Array.from(new Map(padded.map((image) => [image.src, image])).values()).map((image, index) => ({
+    ...image,
+    alt: `${project.title} project by Graphxify, gallery image ${index + 1}`
+  }));
 }
 
 function getProjectTimeline(project: ProjectDetail): string {
@@ -932,160 +585,86 @@ const SERVICE_ROUTE_MAP: Record<string, string> = {
   "CMS Architecture": "/services/cms-architecture"
 };
 
-function ProjectInfoRail({ project }: { project: ProjectDetail }): JSX.Element {
-  const platformValue = project.scope.find(({ label }) => label.toLowerCase() === "platform")?.value ?? "Web";
+function getProjectFacts(project: ProjectDetail): Array<{ label: string; value: React.ReactNode }> {
+  const platform = project.scope.find(({ label }) => label.toLowerCase() === "platform")?.value ?? "Web";
   const clientLocation = project.scope.find(({ label }) => label === "Client location")?.value;
-
   const services = project.services.length > 0 ? project.services.slice(0, 3) : ["Brand and Web"];
 
-  return (
-    <div
-      className={cn(
-        "grid grid-cols-2 gap-x-5 gap-y-5 rounded-xl border border-border/14 bg-bg/42 px-5 py-5 sm:grid-cols-3 md:px-7 md:py-6",
-        clientLocation ? "lg:grid-cols-5" : "lg:grid-cols-4"
-      )}
-    >
-      <div>
-        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Industry</p>
-        <p className="mt-1.5 text-sm leading-snug text-fg/76">{project.industry}</p>
-      </div>
-      <div>
-        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Services</p>
-        <div className="mt-1.5 flex flex-wrap gap-x-1.5 gap-y-1">
-          {services.map((svc, i) => {
-            const route = SERVICE_ROUTE_MAP[svc];
-            return route ? (
-              <Link
-                key={svc}
-                href={route}
-                className="text-sm leading-snug text-accentA/80 underline-offset-2 hover:text-accentA hover:underline"
-              >
-                {svc}{i < services.length - 1 ? "," : ""}
-              </Link>
-            ) : (
-              <span key={svc} className="text-sm leading-snug text-fg/76">
-                {svc}{i < services.length - 1 ? "," : ""}
-              </span>
-            );
-          })}
-        </div>
-      </div>
-      <div>
-        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Platform</p>
-        <p className="mt-1.5 text-sm leading-snug text-fg/76">{platformValue}</p>
-      </div>
-      <div>
-        <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Timeline</p>
-        <p className="mt-1.5 text-sm leading-snug text-fg/76">{getProjectTimeline(project)}</p>
-      </div>
-      {/* Client / project market. Rendered only when the CMS holds a real value. */}
-      {clientLocation ? (
-        <div>
-          <p className="text-[0.57rem] uppercase tracking-[0.19em] text-fg/38">Client location</p>
-          <p className="mt-1.5 text-sm leading-snug text-fg/76">{clientLocation}</p>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function NarrativeCard({ title, body }: { title: string; body: string }): JSX.Element {
-  return (
-    <div className="group relative overflow-hidden rounded-2xl border border-border/14 bg-card/50 px-6 py-7 transition-[border-color,background-color] duration-300 hover:border-accentA/20 hover:bg-card/68 md:px-8 md:py-8">
-      {/* Left accent rail */}
-      <span aria-hidden className="absolute bottom-5 left-0 top-5 w-[3px] rounded-r-full bg-accent-gradient opacity-50 transition-opacity duration-300 group-hover:opacity-100" />
-      {/* Top hairline */}
-      <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/28 to-transparent" />
-      {/* Label */}
-      <h3 className="mb-5 text-[0.56rem] font-normal uppercase tracking-[0.22em] text-fg/38">{title}</h3>
-      <p className="text-sm leading-[1.82] text-fg/66">{body}</p>
-    </div>
-  );
+  const facts: Array<{ label: string; value: React.ReactNode }> = [
+    { label: "Industry", value: project.industry },
+    {
+      label: "Services",
+      value: services.map((service, index) => {
+        const route = SERVICE_ROUTE_MAP[service];
+        const separator = index < services.length - 1 ? ", " : "";
+        return route ? (
+          <span key={service}>
+            <Link href={route} className="underline decoration-1 underline-offset-4 hover:decoration-2">
+              {service}
+            </Link>
+            {separator}
+          </span>
+        ) : (
+          <span key={service}>
+            {service}
+            {separator}
+          </span>
+        );
+      })
+    },
+    { label: "Platform", value: platform },
+    { label: "Timeline", value: getProjectTimeline(project) }
+  ];
+  // Client / project market. Rendered only when the CMS holds a real value.
+  if (clientLocation) facts.push({ label: "Client location", value: clientLocation });
+  return facts;
 }
 
 function ProjectNarrative({ project }: { project: ProjectDetail }): JSX.Element | null {
-  const hasRichContent =
-    project.overview.length > 40 &&
-    project.proof.problem.length > 40;
-
-  if (!hasRichContent) {
+  // Thin records (fallback copy only) skip the narrative rather than repeat the summary.
+  if (project.overview.length <= 40 || project.proof.problem.length <= 40) {
     return null;
   }
 
-  const hasApproach = Boolean(project.proof.approach?.trim());
-  const hasOutcome = Boolean(project.proof.outcome?.trim());
-
-  type NarrativeItem = { title: string; body: string };
-
-  function pairRow(items: Array<NarrativeItem | null>): JSX.Element | null {
-    const filtered = items.filter((item): item is NarrativeItem => Boolean(item?.body?.trim()));
-    if (filtered.length === 0) return null;
-    return (
-      <div className={cn("grid gap-4", filtered.length > 1 ? "md:grid-cols-2" : "")}>
-        {filtered.map((item) => (
-          <NarrativeCard key={item.title} {...item} />
-        ))}
-      </div>
-    );
-  }
-
-  const row2 = pairRow([
+  const steps = [
     { title: "Challenge", body: project.proof.problem },
-    hasApproach ? { title: "Approach", body: project.proof.approach! } : null
-  ]);
-
-  const row3 = pairRow([
-    { title: "Solution", body: project.proof.solution },
-    hasOutcome ? { title: "Result", body: project.proof.outcome } : null
-  ]);
+    { title: "Approach", body: project.proof.approach ?? "" },
+    { title: "Solution", body: project.proof.solution }
+  ].filter((step) => step.body.trim());
 
   return (
-    <div className="space-y-5">
-      {/* Section label */}
-      <div className="flex items-center gap-3">
-        <span aria-hidden className="h-[2px] w-7 rounded-full bg-accent-gradient" />
-        <h2 className="text-[0.6rem] font-normal uppercase tracking-[0.24em] text-fg/48">Case Study</h2>
-        <span aria-hidden className="h-px flex-1 bg-border/14" />
-      </div>
-
-      {/* Row 1 — Overview: full-width hero card */}
-      <div className="group relative overflow-hidden rounded-2xl border border-accentA/16 bg-gradient-to-br from-accentA/[0.07] via-card/65 to-card/50 px-7 py-9 transition-[border-color] duration-300 hover:border-accentA/28 md:px-10 md:py-11">
-        {/* Decorative orb */}
-        <span aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-accentA/8 blur-2xl" />
-        {/* Top gradient hairline */}
-        <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/50 to-transparent" />
-        {/* Label */}
-        <h3 className="mb-5 text-[0.56rem] font-normal uppercase tracking-[0.22em] text-fg/38">Overview</h3>
-        <p className="relative max-w-[64ch] text-[0.97rem] leading-[1.82] text-fg/70">{project.overview}</p>
-      </div>
-
-      {/* Row 2 — Challenge + Approach */}
-      {row2}
-
-      {/* Row 3 — Solution + Result */}
-      {row3}
-    </div>
+    <>
+      <CaseOverview text={project.overview} />
+      <CaseStory steps={steps} result={project.proof.outcome.trim()} services={project.services} />
+    </>
   );
 }
 
-function ProjectCtaSection(): JSX.Element {
-  return <SiteCtaSection />;
+/** Unique renders in CMS order: [cover, ...gallery], the indexing project-art.ts expects. */
+function getRenders(project: ProjectDetail): string[] {
+  return Array.from(new Set([project.coverImage, ...project.images.map((image) => image.src)]));
 }
 
-function ProjectLiveLinkAction({ project }: { project: ProjectDetail }): JSX.Element | null {
-  if (!project.liveUrl) {
-    return null;
+/** Other projects ordered to start right after the current one, so "Next project" cycles through the whole portfolio. */
+async function getProjectOrder(): Promise<string[]> {
+  try {
+    const cmsWorks = await getPublishedWorks();
+    if (cmsWorks.length > 0) {
+      return Array.from(buildLatestCmsWorkByCanonicalSlug(cmsWorks as CmsWorkLike[]).keys());
+    }
+  } catch {
+    // Local order below.
   }
+  return graphxifyProjects.map((project) => project.slug);
+}
 
-  return (
-    <div className="w-full md:w-auto md:shrink-0">
-      <Button asChild className="w-full md:w-auto">
-        <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" data-analytics-project={resolveProjectSlugFromPathSlug(project.slug)}>
-          Visit Site
-        </a>
-      </Button>
-    </div>
-  );
+function orderAfter(projects: ProjectDetail[], order: string[], currentSlug: string): ProjectDetail[] {
+  const at = order.indexOf(currentSlug);
+  const rank = (slug: string) => {
+    const index = order.indexOf(slug);
+    return index === -1 ? Number.MAX_SAFE_INTEGER : (index - at + order.length) % order.length;
+  };
+  return [...projects].sort((a, b) => rank(a.slug) - rank(b.slug));
 }
 
 export default async function WorkDetailPage({ params }: { params: Promise<Params> }) {
@@ -1101,75 +680,122 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
     permanentRedirect(`/works/${canonicalPathSlug}`);
   }
 
-  const otherProjects = await getResolvedRelatedProjects(project.slug);
+  const [related, order] = await Promise.all([getResolvedRelatedProjects(project.slug), getProjectOrder()]);
+  const [nextProject, ...moreProjects] = orderAfter(related, order, project.slug);
   const casePath = `/works/${canonicalPathSlug}`;
   const cmsWork = project as unknown as CmsWorkLike;
+  const cover = { src: project.coverImage, alt: `${project.title} project cover image by Graphxify` };
+  const liveMockups = getProjectArt(project.slug).mockups ?? [];
+  const mockupAlts = [`${project.title} live website on laptop and phone`, `${project.title} live website on three phones`];
+  const galleryImages = [
+    ...liveMockups.map((src, index) => ({ src, alt: mockupAlts[index] })),
+    cover,
+    ...getGalleryImages(project).filter((image) => image.src !== cover.src)
+  ];
+  const { art, hero } = resolveProjectRenders(project.slug, galleryImages.slice(liveMockups.length).map((image) => image.src));
+  const ratios = await Promise.all(galleryImages.map((image) => getImageRatio(image.src)));
+  const galleryItems = galleryImages.map((image, index) => ({ src: image.src, alt: image.alt, ratio: ratios[index] }));
+  const galleryRows = packRows(ratios.map((ratio) => ratio ?? 1.5));
+  const nextTitle = nextProject ? getProjectDisplayTitle(nextProject.slug, nextProject.title) : null;
+  const otherProjects = moreProjects.slice(0, 3);
 
   return (
     // <article>, not <main>: the marketing layout already provides the single <main> landmark.
-    <article className="relative -mt-28 sm:-mt-32 lg:-mt-40">
-        <JsonLd
-          data={caseStudyJsonLd({
-            title: project.title,
-            description: cmsWork.meta_description?.trim() || project.excerpt,
-            path: casePath,
-            industry: project.industry,
-            services: project.services,
-            images: [project.coverImage, ...project.images.map((image) => image.src)].filter(
-              (src) => !src.startsWith("/assets/")
-            ),
-            liveUrl: project.liveUrl
-          })}
-        />
-        <JsonLd
-          data={breadcrumbListJsonLd([
-            { name: "Home", url: canonicalUrl("/") },
-            { name: "Work", url: canonicalUrl("/works") },
-            { name: project.title, url: canonicalUrl(casePath) }
-          ])}
-        />
-        <ContentRefreshListener pathPrefixes={["/works"]} />
-        <section className="pointer-events-none sticky top-0 z-0 h-[100svh] overflow-hidden">
-          <Image src={project.coverImage} alt={`${project.title} project cover image by Graphxify`} fill className="object-cover" sizes="100vw" priority unoptimized={shouldBypassNextImageOptimization(project.coverImage)} />
-          <div aria-hidden className="absolute inset-0 bg-black/48" />
-          <div className="absolute inset-0 flex items-center">
-            <div className="container">
-              <div className="relative mx-auto max-w-3xl text-center">
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-x-0 -inset-y-5 rounded-[1.65rem] border border-white/12 bg-black/20 backdrop-blur-md"
-                />
-                <h1 className="relative text-[clamp(2.2rem,5vw,4.8rem)] font-semibold leading-[0.96] text-ivory">{project.title}</h1>
-                <p className="relative mx-auto mt-4 max-w-2xl text-sm text-ivory md:text-base">{project.subtitle}</p>
-              </div>
+    <article>
+      <JsonLd
+        data={caseStudyJsonLd({
+          title: project.title,
+          description: cmsWork.meta_description?.trim() || project.excerpt,
+          path: casePath,
+          industry: project.industry,
+          services: project.services,
+          images: [project.coverImage, ...project.images.map((image) => image.src)].filter(
+            (src) => !src.startsWith("/assets/")
+          ),
+          liveUrl: project.liveUrl
+        })}
+      />
+      <JsonLd
+        data={breadcrumbListJsonLd([
+          { name: "Home", url: canonicalUrl("/") },
+          { name: "Work", url: canonicalUrl("/works") },
+          { name: project.title, url: canonicalUrl(casePath) }
+        ])}
+      />
+      <ContentRefreshListener pathPrefixes={["/works"]} />
+
+      <div className="container pt-6 md:pt-10">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Work", href: "/works" }, { label: project.title }]} />
+        <div className="mt-6 md:mt-8">
+          <CaseHero
+            title={project.title}
+            industry={project.industry}
+            summary={project.subtitle}
+            facts={getProjectFacts(project)}
+            image={hero}
+            imageAlt={hero === cover.src ? cover.alt : galleryImages.find((image) => image.src === hero)?.alt ?? cover.alt}
+            art={art}
+            liveUrl={project.liveUrl}
+            analyticsSlug={resolveProjectSlugFromPathSlug(project.slug)}
+          />
+        </div>
+      </div>
+
+      <ProjectNarrative project={project} />
+
+      {galleryItems.length ? (
+        <section aria-label="Gallery" className="container section pt-0 md:pt-0 lg:pt-0">
+          <Reveal className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <SectionIntro align="left" badge="Gallery" title={<>{project.title} in <span className="text-accentB">detail</span></>} />
+            <p className="t-small md:pb-2">{galleryItems.length} renders. Select any to enlarge.</p>
+          </Reveal>
+          <div className="mt-12 md:mt-16">
+            <CaseGallery items={galleryItems} rows={galleryRows} stage={art.stage} />
+          </div>
+        </section>
+      ) : null}
+
+      {nextProject && nextTitle ? (
+        <section aria-label="Next project" className="container section pt-0 md:pt-0 lg:pt-0">
+          <Reveal className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <SectionIntro align="left" badge="Next project" title={<>Keep <span className="text-accentB">exploring</span></>} />
+            <ArrowLink href="/works" className="md:pb-2">
+              All work
+            </ArrowLink>
+          </Reveal>
+          <Reveal className="mt-12 md:mt-16">
+            <ProjectStage
+              project={{
+                slug: nextProject.slug,
+                href: `/works/${getProjectPathSlug(nextProject.slug)}`,
+                title: nextTitle,
+                industry: nextProject.industry,
+                images: getRenders(nextProject),
+                summary: nextProject.subtitle,
+                tags: nextProject.services
+              }}
+            />
+          </Reveal>
+          {otherProjects.length ? (
+            <div className="mt-5 grid gap-5 md:mt-6 md:grid-cols-3 md:gap-6">
+              {otherProjects.map((item, index) => (
+                <Reveal key={item.slug} delay={index * 80}>
+                  <ProjectCard
+                    href={`/works/${getProjectPathSlug(item.slug)}`}
+                    slug={item.slug}
+                    title={getProjectDisplayTitle(item.slug, item.title)}
+                    industry={item.industry}
+                    image={item.coverImage}
+                    sizes="(max-width: 767px) 100vw, 33vw"
+                  />
+                </Reveal>
+              ))}
             </div>
-          </div>
+          ) : null}
         </section>
+      ) : null}
 
-        <section className="relative z-20 -mt-[28svh] min-h-[120svh] rounded-t-[2.4rem] border-x border-border/18 bg-card px-0 pt-12 pb-20 shadow-[0_-16px_40px_rgba(13,13,15,0.08)] md:-mt-[26svh] md:rounded-t-[3.25rem] md:pt-16 md:pb-28">
-          <div className="container space-y-8">
-
-            {/* ── Project metadata rail ── */}
-            <ProjectInfoRail project={project} />
-
-            {/* ── Gallery section header ── */}
-            <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-              <div className="space-y-2">
-                <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/56">{getVisualLayoutSectionTitle(project)}</p>
-                <p className="max-w-2xl text-sm text-fg/66">{getVisualLayoutNote(project)}</p>
-              </div>
-              <ProjectLiveLinkAction project={project} />
-            </header>
-
-            <ProjectVisualGallery project={project} />
-
-            {/* ── Case study narrative ── */}
-            <ProjectNarrative project={project} />
-
-            <ProjectCtaSection />
-            <OtherProjectsSlider projects={otherProjects} />
-          </div>
-        </section>
+      <CtaBlock />
     </article>
   );
 }

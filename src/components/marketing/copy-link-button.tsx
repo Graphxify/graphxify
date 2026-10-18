@@ -1,7 +1,8 @@
 "use client";
 
-import { Check, Copy } from "lucide-react";
+import { Check, Link2 } from "lucide-react";
 import { useState } from "react";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export function CopyLinkButton({ url, className }: { url: string; className?: string }): JSX.Element {
@@ -18,16 +19,9 @@ export function CopyLinkButton({ url, className }: { url: string; className?: st
   }
 
   return (
-    <button
-      type="button"
-      onClick={onCopy}
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-md border border-border/18 px-2.5 py-1.5 text-xs uppercase tracking-[0.12em] text-fg/62 transition hover:border-accentA/34 hover:text-fg",
-        className
-      )}
-    >
-      {copied ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
-      {copied ? "Copied" : "Copy link"}
+    <button type="button" onClick={onCopy} className={cn(buttonVariants({ variant: "secondary", size: "sm" }), className)}>
+      {copied ? <Check className="h-4 w-4 text-accentB" aria-hidden="true" /> : <Link2 className="h-4 w-4" aria-hidden="true" />}
+      <span aria-live="polite">{copied ? "Link copied" : "Copy link"}</span>
     </button>
   );
 }

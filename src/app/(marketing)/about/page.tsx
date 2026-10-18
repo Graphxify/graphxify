@@ -7,7 +7,8 @@ import { getPublishedTestimonials } from "@/db/queries/testimonials";
 import { normalizeImage, firstGalleryImage, withImageVersion } from "@/lib/content-helpers";
 import { projectCardContent, resolveProjectSlugFromPathSlug, withProjectCardContent } from "@/lib/project-card-content";
 import { getProjectBySlug, graphxifyProjects } from "@/lib/project-details";
-import { buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, webPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "About — Web Design, Branding & Development Studio",
@@ -116,5 +117,11 @@ export default async function AboutPage() {
         }))
       : [];
 
-  return <AboutPageContent works={resolvedWorks.slice(0, 3)} testimonials={testimonials} />;
+  return (
+    <>
+      <JsonLd data={webPageJsonLd("AboutPage", "/about", "About Graphxify")} />
+      <JsonLd data={breadcrumbListJsonLd([{ name: "Home", url: canonicalUrl("/") }, { name: "About", url: canonicalUrl("/about") }])} />
+      <AboutPageContent works={resolvedWorks.slice(0, 3)} testimonials={testimonials} />
+    </>
+  );
 }

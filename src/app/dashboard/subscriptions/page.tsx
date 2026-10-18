@@ -127,7 +127,7 @@ export default async function DashboardSubscriptionsPage({
               { label: "Total subscribers", value: stats.total, tone: "text-fg" },
               { label: "Active", value: stats.subscribed, tone: "text-emerald-400" },
               { label: "Unsubscribed", value: stats.unsubscribed, tone: "text-amber-300" },
-              { label: "Checklist emails sent", value: stats.welcomeSent, tone: "text-accentA" }
+              { label: "Checklist emails sent", value: stats.welcomeSent, tone: "text-accentB" }
             ].map((card) => (
               <div key={card.label} className="section-shell border-border/18 bg-card/72 p-4">
                 <p className="text-xs uppercase tracking-[0.16em] text-fg/44">{card.label}</p>
@@ -206,7 +206,7 @@ export default async function DashboardSubscriptionsPage({
                         <TableCell className="font-medium">
                           <a
                             href={`mailto:${row.email}`}
-                            className="inline-flex items-center gap-1.5 text-fg/70 transition-colors duration-150 hover:text-accentA"
+                            className="inline-flex items-center gap-1.5 text-fg/70 transition-colors duration-150 hover:text-accentB"
                           >
                             <Mail className="h-3.5 w-3.5" />
                             {row.email}

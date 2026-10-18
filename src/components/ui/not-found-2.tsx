@@ -1,62 +1,61 @@
 import Link from "next/link";
-import { HomeIcon } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
+import { Badge } from "@/components/site/badge";
 import { Button } from "@/components/ui/button";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 
 // Crawlable routes back into the site, so a mistyped or retired URL is a
 // dead end for neither visitors nor crawlers. The page still returns HTTP 404.
 const recoveryLinks = [
-  { href: "/works", label: "View Work" },
-  { href: "/services", label: "Services" },
-  { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" }
+  { href: "/services", label: "Services", body: "Brand, design, development and CMS." },
+  { href: "/process", label: "Process", body: "How a project runs, stage by stage." },
+  { href: "/contact", label: "Contact", body: "Tell us about your project." }
 ] as const;
 
+// Rendered by the root not-found route, outside the marketing layout: no site header here.
 export function NotFound() {
   return (
-    <div className="relative flex min-h-screen w-full items-center justify-center overflow-hidden px-4">
-      <Empty className="max-w-xl bg-card/76 backdrop-blur-md">
-        <EmptyHeader>
-          <EmptyTitle
-            className="font-extrabold leading-none text-[clamp(5.5rem,18vw,8.75rem)] text-fg/90"
-            style={{
-              WebkitMaskImage:
-                "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.86) 26%, rgba(255,255,255,0.2) 46%, rgba(255,255,255,0.04) 58%, rgba(255,255,255,0) 70%)",
-              maskImage:
-                "linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0.86) 26%, rgba(255,255,255,0.2) 46%, rgba(255,255,255,0.04) 58%, rgba(255,255,255,0) 70%)"
-            }}
-          >
-            <h1 className="font-[inherit]">
-              404<span className="sr-only"> — Page not found</span>
-            </h1>
-          </EmptyTitle>
-          <EmptyDescription className="-mt-9 text-fg/78">
-            The page you&apos;re looking for might have been <br />
-            moved or doesn&apos;t exist.
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <div className="flex flex-wrap justify-center gap-2">
-            <Button asChild>
-              <Link href="/">
-                <HomeIcon className="mr-2 size-4" data-icon="inline-start" />
-                Go Home
+    <main className="container flex min-h-[100svh] flex-col pb-10 pt-5 md:pb-14 md:pt-8">
+      <Link href="/" aria-label="Graphxify home" className="inline-flex w-fit self-center rounded-full bg-white px-5 py-3 md:self-start">
+        <GraphxifyLogo alt="Graphxify" width={246} height={68} priority className="h-auto w-[7rem] md:w-[7.5rem]" />
+      </Link>
+
+      <div className="flex flex-1 flex-col items-center justify-center py-16 text-center md:py-24">
+        <Badge dot="blue">404</Badge>
+        <h1 className="t-display mt-7 max-w-[12ch] text-fg">
+          Page not <span className="text-accentB">found</span>.
+        </h1>
+        <p className="t-lead mt-6 max-w-[44ch]">The page you&apos;re looking for might have been moved or doesn&apos;t exist.</p>
+        <div className="mt-9 flex flex-wrap justify-center gap-3">
+          <Button asChild size="lg">
+            <Link href="/">Back to home</Link>
+          </Button>
+          <Button asChild size="lg" variant="secondary">
+            <Link href="/works">See our work</Link>
+          </Button>
+        </div>
+      </div>
+
+      <nav aria-label="Popular pages">
+        <ul className="grid gap-3 md:grid-cols-3 md:gap-4">
+          {recoveryLinks.map((link) => (
+            <li key={link.href}>
+              <Link
+                href={link.href}
+                className="group flex h-full items-center justify-between gap-4 rounded-[1.75rem] bg-white p-6 transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-lift motion-reduce:transform-none md:p-7"
+              >
+                <span>
+                  <span className="t-h3 block text-fg">{link.label}</span>
+                  <span className="t-small mt-1 block">{link.body}</span>
+                </span>
+                <span aria-hidden="true" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg text-fg transition-colors duration-200 group-hover:bg-fg group-hover:text-white">
+                  <ArrowUpRight className="h-4 w-4" />
+                </span>
               </Link>
-            </Button>
-          </div>
-          <nav aria-label="Popular pages" className="mt-4">
-            <ul className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-fg/66">
-              {recoveryLinks.map((link) => (
-                <li key={link.href}>
-                  <Link href={link.href} className="link-sweep hover:text-fg">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </EmptyContent>
-      </Empty>
-    </div>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </main>
   );
 }

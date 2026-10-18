@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CursorGlow } from "@/components/motion/cursor-glow";
-import { DeferredEffects } from "@/components/motion/deferred-effects";
 import { ScrollProgress } from "@/components/motion/scroll-progress";
-import { SmoothScrollDriver } from "@/components/motion/smooth-scroll-driver";
 
 type NavigatorWithHints = Navigator & {
   connection?: { saveData?: boolean };
@@ -20,8 +17,7 @@ function readCapabilities() {
   if (typeof window === "undefined") {
     return {
       reducedMotion: false,
-      allowShellEffects: false,
-      allowCursorGlow: false
+      allowShellEffects: false
     };
   }
 
@@ -34,26 +30,23 @@ function readCapabilities() {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const allowShellEffects = !reducedMotion && finePointer && wideViewport && !saveData && deviceMemory >= 6 && hardwareConcurrency >= 6;
-  const allowCursorGlow = allowShellEffects && deviceMemory >= 8 && hardwareConcurrency >= 8;
 
   return {
     reducedMotion,
-    allowShellEffects,
-    allowCursorGlow
+    allowShellEffects
   };
 }
 
 export function MarketingPerformanceEffects(): JSX.Element | null {
-  const [{ reducedMotion, allowShellEffects, allowCursorGlow }, setCapabilities] = useState(() => ({
+  const [{ reducedMotion, allowShellEffects }, setCapabilities] = useState(() => ({
     reducedMotion: false,
-    allowShellEffects: false,
-    allowCursorGlow: false
+    allowShellEffects: false
   }));
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (reducedMotion) {
-      setCapabilities({ reducedMotion: true, allowShellEffects: false, allowCursorGlow: false });
+      setCapabilities({ reducedMotion: true, allowShellEffects: false });
       setReady(false);
       return;
     }
@@ -87,10 +80,7 @@ export function MarketingPerformanceEffects(): JSX.Element | null {
 
   return (
     <>
-      {allowShellEffects ? <SmoothScrollDriver /> : null}
       {allowShellEffects ? <ScrollProgress /> : null}
-      {allowShellEffects ? <DeferredEffects /> : null}
-      {allowCursorGlow ? <CursorGlow /> : null}
     </>
   );
 }

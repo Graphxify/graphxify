@@ -1,22 +1,28 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight, Blocks, Fingerprint, Layout, Mail, Minus, PackageCheck, Phone, Plus, Sparkles, Terminal, Timer, Zap, type LucideIcon } from "lucide-react";
+import { Check, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DeferredLeadForm, DeferredTestimonialsSection } from "@/components/marketing/deferred-home-islands";
-import { FounderIntroSection } from "@/components/marketing/founder-intro-section";
-// Imported directly (not next/dynamic): it is server-rendered either way, and the
-// loading boundary streamed the project links into a hidden <div> outside
-// <main> in the initial HTML.
-import { HomeProjectsSlider } from "@/components/marketing/home-projects-slider";
-import { NewsletterSignup } from "@/components/marketing/newsletter-signup";
-import { SectionReveal } from "@/components/marketing/section-reveal";
-import { companyContact, faqs, services } from "@/lib/constants";
+import { ArrowLink } from "@/components/site/arrow-link";
+import { Badge } from "@/components/site/badge";
+import { CtaBlock } from "@/components/site/cta-block";
+import { FaqList } from "@/components/site/faq-list";
+import { Marquee } from "@/components/site/marquee";
+import { ProjectStage } from "@/components/site/project-stage";
+import { ScrollStack } from "@/components/site/scroll-stack";
+import { Reveal } from "@/components/site/reveal";
+import { Testimonials3D } from "@/components/site/testimonials-3d";
+import { SectionIntro } from "@/components/site/section-intro";
+import { DeferredLeadForm } from "@/components/marketing/deferred-home-islands";
+import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
+import { faqs, services } from "@/lib/constants";
 
 type TestimonialCard = {
   id: string;
   quote: string;
   name: string;
   role: string;
+  image_url?: string | null;
+  rating?: number;
 };
 
 type TestimonialMetricCard = {
@@ -32,6 +38,8 @@ type HomeProjectCard = {
   title: string;
   industry: string;
   coverImage: string;
+  images?: string[];
+  tags?: string[];
 };
 
 type StripLogo = {
@@ -87,13 +95,6 @@ function getMarqueeLogoSrc(baseName: string, tone: "light" | "dark"): string {
   return `/images/marquee/${baseName}-${tone}.svg`;
 }
 
-const serviceIcons: Record<string, LucideIcon> = {
-  "brand-systems": Fingerprint,
-  "web-design": Layout,
-  "web-development": Terminal,
-  "cms-architecture": Blocks
-};
-
 type HomeFaq = {
   id: string;
   q: string;
@@ -119,27 +120,29 @@ const homeFaqs: HomeFaq[] = [
   }
 ];
 
-function SectionHeading({
-  eyebrow,
-  title
-}: {
-  eyebrow: string;
-  title: string;
-}): JSX.Element {
-  return (
-    <div className="mb-6">
-      <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-fg/58">
-        <span className="h-1.5 w-1.5 rounded-full bg-accentA" aria-hidden="true" />
-        <span>{eyebrow}</span>
-      </p>
-      <h2 className="mt-1 text-2xl font-semibold md:text-3xl">{title}</h2>
-    </div>
-  );
-}
+// Typical durations and outputs, from the /process page.
+const processStages = [
+  { title: "Discover", time: "3 to 5 days", body: "Goals, audience and competitors, turned into a written scope, a fixed quote and a timeline." },
+  { title: "Structure", time: "3 to 5 days", body: "Sitemap, navigation and wireframes for every key page, before anyone worries about looks." },
+  { title: "Design", time: "1 to 3 weeks", body: "Desktop and mobile designs plus a clickable prototype. Nothing is built that you have not approved." },
+  { title: "Build & Ship", time: "2 to 4 weeks", body: "Custom Next.js, tested on real devices, deployed to hosting you own, with your team trained." }
+] as const;
+
+// "Built differently" comparison, from the /services page.
+const comparison = {
+  typical: ["One-off designs", "Hard-to-manage websites", "Rigid page builders", "Slow, heavy builds", "Frequent redesigns required"],
+  graphxify: ["Structured brand systems", "Scalable website architecture", "Clean CMS structure", "Fast, modern performance", "Built for long-term growth"]
+} as const;
+
+// Hero composition: brand-stage scenes of live client sites (.design-qa/scenes.mjs), centre one largest.
+const heroArt = [
+  { src: "/images/scenes/hero-left.webp", place: "left", alt: "The Pharmacy On King website on two phones" },
+  { src: "/images/scenes/hero-center.webp", place: "center", alt: "The FlyUp Line website on a laptop and phone, live at flyupline.com" },
+  { src: "/images/scenes/hero-right.webp", place: "right", alt: "The B.O.S.S. Medical Clinic website on a phone" }
+] as const;
 
 export function HomeSections({
   testimonials,
-  testimonialMetrics,
   homeProjects,
   marqueeItems = []
 }: {
@@ -148,318 +151,250 @@ export function HomeSections({
   homeProjects: HomeProjectCard[];
   marqueeItems?: CmsMarqueeItem[];
 }): JSX.Element {
-  const projectCards = homeProjects;
+  const projects = homeProjects.map((project) => ({
+    ...project,
+    images: project.images?.length ? project.images : [project.coverImage],
+    title: getProjectDisplayTitle(project.slug, project.title),
+    href: `/works/${getProjectPathSlug(project.slug)}`
+  }));
+  const logos = marqueeItems.length
+    ? marqueeItems.map((item) => ({ key: item.id, alt: item.label, src: item.image_url_dark }))
+    : stripLogos.map((logo) => ({ key: logo.key, alt: logo.alt, src: getMarqueeLogoSrc(logo.baseName, "dark") }));
+  const stats = [
+    // Counted from the published case studies actually shown on the site.
+    { value: String(projects.length), label: "Published case studies" },
+    // Graphxify's stated process range (see /process), not a measured average.
+    { value: "4 to 8 wks", label: "Typical launch" },
+    { value: "24h", label: "Response time" }
+  ];
 
   return (
-    <div className="space-y-16 pb-16 pt-4 md:space-y-20 md:pb-20 md:pt-8 lg:space-y-24 lg:pt-10">
-      <section className="container pt-0 md:pt-2">
-        <div className="mx-auto max-w-[940px]">
-          <div className="mx-auto flex w-fit items-center justify-center rounded-full border border-border/18 bg-card/72 px-3.5 py-1.5 text-center shadow-[0_8px_22px_rgba(13,13,15,0.08)]">
-            <p className="text-sm text-fg/66">Independent Design Studio</p>
-          </div>
-
-          <div className="relative mt-6">
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute left-1/2 top-[48%] -z-10 h-28 w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accentA/14 blur-3xl md:h-36"
-            />
-            <h1 className="mx-auto flex max-w-full flex-col items-center text-center text-[clamp(1.32rem,7vw,5.1rem)] font-semibold leading-[0.98] tracking-[-0.035em] text-black dark:text-white sm:leading-[0.95]">
-              <span className="block whitespace-nowrap">
-                <span className="gradient-text">Systems</span> and websites
-              </span>
-              <span className="mt-1.5 block whitespace-nowrap md:mt-2">
-                built for modern
-              </span>
-              <span className="mt-1.5 block whitespace-nowrap md:mt-2">
-                <span className="gradient-text">businesses</span> ready to grow
-              </span>
-            </h1>
-          </div>
-
-          <p className="mx-auto mt-5 max-w-3xl text-center text-[0.96rem] text-black dark:text-white md:text-[1.14rem]">
-            Graphxify is an independent web design and development agency. We help small businesses and founders launch with a brand and website that looks credible, loads fast, and converts.
+    <>
+      {/* ── Hero ── */}
+      <section className="relative isolate overflow-hidden pb-10 pt-12 md:pt-20">
+        <div aria-hidden="true" className="absolute inset-0 -z-10 [background:linear-gradient(115deg,transparent_30%,rgba(255,255,255,0.9)_45%,transparent_60%),linear-gradient(65deg,transparent_55%,rgba(255,255,255,0.7)_68%,transparent_80%)] [mask-image:linear-gradient(to_bottom,#000_55%,transparent)]" />
+        <div className="container flex flex-col items-center text-center">
+          <Badge dot="green">Available for new projects</Badge>
+          <h1 className="t-display mt-7 max-w-[15ch] text-fg">
+            Brands and websites that help your business <span className="text-accentB">grow</span>.
+          </h1>
+          <p className="t-lead mt-7 max-w-[46ch]">
+            We help small businesses and founders launch a brand and website that looks credible, loads fast, and converts.
           </p>
-
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-            <Button
-              asChild
-              size="lg"
-              className="w-full rounded-lg border border-border/26 px-6 text-sm !bg-graphite !text-ivory shadow-[0_12px_24px_rgba(13,13,15,0.22)] hover:!bg-graphite/92 dark:!bg-ivory dark:!text-graphite dark:hover:!bg-ivory/92 sm:w-auto sm:text-base"
-            >
-              <Link href="/contact">Start a Project</Link>
+          <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <Button asChild size="lg">
+              <Link href="/contact">Start a project</Link>
             </Button>
-            <Link href="/works" className="link-sweep text-sm text-fg/72 sm:text-base">
-              View Our Work
-            </Link>
-          </div>
-
-          <div className="mt-9 flex justify-center">
-            <div className="inline-grid grid-cols-3 divide-x divide-border/12 overflow-hidden rounded-2xl border border-border/14 bg-card/60 shadow-[0_8px_28px_rgba(13,13,15,0.07)]">
-              {([
-                // Counted from the published case studies actually shown on the site.
-                { icon: PackageCheck, stat: String(projectCards.length), label: "Published case studies" },
-                // Graphxify's stated process range (see /process), not a measured average.
-                { icon: Timer, stat: "4 to 8 wks", label: "Typical launch" },
-                { icon: Zap, stat: "24h", label: "Response time" }
-              ] as const).map(({ icon: Icon, stat, label }) => (
-                <div key={stat} className="flex flex-col items-center gap-2 px-5 py-4 sm:px-7">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-accentA/24 bg-accentA/8 text-accentA">
-                    <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-                  </span>
-                  <p className="text-sm font-semibold text-fg/88 sm:text-[0.95rem]">{stat}</p>
-                  <p className="text-center text-[0.65rem] leading-tight text-fg/50">{label}</p>
-                </div>
-              ))}
-            </div>
+            <Button asChild size="lg" variant="secondary">
+              <Link href="/works">See our work</Link>
+            </Button>
           </div>
         </div>
 
-        {(() => {
-          // Use CMS items when available; fall back to the hardcoded static logos.
-          const useCms = marqueeItems.length > 0;
-          const cmsItems = marqueeItems;
-
-          return (
-            <div className="group relative mt-12 overflow-hidden rounded-2xl bg-card/70 py-2.5 md:mt-14">
-              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-card via-card/90 to-transparent md:w-24" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-card via-card/90 to-transparent md:w-24" />
-              <div className="flex w-max animate-marquee items-center [animation-duration:30s] [animation-play-state:running] motion-reduce:animate-none group-hover:[animation-play-state:paused] will-change-transform">
-                {[0, 1].map((loopIndex) => (
-                  <ul
-                    key={`logo-loop-${loopIndex}`}
-                    aria-hidden={loopIndex === 1}
-                    className="flex shrink-0 items-center gap-6 pr-6 sm:gap-8 sm:pr-8 md:gap-12 md:pr-12"
-                  >
-                    {useCms
-                      ? cmsItems.map((item) => (
-                          <li
-                            key={`${loopIndex}-${item.id}`}
-                            className="inline-flex h-8 items-center justify-center opacity-56 transition duration-300 hover:opacity-92 sm:h-9"
-                          >
-                            <span className="relative inline-flex h-full w-[6.2rem] items-center justify-center sm:w-[7rem] md:w-[8.2rem]">
-                              <Image
-                                src={item.image_url_dark}
-                                alt={item.label}
-                                width={176}
-                                height={48}
-                                className="h-full w-full object-contain dark:hidden"
-                                sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
-                                unoptimized={item.image_url_dark.startsWith("http")}
-                              />
-                              <Image
-                                src={item.image_url_light}
-                                alt={item.label}
-                                width={176}
-                                height={48}
-                                className="hidden h-full w-full object-contain dark:block"
-                                sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
-                                unoptimized={item.image_url_light.startsWith("http")}
-                              />
-                            </span>
-                          </li>
-                        ))
-                      : stripLogos.map((logo) => (
-                          <li
-                            key={`${loopIndex}-${logo.key}`}
-                            className="inline-flex h-8 items-center justify-center opacity-56 transition duration-300 hover:opacity-92 sm:h-9"
-                          >
-                            <span className="relative inline-flex h-full w-[6.2rem] items-center justify-center sm:w-[7rem] md:w-[8.2rem]">
-                              <Image
-                                src={getMarqueeLogoSrc(logo.baseName, "dark")}
-                                alt={logo.alt}
-                                width={176}
-                                height={48}
-                                className="h-full w-full object-contain dark:hidden"
-                                sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
-                              />
-                              <Image
-                                src={getMarqueeLogoSrc(logo.baseName, "light")}
-                                alt={logo.alt}
-                                width={176}
-                                height={48}
-                                className="hidden h-full w-full object-contain dark:block"
-                                sizes="(min-width: 768px) 8.2rem, (min-width: 640px) 7rem, 6.2rem"
-                              />
-                            </span>
-                          </li>
-                        ))}
-                  </ul>
-                ))}
+        {/* Fan of real project renders with verified stat chips */}
+        <div className="container relative mt-12 md:mt-20">
+          <div className="relative mx-auto flex max-w-5xl items-end justify-center sm:h-[24rem] md:h-[30rem]">
+            {heroArt.map((art) => {
+              const center = art.place === "center";
+              const image = (
+                <Image src={art.src} alt={art.alt} fill priority sizes={center ? "(max-width: 767px) 100vw, 580px" : "260px"} className="object-cover" />
+              );
+              return center ? (
+                <div
+                  key={art.place}
+                  className="relative z-10 aspect-[4/3] w-full overflow-hidden rounded-[1.75rem] bg-white shadow-[0_40px_80px_-40px_rgba(10,10,10,0.55)] ring-8 ring-white motion-safe:animate-[fadeIn_900ms_ease-out_both] sm:w-[70%] md:w-[56%]"
+                >
+                  {image}
+                </div>
+              ) : (
+                // Tilt on the wrapper; the fade-in animation's transform would otherwise cancel it.
+                <div key={art.place} className={`absolute bottom-6 hidden w-[24%] sm:block ${art.place === "left" ? "left-[4%] -rotate-[7deg]" : "right-[4%] rotate-[7deg]"}`}>
+                  <div className="relative aspect-[3/4] overflow-hidden rounded-[1.75rem] bg-white shadow-[0_30px_60px_-30px_rgba(10,10,10,0.5)] ring-8 ring-white motion-safe:animate-[fadeIn_900ms_ease-out_200ms_both]">
+                    {image}
+                  </div>
+                </div>
+              );
+            })}
+            {/* Floating verified stats */}
+            <div className="absolute left-0 top-6 z-20 hidden rounded-2xl bg-white px-4 py-3 text-left shadow-[0_20px_40px_-20px_rgba(10,10,10,0.35)] md:block md:-rotate-3">
+              <p className="text-2xl font-extrabold tracking-[-0.04em]">{stats[0].value}</p>
+              <p className="t-small">{stats[0].label}</p>
+            </div>
+            <div className="absolute right-0 top-14 z-20 hidden items-center gap-3 rounded-2xl bg-white px-4 py-3 text-left shadow-[0_20px_40px_-20px_rgba(10,10,10,0.35)] md:flex md:rotate-3">
+              <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-green text-fg">
+                <Check className="h-4 w-4" />
+              </span>
+              <div>
+                <p className="text-lg font-extrabold tracking-[-0.03em]">{stats[2].value} reply</p>
+                <p className="t-small">On every inquiry</p>
               </div>
             </div>
-          );
-        })()}
+          </div>
+        </div>
       </section>
 
-      <SectionReveal className="container" effect="zoom">
-        <SectionHeading eyebrow="Selected Work" title="Strategic work, delivered." />
-        <div className="section-shell relative overflow-hidden border-white/14 bg-[#0d0d0f]/94 p-4 md:p-6">
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/35 to-transparent" />
-          <div className="pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full bg-accentA/12 blur-3xl" />
-
-          <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-white/12 pb-4">
-            <p className="max-w-xl text-sm text-ivory/66 md:text-base">
-              Every project starts with a problem and ends with a platform. Here&apos;s a selection of brands and websites we&apos;ve designed and built for businesses worldwide.
-            </p>
-            <Link href="/works" className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-ivory/74 transition-colors duration-300 hover:text-ivory">
-              View all projects
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-
-          <HomeProjectsSlider projects={projectCards} />
+      {/* ── Clients ── */}
+      <section aria-label="Brands we have designed and built for" className="pb-16 pt-6 md:pb-24">
+        <p className="t-small text-center">Brands we&apos;ve designed and built for</p>
+        <div className="relative mt-6">
+          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-bg to-transparent md:w-48" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-bg to-transparent md:w-48" />
+          <Marquee duration={38}>
+            {logos.map((logo) => (
+              <span key={logo.key} className="mx-7 inline-flex h-9 w-[6.5rem] items-center justify-center opacity-60 grayscale md:mx-10 md:w-[7.5rem]">
+                <Image src={logo.src} alt={logo.alt} width={176} height={48} sizes="8rem" unoptimized={logo.src.startsWith("http")} className="h-full w-full object-contain" />
+              </span>
+            ))}
+          </Marquee>
         </div>
-      </SectionReveal>
+      </section>
 
-      <SectionReveal className="container" effect="zoom">
-        <div className="section-shell relative overflow-hidden border-accentA/20 p-0">
-          <div className="pointer-events-none absolute -left-20 -top-20 hidden h-60 w-60 rounded-full bg-accentA/8 blur-[100px] md:block" />
-          <div className="pointer-events-none absolute -bottom-16 -right-16 hidden h-48 w-48 rounded-full bg-accentB/6 blur-[80px] md:block" />
-          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden h-32 w-32 -translate-x-1/2 -translate-y-1/2 rounded-full bg-accentA/5 blur-[60px] md:block" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-px bg-gradient-to-r from-transparent via-accentA/50 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-px bg-gradient-to-r from-transparent via-accentA/25 to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-px bg-gradient-to-b from-transparent via-accentA/20 to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-px bg-gradient-to-b from-transparent via-accentA/20 to-transparent" />
-
-          <div className="relative z-10 px-6 py-10 text-center md:px-12 md:py-16 lg:py-20">
-            <p className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.25em] text-accentA/80">
-              <span className="h-px w-10 bg-gradient-to-r from-transparent to-accentA/60" aria-hidden="true" />
-              Ready to start?
-              <span className="h-px w-10 bg-gradient-to-l from-transparent to-accentA/60" aria-hidden="true" />
-            </p>
-
-            <h2 className="mx-auto mt-6 max-w-3xl text-[clamp(2.2rem,5.5vw,4rem)] font-semibold leading-[1.1] tracking-tight">
-              Let&apos;s build your brand and website <span className="gradient-text">the right way.</span>
-            </h2>
-
-            <div className="mx-auto mt-5 h-[2px] w-24 overflow-hidden rounded-full bg-border/20">
-              <div className="h-full w-full animate-[shimmer_2.5s_ease-in-out_infinite] bg-gradient-to-r from-transparent via-accentA/80 to-transparent" />
-            </div>
-
-            <p className="mx-auto mt-6 max-w-lg text-[0.95rem] leading-relaxed text-fg/60 md:text-base">
-              Tell us what you&apos;re working on. We handle the strategy, design, and development from first brief to launch day.
-            </p>
-
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-              <Button asChild size="lg" className="relative overflow-hidden px-8 shadow-[0_0_30px_rgba(0,82,204,0.25)]">
-                <Link href="/contact">
-                  <span className="relative z-10">Start a Project</span>
-                </Link>
-              </Button>
-              <Link href="/works" className="link-sweep text-sm text-fg/60 transition-colors hover:text-fg/90 sm:text-base">
-                View Our Work
-              </Link>
-            </div>
-          </div>
+      {/* ── A better way ── */}
+      <section className="container section pt-0 md:pt-0">
+        <Reveal>
+          <SectionIntro badge="Why Graphxify" title={<>There is a better way to build a <span className="text-accentB">brand</span></>} />
+        </Reveal>
+        <div className="mx-auto mt-12 grid max-w-4xl gap-4 md:mt-16 md:grid-cols-2">
+          <Reveal className="rounded-[2rem] bg-white p-8 md:p-10">
+            <h3 className="t-h3 text-fg/70">A typical agency</h3>
+            <ul className="mt-7 space-y-4">
+              {comparison.typical.map((item) => (
+                <li key={item} className="flex items-center gap-3 text-[0.9375rem] font-semibold text-fg/60">
+                  <span aria-hidden="true" className="grid h-6 w-6 place-items-center rounded-full bg-bg text-fg/50">
+                    <Minus className="h-3.5 w-3.5" />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+          <Reveal delay={100} className="rounded-[2rem] bg-fg p-8 text-white md:p-10">
+            <h3 className="t-h3">Graphxify</h3>
+            <ul className="mt-7 space-y-4">
+              {comparison.graphxify.map((item) => (
+                <li key={item} className="flex items-center gap-3 text-[0.9375rem] font-semibold">
+                  <span aria-hidden="true" className="grid h-6 w-6 place-items-center rounded-full bg-green text-fg">
+                    <Check className="h-3.5 w-3.5" />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
         </div>
-      </SectionReveal>
+      </section>
 
-      <SectionReveal className="container" effect="left">
-        <SectionHeading eyebrow="About" title="A studio that does both." />
-        <FounderIntroSection showIntroLabel={false} />
-      </SectionReveal>
+      {/* ── Selected work ── */}
+      <section className="container section">
+        <Reveal>
+          <SectionIntro
+            badge="Selected work"
+            title={<>Work that speaks for <span className="text-accentB">itself</span></>}
+            lead="Every project starts with a problem and ends with a platform. Each one is presented in its own brand."
+          />
+        </Reveal>
+        <div className="mt-12 md:mt-16">
+          <ScrollStack>
+            {projects.map((project, index) => (
+              <ProjectStage key={project.id} project={project} flip={index % 2 === 1} priority={index === 0} />
+            ))}
+          </ScrollStack>
+        </div>
+        <div className="mt-12 flex justify-center">
+          <Button asChild size="lg">
+            <Link href="/works">View all work</Link>
+          </Button>
+        </div>
+      </section>
 
-      <SectionReveal className="container" effect="right">
-        <SectionHeading eyebrow="Services" title="Everything you need to build a strong digital presence." />
-        <div className="grid gap-4 sm:grid-cols-2">
-          {services.map((service) => {
-            const ServiceIcon = serviceIcons[service.key] ?? Sparkles;
+      {/* ── Services bento ── */}
+      <section className="container section">
+        <Reveal>
+          <SectionIntro badge="Services" title={<>Everything you need to look <span className="text-accentB">credible</span></>} lead="Brand, design, development and CMS, delivered by one team with no handoffs." />
+        </Reveal>
+        <div className="mt-12 grid gap-5 md:mt-16 md:grid-cols-12 md:gap-6">
+          {services.map((service, index) => {
+            const src = `/images/scenes/service-${service.key}.webp`;
+            const wide = index === 0 || index === 3;
             return (
-              <article
-                key={service.key}
-                className="group relative overflow-hidden rounded-2xl border border-border/16 bg-card/72 p-6 shadow-[0_8px_20px_rgba(13,13,15,0.06)] transition-transform duration-200 hover:-translate-y-0.5 md:p-7"
-              >
-                <Link href={`/services/${service.key}`} className="absolute inset-0 z-20" aria-label={`Learn more about ${service.title}`} />
-                <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-accentA/0 blur-2xl transition-[background-color] duration-500 group-hover:bg-accentA/8" />
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accentA/28 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-
-                <div className="relative z-10">
-                  <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-accentA/28 bg-accentA/8 text-accentA transition-[border-color,background-color,box-shadow] duration-200 group-hover:border-accentA/44 group-hover:bg-accentA/14 group-hover:shadow-[0_0_0_4px_rgba(0,163,255,0.08)]">
-                    <ServiceIcon className="h-5 w-5" strokeWidth={1.7} />
-                  </span>
-                  <h3 className="mt-4 text-[1.05rem] font-semibold text-fg/96 md:text-lg">{service.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-fg/62 md:text-[0.95rem]">{service.body}</p>
-                  {"outcome" in service && service.outcome ? (
-                    <p className="mt-3 border-t border-border/10 pt-3 text-xs text-fg/50">
-                      <span className="font-medium text-accentA/80">Result: </span>{service.outcome}
+              <Reveal key={service.key} delay={(index % 2) * 80} className={wide ? "md:col-span-7" : "md:col-span-5"}>
+                <Link href={`/services/${service.key}`} className="group flex h-full flex-col overflow-hidden rounded-[2rem] bg-white p-3 transition-shadow duration-300 hover:shadow-lift">
+                  <div className="relative aspect-[16/10] overflow-hidden rounded-[1.5rem] bg-bg">
+                    <Image src={src} alt="" fill sizes="(max-width: 767px) 100vw, 50vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+                  </div>
+                  <div className="flex flex-1 flex-col px-4 pb-4 pt-6 md:px-5">
+                    <h3 className="t-h3 text-fg">{service.title}</h3>
+                    <p className="t-body mt-2 max-w-[48ch]">{service.body}</p>
+                    <p className="mt-auto flex items-center gap-2.5 pt-6 text-[0.9375rem] font-bold text-fg">
+                      <span aria-hidden="true" className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-green text-fg">
+                        <Check className="h-3.5 w-3.5" />
+                      </span>
+                      {service.outcome}
                     </p>
-                  ) : null}
-                  <span className="mt-4 inline-flex items-center gap-1 text-[0.68rem] uppercase tracking-[0.16em] text-accentA/0 transition-[color,opacity] duration-200 group-hover:text-accentA/86">
-                    Learn more
-                    <ArrowUpRight className="h-3 w-3 transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
-                  </span>
-                </div>
-              </article>
+                  </div>
+                </Link>
+              </Reveal>
             );
           })}
         </div>
-      </SectionReveal>
+      </section>
 
-      <SectionReveal className="container mt-6 md:mt-8 lg:mt-10" effect="right">
-        <SectionHeading eyebrow="Testimonials" title="Client Stories" />
-        <DeferredTestimonialsSection items={testimonials} metrics={testimonialMetrics} showLeadText={false} />
-      </SectionReveal>
-
-      <SectionReveal className="container" effect="left">
-        <SectionHeading eyebrow="Support" title="FAQ" />
-        <div className="mx-auto max-w-3xl space-y-4">
-          {homeFaqs.map((item, index) => (
-            <details
-              key={item.id}
-              open={index === 0}
-              className="group rounded-[1.9rem] border border-border/16 bg-card/78 px-4 py-4 transition-colors duration-300 open:border-accentA/70 open:shadow-[0_0_0_1px_rgba(0,163,255,0.2)] sm:px-6 sm:py-5 md:px-7"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/45 focus-visible:ring-offset-2 focus-visible:ring-offset-bg [&::-webkit-details-marker]:hidden">
-                <h3 className="text-base font-medium sm:text-lg md:text-[1.32rem]">{item.q}</h3>
-                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border/22 bg-bg/76 p-[0.45rem] text-fg/72 shadow-[0_8px_18px_rgba(13,13,15,0.08)] transition-[border-color,background-color,color] duration-150 group-open:border-accentA/40 group-open:bg-accent-gradient group-open:text-ivory">
-                  <Plus className="h-[1.06rem] w-[1.06rem] stroke-[2.6] group-open:hidden" />
-                  <Minus className="hidden h-[1.06rem] w-[1.06rem] stroke-[2.6] group-open:block" />
-                </span>
-              </summary>
-              <p className="pt-4 text-sm leading-relaxed text-fg/68 md:text-base">{item.a}</p>
-            </details>
-          ))}
-        </div>
-      </SectionReveal>
-
-      {/* Soft conversion path for visitors not ready to enquire yet. Sits before
-          the contact form so the hard CTA still closes the page. */}
-      <SectionReveal className="container mt-6 md:mt-8" effect="up">
-        <NewsletterSignup source="home" idPrefix="home" />
-      </SectionReveal>
-
-      <SectionReveal className="container" effect="zoom">
-        <SectionHeading eyebrow="Contact" title="Let's Build Something You're Proud Of" />
-        <div className="section-shell relative overflow-hidden border-border/14 bg-bg/62 p-4 md:p-5">
-          <div className="pointer-events-none absolute -right-8 -top-10 h-32 w-32 rounded-full bg-accentA/12 blur-3xl" />
-          <div className="relative z-10 space-y-3">
-            <h3 className="text-lg font-semibold md:text-xl">Tell us what you&apos;re working on.</h3>
-            <p className="max-w-[46rem] text-sm leading-relaxed text-fg/64">
-              A new brand, a website redesign, or a CMS setup. Whatever stage you are at, we would love to hear about it.
-              <br />
-              We typically respond within 24 hours with clear next steps. No jargon, no pressure.
-            </p>
-
-            <DeferredLeadForm />
-
-            <div className="border-t border-border/14 pt-3">
-              <div className="flex flex-col gap-2.5 md:flex-row md:items-end md:justify-between">
-                <p className="text-[0.72rem] text-fg/56">Response time: within 24 hours</p>
-                <div className="flex flex-wrap items-center gap-4 text-sm md:justify-end">
-                  <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex w-fit items-center gap-2 text-fg/74">
-                    <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
-                    <span>{companyContact.email}</span>
-                  </a>
-                  <a href={`tel:${companyContact.phoneHref}`} className="link-sweep inline-flex w-fit items-center gap-2 text-fg/74">
-                    <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
-                    <span>{companyContact.phoneDisplay}</span>
-                  </a>
-                </div>
+      {/* ── Process ── */}
+      <section className="container section">
+        <Reveal>
+          <SectionIntro badge="Process" title={<>How a project actually <span className="text-accentB">runs</span></>} lead="Four stages, in sequence, each ending in something you can look at and approve." />
+        </Reveal>
+        <ol className="mt-12 grid gap-4 md:mt-16 md:grid-cols-2 lg:grid-cols-4">
+          {processStages.map((stage, index) => (
+            <Reveal as="li" key={stage.title} delay={index * 80} className="flex flex-col rounded-[2rem] bg-white p-7">
+              <div className="flex items-center justify-between">
+                <span className="grid h-11 w-11 place-items-center rounded-full bg-fg text-[0.9375rem] font-extrabold text-white">{index + 1}</span>
+                <span className="rounded-full bg-bg px-3 py-1 text-[0.8125rem] font-semibold text-fg/72">{stage.time}</span>
               </div>
+              <h3 className="t-h3 mt-10 text-fg">{stage.title}</h3>
+              <p className="t-body mt-2 !text-[0.9375rem]">{stage.body}</p>
+            </Reveal>
+          ))}
+        </ol>
+        <div className="mt-10 flex justify-center">
+          <ArrowLink href="/process">See the full process</ArrowLink>
+        </div>
+      </section>
+
+      {/* ── Proof ── */}
+      <section className="container section">
+        <Reveal>
+          <SectionIntro badge="Client stories" title={<>Proof that the method <span className="text-accentB">works</span></>} />
+        </Reveal>
+        <dl className="mx-auto mt-12 grid max-w-4xl grid-cols-3 gap-3 md:mt-16">
+          {stats.map((stat) => (
+            <div key={stat.label} className="flex flex-col-reverse items-center rounded-[1.5rem] bg-white px-3 py-6 text-center md:py-8">
+              <dt className="t-small mt-1">{stat.label}</dt>
+              <dd className="text-[clamp(1.5rem,3.6vw,2.75rem)] font-extrabold leading-none tracking-[-0.05em] text-fg">{stat.value}</dd>
             </div>
+          ))}
+        </dl>
+        <Testimonials3D className="mt-5" items={testimonials} />
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="container section">
+        <Reveal>
+          <SectionIntro badge="FAQ" title={<>Everything you need to <span className="text-accentB">know</span></>} />
+        </Reveal>
+        <FaqList className="mx-auto mt-12 max-w-3xl md:mt-16" items={homeFaqs.map(({ q, a }) => ({ q, a }))} />
+      </section>
+
+      {/* ── Closing panel with quick inquiry ── */}
+      <CtaBlock title={<>Let&apos;s build something you&apos;re <span className="text-accentA">proud</span> of.</>}>
+        <div className="rounded-[1.75rem] bg-white p-5 text-left text-fg md:p-8">
+          <p className="text-lg font-bold tracking-[-0.02em]">Or send a quick note</p>
+          <p className="t-small mt-1">Name, email and a line about the project is enough.</p>
+          <div className="mt-5">
+            <DeferredLeadForm />
           </div>
         </div>
-      </SectionReveal>
-    </div>
+      </CtaBlock>
+    </>
   );
 }

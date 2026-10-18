@@ -1,0 +1,15 @@
+import { chromium } from "playwright";
+const out = process.argv[2];
+const b = await chromium.launch();
+let p = await (await b.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
+await p.goto("http://localhost:3000/", { waitUntil: "networkidle" });
+await p.hover('nav[aria-label="Primary"] a[href="/services"]'); await p.waitForTimeout(500);
+await p.screenshot({ path: `${out}/nav-dropdown.jpg`, type: "jpeg", quality: 70, clip: { x: 0, y: 0, width: 1440, height: 420 } });
+await p.keyboard.press("Tab");
+p = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage();
+await p.goto("http://localhost:3000/services", { waitUntil: "networkidle" });
+await p.click('button[aria-controls="mobile-marketing-nav"]'); await p.waitForTimeout(400);
+await p.screenshot({ path: `${out}/nav-mobile.jpg`, type: "jpeg", quality: 70 });
+await p.keyboard.press("Escape"); await p.waitForTimeout(200);
+console.log("escape closes:", await p.locator("#mobile-marketing-nav").isHidden());
+await b.close();

@@ -79,12 +79,11 @@ export const serviceCatalog = [
 export type ServiceKey = (typeof serviceCatalog)[number]["key"];
 
 export const marketingNav = [
-  { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
+  { href: "/works", label: "Work" },
   { href: "/services", label: "Services" },
-  { href: "/works", label: "Works" },
-  { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" }
+  { href: "/process", label: "Process" },
+  { href: "/about", label: "About" },
+  { href: "/blog", label: "Blog" }
 ];
 
 export const testimonials = [

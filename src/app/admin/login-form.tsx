@@ -55,7 +55,7 @@ function LoginFields(): JSX.Element {
           required
           placeholder="you@example.com"
           disabled={pending}
-          className="h-11 rounded-xl border-border/18 bg-bg/50 px-4 text-sm text-fg transition-colors duration-200 placeholder:text-fg/30 focus:border-accentA/40 focus:ring-accentA/20"
+          className="h-11 rounded-xl border-border/18 bg-bg/50 px-4 text-sm text-fg transition-colors duration-200 placeholder:text-fg/30 focus:border-accentA/40 focus:ring-accentB"
         />
       </div>
       <div className="space-y-2">
@@ -72,7 +72,7 @@ function LoginFields(): JSX.Element {
         <div className="flex justify-end">
           <Link
             href="/admin/forgot-password"
-            className="text-xs text-fg/48 transition-colors hover:text-accentA"
+            className="text-xs text-fg/48 transition-colors hover:text-accentB"
           >
             Forgot password?
           </Link>

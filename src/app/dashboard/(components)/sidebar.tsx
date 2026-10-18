@@ -3,7 +3,6 @@ import { logoutAction } from "@/app/admin/actions";
 import { DashboardNav } from "@/app/dashboard/(components)/dashboard-nav";
 import { MobileSidebarToggle } from "@/app/dashboard/(components)/mobile-sidebar-toggle";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { hasPermission, type AppRole } from "@/lib/auth/roles";
 import { getPendingCounts } from "@/db/queries/analytics";
 
@@ -103,14 +102,10 @@ export function DashboardSidebar({ role }: SidebarProps) {
               <p className="text-[0.65rem] uppercase tracking-[0.22em] text-fg/48">CMS</p>
             </div>
           </div>
-          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-accentA/20 bg-accentA/8 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.16em] text-accentA">
+          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-accentA/20 bg-accentA/8 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.16em] text-accentB">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             {role}
           </div>
-        </div>
-
-        <div className="mt-4 flex items-center gap-2">
-          <ThemeToggle />
         </div>
 
         {/* Sidebar nav: render instantly with plain links, then swap in badge-enriched version */}

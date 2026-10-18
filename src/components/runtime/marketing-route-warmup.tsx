@@ -21,7 +21,6 @@ const preloaders = [
   () => import("@/components/marketing/blog-page-content"),
   () => import("@/components/marketing/contact-page-content"),
   () => import("@/components/marketing/site-cta-section"),
-  () => import("@/components/marketing/home-projects-slider"),
   () => import("@/components/marketing/testimonials-section")
 ];
 

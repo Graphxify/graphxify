@@ -8,7 +8,6 @@ import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
@@ -36,11 +35,6 @@ export default function ForgotPasswordPage() {
       {/* Background decorative glows */}
       <span className="pointer-events-none absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-accentA/5 blur-[100px]" />
       <span className="pointer-events-none absolute -bottom-24 -right-24 h-[22rem] w-[22rem] rounded-full bg-accentB/5 blur-[80px]" />
-
-      {/* Theme toggle */}
-      <div className="absolute right-5 top-5 z-20">
-        <ThemeToggle />
-      </div>
 
       <div className="relative z-10 w-full max-w-[26rem]">
         {/* Logo */}
@@ -91,7 +85,7 @@ export default function ForgotPasswordPage() {
                   type="email"
                   required
                   placeholder="you@example.com"
-                  className="h-11 rounded-xl border-border/18 bg-bg/50 px-4 text-sm text-fg transition-colors duration-200 placeholder:text-fg/30 focus:border-accentA/40 focus:ring-accentA/20"
+                  className="h-11 rounded-xl border-border/18 bg-bg/50 px-4 text-sm text-fg transition-colors duration-200 placeholder:text-fg/30 focus:border-accentA/40 focus:ring-accentB"
                   disabled={loading}
                 />
               </div>

@@ -113,7 +113,7 @@ export default async function DashboardLeadsPage() {
                           <TableCell>
                             <a
                               href={`mailto:${lead.email}`}
-                              className="text-fg/60 transition-colors duration-150 hover:text-accentA"
+                              className="text-fg/60 transition-colors duration-150 hover:text-accentB"
                             >
                               {lead.email}
                             </a>

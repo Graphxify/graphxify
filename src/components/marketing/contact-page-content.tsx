@@ -2,28 +2,14 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import {
-  ArrowUpRight,
-  Blocks,
-  Check,
-  ChevronDown,
-  Clock3,
-  Copy,
-  FileText,
-  Fingerprint,
-  Layout,
-  Loader2,
-  Mail,
-  Phone,
-  ShieldCheck,
-  Sparkles,
-  Terminal,
-  Upload,
-  type LucideIcon
-} from "lucide-react";
+import { ArrowUpRight, Check, ChevronDown, Copy, Loader2, Lock, Phone, Upload } from "lucide-react";
 import { useState } from "react";
-import { SectionReveal } from "@/components/marketing/section-reveal";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { ArrowLink } from "@/components/site/arrow-link";
+import { Badge } from "@/components/site/badge";
+import { Breadcrumbs } from "@/components/site/breadcrumbs";
+import { FaqList } from "@/components/site/faq-list";
+import { Reveal } from "@/components/site/reveal";
+import { SectionIntro } from "@/components/site/section-intro";
 import { Button } from "@/components/ui/button";
 import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
@@ -39,76 +25,90 @@ type ModalState = { open: boolean; type: "success" | "error"; title: string; mes
 type NotificationState = { status: "sent" | "disabled" | "skipped" | "failed" };
 type LeadSubmitResponse = { id: string; notification?: NotificationState };
 
-type HelpOption = {
-  key: string;
-  title: string;
-  description: string;
-  icon: LucideIcon;
-};
-
-const HELP_OPTIONS: HelpOption[] = [
-  {
-    key: "brand-systems",
-    title: "Brand Systems",
-    description: "Identity foundations that scale.",
-    icon: Fingerprint
-  },
-  {
-    key: "web-design",
-    title: "Web Design",
-    description: "Structured UI and layouts.",
-    icon: Layout
-  },
-  {
-    key: "web-development",
-    title: "Web Development",
-    description: "Built with custom code.",
-    icon: Terminal
-  },
-  {
-    key: "cms-architecture",
-    title: "CMS Architecture",
-    description: "Structured content systems.",
-    icon: Blocks
-  },
-  {
-    key: "something-else",
-    title: "Something Else",
-    description: "Custom request.",
-    icon: Sparkles
-  }
-];
+const HELP_OPTIONS = [
+  { key: "brand-systems", title: "Brand Systems" },
+  { key: "web-design", title: "Web Design" },
+  { key: "web-development", title: "Web Development" },
+  { key: "cms-architecture", title: "CMS Architecture" },
+  { key: "something-else", title: "Something Else" }
+] as const;
 
 const BUDGET_OPTIONS = ["Brand Identity", "Starter Website", "Professional Website", "Full Brand and Website", "Not sure yet"] as const;
 const TIMELINE_OPTIONS = ["ASAP", "2 to 4 weeks", "1 to 2 months", "3+ months", "Flexible"] as const;
 
 const FAQ_ITEMS = [
-  {
-    id: "faq-small-business",
-    question: "Do you work with small businesses?",
-    answer: "Yes. We support focused teams that need a clear system and a practical launch path."
-  },
-  {
-    id: "faq-existing-brand",
-    question: "Can you work with an existing brand?",
-    answer: "Absolutely. We can refine or extend your current brand while keeping consistency."
-  },
-  {
-    id: "faq-cms-training",
-    question: "Do you offer CMS editing training?",
-    answer: "Yes. We include concise handoff guidance so your team can publish confidently."
-  },
-  {
-    id: "faq-started",
-    question: "What do you need to get started?",
-    answer: "Your goals, timeline, and any existing brand or website context are enough to begin."
-  },
-  {
-    id: "faq-redesign-only",
-    question: "Do you take website redesign projects?",
-    answer: "Yes, if the redesign has clear business goals and a defined implementation scope."
-  }
+  { q: "Do you work with small businesses?", a: "Yes. We support focused teams that need a clear system and a practical launch path." },
+  { q: "Can you work with an existing brand?", a: "Absolutely. We can refine or extend your current brand while keeping consistency." },
+  { q: "Do you offer CMS editing training?", a: "Yes. We include concise handoff guidance so your team can publish confidently." },
+  { q: "What do you need to get started?", a: "Your goals, timeline, and any existing brand or website context are enough to begin." },
+  { q: "Do you take website redesign projects?", a: "Yes, if the redesign has clear business goals and a defined implementation scope." }
 ] as const;
+
+const START_LINKS = [
+  { label: "Brand Systems", href: "/services/brand-systems", desc: "Logo suite, typography, colour palette, and guidelines" },
+  { label: "Web Design", href: "/services/web-design", desc: "Visual design, UX strategy, and responsive UI" },
+  { label: "Web Development", href: "/services/web-development", desc: "Custom Next.js builds with full code ownership" },
+  { label: "CMS Architecture", href: "/services/cms-architecture", desc: "Structured content systems your team can manage" }
+] as const;
+
+const NEXT_STEPS = ["We review your inquiry personally", "We reply within 24 hours with a clear recommendation", "We schedule a call or agree next steps"] as const;
+
+/** Fields on the dark form card: charcoal-2 wells, white text, electric focus ring (blue that holds contrast on charcoal). */
+const FIELD_CLASS =
+  "h-[3.25rem] rounded-[14px] border border-white/10 bg-charcoal-2 px-4 text-[0.9375rem] text-white placeholder:text-white/50 transition-colors hover:border-white/20 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-accentA aria-[invalid=true]:border-accentA";
+const SELECT_CLASS = cn(
+  FIELD_CLASS,
+  "w-full cursor-pointer appearance-none pr-11 [color-scheme:dark] focus-visible:outline-none [&:has(option[value='']:checked)]:text-white/50 [&>option]:text-white"
+);
+
+function errorId(id: string, message?: string): string | undefined {
+  return message ? `${id}-error` : undefined;
+}
+
+function Field({
+  id,
+  label,
+  optional = false,
+  error,
+  className,
+  children
+}: {
+  id: string;
+  label: string;
+  optional?: boolean;
+  error?: string;
+  className?: string;
+  children: React.ReactNode;
+}): JSX.Element {
+  return (
+    // Error text is blue by default; on charcoal it needs the electric tone to stay readable.
+    <div className={cn("space-y-2 [&>p[role=alert]]:text-[0.8125rem] [&>p[role=alert]]:font-medium [&>p[role=alert]]:text-accentA", className)}>
+      <label htmlFor={id} className="block text-sm font-semibold text-white">
+        {label}
+        {optional ? <span className="ml-1.5 font-medium text-white/50">(optional)</span> : null}
+      </label>
+      {children}
+      <FieldErrorText id={`${id}-error`} message={error} />
+    </div>
+  );
+}
+
+function FormGroup({ num, title, first = false, children }: { num: string; title: string; first?: boolean; children: React.ReactNode }): JSX.Element {
+  const id = `contact-group-${num}`;
+  return (
+    <div role="group" aria-labelledby={id} className={cn(!first && "border-t border-white/10 pt-8 md:pt-10")}>
+      <div className="flex items-center gap-3">
+        <span aria-hidden="true" className="grid h-8 w-8 place-items-center rounded-full bg-white text-[0.8125rem] font-extrabold text-fg">
+          {Number(num)}
+        </span>
+        <h2 id={id} className="text-xl font-bold tracking-[-0.02em] text-white md:text-[1.375rem]">
+          {title}
+        </h2>
+      </div>
+      <div className="mt-6 space-y-6">{children}</div>
+    </div>
+  );
+}
 
 function FacebookIcon({ className }: { className?: string }): JSX.Element {
   return (
@@ -164,7 +164,6 @@ const SOCIAL_LINKS = [
 ] as const;
 
 const SOMETHING_ELSE_KEY = "something-else";
-const FIELD_CLASS = "h-12 rounded-xl border-border/22 bg-card/75 px-4 text-sm";
 
 function getTextValue(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -339,472 +338,381 @@ export function ContactPageContent(): JSX.Element {
 
   return (
     <>
-    <div className="pb-16 pt-10 md:pb-20 md:pt-12">
-      <SectionReveal className="container" effect="up">
-        <div className="mx-auto max-w-4xl">
-          <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-fg/56">
-            <span className="h-1.5 w-1.5 rounded-full bg-accentA" />
-            Contact
-          </p>
-          <h1 className="mt-4 text-[clamp(2rem,5vw,4rem)] font-semibold leading-[0.96] tracking-tight">Start a Project</h1>
-          <span className="mt-3 block h-px w-20 bg-accent-gradient" />
-          <p className="mt-4 max-w-2xl text-base text-fg/68 md:text-[1.04rem]">
-            Tell us about your business and what you are working towards.
-            We review every inquiry personally and respond with a clear recommendation.
+      <header className="container pb-12 pt-8 md:pb-16 md:pt-12">
+        <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Contact" }]} />
+        <div className="mt-8 flex flex-col items-center gap-6 text-center md:mt-12">
+          <Badge dot="green">Available for new projects</Badge>
+          <h1 className="t-h1 max-w-[16ch] text-fg">
+            Start a <span className="text-accentB">project</span>
+          </h1>
+          <p className="t-lead max-w-[52ch]">
+            Tell us about your business and what you are working towards. We review every inquiry personally and respond with a clear recommendation.
           </p>
         </div>
-      </SectionReveal>
+      </header>
 
-      <SectionReveal className="container mt-10 md:mt-12" effect="up">
-        <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="section-shell border-border/18 bg-card/76 p-5 md:p-7">
-            <form onSubmit={onSubmit} className="lead-form-premium space-y-5" aria-label="Project inquiry form">
-              <FormAlert message={submitError} />
-              <FormAlert message={attachmentNotice} type="info" />
+      <section aria-label="Project inquiry" className="container pb-20 md:pb-28">
+        <div className="grid gap-5 lg:grid-cols-12 lg:gap-6">
+          <Reveal className="lg:col-span-8">
+            <div className="relative isolate overflow-hidden rounded-[2rem] bg-charcoal p-6 text-white sm:p-10 md:rounded-[2.5rem] md:p-12">
+              <div aria-hidden="true" className="absolute -right-32 -top-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-accentA/15 blur-[120px]" />
+              {/* noValidate: the schema below covers every native rule and shows its message under the field. */}
+              <form onSubmit={onSubmit} noValidate className="space-y-8 md:space-y-10" aria-label="Project inquiry form">
+                {submitError || attachmentNotice ? (
+                  <div className="space-y-3">
+                    <FormAlert message={submitError} />
+                    <FormAlert message={attachmentNotice} type="info" />
+                  </div>
+                ) : null}
 
-              <div className="grid gap-3 md:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label htmlFor="contact-name" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                    Full Name
-                  </label>
-                  <Input
-                    id="contact-name"
-                    name="name"
-                    required
-                    autoComplete="name"
-                    placeholder="Your full name"
-                    className={FIELD_CLASS}
-                    aria-invalid={Boolean(fieldErrors.name)}
-                    onChange={() => clearFieldError("name")}
-                  />
-                  <FieldErrorText id="contact-name-error" message={fieldErrors.name} />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="contact-email" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                    Email
-                  </label>
-                  <Input
-                    id="contact-email"
-                    name="email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    placeholder="you@company.com"
-                    className={FIELD_CLASS}
-                    aria-invalid={Boolean(fieldErrors.email)}
-                    onChange={() => clearFieldError("email")}
-                  />
-                  <FieldErrorText id="contact-email-error" message={fieldErrors.email} />
-                </div>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label htmlFor="contact-company" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                    Company / Brand
-                  </label>
-                  <Input
-                    id="contact-company"
-                    name="company"
-                    autoComplete="organization"
-                    placeholder="Optional"
-                    className={FIELD_CLASS}
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label htmlFor="contact-website" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                    Website / Link
-                  </label>
-                  <Input
-                    id="contact-website"
-                    name="website"
-                    type="url"
-                    inputMode="url"
-                    placeholder="Optional"
-                    className={FIELD_CLASS}
-                    aria-invalid={Boolean(fieldErrors.website)}
-                    onChange={() => clearFieldError("website")}
-                  />
-                  <FieldErrorText id="contact-website-error" message={fieldErrors.website} />
-                </div>
-              </div>
-
-              <fieldset className="space-y-3" aria-describedby="contact-help-description contact-help-error">
-                <legend className="text-base font-semibold text-fg">What can we help you build?</legend>
-                <p id="contact-help-description" className="text-sm text-fg/62">
-                  Select one or more options so we can route your project properly.
-                </p>
-
-                <div className="grid gap-3 sm:grid-cols-2" role="group" aria-label="Service options">
-                  {HELP_OPTIONS.map((option) => {
-                    const Icon = option.icon;
-                    const active = selectedNeeds.includes(option.key);
-
-                    return (
-                      <button
-                        key={option.key}
-                        type="button"
-                        role="checkbox"
-                        aria-checked={active}
-                        onClick={() => toggleNeed(option.key)}
-                        className={cn(
-                          "relative flex min-h-[7rem] flex-col rounded-xl border bg-card/76 p-4 text-left transition-all duration-200 ease-out",
-                          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/72 focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-                          active
-                            ? "border-accentA/55 shadow-[0_0_0_1px_rgba(0,163,255,0.3),0_14px_30px_rgba(0,82,204,0.12)]"
-                            : "border-border/20 hover:-translate-y-[1px] hover:border-border/35"
-                        )}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="inline-flex items-center gap-2">
-                            <Icon className="h-3.5 w-3.5 text-fg/72" aria-hidden="true" />
-                            <span className="text-sm font-semibold leading-tight text-fg">{option.title}</span>
-                          </div>
-                          <span
-                            className={cn(
-                              "inline-flex h-4 w-4 items-center justify-center rounded-full border transition-colors",
-                              active ? "border-accentA/90 bg-accent-gradient text-ivory" : "border-border/28 text-transparent"
-                            )}
-                            aria-hidden="true"
-                          >
-                            <Check className="h-2.5 w-2.5" />
-                          </span>
-                        </div>
-                        <div className="mt-auto pt-3">
-                          <p className="border-t border-border/14 pt-2 text-xs leading-[1.25rem] text-fg/62">{option.description}</p>
-                        </div>
-                        {active ? <span className="pointer-events-none absolute right-2 top-2 h-1.5 w-1.5 rounded-full bg-accentA" /> : null}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <p
-                  id="contact-help-error"
-                  aria-live="polite"
-                  className={cn("text-xs text-accentB transition-opacity duration-200", fieldErrors.intakeNeeds ? "opacity-100" : "opacity-0")}
-                >
-                  {fieldErrors.intakeNeeds || " "}
-                </p>
-
-                <AnimatePresence initial={false} mode="wait">
-                  {somethingElseSelected ? (
-                    <motion.div
-                      key="custom-service"
-                      initial={reducedMotion ? false : { opacity: 0, y: -4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={reducedMotion ? {} : { opacity: 0, y: -4 }}
-                      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                      className="space-y-1.5"
-                    >
-                      <label htmlFor="contact-custom-need" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                        Custom Request
-                      </label>
+                <FormGroup num="01" title="About you" first>
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <Field id="contact-name" label="Full name" error={fieldErrors.name}>
                       <Input
-                        id="contact-custom-need"
-                        name="customNeed"
-                        value={customNeed}
-                        onChange={(event) => {
-                          clearFieldError("customRequest");
-                          setCustomNeed(event.target.value);
-                        }}
-                        placeholder="Tell us what you need"
+                        id="contact-name"
+                        name="name"
+                        required
+                        autoComplete="name"
+                        placeholder="Your full name"
                         className={FIELD_CLASS}
-                        aria-invalid={Boolean(fieldErrors.customRequest)}
+                        aria-invalid={Boolean(fieldErrors.name)}
+                        aria-describedby={errorId("contact-name", fieldErrors.name)}
+                        onChange={() => clearFieldError("name")}
                       />
-                      <FieldErrorText id="contact-custom-need-error" message={fieldErrors.customRequest} />
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-              </fieldset>
-
-              <div className="grid gap-3 md:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label htmlFor="contact-budget" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                    Project Scope
-                  </label>
-                  <div className="relative">
-                    <select id="contact-budget" name="budget" className={cn(FIELD_CLASS, "w-full appearance-none pr-10")} defaultValue="">
-                      <option value="" disabled>Select project type</option>
-                      {BUDGET_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/48" aria-hidden="true" />
+                    </Field>
+                    <Field id="contact-email" label="Email" error={fieldErrors.email}>
+                      <Input
+                        id="contact-email"
+                        name="email"
+                        type="email"
+                        required
+                        autoComplete="email"
+                        placeholder="you@company.com"
+                        className={FIELD_CLASS}
+                        aria-invalid={Boolean(fieldErrors.email)}
+                        aria-describedby={errorId("contact-email", fieldErrors.email)}
+                        onChange={() => clearFieldError("email")}
+                      />
+                    </Field>
+                    <Field id="contact-company" label="Company or brand" optional>
+                      <Input id="contact-company" name="company" autoComplete="organization" placeholder="Company name" className={FIELD_CLASS} />
+                    </Field>
+                    <Field id="contact-website" label="Website or link" optional error={fieldErrors.website}>
+                      <Input
+                        id="contact-website"
+                        name="website"
+                        type="url"
+                        inputMode="url"
+                        placeholder="https://"
+                        className={FIELD_CLASS}
+                        aria-invalid={Boolean(fieldErrors.website)}
+                        aria-describedby={errorId("contact-website", fieldErrors.website)}
+                        onChange={() => clearFieldError("website")}
+                      />
+                    </Field>
                   </div>
-                </div>
+                </FormGroup>
 
-                <div className="space-y-1.5">
-                  <label htmlFor="contact-timeline" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                    Timeline
-                  </label>
-                  <div className="relative">
-                    <select id="contact-timeline" name="timeline" className={cn(FIELD_CLASS, "w-full appearance-none pr-10")} defaultValue="">
-                      <option value="" disabled>Select timeline</option>
-                      {TIMELINE_OPTIONS.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/48" aria-hidden="true" />
+                <FormGroup num="02" title="Your project">
+                  <fieldset className="space-y-3" aria-describedby="contact-help-description contact-help-error">
+                    <legend className="text-sm font-semibold text-white">What can we help you build?</legend>
+                    <p id="contact-help-description" className="text-sm text-white/60">
+                      Select one or more options so we can route your project properly.
+                    </p>
+
+                    <div className="flex flex-wrap gap-2.5 pt-1" role="group" aria-label="Service options">
+                      {HELP_OPTIONS.map((option) => {
+                        const active = selectedNeeds.includes(option.key);
+
+                        return (
+                          <button
+                            key={option.key}
+                            type="button"
+                            role="checkbox"
+                            aria-checked={active}
+                            onClick={() => toggleNeed(option.key)}
+                            className={cn(
+                              "inline-flex h-12 items-center gap-2.5 rounded-full pl-2 pr-5 text-[0.9375rem] font-semibold transition-[background-color,color,box-shadow,transform] duration-200 ease-out active:scale-[0.98]",
+                              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA focus-visible:ring-offset-2 focus-visible:ring-offset-charcoal",
+                              active
+                                ? "bg-white text-fg"
+                                : "bg-charcoal-2 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)] hover:shadow-[inset_0_0_0_1px_rgba(255,255,255,0.32)]"
+                            )}
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={cn(
+                                "grid h-8 w-8 shrink-0 place-items-center rounded-full transition-colors duration-200",
+                                active ? "bg-green text-fg" : "text-transparent shadow-[inset_0_0_0_1.5px_rgba(255,255,255,0.24)]"
+                              )}
+                            >
+                              <Check className="h-4 w-4" strokeWidth={3} />
+                            </span>
+                            {option.title}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    <p
+                      id="contact-help-error"
+                      aria-live="polite"
+                      className={cn("text-[0.8125rem] font-medium text-accentA transition-opacity duration-200", fieldErrors.intakeNeeds ? "opacity-100" : "sr-only opacity-0")}
+                    >
+                      {fieldErrors.intakeNeeds || " "}
+                    </p>
+
+                    <AnimatePresence initial={false} mode="wait">
+                      {somethingElseSelected ? (
+                        <motion.div
+                          key="custom-service"
+                          initial={reducedMotion ? false : { opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={reducedMotion ? {} : { opacity: 0, y: -4 }}
+                          transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                          className="pt-2"
+                        >
+                          <Field id="contact-custom-need" label="Custom request" error={fieldErrors.customRequest}>
+                            <Input
+                              id="contact-custom-need"
+                              name="customNeed"
+                              value={customNeed}
+                              onChange={(event) => {
+                                clearFieldError("customRequest");
+                                setCustomNeed(event.target.value);
+                              }}
+                              placeholder="Tell us what you need"
+                              className={FIELD_CLASS}
+                              aria-invalid={Boolean(fieldErrors.customRequest)}
+                              aria-describedby={errorId("contact-custom-need", fieldErrors.customRequest)}
+                            />
+                          </Field>
+                        </motion.div>
+                      ) : null}
+                    </AnimatePresence>
+                  </fieldset>
+
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <Field id="contact-budget" label="Project scope" optional>
+                      <div className="relative">
+                        <select id="contact-budget" name="budget" className={SELECT_CLASS} defaultValue="">
+                          <option value="" disabled>
+                            Select project type
+                          </option>
+                          {BUDGET_OPTIONS.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" aria-hidden="true" />
+                      </div>
+                    </Field>
+                    <Field id="contact-timeline" label="Timeline" optional>
+                      <div className="relative">
+                        <select id="contact-timeline" name="timeline" className={SELECT_CLASS} defaultValue="">
+                          <option value="" disabled>
+                            Select timeline
+                          </option>
+                          {TIMELINE_OPTIONS.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" aria-hidden="true" />
+                      </div>
+                    </Field>
                   </div>
+                </FormGroup>
+
+                <FormGroup num="03" title="Details">
+                  <Field id="contact-message" label="Message" optional error={fieldErrors.message}>
+                    <Textarea
+                      id="contact-message"
+                      name="message"
+                      maxLength={1200}
+                      placeholder="Share goals, scope, and timeline in a few lines."
+                      className={cn(FIELD_CLASS, "h-auto min-h-[10rem] py-3.5")}
+                      aria-invalid={Boolean(fieldErrors.message)}
+                      aria-describedby={errorId("contact-message", fieldErrors.message)}
+                      onChange={() => clearFieldError("message")}
+                    />
+                  </Field>
+
+                  <Field id="contact-files" label="Attach a brief or brand guide" optional>
+                    <div className="relative rounded-[14px] border border-dashed border-white/20 bg-charcoal-2 px-3 py-3 transition-colors focus-within:border-accentA focus-within:ring-2 focus-within:ring-accentA hover:border-white/35">
+                      <Upload className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/60" aria-hidden="true" />
+                      <input
+                        id="contact-files"
+                        name="briefFiles"
+                        type="file"
+                        multiple
+                        className="w-full cursor-pointer pr-8 text-sm text-white/60 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-white file:px-4 file:py-2 file:text-[0.8125rem] file:font-semibold file:text-fg focus-visible:outline-none"
+                        aria-label="Attach brief or brand guide"
+                      />
+                    </div>
+                  </Field>
+
+                  <div className="space-y-2 [&>p[role=alert]]:text-[0.8125rem] [&>p[role=alert]]:font-medium [&>p[role=alert]]:text-accentA">
+                    <label className="flex cursor-pointer items-start gap-3 text-[0.9375rem] font-medium text-white/80">
+                      <span className="relative mt-px grid h-5 w-5 shrink-0 place-items-center">
+                        <input
+                          type="checkbox"
+                          name="consent"
+                          checked={consentChecked}
+                          onChange={(event) => {
+                            setConsentChecked(event.target.checked);
+                            if (event.target.checked) clearFieldError("consent");
+                          }}
+                          className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-white/30 bg-charcoal-2 transition-colors checked:border-green checked:bg-green focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA focus-visible:ring-offset-2 focus-visible:ring-offset-charcoal aria-[invalid=true]:border-accentA"
+                          aria-invalid={Boolean(fieldErrors.consent)}
+                          aria-describedby={errorId("contact-consent", fieldErrors.consent)}
+                          required
+                        />
+                        <Check aria-hidden="true" strokeWidth={3} className="pointer-events-none absolute h-3.5 w-3.5 text-fg opacity-0 peer-checked:opacity-100" />
+                      </span>
+                      <span>I agree to be contacted about my inquiry.</span>
+                    </label>
+                    <FieldErrorText id="contact-consent-error" message={fieldErrors.consent} />
+                  </div>
+                </FormGroup>
+
+                <div className="flex flex-col gap-4 border-t border-white/10 pt-8 sm:flex-row sm:items-center sm:gap-6">
+                  <Button
+                    type="submit"
+                    size="lg"
+                    variant="inverse"
+                    className="h-16 w-full shrink-0 px-10 text-base focus-visible:ring-accentA focus-visible:ring-offset-charcoal sm:w-auto"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="inline-flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Sending...
+                      </span>
+                    ) : (
+                      <>
+                        Send inquiry
+                        <ArrowUpRight className="h-5 w-5" aria-hidden="true" />
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-sm leading-relaxed text-white/60">No sales pressure. Just a straightforward conversation about your project.</p>
                 </div>
+              </form>
+            </div>
+          </Reveal>
+
+          <aside aria-label="Other ways to reach us" className="lg:sticky lg:top-28 lg:col-span-4 lg:self-start">
+            <Reveal delay={80} className="grid gap-3 md:grid-cols-2 lg:grid-cols-1">
+              <div className="rounded-[2rem] bg-white p-6 md:p-7">
+                <span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-full bg-green text-fg">
+                  <Check className="h-5 w-5" strokeWidth={2.5} />
+                </span>
+                <h2 className="mt-5 text-xl font-bold tracking-[-0.02em] text-fg">We reply within 24 hours</h2>
+                <p className="t-small mt-2 leading-relaxed">You will hear back from a real person, not an automated reply. We review every inquiry and respond with a clear next step.</p>
               </div>
 
-              <div className="space-y-1.5">
-                <label htmlFor="contact-message" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                  Message
-                </label>
-                <Textarea
-                  id="contact-message"
-                  name="message"
-                  maxLength={1200}
-                  placeholder="Share goals, scope, and timeline in a few lines."
-                  className="min-h-[9.5rem] rounded-xl border-border/22 bg-card/75 px-4 py-3 text-sm"
-                  aria-invalid={Boolean(fieldErrors.message)}
-                  onChange={() => clearFieldError("message")}
-                />
-                <FieldErrorText id="contact-message-error" message={fieldErrors.message} />
+              <div className="rounded-[2rem] bg-white p-6 md:p-7">
+                <h2 className="text-lg font-bold tracking-[-0.02em] text-fg">What happens next</h2>
+                <ol className="mt-5 space-y-3.5">
+                  {NEXT_STEPS.map((step, index) => (
+                    <li key={step} className="flex items-start gap-3.5 text-[0.9375rem] font-semibold leading-snug text-fg">
+                      <span aria-hidden="true" className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-fg text-[0.75rem] font-extrabold text-white">
+                        {index + 1}
+                      </span>
+                      <span className="pt-1">{step}</span>
+                    </li>
+                  ))}
+                </ol>
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="contact-files" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/58">
-                  Attach Brief / Brand Guide
-                </label>
-                <div className="relative rounded-xl border border-dashed border-border/26 bg-card/62 px-4 py-3">
-                  <Upload className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/45" aria-hidden="true" />
-                  <input
-                    id="contact-files"
-                    name="briefFiles"
-                    type="file"
-                    multiple
-                    className="w-full cursor-pointer text-sm text-fg/68 file:mr-3 file:rounded-md file:border-0 file:bg-accent-gradient file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-ivory"
-                    aria-label="Attach brief or brand guide"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="flex items-start gap-3 rounded-xl border border-border/18 bg-card/62 px-3.5 py-3 text-sm text-fg/76">
-                  <input
-                    type="checkbox"
-                    name="consent"
-                    checked={consentChecked}
-                    onChange={(event) => {
-                      setConsentChecked(event.target.checked);
-                      if (event.target.checked) clearFieldError("consent");
-                    }}
-                    className="mt-0.5 h-4 w-4 rounded border-border/30 text-accentA focus:ring-accentA/70"
-                    aria-invalid={Boolean(fieldErrors.consent)}
-                    required
-                  />
-                  <span>I agree to be contacted about my inquiry.</span>
-                </label>
-                <FieldErrorText id="contact-consent-error" message={fieldErrors.consent} />
-              </div>
-
-              <Button type="submit" size="lg" className="w-full" disabled={loading}>
-                {loading ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Sending...
-                  </span>
-                ) : "Send Inquiry"}
-              </Button>
-
-              <p className="text-center text-[0.7rem] leading-relaxed text-fg/40">
-                No sales pressure. Just a straightforward conversation about your project.
-              </p>
-            </form>
-          </div>
-
-          <div className="space-y-5 lg:sticky lg:top-36 lg:self-start">
-            <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
-              <div className="flex items-center gap-2">
-                <Clock3 className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <h2 className="text-lg font-semibold">We typically respond within 24 hours</h2>
-              </div>
-              <p className="mt-2 text-sm text-fg/66">
-                You will hear back from a real person, not an automated reply. We review every inquiry and respond with a clear next step.
-              </p>
-            </article>
-
-            <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <h2 className="text-lg font-semibold">What happens next</h2>
-              </div>
-              <ol className="mt-4 list-none space-y-3">
-                <li className="flex items-start gap-3 border-b border-border/14 pb-3 text-sm text-fg/72">
-                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/24 text-[0.66rem] text-accentA" aria-hidden="true">
-                    1
-                  </span>
-                  <span>Review your inquiry</span>
-                </li>
-                <li className="flex items-start gap-3 border-b border-border/14 pb-3 text-sm text-fg/72">
-                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/24 text-[0.66rem] text-accentA" aria-hidden="true">
-                    2
-                  </span>
-                  <span>We respond within the stated timeframe</span>
-                </li>
-                <li className="flex items-start gap-3 text-sm text-fg/72">
-                  <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-border/24 text-[0.66rem] text-accentA" aria-hidden="true">
-                    3
-                  </span>
-                  <span>We schedule a call or next steps</span>
-                </li>
-              </ol>
-            </article>
-
-            <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-fg/78">
-                  <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
-                  <a href={`mailto:${companyContact.email}`} className="link-sweep">
+              <div className="rounded-[2rem] bg-white p-6 md:p-7">
+                <h2 className="text-lg font-bold tracking-[-0.02em] text-fg">Email us directly</h2>
+                <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+                  <a href={`mailto:${companyContact.email}`} className="text-[1.0625rem] font-bold tracking-[-0.01em] text-fg underline-offset-4 hover:underline">
                     {companyContact.email}
                   </a>
+                  <Button type="button" variant="secondary" size="sm" onClick={copyEmail} aria-live="polite" className="h-8 px-3">
+                    {copied ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Copy className="h-3.5 w-3.5" aria-hidden="true" />}
+                    {copied ? "Copied" : "Copy"}
+                  </Button>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-fg/74">
-                  <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
-                  <a href={`tel:${companyContact.phoneHref}`} className="link-sweep">
-                    {companyContact.phoneDisplay}
-                  </a>
-                </div>
-                <div className="border-t border-border/14 pt-3 text-sm text-fg/72">
-                  <div className="flex flex-wrap items-center gap-3">
-                    {SOCIAL_LINKS.map((link) => (
+                <ul className="mt-5 flex flex-wrap gap-2" aria-label="Social profiles">
+                  {SOCIAL_LINKS.map((link) => (
+                    <li key={link.label}>
                       <a
-                        key={link.label}
                         href={link.href}
                         target="_blank"
                         rel="noreferrer"
-                        className="group inline-flex items-center gap-2 text-fg/72 transition-colors hover:text-fg"
+                        className="inline-flex h-9 items-center gap-2 rounded-full bg-bg px-3.5 text-[0.8125rem] font-semibold text-fg/80 transition-colors hover:bg-fg hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB"
                       >
-                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border/20 bg-transparent text-fg/74 transition group-hover:-translate-y-0.5 group-hover:border-transparent group-hover:bg-accent-gradient group-hover:text-ivory">
-                          <link.Icon className="h-4 w-4" aria-hidden="true" />
-                        </span>
-                        <span>{link.label}</span>
+                        <link.Icon className="h-4 w-4" />
+                        {link.label}
                       </a>
-                    ))}
-                  </div>
-                </div>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            </article>
 
-            <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
-              <div className="flex items-center gap-2">
-                <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <h2 className="text-base font-semibold">Prefer to talk first?</h2>
+              <div className="rounded-[2rem] bg-white p-6 md:p-7">
+                <h2 className="text-lg font-bold tracking-[-0.02em] text-fg">Prefer to talk first?</h2>
+                <p className="t-small mt-2 leading-relaxed">Happy to answer questions before you fill out the form. A quick call is always an option.</p>
+                <Button asChild className="mt-5">
+                  <a href={`tel:${companyContact.phoneHref}`}>
+                    <Phone className="h-4 w-4" aria-hidden="true" />
+                    Call {companyContact.phoneDisplay}
+                  </a>
+                </Button>
               </div>
-              <p className="mt-2 text-sm text-fg/62">
-                Happy to answer questions before you fill out the form. A quick call is always an option.
+
+              <p className="flex items-center gap-2.5 px-2 pt-1 text-sm font-medium text-fg/60 md:col-span-2 lg:col-span-1">
+                <Lock className="h-4 w-4 shrink-0" aria-hidden="true" />
+                All inquiries are kept strictly confidential.
               </p>
-              <a
-                href={`tel:${companyContact.phoneHref}`}
-                className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-accentA transition-colors hover:text-accentA/78"
-              >
-                <Phone className="h-3.5 w-3.5" aria-hidden="true" />
-                {companyContact.phoneDisplay}
-              </a>
-            </article>
-
-            <article className="section-shell border-border/18 bg-card/76 p-5 md:p-6">
-              <div className="flex items-center gap-2 text-sm text-fg/74">
-                <ShieldCheck className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <span>All inquiries are kept strictly confidential.</span>
-              </div>
-            </article>
-          </div>
+            </Reveal>
+          </aside>
         </div>
-      </SectionReveal>
+      </section>
 
-      <SectionReveal className="container mt-10 md:mt-12" effect="up">
-        <div className="section-shell border-border/18 bg-card/76 p-5 md:p-7">
-          <h2 className="text-2xl font-semibold">FAQ</h2>
-          <Accordion type="single" collapsible className="mt-3">
-            {FAQ_ITEMS.map((item) => (
-              <AccordionItem key={item.id} value={item.id} className="border-border/14 transition-colors data-[state=open]:border-accentA/60">
-                <AccordionTrigger icon="plusminus" className="text-base font-medium text-fg hover:text-fg">
-                  {item.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-sm text-fg/68">{item.answer}</AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-      </SectionReveal>
+      {/* ── FAQ ── */}
+      <section className="container section pt-0 md:pt-0">
+        <Reveal>
+          <SectionIntro badge="FAQ" title={<>Before you reach <span className="text-accentB">out</span></>} />
+        </Reveal>
+        <FaqList className="mx-auto mt-12 max-w-3xl md:mt-16" items={FAQ_ITEMS} />
+      </section>
 
-      <SectionReveal className="container mt-8 md:mt-10" effect="up">
-        <div className="section-shell border-border/18 bg-card/76 p-5 md:p-7">
-          <h2 className="text-xl font-semibold">Not sure where to start?</h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-fg/62">
-            Browse our services to find what fits your project, or reach out and we&apos;ll point you in the right direction.
-          </p>
-          <div className="mt-5 grid gap-2.5 sm:grid-cols-2">
-            {[
-              { label: "Brand Systems", href: "/services/brand-systems", desc: "Logo suite, typography, colour palette, and guidelines" },
-              { label: "Web Design", href: "/services/web-design", desc: "Visual design, UX strategy, and responsive UI" },
-              { label: "Web Development", href: "/services/web-development", desc: "Custom Next.js builds with full code ownership" },
-              { label: "CMS Architecture", href: "/services/cms-architecture", desc: "Structured content systems your team can manage" }
-            ].map((item) => (
+      {/* ── Not sure where to start ── */}
+      <section className="container section pt-0 md:pt-0">
+        <Reveal>
+          <SectionIntro
+            badge="Services"
+            title={<>Not sure where to <span className="text-accentB">start</span>?</>}
+            lead="Browse our services to find what fits your project, or reach out and we'll point you in the right direction."
+          />
+        </Reveal>
+        <ul className="mt-12 grid gap-4 sm:grid-cols-2 md:mt-16 lg:grid-cols-4">
+          {START_LINKS.map((item, index) => (
+            <Reveal as="li" key={item.href} delay={index * 60}>
               <Link
-                key={item.href}
                 href={item.href}
-                className="group flex items-start justify-between rounded-xl border border-border/16 bg-bg/45 px-4 py-3.5 transition-all duration-200 hover:border-accentA/22 hover:bg-bg/65"
+                className="group flex h-full flex-col rounded-[2rem] bg-white p-7 transition-shadow duration-300 hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB"
               >
-                <div>
-                  <p className="text-sm font-medium text-fg/86 group-hover:text-fg">{item.label}</p>
-                  <p className="mt-0.5 text-xs text-fg/52">{item.desc}</p>
-                </div>
-                <ArrowUpRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-fg/32 group-hover:text-accentA" aria-hidden="true" />
+                <span aria-hidden="true" className="grid h-10 w-10 place-items-center self-end rounded-full bg-bg text-fg transition-colors duration-200 group-hover:bg-fg group-hover:text-white">
+                  <ArrowUpRight className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </span>
+                <span className="t-h3 mt-10 text-fg">{item.label}</span>
+                <span className="t-body mt-2 !text-[0.9375rem]">{item.desc}</span>
               </Link>
-            ))}
-          </div>
-          <p className="mt-4 text-sm text-fg/52">
-            Or{" "}
-            <Link href="/services" className="link-sweep text-accentA hover:text-accentA/80">
-              see all services
-            </Link>{" "}
-            for a full overview.
-          </p>
+            </Reveal>
+          ))}
+        </ul>
+        <div className="mt-10 flex justify-center">
+          <ArrowLink href="/services">See all services</ArrowLink>
         </div>
-      </SectionReveal>
-
-      <SectionReveal className="container mt-8 md:mt-10" effect="zoom">
-        <div className="section-shell border-border/18 bg-card/76 px-5 py-5 md:px-7 md:py-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.16em] text-fg/58">Prefer email?</p>
-              <a href={`mailto:${companyContact.email}`} className="mt-1 inline-flex items-center gap-2 text-lg font-medium text-fg">
-                <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
-                {companyContact.email}
-              </a>
-            </div>
-            <div className="flex flex-wrap items-center gap-3">
-              <Button type="button" variant="secondary" className="px-4" onClick={copyEmail}>
-                {copied ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Check className="h-3.5 w-3.5" />
-                    Copied
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Copy className="h-3.5 w-3.5" />
-                    Copy
-                  </span>
-                )}
-              </Button>
-              <Button asChild className="px-5">
-                <a href={`mailto:${companyContact.email}`}>Email Us</a>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </SectionReveal>
-    </div>
+      </section>
 
       <SubmissionModal
         open={modal.open}

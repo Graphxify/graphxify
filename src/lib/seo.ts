@@ -249,6 +249,22 @@ export function breadcrumbListJsonLd(items: Array<{ name: string; url: string }>
   };
 }
 
+/** Typed page node (AboutPage, ContactPage, WebPage) tying the page to the Organization entity. */
+export function webPageJsonLd(type: "AboutPage" | "ContactPage" | "WebPage", path: string, name: string): JsonLdNode {
+  const url = canonicalUrl(path);
+  return {
+    "@context": "https://schema.org",
+    "@type": type,
+    "@id": `${url}#webpage`,
+    url,
+    name,
+    inLanguage: "en",
+    isPartOf: { "@id": WEBSITE_ID },
+    about: { "@id": ORGANIZATION_ID },
+    breadcrumb: { "@id": `${url}#breadcrumb` }
+  };
+}
+
 function serviceId(path: string): string {
   return `${canonicalUrl(path)}#service`;
 }

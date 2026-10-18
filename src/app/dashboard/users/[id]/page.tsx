@@ -278,7 +278,7 @@ export default async function DashboardUserProfilePage({ params }: { params: Pro
               </div>
               <div className="rounded-lg border border-border/10 bg-card/40 p-3 text-center">
                 <p className="text-xs text-fg/42">Total Edits</p>
-                <p className="mt-1 text-lg font-semibold text-accentA">{editCount}</p>
+                <p className="mt-1 text-lg font-semibold text-accentB">{editCount}</p>
               </div>
               <div className="rounded-lg border border-border/10 bg-card/40 p-3 text-center">
                 <p className="text-xs text-fg/42">Actions Loaded</p>

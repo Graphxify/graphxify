@@ -20,3 +20,4 @@ test-results
 # Any other env file (keep examples committable)
 .env.*
 !.env.example
+.mcp.json

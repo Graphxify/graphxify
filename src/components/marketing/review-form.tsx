@@ -15,8 +15,14 @@ type ModalState = { open: boolean; type: "success" | "error"; title: string; mes
 type NotificationState = { status: "sent" | "disabled" | "skipped" | "failed" };
 type ReviewSubmitResponse = { notification?: NotificationState };
 
+/** Grey wells on the white card; blue edge when invalid, blue ring on focus. */
 const FIELD_CLASS =
-  "h-12 rounded-xl border-border/18 bg-bg/62 px-4 text-sm placeholder:text-fg/32 placeholder:opacity-100";
+  "h-[3.25rem] rounded-[14px] border border-transparent bg-bg px-4 text-[0.9375rem] text-fg placeholder:text-fg/50 transition-colors hover:border-fg/15 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-accentB aria-[invalid=true]:border-accentB";
+const LABEL_CLASS = "block text-sm font-semibold text-fg";
+
+function errorId(id: string, message?: string): string | undefined {
+  return message ? `${id}-error` : undefined;
+}
 
 /* ── Interactive star rating ── */
 function StarRating({
@@ -29,7 +35,7 @@ function StarRating({
   const [hover, setHover] = useState(0);
 
   return (
-    <div className="flex gap-1" role="radiogroup" aria-label="Rating">
+    <div className="flex gap-1.5" role="radiogroup" aria-labelledby="review-rating-label">
       {[1, 2, 3, 4, 5].map((star) => {
         const filled = star <= (hover || value);
         return (
@@ -42,13 +48,13 @@ function StarRating({
             onClick={() => onChange(star)}
             onMouseEnter={() => setHover(star)}
             onMouseLeave={() => setHover(0)}
-            className="group p-0.5 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 rounded"
+            className="group grid h-12 w-12 place-items-center rounded-full bg-bg transition-transform duration-200 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB"
           >
             <Star
-              className={`h-7 w-7 transition-colors ${
+              className={`h-6 w-6 transition-colors ${
                 filled
-                  ? "fill-[#e8732a] text-[#e8732a]"
-                  : "fill-transparent text-border/40 group-hover:text-[#e8732a]/40"
+                  ? "fill-fg text-fg"
+                  : "fill-transparent text-fg/30 group-hover:text-fg/60"
               }`}
               strokeWidth={1.5}
             />
@@ -138,13 +144,14 @@ export function ReviewForm(): JSX.Element {
 
   return (
     <>
-      <form onSubmit={onSubmit} className="review-form space-y-4" aria-label="Submit a review">
-        <FormAlert message={submitError} />
+      {/* noValidate: the schema covers every native rule and shows its message under the field. */}
+      <form onSubmit={onSubmit} noValidate className="review-form space-y-6" aria-label="Submit a review">
+        <FormAlert message={submitError} className="border-amber-500/30 bg-amber-50 text-amber-800" />
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <label htmlFor="review-name" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/56">
-              Name <span className="text-fg/36">*</span>
+        <div className="grid gap-6 sm:grid-cols-2 sm:gap-5">
+          <div className="space-y-2">
+            <label htmlFor="review-name" className={LABEL_CLASS}>
+              Name
             </label>
             <Input
               id="review-name"
@@ -156,14 +163,15 @@ export function ReviewForm(): JSX.Element {
               placeholder="Your full name"
               className={FIELD_CLASS}
               aria-invalid={Boolean(fieldErrors.name)}
+              aria-describedby={errorId("review-name", fieldErrors.name)}
               onChange={() => clearFieldError("name")}
             />
             <FieldErrorText id="review-name-error" message={fieldErrors.name} />
           </div>
 
-          <div className="space-y-1.5">
-            <label htmlFor="review-role" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/56">
-              Role / Title <span className="text-fg/36">*</span>
+          <div className="space-y-2">
+            <label htmlFor="review-role" className={LABEL_CLASS}>
+              Role or title
             </label>
             <Input
               id="review-role"
@@ -174,15 +182,16 @@ export function ReviewForm(): JSX.Element {
               placeholder="e.g. CEO, Founder, Manager"
               className={FIELD_CLASS}
               aria-invalid={Boolean(fieldErrors.role)}
+              aria-describedby={errorId("review-role", fieldErrors.role)}
               onChange={() => clearFieldError("role")}
             />
             <FieldErrorText id="review-role-error" message={fieldErrors.role} />
           </div>
         </div>
 
-        <div className="space-y-1.5">
-          <label htmlFor="review-company" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/56">
-            Company <span className="text-xs font-normal normal-case tracking-normal text-fg/32">(optional)</span>
+        <div className="space-y-2">
+          <label htmlFor="review-company" className={LABEL_CLASS}>
+            Company <span className="ml-1 font-medium text-fg/50">(optional)</span>
           </label>
           <Input
             id="review-company"
@@ -191,16 +200,18 @@ export function ReviewForm(): JSX.Element {
             maxLength={120}
             placeholder="Company name"
             className={FIELD_CLASS}
+            aria-invalid={Boolean(fieldErrors.company)}
+            aria-describedby={errorId("review-company", fieldErrors.company)}
             onChange={() => clearFieldError("company")}
           />
           <FieldErrorText id="review-company-error" message={fieldErrors.company} />
         </div>
 
         {/* Star rating */}
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium uppercase tracking-[0.14em] text-fg/56">
-            Rating <span className="text-fg/36">*</span>
-          </label>
+        <div className="space-y-2">
+          <p id="review-rating-label" className={LABEL_CLASS}>
+            Rating
+          </p>
           <StarRating value={rating} onChange={(value) => {
             clearFieldError("rating");
             setRating(value);
@@ -208,12 +219,12 @@ export function ReviewForm(): JSX.Element {
           <FieldErrorText id="review-rating-error" message={fieldErrors.rating} />
         </div>
 
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="flex items-baseline justify-between">
-            <label htmlFor="review-quote" className="text-xs font-medium uppercase tracking-[0.14em] text-fg/56">
-              Your Review <span className="text-fg/36">*</span>
+            <label htmlFor="review-quote" className={LABEL_CLASS}>
+              Your review
             </label>
-            <span className="text-[11px] tabular-nums text-fg/32">{charCount}/600</span>
+            <span className="text-[0.8125rem] font-semibold tabular-nums text-fg/60">{charCount}/600</span>
           </div>
           <Textarea
             id="review-quote"
@@ -223,8 +234,9 @@ export function ReviewForm(): JSX.Element {
             maxLength={600}
             rows={4}
             placeholder="Share your experience working with Graphxify..."
-            className={`${FIELD_CLASS} min-h-[7rem] resize-none py-3`}
+            className={`${FIELD_CLASS} h-auto min-h-[9rem] resize-y py-3.5`}
             aria-invalid={Boolean(fieldErrors.quote)}
+            aria-describedby={errorId("review-quote", fieldErrors.quote)}
             onChange={(e) => {
               clearFieldError("quote");
               setCharCount(e.target.value.length);
@@ -236,22 +248,23 @@ export function ReviewForm(): JSX.Element {
         <Button
           type="submit"
           disabled={loading}
-          className="h-12 w-full rounded-xl border border-accentA/45 bg-accent-gradient px-6 text-ivory shadow-[0_10px_22px_rgba(0,82,204,0.22)] hover:border-accentA/55 hover:brightness-105 focus-visible:border-accentA/55 focus-visible:text-ivory focus-visible:ring-accentA/70 sm:w-auto"
+          size="lg"
+          className="h-14 w-full px-9 text-base sm:w-auto"
         >
           {loading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               Submitting...
             </>
           ) : (
             <>
-              <Send className="mr-2 h-4 w-4" />
-              Submit Review
+              <Send className="h-4 w-4" aria-hidden="true" />
+              Submit review
             </>
           )}
         </Button>
 
-        <p className="text-[11px] leading-relaxed text-fg/32">
+        <p className="max-w-[60ch] text-sm font-medium leading-relaxed text-fg/60">
           Your review will be reviewed before being published. By submitting, you agree to have your name and review displayed on our website.
         </p>
       </form>

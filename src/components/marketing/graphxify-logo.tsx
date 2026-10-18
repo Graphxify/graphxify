@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 
 type GraphxifyLogoProps = {
   alt?: string;
@@ -19,25 +18,14 @@ export function GraphxifyLogo({
   sizes
 }: GraphxifyLogoProps): JSX.Element {
   return (
-    <>
-      <Image
-        src="/images/branding/graphxify-logo-dark.svg"
-        alt={alt}
-        width={width}
-        height={height}
-        priority={priority}
-        sizes={sizes}
-        className={cn("dark:hidden", className)}
-      />
-      <Image
-        src="/images/branding/graphxify-logo-light.svg"
-        alt={alt}
-        width={width}
-        height={height}
-        priority={priority}
-        sizes={sizes}
-        className={cn("hidden dark:block", className)}
-      />
-    </>
+    <Image
+      src="/images/branding/graphxify-logo-dark.svg"
+      alt={alt}
+      width={width}
+      height={height}
+      priority={priority}
+      sizes={sizes}
+      className={className}
+    />
   );
 }

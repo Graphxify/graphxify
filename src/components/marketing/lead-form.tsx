@@ -24,7 +24,10 @@ const SERVICE_OPTIONS = [
   { key: "something-else", label: "Something Else" }
 ] as const;
 
-const QUICK_FIELD_CLASS = "h-12 rounded-xl border-border/18 bg-bg/62 px-4 text-sm placeholder:text-fg/32 placeholder:opacity-100";
+const QUICK_FIELD_CLASS =
+  "h-12 rounded-[14px] border border-transparent bg-bg px-4 text-[0.9375rem] text-fg placeholder:text-fg/50 transition-colors hover:border-fg/15 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-accentB aria-[invalid=true]:border-accentB";
+/** Small visible labels above each field. */
+const QUICK_LABEL_CLASS = "block text-[0.8125rem] font-semibold leading-5 text-fg";
 
 type ServiceKey = (typeof SERVICE_OPTIONS)[number]["key"];
 
@@ -106,29 +109,30 @@ export function LeadForm(): JSX.Element {
 
   return (
     <>
-      <form onSubmit={onSubmit} className="lead-form-premium space-y-3" aria-label="Quick start lead form">
-        <FormAlert message={submitError} />
+      <form onSubmit={onSubmit} className="lead-form-premium space-y-4" aria-label="Quick start lead form">
+        <FormAlert message={submitError} className="border-amber-500/30 bg-amber-50 text-amber-800" />
 
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-          <div className="space-y-1">
-            <label htmlFor="quick-lead-name" className="sr-only">
-              Full Name
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="space-y-1.5">
+            <label htmlFor="quick-lead-name" className={QUICK_LABEL_CLASS}>
+              Full name
             </label>
             <Input
               id="quick-lead-name"
               name="name"
               autoComplete="name"
               required
-              placeholder="Full Name"
+              placeholder="Your full name"
               className={QUICK_FIELD_CLASS}
               aria-invalid={Boolean(fieldErrors.name)}
+              aria-describedby={fieldErrors.name ? "quick-lead-name-error" : undefined}
               onChange={() => clearFieldError("name")}
             />
             <FieldErrorText id="quick-lead-name-error" message={fieldErrors.name} />
           </div>
 
-          <div className="space-y-1">
-            <label htmlFor="quick-lead-email" className="sr-only">
+          <div className="space-y-1.5">
+            <label htmlFor="quick-lead-email" className={QUICK_LABEL_CLASS}>
               Email
             </label>
             <Input
@@ -137,16 +141,17 @@ export function LeadForm(): JSX.Element {
               type="email"
               autoComplete="email"
               required
-              placeholder="Email"
+              placeholder="you@company.com"
               className={QUICK_FIELD_CLASS}
               aria-invalid={Boolean(fieldErrors.email)}
+              aria-describedby={fieldErrors.email ? "quick-lead-email-error" : undefined}
               onChange={() => clearFieldError("email")}
             />
             <FieldErrorText id="quick-lead-email-error" message={fieldErrors.email} />
           </div>
 
-          <div className="space-y-1 md:col-span-2 lg:col-span-1">
-            <label htmlFor="quick-lead-service" className="sr-only">
+          <div className="space-y-1.5 md:col-span-2 lg:col-span-1">
+            <label htmlFor="quick-lead-service" className={QUICK_LABEL_CLASS}>
               Service
             </label>
             <div className="relative">
@@ -161,11 +166,8 @@ export function LeadForm(): JSX.Element {
                 }}
                 aria-required="true"
                 aria-invalid={Boolean(fieldErrors.intakeNeeds)}
-                className={cn(
-                  QUICK_FIELD_CLASS,
-                  "quick-service-select w-full appearance-none border pr-10 border-border/22 focus-visible:border-fg/30",
-                  selectedService ? "!text-fg/88 dark:!text-ivory" : "!text-fg/45 dark:!text-ivory/72"
-                )}
+                aria-describedby={fieldErrors.intakeNeeds ? "quick-lead-service-error" : undefined}
+                className={cn(QUICK_FIELD_CLASS, "quick-service-select w-full cursor-pointer appearance-none pr-10 focus-visible:outline-none")}
               >
                 <option value="">Select service</option>
                 {SERVICE_OPTIONS.map((option) => (
@@ -174,24 +176,25 @@ export function LeadForm(): JSX.Element {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/48" aria-hidden="true" />
+              <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-fg/60" aria-hidden="true" />
             </div>
             <FieldErrorText id="quick-lead-service-error" message={fieldErrors.intakeNeeds} />
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3 md:items-start">
-          <div className="space-y-1 md:col-span-2">
-            <label htmlFor="quick-lead-message" className="sr-only">
-              Short Message
+        <div className="grid gap-4 md:grid-cols-3 md:items-start">
+          <div className="space-y-1.5 md:col-span-2">
+            <label htmlFor="quick-lead-message" className={QUICK_LABEL_CLASS}>
+              Short message
             </label>
             <Textarea
               id="quick-lead-message"
               name="message"
               maxLength={320}
-              placeholder="Short message (1-2 lines)"
+              placeholder="A line or two about the project"
               className={cn(QUICK_FIELD_CLASS, "h-12 min-h-[3rem] resize-none py-3")}
               aria-invalid={Boolean(fieldErrors.message)}
+              aria-describedby={fieldErrors.message ? "quick-lead-message-error" : undefined}
               onChange={() => clearFieldError("message")}
             />
             <FieldErrorText id="quick-lead-message-error" message={fieldErrors.message} />
@@ -199,17 +202,16 @@ export function LeadForm(): JSX.Element {
 
           <Button
             type="submit"
-            variant="secondary"
             size="lg"
             disabled={loading}
-            className="h-12 w-full rounded-xl border border-accentA/45 bg-accent-gradient px-6 text-ivory shadow-[0_10px_22px_rgba(0,82,204,0.22)] hover:border-accentA/55 hover:brightness-105 focus-visible:border-accentA/55 focus-visible:text-ivory focus-visible:ring-accentA/70"
+            className="h-12 w-full px-6 md:mt-[1.625rem]"
           >
             {loading ? (
               <span className="inline-flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Sending...
               </span>
-            ) : "Send Inquiry"}
+            ) : "Send inquiry"}
           </Button>
         </div>
       </form>

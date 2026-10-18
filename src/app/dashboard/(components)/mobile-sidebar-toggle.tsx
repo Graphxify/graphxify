@@ -13,7 +13,7 @@ export function MobileSidebarToggle({ children }: { children: React.ReactNode })
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`fixed right-4 top-[0.85rem] z-50 grid h-10 w-10 place-items-center overflow-hidden rounded-xl border transition-[border-color,background-color,box-shadow,color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg md:hidden ${
+        className={`fixed right-4 top-[0.85rem] z-50 grid h-10 w-10 place-items-center overflow-hidden rounded-xl border transition-[border-color,background-color,box-shadow,color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB focus-visible:ring-offset-2 focus-visible:ring-offset-bg md:hidden ${
           open
             ? "border-accentA bg-accent-gradient text-white shadow-[0_0_0_3px_rgba(0,163,255,0.16),0_8px_20px_rgba(0,100,220,0.28)]"
             : "border-border/20 bg-card/90 text-fg/75 backdrop-blur hover:border-accentA/30 hover:bg-card hover:text-fg hover:shadow-[0_8px_20px_rgba(13,13,15,0.14)]"

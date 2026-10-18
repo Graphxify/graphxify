@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -24,6 +25,10 @@ export const metadata: Metadata = {
   }
 };
 
+const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], display: "swap", variable: "--font-jakarta" });
+
+export const viewport: Viewport = { colorScheme: "light", themeColor: "#f2f2f2" };
+
 const enableAnalytics = process.env.NEXT_PUBLIC_ENABLE_VERCEL_ANALYTICS === "true";
 const enableSpeedInsights = process.env.NEXT_PUBLIC_ENABLE_VERCEL_SPEED_INSIGHTS === "true";
 const supabaseAssetOrigin = (() => {
@@ -36,7 +41,7 @@ const supabaseAssetOrigin = (() => {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" className={jakarta.variable} suppressHydrationWarning>
       <head>
         {supabaseAssetOrigin ? <link rel="preconnect" href={supabaseAssetOrigin} crossOrigin="" /> : null}
         {supabaseAssetOrigin ? <link rel="dns-prefetch" href={supabaseAssetOrigin} /> : null}
@@ -50,13 +55,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {enableAnalytics ? <Analytics /> : null}
           {enableSpeedInsights ? <SpeedInsights /> : null}
           <Toaster
-            theme="dark"
+            theme="light"
             position="bottom-right"
             toastOptions={{
               style: {
-                background: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border) / 0.18)",
-                color: "hsl(var(--fg))"
+                background: "rgb(var(--card))",
+                border: "1px solid rgb(var(--border) / 0.1)",
+                color: "rgb(var(--fg))"
               }
             }}
           />

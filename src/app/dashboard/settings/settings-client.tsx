@@ -53,7 +53,7 @@ function SectionCard({ title, description, icon: Icon, children }: {
   return (
     <div className="rounded-xl border border-border/14 bg-card/60 p-5 md:p-6">
       <div className="mb-5 flex items-center gap-2">
-        {Icon && <Icon className="h-4.5 w-4.5 text-accentA" />}
+        {Icon && <Icon className="h-4.5 w-4.5 text-accentB" />}
         <h3 className="text-base font-semibold">{title}</h3>
       </div>
       {description && <p className="mb-5 -mt-2 text-sm text-fg/56">{description}</p>}
@@ -85,7 +85,7 @@ function FieldInput({ name, defaultValue, placeholder, type = "text", disabled }
       defaultValue={defaultValue}
       placeholder={placeholder}
       disabled={disabled}
-      className="h-10 rounded-lg border border-border/18 bg-bg/50 px-3 text-sm text-fg transition-colors placeholder:text-fg/28 focus:border-accentA/40 focus:outline-none focus:ring-1 focus:ring-accentA/20 disabled:opacity-50"
+      className="h-10 rounded-lg border border-border/18 bg-bg/50 px-3 text-sm text-fg transition-colors placeholder:text-fg/28 focus:border-accentA/40 focus:outline-none focus:ring-1 focus:ring-accentB disabled:opacity-50"
     />
   );
 }
@@ -297,7 +297,7 @@ function EmailTab({
                 setTestMsg({ ok: r.ok, text: r.message });
                 setTimeout(() => setTestMsg(null), 6000);
               })}
-              className="inline-flex h-9 items-center gap-2 rounded-lg border border-accentA/30 bg-accentA/8 px-4 text-sm font-medium text-accentA transition-colors hover:bg-accentA/14 disabled:opacity-50"
+              className="inline-flex h-9 items-center gap-2 rounded-lg border border-accentA/30 bg-accentA/8 px-4 text-sm font-medium text-accentB transition-colors hover:bg-accentA/14 disabled:opacity-50"
             >
               {testPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Mail className="h-3.5 w-3.5" />}
               Send Test Email
@@ -433,7 +433,7 @@ export function SettingsClient({ settings, smtpDisplay, smtpStatus }: Props) {
                 active
                   ? t.key === "danger"
                     ? "bg-red-500/10 text-red-400"
-                    : "bg-accentA/10 text-accentA"
+                    : "bg-accentA/10 text-accentB"
                   : "text-fg/56 hover:bg-card/50 hover:text-fg/80"
               }`}
               aria-current={active ? "page" : undefined}

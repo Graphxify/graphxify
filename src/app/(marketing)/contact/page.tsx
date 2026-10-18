@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ContactPageContent } from "@/components/marketing/contact-page-content";
-import { buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, webPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Contact — Start a Web Design or Branding Project",
@@ -12,5 +13,11 @@ export const metadata: Metadata = buildMetadata({
 });
 
 export default function ContactPage(): JSX.Element {
-  return <ContactPageContent />;
+  return (
+    <>
+      <JsonLd data={webPageJsonLd("ContactPage", "/contact", "Contact Graphxify")} />
+      <JsonLd data={breadcrumbListJsonLd([{ name: "Home", url: canonicalUrl("/") }, { name: "Contact", url: canonicalUrl("/contact") }])} />
+      <ContactPageContent />
+    </>
+  );
 }

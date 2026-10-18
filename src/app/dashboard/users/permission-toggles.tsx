@@ -71,7 +71,7 @@ export function PermissionToggles({ userId, role, overrides }: PermissionToggles
                   <span className="flex items-center gap-2 text-sm text-fg/80">
                     {PERMISSION_LABELS[perm]}
                     {isOverridden && (
-                      <span className="rounded-full bg-accentA/12 px-1.5 py-0.5 text-[0.6rem] font-medium text-accentA">
+                      <span className="rounded-full bg-accentA/12 px-1.5 py-0.5 text-[0.6rem] font-medium text-accentB">
                         Override
                       </span>
                     )}

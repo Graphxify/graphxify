@@ -18,7 +18,6 @@ import { Badge } from "@/components/ui/badge";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 
 /* ────────────────────────────────────────── types ── */
@@ -205,7 +204,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-border/12 bg-card/40 px-4 py-3">
-      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accentA/10 text-accentA">
+      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accentA/10 text-accentB">
         {icon}
       </span>
       <div className="min-w-0">
@@ -519,23 +518,6 @@ function SettingsTab() {
 
   return (
     <div className="space-y-5">
-      {/* ── Appearance ── */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Appearance</CardTitle>
-          <CardDescription>Customize how the CMS looks for you</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between rounded-xl border border-border/12 bg-card/40 px-4 py-3.5">
-            <div>
-              <p className="text-sm font-medium">Theme</p>
-              <p className="text-xs text-fg/48">Toggle between light and dark mode</p>
-            </div>
-            <ThemeToggle />
-          </div>
-        </CardContent>
-      </Card>
-
       {/* ── Notifications ── */}
       <Card>
         <CardHeader>
@@ -607,7 +589,7 @@ function ToggleRow({
   return (
     <div className="flex items-center justify-between rounded-xl border border-border/12 bg-card/40 px-4 py-3.5">
       <div className="flex items-center gap-3">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accentA/10 text-accentA">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-accentA/10 text-accentB">
           {icon}
         </span>
         <div>

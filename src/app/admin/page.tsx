@@ -3,7 +3,6 @@ import Link from "next/link";
 import { loginAction } from "@/app/admin/actions";
 import { LoginForm } from "@/app/admin/login-form";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -53,11 +52,6 @@ function LoginView({
       <span className="pointer-events-none absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-accentA/5 blur-[100px]" />
       <span className="pointer-events-none absolute -bottom-24 -right-24 h-[22rem] w-[22rem] rounded-full bg-accentB/5 blur-[80px]" />
       <span className="pointer-events-none absolute left-1/2 top-1/3 h-56 w-56 -translate-x-1/2 rounded-full bg-accentA/3 blur-[60px]" />
-
-      {/* Theme toggle — top right */}
-      <div className="absolute right-5 top-5 z-20">
-        <ThemeToggle />
-      </div>
 
       <div className="relative z-10 w-full max-w-[26rem]">
         {/* Logo + branding */}

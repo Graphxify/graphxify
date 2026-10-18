@@ -8,7 +8,7 @@ import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 
 export default function MarketingLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative min-h-screen noise-overlay">
+    <div className="relative min-h-screen">
       <JsonLd data={organizationJsonLd()} />
       <JsonLd data={websiteJsonLd()} />
       <MarketingPerformanceEffects />

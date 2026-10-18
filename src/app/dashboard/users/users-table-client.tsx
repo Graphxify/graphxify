@@ -325,7 +325,7 @@ export function UsersTableClient({
                       </Avatar>
                     </TableCell>
                     <TableCell>
-                      <Link href={`/dashboard/users/${user.id}`} className="font-medium transition-colors hover:text-accentA">
+                      <Link href={`/dashboard/users/${user.id}`} className="font-medium transition-colors hover:text-accentB">
                         {name}
                       </Link>
                     </TableCell>
@@ -344,7 +344,7 @@ export function UsersTableClient({
                     <TableCell className="whitespace-nowrap text-xs text-fg/48">{formatDate(user.last_login)}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <Button asChild variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-xs text-fg/60 transition-colors hover:text-accentA">
+                        <Button asChild variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-xs text-fg/60 transition-colors hover:text-accentB">
                           <Link href={`/dashboard/users/${user.id}`}>
                             <Eye className="h-3.5 w-3.5" />
                             View Profile

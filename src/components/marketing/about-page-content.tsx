@@ -1,43 +1,17 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useReducedMotion } from "framer-motion";
-import {
-  ArrowUpRight,
-  Blocks,
-  Clock,
-  Cpu,
-  Diamond,
-  Eye,
-  Feather,
-  FileCode,
-  Fingerprint,
-  GitBranch,
-  GitMerge,
-  Layers,
-  Layers2,
-  Layout,
-  MessageSquare,
-  Network,
-  PenTool,
-  Rocket,
-  Route,
-  ScanSearch,
-  Target,
-  Terminal,
-  type LucideIcon
-} from "lucide-react";
-import aboutGraphxifyVisual from "../../../public/images/about/about-graphxify-visual.png";
-import { SectionReveal } from "@/components/marketing/section-reveal";
-import { SiteCtaSection } from "@/components/marketing/site-cta-section";
-import { TestimonialsSection } from "@/components/marketing/testimonials-section";
+import { ArrowUpRight, Check, Star } from "lucide-react";
+import { ArrowLink } from "@/components/site/arrow-link";
+import { Badge } from "@/components/site/badge";
+import { CtaBlock } from "@/components/site/cta-block";
+import { PageHero } from "@/components/site/page-hero";
+import { ProjectCard } from "@/components/site/project-card";
+import { Reveal } from "@/components/site/reveal";
+import { SectionIntro } from "@/components/site/section-intro";
 import { Button } from "@/components/ui/button";
-import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
-import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
-import { cn } from "@/lib/utils";
+import { services } from "@/lib/constants";
+import { getProjectCardContent, getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 
-/* ── Types ── */
 type AboutWorkPreview = {
   id: string;
   slug: string;
@@ -53,62 +27,73 @@ type AboutTestimonial = {
   rating?: number;
 };
 
-/* ── Data — every icon is unique across ALL sections ── */
-const snapshotItems = [
-  { label: "Focus", value: "Brand · Websites · CMS", icon: Target },
-  { label: "Delivery", value: "Design + Dev aligned", icon: GitMerge },
-  { label: "Response", value: "within 24 hours", icon: Clock }
-] as const;
-
-const approachSteps = [
-  { num: "01", title: "Discover", body: "Research your goals, audience, and competitive landscape to build a clear strategic foundation.", icon: ScanSearch },
-  { num: "02", title: "Structure", body: "Map content architecture, define systems, and establish the information hierarchy.", icon: Layers2 },
-  { num: "03", title: "Design", body: "Craft a visual identity and interface system that communicates with clarity and purpose.", icon: PenTool },
-  { num: "04", title: "Build & Ship", body: "Develop, test, and deploy a performant product ready for real-world scale.", icon: Rocket }
-] as const;
-
-const capabilities: { title: string; body: string; href: string; icon: LucideIcon }[] = [
-  { title: "Brand Systems", body: "Positioning, visual language, and usage standards that keep your brand consistent as content scales.", href: "/services#service-brand-systems", icon: Fingerprint },
-  { title: "Web Design", body: "Clear, conversion-focused interfaces built with responsive behavior and reusable design patterns.", href: "/services#service-web-design", icon: Layout },
-  { title: "Web Development", body: "Performant, maintainable websites with clean architecture, accessibility, and production quality.", href: "/services#service-web-development", icon: Terminal },
-  { title: "CMS Architecture", body: "Content models and editor workflows so your team can publish confidently without breaking consistency.", href: "/services#service-cms-architecture", icon: Blocks }
+const facts = [
+  { label: "Focus", value: "Brand, websites, CMS" },
+  { label: "Delivery", value: "Design and development aligned" },
+  { label: "Response", value: "Within 24 hours" }
 ];
 
+// Same four stages as /process; each card deep-links to its stage there.
+const approachSteps = [
+  {
+    title: "Discover",
+    body: "Research your goals, audience, and competitive landscape to build a clear strategic foundation."
+  },
+  {
+    title: "Structure",
+    body: "Map content architecture, define systems, and establish the information hierarchy."
+  },
+  {
+    title: "Design",
+    body: "Craft a visual identity and interface system that communicates with clarity and purpose."
+  },
+  {
+    title: "Build & Ship",
+    body: "Develop, test, and deploy a performant product ready for real-world scale."
+  }
+] as const;
+
+// One-line summaries for the About page; titles and keys come from the shared services list.
+const capabilityLines: Record<(typeof services)[number]["key"], string> = {
+  "brand-systems": "Positioning, visual language, and usage standards that keep your brand consistent as content scales.",
+  "web-design": "Clear, conversion-focused interfaces built with responsive behavior and reusable design patterns.",
+  "web-development": "Performant, maintainable websites with clean architecture, accessibility, and production quality.",
+  "cms-architecture": "Content models and editor workflows so your team can publish confidently without breaking consistency."
+};
+
 const differentiators = [
-  { text: "System-driven identity + web design", icon: Layers },
-  { text: "Clean, maintainable development", icon: GitBranch },
-  { text: "Structured CMS architecture", icon: Network },
-  { text: "Consistent components and documentation", icon: FileCode },
-  { text: "Clear process and predictable delivery", icon: Route },
-  { text: "Transparent communication, kickoff to launch", icon: MessageSquare }
+  "System-driven identity and web design",
+  "Clean, maintainable development",
+  "Structured CMS architecture",
+  "Consistent components and documentation",
+  "Clear process and predictable delivery",
+  "Transparent communication, kickoff to launch"
 ] as const;
 
 const principles = [
-  { title: "Systems First", body: "Every decision is made through the lens of scalable, reusable systems, not isolated one-off deliverables.", icon: Cpu },
-  { title: "Quality as Standard", body: "Accessibility, performance, and clean code aren't extras. They're the baseline of every project.", icon: Diamond },
-  { title: "Transparent Process", body: "Clear timelines, predictable delivery, and open communication from the first call to final launch.", icon: Eye }
-];
+  {
+    title: "Systems first",
+    body: "Every decision is made through the lens of scalable, reusable systems, not isolated one-off deliverables."
+  },
+  {
+    title: "Quality as standard",
+    body: "Accessibility, performance, and clean code aren't extras. They're the baseline of every project."
+  },
+  {
+    title: "Transparent process",
+    body: "Clear timelines, predictable delivery, and open communication from the first call to final launch."
+  }
+] as const;
 
-/* ── Hero Visual — clean, no overlays ── */
-function HeroVisualPanel(): JSX.Element {
-  return (
-    <div className="section-shell relative h-full min-h-[16rem] overflow-hidden border-border/18 bg-card/74 p-2.5 md:p-3">
-      <div className="relative h-full min-h-[15rem] overflow-hidden rounded-[1.1rem] border border-border/16">
-        <Image
-          src={aboutGraphxifyVisual}
-          alt="Graphxify brand and web system preview"
-          fill
-          priority
-          className="object-cover"
-          sizes="(max-width: 1024px) 100vw, 46vw"
-        />
-        <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/34 via-black/6 to-transparent" />
-      </div>
-    </div>
-  );
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("");
 }
 
-/* ── Main Component ── */
 export function AboutPageContent({
   works,
   testimonials = []
@@ -116,311 +101,265 @@ export function AboutPageContent({
   works: AboutWorkPreview[];
   testimonials?: AboutTestimonial[];
 }): JSX.Element {
-  const reducedMotion = useReducedMotion();
   const previewWorks = works.slice(0, 3);
-  const featuredTestimonials = testimonials.slice(0, 3);
 
   return (
-    <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
-      {/* ── Hero ── */}
-      <SectionReveal className="container" effect="up">
-        <div className="grid gap-7 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
-          <div>
-            <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-fg/56">
-              <span className="h-1.5 w-1.5 rounded-full bg-accentA" />
-              About Graphxify
-            </p>
-            <h1 className="mt-3 text-[clamp(2rem,5vw,4rem)] font-semibold leading-[0.96] tracking-tight">
-              Built on <span className="gradient-text">Structure</span>.<br className="hidden md:block" /> Designed to Scale.
-            </h1>
-            <span className="mt-4 block h-px w-24 bg-accent-gradient" />
-            <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.04rem]">
-              Graphxify is a design and development studio focused on structured brand and web systems. We align identity, interface, and
-              architecture into one cohesive platform, built for clarity, consistency, and long-term growth.
-            </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="px-6">
-                <Link href="/contact">Start a Project</Link>
-              </Button>
-              <Button asChild variant="secondary" size="lg" className="px-6 hover:border-accentA/45 hover:bg-accent-gradient hover:text-ivory">
-                <Link href="/works">View Work</Link>
-              </Button>
-            </div>
+    <>
+      <PageHero
+        // PageHero stretches the badge when it has an aside; on mobile the third fact chip spans both columns.
+        className="[&>div>div>span:first-child]:self-start [&_dl>div:last-child]:col-span-2 md:[&_dl>div:last-child]:col-span-1"
+        label="About"
+        title={
+          <>
+            Built on structure. Designed to <span className="text-accentB">scale</span>.
+          </>
+        }
+        lead="Graphxify is a design and development studio focused on structured brand and web systems. We align identity, interface, and architecture into one cohesive platform, built for clarity, consistency, and long-term growth."
+        actions={
+          <>
+            <Button asChild size="lg">
+              <Link href="/contact">Start a project</Link>
+            </Button>
+            <Button asChild size="lg" variant="secondary">
+              <Link href="/works">See our work</Link>
+            </Button>
+          </>
+        }
+        aside={
+          <div className="relative aspect-square overflow-hidden rounded-[2rem] bg-charcoal ring-8 ring-white md:aspect-[16/10] lg:aspect-[4/5]">
+            <Image
+              src="/images/scenes/about-moodboard.webp"
+              alt="A moodboard of websites Graphxify designed and built, on laptops and phones, with the Graphxify logo"
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 1023px) 100vw, 40vw"
+            />
           </div>
-          <HeroVisualPanel />
-        </div>
-      </SectionReveal>
+        }
+        facts={facts}
+      />
 
-      {/* ── Snapshot Strip ── */}
-      <SectionReveal className="container mt-10 md:mt-12" effect="up">
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {snapshotItems.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <motion.article
-                key={item.label}
-                initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
-                whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
-                transition={{ duration: 0.65, delay: 0.08 * index, ease: [0.23, 1, 0.32, 1] }}
-                className="group flex items-center gap-4 rounded-xl border border-border/16 bg-card/72 px-5 py-4 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_8px_24px_rgba(0,82,204,0.06)]"
+      {/* ── Behind the studio ── */}
+      <section className="container">
+        <Reveal className="relative isolate overflow-hidden rounded-[2rem] bg-charcoal px-6 py-14 text-white md:rounded-[2.5rem] md:px-14 md:py-20 lg:px-20">
+          <div aria-hidden="true" className="absolute -right-32 -top-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-accentA/20 blur-[120px]" />
+          <Badge tone="dark">Behind the studio</Badge>
+          <h2 className="t-h1 mt-7 max-w-[14ch] text-white">
+            Built by a designer who <span className="text-accentA">codes</span>.
+          </h2>
+          <div className="mt-12 grid gap-8 border-t border-white/10 pt-10 md:mt-16 md:grid-cols-12 md:gap-10 md:pt-12">
+            <p className="text-[clamp(1.375rem,2.4vw,2rem)] font-semibold leading-[1.25] tracking-[-0.03em] md:col-span-7">
+              Graphxify was founded on the belief that brand, design, and development should operate as one unified system,{" "}
+              <span className="text-white/40">not three disconnected services.</span>
+            </p>
+            <p className="text-[1.0625rem] font-medium leading-relaxed text-white/64 md:col-span-5 md:pt-2">
+              Every project is approached with a builder&apos;s mindset: structured, intentional, and engineered for long-term growth. No
+              handoff friction, no misalignment. Just cohesive systems from concept to launch.
+            </p>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ── What we do ── */}
+      <section className="container section">
+        <Reveal>
+          <SectionIntro
+            badge="Capabilities"
+            title={
+              <>
+                What we <span className="text-accentB">do</span>
+              </>
+            }
+            lead="Brand, design, development and CMS, delivered by one team."
+          />
+        </Reveal>
+        <ul className="mt-12 grid gap-4 md:mt-16 md:grid-cols-2 md:gap-5">
+          {services.map((service, index) => (
+            <Reveal as="li" key={service.key} delay={(index % 2) * 80}>
+              <Link
+                href={`/services/${service.key}`}
+                className="group flex h-full items-start justify-between gap-6 rounded-[2rem] bg-white p-7 transition-shadow duration-300 hover:shadow-lift md:p-9"
               >
-                <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-accentA/25 bg-accentA/10 text-accentA transition-colors group-hover:bg-accentA/18">
-                  <Icon className="h-4.5 w-4.5" />
-                </span>
                 <div>
-                  <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/50">{item.label}</p>
-                  <p className="mt-0.5 text-sm font-medium text-fg/82">{item.value}</p>
+                  <h3 className="t-h3 text-fg">{service.title}</h3>
+                  <p className="t-body mt-3 max-w-[44ch]">{capabilityLines[service.key]}</p>
                 </div>
-              </motion.article>
-            );
-          })}
+                <span aria-hidden="true" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg text-fg transition-colors duration-200 group-hover:bg-fg group-hover:text-white">
+                  <ArrowUpRight className="h-4 w-4" />
+                </span>
+              </Link>
+            </Reveal>
+          ))}
+        </ul>
+        <div className="mt-10 flex justify-center">
+          <ArrowLink href="/services">All services</ArrowLink>
         </div>
-      </SectionReveal>
-
-      {/* ── Our Approach — timeline layout ── */}
-      <SectionReveal className="container mt-14 md:mt-16" effect="up">
-        <div className="mb-6 text-center">
-          <p className="text-xs uppercase tracking-[0.2em] text-accentA">How We Work</p>
-          <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Our Approach</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-fg/60">A proven four-stage process that turns ideas into structured, scalable digital products.</p>
-        </div>
-        <div className="relative">
-          {/* Vertical timeline line */}
-          <div className="pointer-events-none absolute bottom-0 left-6 top-0 w-px bg-gradient-to-b from-accentA/40 via-accentA/20 to-transparent md:left-1/2 md:-translate-x-px" />
-          <div className="space-y-6 md:space-y-8">
-            {approachSteps.map((step, index) => {
-              const Icon = step.icon;
-              const isEven = index % 2 === 0;
-              return (
-                <motion.div
-                  key={step.num}
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
-                  whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
-                  className={cn("relative flex items-start gap-5 md:gap-0", isEven ? "md:flex-row" : "md:flex-row-reverse")}
-                >
-                  {/* Timeline dot */}
-                  <div className="relative z-10 flex shrink-0 md:absolute md:left-1/2 md:-translate-x-1/2">
-                    <span className="grid h-12 w-12 place-items-center rounded-2xl border border-accentA/30 bg-bg shadow-[0_8px_24px_rgba(0,82,204,0.08)]">
-                      <Icon className="h-5 w-5 text-accentA" />
-                    </span>
-                  </div>
-                  {/* Content card */}
-                  <div className={`group flex-1 rounded-xl border border-border/16 bg-card/72 p-5 transition-all duration-200 hover:border-accentA/25 hover:shadow-[0_12px_32px_rgba(0,82,204,0.06)] ${isEven ? "md:mr-[calc(50%+2rem)] md:text-right" : "md:ml-[calc(50%+2rem)]"}`}>
-                    <span className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-accentA">{step.num}</span>
-                    <h3 className="mt-1 text-lg font-semibold">{step.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-fg/62">{step.body}</p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </SectionReveal>
-
-      {/* ── What We Do ── */}
-      <SectionReveal className="container mt-14 md:mt-16" effect="up">
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-accentA">Capabilities</p>
-            <h2 className="mt-2 text-2xl font-semibold md:text-3xl">What We Do</h2>
-          </div>
-          <Link href="/services" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-fg/72 transition-colors hover:text-accentA">
-            All Services
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2">
-          {capabilities.map((item, index) => {
-            const Icon = item.icon;
-            return (
-              <motion.div
-                key={item.title}
-                initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
-                whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
-              >
-                <Link
-                  href={item.href}
-                  className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border/16 bg-card/72 p-5 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-accentA/30 hover:shadow-[0_16px_40px_rgba(0,82,204,0.08)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                >
-                  <span className="pointer-events-none absolute -right-6 -top-6 h-20 w-20 rounded-full bg-accentA/[0.04] blur-xl" />
-                  <div className="flex items-start justify-between gap-3">
-                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-accentA/25 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16 group-hover:shadow-[0_4px_16px_rgba(0,82,204,0.15)]">
-                      <Icon className="h-5 w-5" />
-                    </span>
-                    <ArrowUpRight className="mt-1 h-4 w-4 text-fg/25 transition-[color,transform] duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accentA" />
-                  </div>
-                  <h3 className="mt-3 text-[1.12rem] font-semibold">{item.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-fg/60">{item.body}</p>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
-      </SectionReveal>
+      </section>
 
       {/* ── Why Graphxify ── */}
-      <SectionReveal className="container mt-14 md:mt-16" effect="up">
-        <div className="section-shell overflow-hidden border-border/18 bg-card/74 p-5 md:p-7">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-accentA">The Difference</p>
-              <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Why Graphxify</h2>
-            </div>
-            <Feather className="mt-1 h-5 w-5 text-fg/20" />
-          </div>
-          <ul className="mt-5 grid gap-2.5 sm:grid-cols-2">
-            {differentiators.map((item, index) => {
-              const Icon = item.icon;
+      <section className="container section pt-0 md:pt-0">
+        <Reveal>
+          <SectionIntro
+            badge="The difference"
+            title={
+              <>
+                Why <span className="text-accentB">Graphxify</span>
+              </>
+            }
+          />
+        </Reveal>
+        <ul className="mt-12 grid gap-4 sm:grid-cols-2 md:mt-16 md:gap-5 lg:grid-cols-3">
+          {differentiators.map((item, index) => (
+            <Reveal as="li" key={item} delay={(index % 3) * 60} className="flex flex-col rounded-[2rem] bg-white p-7 md:p-8">
+              <span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-full bg-green text-fg">
+                <Check className="h-5 w-5" />
+              </span>
+              <p className="mt-8 text-[1.125rem] font-bold leading-snug tracking-[-0.02em] text-fg md:mt-12 md:text-[1.25rem]">{item}</p>
+            </Reveal>
+          ))}
+        </ul>
+      </section>
+
+      {/* ── Principles ── */}
+      <section className="container section pt-0 md:pt-0">
+        <Reveal>
+          <SectionIntro
+            badge="Principles"
+            title={
+              <>
+                Our <span className="text-accentB">principles</span>
+              </>
+            }
+            lead="The core beliefs that drive how we design, develop, and deliver."
+          />
+        </Reveal>
+        <ol className="mt-12 grid gap-4 md:mt-16 md:grid-cols-3 md:gap-5">
+          {principles.map((principle, index) => (
+            <Reveal as="li" key={principle.title} delay={index * 80} className="flex flex-col rounded-[2rem] bg-white p-7 md:p-9">
+              <span aria-hidden="true" className="text-[clamp(3.5rem,6vw,5rem)] font-extrabold leading-none tracking-[-0.06em] text-fg/10">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <h3 className="t-h3 mt-10 text-fg">{principle.title}</h3>
+              <p className="t-body mt-3">{principle.body}</p>
+            </Reveal>
+          ))}
+        </ol>
+      </section>
+
+      {/* ── Approach ── */}
+      <section className="container section pt-0 md:pt-0">
+        <Reveal>
+          <SectionIntro
+            badge="Approach"
+            title={
+              <>
+                Our <span className="text-accentB">approach</span>
+              </>
+            }
+            lead="Four stages that turn ideas into structured, scalable digital products."
+          />
+        </Reveal>
+        <ol className="mt-12 grid gap-4 sm:grid-cols-2 md:mt-16 lg:grid-cols-4">
+          {approachSteps.map((step, index) => (
+            <Reveal as="li" key={step.title} delay={index * 80}>
+              <Link
+                href={`/process#stage-0${index + 1}`}
+                className="group flex h-full flex-col rounded-[2rem] bg-white p-7 transition-shadow duration-300 hover:shadow-lift"
+              >
+                <span className="flex items-center justify-between">
+                  <span className="grid h-11 w-11 place-items-center rounded-full bg-fg text-[0.9375rem] font-extrabold text-white">{index + 1}</span>
+                  <ArrowUpRight aria-hidden="true" className="h-4 w-4 text-fg/40 transition-[color,transform] duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-fg" />
+                </span>
+                <h3 className="t-h3 mt-10 text-fg">{step.title}</h3>
+                <p className="t-body mt-2 !text-[0.9375rem]">{step.body}</p>
+              </Link>
+            </Reveal>
+          ))}
+        </ol>
+        <div className="mt-10 flex justify-center">
+          <ArrowLink href="/process">See the full process</ArrowLink>
+        </div>
+      </section>
+
+      {/* ── Testimonials ── */}
+      {testimonials.length > 0 ? (
+        <section className="container section pt-0 md:pt-0">
+          <Reveal>
+            <SectionIntro
+              badge="Client stories"
+              title={
+                <>
+                  Trusted by <span className="text-accentB">clients</span>
+                </>
+              }
+            />
+          </Reveal>
+          <ul className="mt-12 columns-1 gap-5 md:mt-16 md:columns-2 lg:columns-3 [&>li]:mb-5">
+            {testimonials.map((item, index) => {
+              const dark = index === 0;
               return (
-                <motion.li
-                  key={item.text}
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 14 }}
-                  whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
-                  transition={{ duration: 0.55, delay: 0.07 * index, ease: [0.23, 1, 0.32, 1] }}
-                  className="group flex items-center gap-3 rounded-lg border border-border/14 bg-bg/44 px-3.5 py-3 transition-[border-color,background-color,box-shadow] duration-200 hover:border-accentA/25 hover:bg-accentA/[0.03] hover:shadow-[0_4px_16px_rgba(0,82,204,0.04)]"
-                >
-                  <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-accentA/20 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16">
-                    <Icon className="h-3.5 w-3.5" />
-                  </span>
-                  <span className="text-sm text-fg/72">{item.text}</span>
-                </motion.li>
+                <Reveal as="li" key={item.id} delay={(index % 3) * 60} className={dark ? "break-inside-avoid rounded-[2rem] bg-fg p-7 text-white" : "break-inside-avoid rounded-[2rem] bg-white p-7"}>
+                  {item.rating ? (
+                    <p className="flex gap-0.5" role="img" aria-label={`${item.rating} out of 5 stars`}>
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} aria-hidden="true" className={`h-4 w-4 ${i < Math.round(item.rating ?? 0) ? (dark ? "fill-green text-green" : "fill-fg text-fg") : "text-fg/20"}`} />
+                      ))}
+                    </p>
+                  ) : null}
+                  <blockquote className={`mt-5 text-[1.0625rem] font-semibold leading-relaxed tracking-[-0.01em] ${dark ? "text-white" : "text-fg"}`}>&ldquo;{item.quote}&rdquo;</blockquote>
+                  <div className="mt-6 flex items-center gap-3">
+                    <span aria-hidden="true" className={`grid h-10 w-10 place-items-center rounded-full text-[0.8125rem] font-extrabold ${dark ? "bg-white text-fg" : "bg-fg text-white"}`}>
+                      {initials(item.name)}
+                    </span>
+                    <div>
+                      <p className="text-[0.9375rem] font-bold">{item.name}</p>
+                      <p className={`text-[0.8125rem] font-medium ${dark ? "text-white/60" : "text-fg/60"}`}>{item.role}</p>
+                    </div>
+                  </div>
+                </Reveal>
               );
             })}
           </ul>
-        </div>
-      </SectionReveal>
+        </section>
+      ) : null}
 
-      {/* ── Behind the Studio ── */}
-      <SectionReveal className="container mt-14 md:mt-16" effect="up">
-        <div className="section-shell overflow-hidden border-border/18 bg-card/74 p-5 md:p-7">
-          <div className="grid gap-6 md:grid-cols-[auto_1fr] md:items-center">
-            <div className="relative mx-auto md:mx-0">
-              <div className="h-24 w-24 overflow-hidden rounded-2xl border border-border/18 bg-gradient-to-br from-accentA/12 via-card/60 to-accentB/12 md:h-28 md:w-28">
-                <div className="grid h-full w-full place-items-center">
-                  <span className="text-3xl font-bold text-accentA">G</span>
-                </div>
-              </div>
-              <span className="absolute -bottom-1 -right-1 grid h-7 w-7 place-items-center rounded-full border border-accentA/40 bg-bg/90 shadow-lg">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-            </div>
-            <div>
-              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-fg/50">Behind the Studio</p>
-              <h2 className="mt-1 text-xl font-semibold md:text-2xl">Built by a designer who <span className="gradient-text">codes</span>.</h2>
-              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-fg/62">
-                Graphxify was founded on the belief that brand, design, and development should operate as one unified system, not three
-                disconnected services. Every project is approached with a builder&apos;s mindset: structured, intentional, and engineered
-                for long-term growth. No handoff friction, no misalignment. Just cohesive systems from concept to launch.
-              </p>
-            </div>
-          </div>
-        </div>
-      </SectionReveal>
-
-      {/* ── Testimonials — single-row marquee ── */}
-      {featuredTestimonials.length > 0 && (
-        <SectionReveal className="container mt-14 md:mt-16" effect="up">
-          <div className="mb-6 text-center">
-            <p className="text-xs uppercase tracking-[0.2em] text-accentA">Testimonials</p>
-            <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Trusted by <span className="gradient-text">Clients</span></h2>
-          </div>
-          <TestimonialsSection items={featuredTestimonials} singleRow />
-        </SectionReveal>
-      )}
-
-      {/* ── Our Principles ── */}
-      <SectionReveal className="container mt-14 md:mt-16" effect="up">
-        <div className="section-shell overflow-hidden border-border/18 bg-card/74 p-5 md:p-7">
-          <div className="text-center">
-            <p className="text-xs uppercase tracking-[0.2em] text-accentA">Core Values</p>
-            <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Our Principles</h2>
-            <p className="mx-auto mt-3 max-w-xl text-sm text-fg/58">The core beliefs that drive how we design, develop, and deliver.</p>
-          </div>
-          <div className="mt-6 grid gap-3 md:grid-cols-3">
-            {principles.map((p, index) => {
-              const Icon = p.icon;
-              return (
-                <motion.article
-                  key={p.title}
-                  initial={reducedMotion ? undefined : { opacity: 0, y: 16 }}
-                  whileInView={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ duration: 0.65, delay: 0.1 * index, ease: [0.23, 1, 0.32, 1] }}
-                  className="group relative overflow-hidden rounded-xl border border-border/16 bg-bg/44 p-5 text-center transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-accentA/25 hover:shadow-[0_12px_32px_rgba(0,82,204,0.05)]"
-                >
-                  <span className="pointer-events-none absolute -bottom-8 left-1/2 h-24 w-24 -translate-x-1/2 rounded-full bg-accentA/[0.03] blur-2xl" />
-                  <span className="mx-auto inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-accentA/25 bg-accentA/8 text-accentA transition-colors group-hover:bg-accentA/16">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <h3 className="mt-3 text-base font-semibold">{p.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-fg/58">{p.body}</p>
-                </motion.article>
-              );
-            })}
-          </div>
-        </div>
-      </SectionReveal>
-
-      {/* ── CTA ── */}
-      <SectionReveal className="container mt-14 md:mt-16" effect="zoom">
-        <SiteCtaSection />
-      </SectionReveal>
-
-      {/* ── Selected Work ── */}
-      <SectionReveal className="container mt-14 md:mt-16" effect="up">
-        <div className="mb-5 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-accentA">Portfolio</p>
-            <h2 className="mt-2 text-2xl font-semibold md:text-3xl">Selected Work</h2>
-          </div>
-          <Link href="/works" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-[0.16em] text-fg/72 transition-colors hover:text-accentA">
-            View all
-            <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {previewWorks.map((work) => {
-            const displayTitle = getProjectDisplayTitle(work.slug, work.title);
-            return (
-              <div key={work.id}>
-                <Link
+      {/* ── Selected work ── */}
+      {previewWorks.length > 0 ? (
+        <section className="container section pt-0 md:pt-0">
+          <Reveal>
+            <SectionIntro
+              badge="Work"
+              title={
+                <>
+                  Selected <span className="text-accentB">work</span>
+                </>
+              }
+            />
+          </Reveal>
+          <ul className="mt-12 grid gap-5 md:mt-16 md:grid-cols-3 md:gap-6">
+            {previewWorks.map((work, index) => (
+              <Reveal as="li" key={work.id} delay={index * 80}>
+                <ProjectCard
                   href={`/works/${getProjectPathSlug(work.slug)}`}
-                  className="group block rounded-[1.05rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                  data-cursor-label="Open"
-                >
-                  <article className="relative h-[20rem] overflow-hidden rounded-[1.05rem] border border-border/18 shadow-[0_14px_30px_rgba(13,13,15,0.08)] md:h-[22rem]">
-                    <div className="absolute inset-0">
-                      <Image
-                        src={work.coverImage}
-                        alt={displayTitle}
-                        fill
-                        unoptimized={shouldBypassNextImageOptimization(work.coverImage)}
-                        className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.55]"
-                        sizes="(max-width: 1024px) 50vw, 33vw"
-                      />
-                    </div>
-                    <div className="absolute inset-0 bg-black/12 transition-colors duration-200 group-hover:bg-black/38" />
-                    <div className="absolute inset-x-4 bottom-4 z-10 transition-[opacity,transform] duration-200 group-hover:translate-y-2 group-hover:opacity-0">
-                      <h3 className="text-sm font-medium text-ivory drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-base">{displayTitle}</h3>
-                    </div>
-                    <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center px-5 text-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                      <h4 className="text-[1.6rem] font-semibold leading-tight text-ivory drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] md:text-[1.9rem]">
-                        {displayTitle}
-                      </h4>
-                    </div>
-                  </article>
-                </Link>
-              </div>
-            );
-          })}
-        </div>
-      </SectionReveal>
-    </div>
+                  slug={work.slug}
+                  title={getProjectDisplayTitle(work.slug, work.title)}
+                  industry={getProjectCardContent(work.slug)?.industry}
+                  image={work.coverImage}
+                  sizes="(max-width: 767px) 100vw, 33vw"
+                />
+              </Reveal>
+            ))}
+          </ul>
+          <div className="mt-12 flex justify-center">
+            <Button asChild size="lg">
+              <Link href="/works">View all work</Link>
+            </Button>
+          </div>
+        </section>
+      ) : null}
+
+      <CtaBlock />
+    </>
   );
 }

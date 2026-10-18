@@ -163,7 +163,7 @@ export default async function DashboardHomePage() {
                 className="group flex items-center justify-between rounded-xl border border-border/14 bg-card/50 px-4 py-3 text-sm text-fg/72 transition-all duration-200 hover:border-accentA/30 hover:bg-card/70 hover:text-fg"
               >
                 <span>{link.label}</span>
-                <ArrowRight className="h-3.5 w-3.5 text-fg/32 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-accentA" />
+                <ArrowRight className="h-3.5 w-3.5 text-fg/32 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-accentB" />
               </Link>
             ))}
           </div>

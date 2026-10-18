@@ -4,21 +4,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-semibold transition-[transform,background-color,color,box-shadow] duration-200 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB focus-visible:ring-offset-2 focus-visible:ring-offset-bg disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-accent-gradient text-ivory shadow-glow hover:-translate-y-0.5 hover:shadow-float",
-        secondary:
-          "border border-border/20 bg-card/65 text-fg hover:-translate-y-0.5 hover:border-border/35 hover:bg-card/88",
-        ghost: "text-fg hover:bg-fg/6",
-        link: "rounded-none p-0 text-fg/92 underline-offset-4 hover:text-fg",
-        destructive: "border border-border/20 bg-card/55 text-fg hover:bg-accentB/18"
+        default: "bg-fg text-white hover:bg-charcoal-2",
+        secondary: "bg-white text-fg hover:bg-white/80 shadow-[inset_0_0_0_1px_rgba(10,10,10,0.08)]",
+        accent: "bg-accentB text-white hover:bg-[#0047b3]",
+        inverse: "bg-white text-fg hover:bg-white/90",
+        dark: "bg-fg text-white hover:bg-charcoal-2",
+        ghost: "text-fg hover:bg-fg/[0.06]",
+        link: "rounded-none p-0 text-accentB underline-offset-4 hover:underline",
+        destructive: "bg-white text-fg hover:bg-red-50 hover:text-red-700"
       },
       size: {
-        default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-lg px-6",
+        default: "h-10 px-5",
+        sm: "h-9 px-4 text-[0.8125rem]",
+        lg: "h-[3.25rem] px-7 text-[0.9375rem]",
         icon: "h-10 w-10"
       }
     },

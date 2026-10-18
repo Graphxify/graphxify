@@ -1,15 +1,28 @@
 export const revalidate = 3600;
 
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ArrowUpRight, Layers2, MessageSquare, PenTool, Rocket, ScanSearch } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SectionReveal } from "@/components/marketing/section-reveal";
-import { ServiceFaq, type ServiceFaqItem } from "@/components/marketing/service-faq";
-import { SiteCtaSection } from "@/components/marketing/site-cta-section";
+import { ArrowLink } from "@/components/site/arrow-link";
+import { CtaBlock } from "@/components/site/cta-block";
+import { FaqList } from "@/components/site/faq-list";
+import { PageHero } from "@/components/site/page-hero";
+import { Reveal } from "@/components/site/reveal";
+import { SectionIntro } from "@/components/site/section-intro";
+import { ProcessStageNav } from "@/components/marketing/process-stage-nav";
 import { JsonLd } from "@/components/seo/json-ld";
 import { buildMetadata, breadcrumbListJsonLd, canonicalUrl } from "@/lib/seo";
+
+// One visual per stage (.design-qa/scenes.mjs), built from real material: this site's own
+// sitemap, then a real client page as wireframe, as final design, and live on phones.
+const stageVisuals = [
+  { src: "/images/scenes/process-discover.webp", alt: "The Graphxify sitemap: home, the main pages and the four service pages" },
+  { src: "/images/scenes/process-structure.webp", alt: "The Pharmacy On King homepage as a blueprint wireframe" },
+  { src: "/images/scenes/process-design.webp", alt: "The finished Pharmacy On King homepage design" },
+  { src: "/images/scenes/process-ship.webp", alt: "The live Pharmacy On King website on three phones" }
+] as const;
 
 export const metadata: Metadata = buildMetadata({
   title: "Our Process — How a Project Actually Runs",
@@ -26,12 +39,11 @@ export const metadata: Metadata = buildMetadata({
 /**
  * Stages intentionally match the four `approachSteps` on /about so the two
  * pages never describe different processes. /about summarises; this page is
- * the detail — deliverables, client input, and duration per stage.
+ * the detail: deliverables, client input, and duration per stage.
  */
 const stages: Array<{
   num: string;
   title: string;
-  icon: LucideIcon;
   duration: string;
   summary: string;
   weDo: readonly string[];
@@ -41,10 +53,9 @@ const stages: Array<{
   {
     num: "01",
     title: "Discover",
-    icon: ScanSearch,
     duration: "3 to 5 days",
     summary:
-      "Before anything gets designed we need to understand what the business actually needs the site to do. Not a workshop for its own sake — a short, focused stage that prevents expensive changes later.",
+      "Before anything gets designed we need to understand what the business actually needs the site to do. Not a workshop for its own sake, but a short, focused stage that prevents expensive changes later.",
     weDo: [
       "Review your current site, analytics, and enquiry flow",
       "Clarify goals, audience, and what a win looks like",
@@ -57,7 +68,6 @@ const stages: Array<{
   {
     num: "02",
     title: "Structure",
-    icon: Layers2,
     duration: "3 to 5 days",
     summary:
       "The stage most agencies skip. We decide what goes on each page and in what order before worrying about how it looks, because layout decisions made without a content plan get redone.",
@@ -68,15 +78,14 @@ const stages: Array<{
       "Identify content you need to write or supply"
     ],
     youGet: ["Sitemap and navigation structure", "Wireframes for every key page", "A content checklist with owners"],
-    weNeed: "Feedback on the wireframes, and a decision on who is writing the copy — you, us, or both."
+    weNeed: "Feedback on the wireframes, and a decision on who is writing the copy: you, us, or both."
   },
   {
     num: "03",
     title: "Design",
-    icon: PenTool,
     duration: "1 to 3 weeks",
     summary:
-      "Now it looks like something. You see high-fidelity designs and click through a real prototype before a line of production code is written — nothing gets built that you have not approved.",
+      "Now it looks like something. You see high-fidelity designs and click through a real prototype before a line of production code is written. Nothing gets built that you have not approved.",
     weDo: [
       "Design desktop and mobile for every page",
       "Build a reusable component system",
@@ -89,7 +98,6 @@ const stages: Array<{
   {
     num: "04",
     title: "Build & Ship",
-    icon: Rocket,
     duration: "2 to 4 weeks",
     summary:
       "Custom Next.js development, tested across real devices, then deployed to your own hosting account with the CMS configured and your team trained on it.",
@@ -99,11 +107,7 @@ const stages: Array<{
       "Test performance, accessibility, and cross-device behaviour",
       "Migrate content and set up redirects to protect rankings"
     ],
-    youGet: [
-      "A live site on hosting you own",
-      "The full codebase, yours outright",
-      "Editor training guide and handover session"
-    ],
+    youGet: ["A live site on hosting you own", "The full codebase, yours outright", "Editor training guide and handover session"],
     weNeed: "Final content sign-off, and domain or hosting access when it is time to go live."
   }
 ];
@@ -127,14 +131,16 @@ const slippageFactors = [
   }
 ];
 
-const processFaqs: ServiceFaqItem[] = [
+// No FAQPage schema on purpose: Google retired the FAQ rich result in May 2026
+// for everything except government and health sites. Answers stay in the HTML.
+const processFaqs = [
   {
     q: "How long does a whole project take?",
     a: "Four to eight weeks end to end for most projects, depending on tier. A Brand Identity alone is two to three weeks; a full brand and website is six to eight. The stage durations above add up to a realistic range, not a best case."
   },
   {
     q: "How much of my time will this take?",
-    a: "Less than most people expect — roughly one conversation per stage plus consolidated feedback at each review, so a few hours in total. The exception is content: if you are writing the copy, budget properly for that."
+    a: "Less than most people expect: roughly one conversation per stage plus consolidated feedback at each review, so a few hours in total. The exception is content. If you are writing the copy, budget properly for that."
   },
   {
     q: "What if I don't like the design?",
@@ -148,9 +154,9 @@ const processFaqs: ServiceFaqItem[] = [
     q: "What happens after launch?",
     a: "You get a handover session and documentation so your team can run the site independently. We stay available for changes, but you are never dependent on us to keep the site working."
   }
-];
+] as const;
 
-export default function ProcessPage() {
+export default function ProcessPage(): JSX.Element {
   const breadcrumbs = breadcrumbListJsonLd([
     { name: "Home", url: canonicalUrl("/") },
     { name: "Process", url: canonicalUrl("/process") }
@@ -160,157 +166,150 @@ export default function ProcessPage() {
     <>
       <JsonLd data={breadcrumbs} />
 
-      <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
-        {/* Hero */}
-        <SectionReveal className="container" effect="up">
-          <div className="mx-auto max-w-4xl">
-            <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-fg/56">
-              <span className="h-1.5 w-1.5 rounded-full bg-accentA" aria-hidden="true" />
-              Process
-            </p>
-            <h1 className="mt-3 text-[clamp(2rem,5vw,4.5rem)] font-semibold leading-[0.96] tracking-tight">
-              How a project actually runs.
-            </h1>
-            <span className="mt-4 block h-px w-24 bg-accent-gradient" />
-            <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.08rem]">
-              Four stages, in sequence, each ending in something you can look at and approve. Below is what happens at
-              every stage, what you receive, what we need from you, and roughly how long it takes. Including the parts
-              that go wrong.
-            </p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="px-6">
-                <Link href="/contact" className="inline-flex items-center gap-2">
-                  <span>Start a Project</span>
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
-              <Button asChild variant="secondary" size="lg" className="px-6">
-                <Link href="/services">See Services</Link>
-              </Button>
-            </div>
-          </div>
-        </SectionReveal>
+      <PageHero
+        crumbs={[{ label: "Home", href: "/" }, { label: "Process" }]}
+        label="Process"
+        title={
+          <>
+            How a project actually <span className="text-accentB">runs</span>.
+          </>
+        }
+        lead="Four stages, in sequence, each ending in something you can look at and approve. Below is what happens at every stage, what you receive, what we need from you, and roughly how long it takes. Including the parts that go wrong."
+        actions={
+          <>
+            <Button asChild size="lg">
+              <Link href="/contact">Start a project</Link>
+            </Button>
+            <Button asChild size="lg" variant="secondary">
+              <Link href="/services">See services</Link>
+            </Button>
+          </>
+        }
+        facts={[
+          { label: "Stages", value: "4, in sequence" },
+          { label: "Typical timeline", value: "4 to 8 weeks" },
+          { label: "Reviews", value: "At every stage" },
+          { label: "Ownership", value: "Code and hosting are yours" }
+        ]}
+      />
 
-        {/* Stages */}
-        <SectionReveal className="container mt-14 md:mt-16 lg:mt-20" effect="up">
-          <div className="grid gap-4">
-            {stages.map((stage) => {
-              const Icon = stage.icon;
-              return (
-                <article
-                  key={stage.num}
-                  id={`stage-${stage.num}`}
-                  className="section-shell scroll-mt-24 border-border/18 bg-card/74 p-6 md:p-9"
-                >
-                  <div className="flex flex-wrap items-center gap-4">
-                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-accentA/30 bg-bg">
-                      <Icon className="h-5 w-5 text-accentA" aria-hidden="true" />
+      {/* ── Stages ── */}
+      <div className="container">
+        <ProcessStageNav stages={stages.map((stage) => ({ id: `stage-${stage.num}`, title: stage.title }))} />
+        <div className="flex flex-col gap-5 md:mt-6 md:gap-6">
+          {stages.map((stage, index) => (
+            <Reveal key={stage.num}>
+              <section
+                id={`stage-${stage.num}`}
+                aria-labelledby={`stage-${stage.num}-title`}
+                className="scroll-mt-24 rounded-[2rem] bg-white p-6 sm:p-8 md:scroll-mt-44 md:rounded-[2.5rem] md:p-10 lg:p-12"
+              >
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-center gap-4 md:gap-6">
+                    <span aria-hidden="true" className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-fg text-xl font-extrabold text-white md:h-20 md:w-20 md:text-[1.75rem]">
+                      {index + 1}
                     </span>
                     <div>
-                      <span className="text-[0.6rem] font-semibold uppercase tracking-[0.2em] text-accentA">
-                        Stage {stage.num}
-                      </span>
-                      <h2 className="text-xl font-semibold md:text-2xl">{stage.title}</h2>
-                    </div>
-                    <span className="ml-auto rounded-full border border-border/20 bg-bg/55 px-3 py-1 text-[0.62rem] uppercase tracking-[0.16em] text-fg/56">
-                      {stage.duration}
-                    </span>
-                  </div>
-
-                  <p className="mt-5 max-w-3xl text-sm leading-[1.75] text-fg/68">{stage.summary}</p>
-
-                  <div className="mt-7 grid gap-6 md:grid-cols-2 lg:grid-cols-[1fr_1fr_0.9fr]">
-                    <div>
-                      <p className="mb-3 text-[0.62rem] uppercase tracking-[0.18em] text-fg/48">What we do</p>
-                      <ul className="grid gap-2">
-                        {stage.weDo.map((item) => (
-                          <li key={item} className="flex items-start gap-2.5 text-sm text-fg/70">
-                            <span
-                              className="mt-[0.42rem] h-1.5 w-1.5 shrink-0 rounded-full bg-accentA/45"
-                              aria-hidden="true"
-                            />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div>
-                      <p className="mb-3 text-[0.62rem] uppercase tracking-[0.18em] text-fg/48">What you get</p>
-                      <ul className="grid gap-2">
-                        {stage.youGet.map((item) => (
-                          <li key={item} className="flex items-start gap-2.5 text-sm text-fg/70">
-                            <span
-                              className="mt-[0.42rem] h-1.5 w-1.5 shrink-0 rounded-full bg-accentA/45"
-                              aria-hidden="true"
-                            />
-                            {item}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="rounded-xl border border-accentA/14 bg-accentA/[0.045] px-5 py-4">
-                      <p className="mb-2 inline-flex items-center gap-2 text-[0.62rem] uppercase tracking-[0.18em] text-accentA">
-                        <MessageSquare className="h-3 w-3" aria-hidden="true" />
-                        From you
-                      </p>
-                      <p className="text-xs leading-relaxed text-fg/62">{stage.weNeed}</p>
+                      <p className="t-small">Stage {index + 1} of {stages.length}</p>
+                      <h2 id={`stage-${stage.num}-title`} className="mt-1 text-[clamp(1.75rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em] text-fg">
+                        {stage.title}
+                      </h2>
                     </div>
                   </div>
-                </article>
-              );
-            })}
-          </div>
-        </SectionReveal>
-
-        {/* What makes projects slip */}
-        <SectionReveal className="container mt-12 md:mt-16" effect="up">
-          <article className="section-shell border-border/18 bg-card/74 p-7 md:p-10 lg:p-14">
-            <p className="text-xs uppercase tracking-[0.2em] text-fg/52">Honestly</p>
-            <h2 className="mt-4 text-2xl font-semibold md:text-3xl">What makes projects run late</h2>
-            <span className="mt-3 block h-px w-20 bg-accent-gradient" />
-            <p className="mt-6 max-w-2xl text-[1.01rem] leading-[1.78] text-fg/68">
-              Timelines slip for a small number of predictable reasons, and almost all of them are avoidable if both
-              sides know about them at the start. So here they are.
-            </p>
-
-            <div className="mt-10 grid gap-4 md:grid-cols-2">
-              {slippageFactors.map((factor) => (
-                <div key={factor.title} className="rounded-xl border border-border/16 bg-bg/45 px-5 py-4">
-                  <h3 className="text-sm font-semibold text-fg/86">{factor.title}</h3>
-                  <p className="mt-2 text-xs leading-relaxed text-fg/58">{factor.body}</p>
+                  <p className="self-start rounded-full bg-bg px-4 py-2 text-[0.875rem] font-semibold text-fg/72 sm:self-auto">Typically {stage.duration}</p>
                 </div>
-              ))}
-            </div>
-          </article>
-        </SectionReveal>
 
-        {/* FAQ */}
-        <SectionReveal className="container mt-10 md:mt-14" effect="up">
-          <ServiceFaq items={processFaqs} />
-        </SectionReveal>
+                <div className="mt-8 grid gap-8 md:mt-10 lg:grid-cols-12 lg:items-center lg:gap-10">
+                  <p className="t-lead max-w-[62ch] lg:col-span-6">{stage.summary}</p>
+                  <div className="relative aspect-[4/3] overflow-hidden rounded-[1.5rem] bg-bg lg:col-span-6">
+                    <Image src={stageVisuals[index].src} alt={stageVisuals[index].alt} fill sizes="(max-width: 1023px) 100vw, 560px" className="object-cover" />
+                  </div>
+                </div>
 
-        {/* Cross-links */}
-        <SectionReveal className="container mt-10 md:mt-14" effect="up">
-          <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
-            <p className="text-sm text-fg/60">
-              Want to see the output?{" "}
-              <Link href="/works" className="link-sweep text-accentA hover:text-accentA/80">
-                Browse the work
-              </Link>
-              <span className="inline-flex items-center">
-                <ArrowUpRight className="ml-1 h-3.5 w-3.5 text-fg/38" aria-hidden="true" />
-              </span>
-            </p>
-          </div>
-        </SectionReveal>
-
-        {/* CTA */}
-        <SectionReveal className="container mt-10 md:mt-14" effect="up">
-          <SiteCtaSection />
-        </SectionReveal>
+                <div className="mt-10 grid gap-8 border-t border-fg/10 pt-8 md:grid-cols-2 md:gap-10 md:pt-10 lg:grid-cols-3">
+                  <div>
+                    <h3 className="text-[1.0625rem] font-bold tracking-[-0.015em] text-fg">What we do</h3>
+                    <ul className="mt-5 space-y-3.5">
+                      {stage.weDo.map((item) => (
+                        <li key={item} className="flex items-start gap-3 text-[0.9375rem] font-medium leading-relaxed text-fg/72">
+                          <span aria-hidden="true" className="mt-[0.6em] h-1.5 w-1.5 shrink-0 rounded-full bg-fg" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div>
+                    <h3 className="text-[1.0625rem] font-bold tracking-[-0.015em] text-fg">What you get</h3>
+                    <ul className="mt-5 space-y-3.5">
+                      {stage.youGet.map((item) => (
+                        <li key={item} className="flex items-start gap-3 text-[0.9375rem] font-semibold leading-relaxed text-fg">
+                          <span aria-hidden="true" className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-green text-fg">
+                            <Check className="h-3 w-3" />
+                          </span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="rounded-[1.5rem] bg-bg p-6 md:col-span-2 lg:col-span-1">
+                    <h3 className="text-[1.0625rem] font-bold tracking-[-0.015em] text-fg">From you</h3>
+                    <p className="mt-4 text-[0.9375rem] font-medium leading-relaxed text-fg/72">{stage.weNeed}</p>
+                  </div>
+                </div>
+              </section>
+            </Reveal>
+          ))}
+        </div>
       </div>
+
+      {/* ── What makes projects run late ── */}
+      <section className="container section">
+        <Reveal className="relative isolate overflow-hidden rounded-[2rem] bg-charcoal px-6 py-14 md:rounded-[2.5rem] md:px-14 md:py-20">
+          <div aria-hidden="true" className="absolute -left-32 -top-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-accentA/15 blur-[120px]" />
+          <SectionIntro
+            tone="dark"
+            badge="Honestly"
+            title={
+              <>
+                What makes projects run <span className="text-accentA">late</span>.
+              </>
+            }
+            lead="Timelines slip for a small number of predictable reasons, and almost all of them are avoidable if both sides know about them at the start. So here they are."
+          />
+          <ol className="mt-12 grid gap-4 md:mt-16 md:grid-cols-2 md:gap-5">
+            {slippageFactors.map((factor, index) => (
+              <li key={factor.title} className="rounded-[1.5rem] bg-charcoal-2 p-7 md:p-8">
+                <span aria-hidden="true" className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-[0.875rem] font-extrabold text-white">
+                  {index + 1}
+                </span>
+                <h3 className="t-h3 mt-8 text-white">{factor.title}</h3>
+                <p className="mt-3 max-w-[46ch] text-[0.9375rem] font-medium leading-relaxed text-white/64">{factor.body}</p>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section className="container section pt-0 md:pt-0">
+        <Reveal>
+          <SectionIntro
+            badge="FAQ"
+            title={
+              <>
+                Common <span className="text-accentB">questions</span>.
+              </>
+            }
+          />
+        </Reveal>
+        <FaqList className="mx-auto mt-12 max-w-3xl md:mt-16" items={processFaqs} />
+        <p className="mt-10 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[0.9375rem] font-medium text-fg/64">
+          Want to see the output?
+          <ArrowLink href="/works">Browse the work</ArrowLink>
+        </p>
+      </section>
+
+      <CtaBlock />
     </>
   );
 }

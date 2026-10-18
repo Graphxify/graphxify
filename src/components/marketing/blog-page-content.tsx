@@ -3,50 +3,79 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, BookOpen, Clock, Sparkles } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { formatBlogDate } from "@/components/marketing/blog-card";
 import { NewsletterSignup } from "@/components/marketing/newsletter-signup";
-import { SectionReveal } from "@/components/marketing/section-reveal";
-import { Button } from "@/components/ui/button";
-import { BLOG_CATEGORIES, type BlogCategory, type BlogPostSummary } from "@/lib/blog";
+import { Badge } from "@/components/site/badge";
+import { PageHero } from "@/components/site/page-hero";
+import { Reveal } from "@/components/site/reveal";
+import { SectionIntro } from "@/components/site/section-intro";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { BLOG_CATEGORIES, type BlogPostSummary } from "@/lib/blog";
 import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
+import { cn } from "@/lib/utils";
 
 const CATEGORY_FILTERS = ["All", ...BLOG_CATEGORIES] as const;
 const INITIAL_VISIBLE_COUNT = 6;
 const LOAD_MORE_STEP = 6;
 
-const CATEGORY_COLORS: Record<BlogCategory, { dot: string; pill: string }> = {
-  "Web Design": { dot: "bg-sky-400", pill: "border-sky-500/25 text-sky-300" },
-  "Web Development": { dot: "bg-emerald-400", pill: "border-emerald-500/25 text-emerald-300" },
-  Branding: { dot: "bg-violet-400", pill: "border-violet-500/25 text-violet-300" },
-  "Business Growth": { dot: "bg-amber-400", pill: "border-amber-500/25 text-amber-300" },
-  "Digital Strategy": { dot: "bg-rose-400", pill: "border-rose-500/25 text-rose-300" }
-};
+const PILL = "rounded-full bg-bg px-3 py-1 text-[0.8125rem] font-semibold text-fg/72";
 
-function formatDate(value?: string): string {
-  if (!value) {
-    return "Latest";
-  }
+function PostDate({ value }: { value?: string }): JSX.Element {
+  return value ? <time dateTime={value}>{formatBlogDate(value)}</time> : <>{formatBlogDate(value)}</>;
+}
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return "Latest";
-  }
+/** White card: cover framed inside, category and read time as pills below it, title, date. Used by the index and related posts. */
+export function PostCard({ post, headingLevel: Heading = "h3" }: { post: BlogPostSummary; headingLevel?: "h2" | "h3" }): JSX.Element {
+  return (
+    <Link
+      href={`/blog/${post.slug}`}
+      className="group flex h-full flex-col rounded-[2rem] bg-white p-3 transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-lift motion-reduce:transform-none"
+    >
+      <div className="relative aspect-[16/10] overflow-hidden rounded-[1.5rem] bg-bg">
+        <Image
+          src={post.coverImage}
+          alt=""
+          fill
+          unoptimized={shouldBypassNextImageOptimization(post.coverImage)}
+          sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 400px"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transform-none"
+        />
+      </div>
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-5">
+        <p className="flex flex-wrap gap-2">
+          <span className={PILL}>{post.category}</span>
+          <span className={PILL}>{post.readTime}</span>
+        </p>
+        <Heading className="t-h3 mt-4 line-clamp-3 text-fg">{post.title}</Heading>
+        <div className="mt-auto flex items-center justify-between gap-4 pt-6">
+          <p className="t-small">
+            <PostDate value={post.publishedAt} />
+          </p>
+          <span aria-hidden="true" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg text-fg transition-colors duration-200 group-hover:bg-fg group-hover:text-white">
+            <ArrowUpRight className="h-4 w-4" />
+          </span>
+        </div>
+      </div>
+    </Link>
+  );
+}
 
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  });
+function initials(name: string): string {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
 }
 
 export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.Element {
-  const reducedMotion = useReducedMotion();
   const [activeCategory, setActiveCategory] = useState<(typeof CATEGORY_FILTERS)[number]>("All");
   const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
 
   const featuredBlog = blogs[0];
-  const remainingBlogs = blogs.slice(1);
+  const remainingBlogs = useMemo(() => blogs.slice(1), [blogs]);
 
   const filteredBlogs = useMemo(() => {
     if (activeCategory === "All") {
@@ -63,193 +92,136 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
     setVisibleCount(INITIAL_VISIBLE_COUNT);
   }
 
-
   return (
-    <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
-      <SectionReveal className="container" effect="up">
-        <div className="mx-auto max-w-4xl">
-          <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-fg/56">
-            <span className="h-1.5 w-1.5 rounded-full bg-accentA" />
-            Blogs
-          </p>
-          <h1 className="mt-3 text-[clamp(2rem,5vw,4rem)] font-semibold leading-[1.12] tracking-tight md:leading-[1.08]">
-            Web design, branding, and digital strategy insights for modern businesses.
-          </h1>
-          <span className="mt-4 block h-px w-24 bg-accent-gradient" />
-          <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.04rem]">
-            Practical guides to help businesses worldwide build better websites, stronger brands, and smarter digital strategy.
-          </p>
-        </div>
-      </SectionReveal>
+    <>
+      <PageHero
+        label="Blog"
+        title={
+          <>
+            Web design, branding, and digital strategy <span className="text-accentB">insights</span> for modern businesses.
+          </>
+        }
+        lead="Practical guides to help businesses worldwide build better websites, stronger brands, and smarter digital strategy."
+        className="[&_h1]:max-w-[20ch] [&_h1]:text-[clamp(2.25rem,5vw,4.25rem)]"
+      />
 
       {featuredBlog ? (
-        <SectionReveal className="container mt-10 md:mt-12" effect="up">
-          <Link
-            href={`/blog/${featuredBlog.slug}`}
-            className="group block rounded-[1.2rem] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-          >
-            <article className="section-shell relative overflow-hidden border-border/18 bg-card/74 p-5 transition-[border-color] duration-150 group-hover:border-border/32 md:p-7">
-              <span className="pointer-events-none absolute -right-20 -top-20 z-0 h-60 w-60 rounded-full bg-accentA/6 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100" />
-
-              <div className="relative z-10 grid gap-5 lg:grid-cols-[1fr_0.95fr] lg:items-center">
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-accentA/30 bg-accentA/10 px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.14em] text-accentA">
-                      <Sparkles className="h-3 w-3" />
-                      Featured
-                    </span>
-                    <span className={`inline-flex items-center rounded-full border bg-bg/48 px-2.5 py-1 text-[0.62rem] uppercase tracking-[0.14em] ${CATEGORY_COLORS[featuredBlog.category].pill}`}>
-                      {featuredBlog.category}
-                    </span>
-                  </div>
-                  <h2 className="mt-3 text-2xl font-semibold leading-tight md:text-3xl">{featuredBlog.title}</h2>
-                  <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-fg/66 md:text-base">{featuredBlog.excerpt}</p>
-                  <div className="mt-4 flex items-center gap-4 text-xs text-fg/50">
-                    <span className="uppercase tracking-[0.14em]">{formatDate(featuredBlog.publishedAt)}</span>
-                    <span className="flex items-center gap-1">
-                      <span className="h-4 w-4 rounded-full bg-accentA/15 text-center text-[0.5rem] font-bold leading-[1rem] text-accentA">
-                        {featuredBlog.authorName.charAt(0).toUpperCase()}
-                      </span>
-                      {featuredBlog.authorName}
-                    </span>
-                    <span className="flex items-center gap-1 text-fg/44">
-                      <Clock className="h-3 w-3" />
-                      {featuredBlog.readTime}
-                    </span>
-                  </div>
-                  <span className="link-sweep mt-4 inline-flex items-center gap-1.5 text-sm text-fg/82 transition-colors group-hover:text-accentA">
-                    Read Article
-                    <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                  </span>
-                </div>
-
-                <div className="relative block aspect-[16/10] overflow-hidden rounded-[1rem] border border-border/16">
-                  <Image
-                    src={featuredBlog.coverImage}
-                    alt={featuredBlog.title}
-                    fill
-                    unoptimized={shouldBypassNextImageOptimization(featuredBlog.coverImage)}
-                    className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.68]"
-                    sizes="(max-width: 1024px) 100vw, 46vw"
-                    priority
-                  />
-                  <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/46 via-black/8 to-transparent" />
-                </div>
+        <section aria-label="Featured article" className="container">
+          <Reveal>
+            <Link
+              href={`/blog/${featuredBlog.slug}`}
+              className="group grid gap-6 rounded-[2rem] bg-white p-3 transition-shadow duration-300 hover:shadow-lift md:rounded-[2.5rem] md:p-4 lg:grid-cols-12 lg:items-center lg:gap-10"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden rounded-[1.5rem] bg-bg md:rounded-[2rem] lg:col-span-7">
+                <Image
+                  src={featuredBlog.coverImage}
+                  alt={featuredBlog.title}
+                  fill
+                  priority
+                  unoptimized={shouldBypassNextImageOptimization(featuredBlog.coverImage)}
+                  sizes="(max-width: 1023px) 100vw, 58vw"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] motion-reduce:transform-none"
+                />
               </div>
-            </article>
-          </Link>
-        </SectionReveal>
+              <div className="flex flex-col items-start px-3 pb-4 lg:col-span-5 lg:py-6 lg:pl-0 lg:pr-8">
+                <p className="flex flex-wrap items-center gap-2">
+                  <Badge dot="blue" className="bg-bg shadow-none">
+                    Featured
+                  </Badge>
+                  <span className={PILL}>{featuredBlog.category}</span>
+                </p>
+                <h2 className="t-h2 mt-6 !text-[clamp(1.75rem,3.2vw,2.75rem)] text-fg">{featuredBlog.title}</h2>
+                <p className="t-body mt-4 line-clamp-3 max-w-[48ch]">{featuredBlog.excerpt}</p>
+                <div className="mt-7 flex items-center gap-3">
+                  <span aria-hidden="true" className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-fg text-[0.8125rem] font-extrabold text-white">
+                    {initials(featuredBlog.authorName) || "G"}
+                  </span>
+                  <div>
+                    <p className="text-[0.9375rem] font-bold text-fg">{featuredBlog.authorName}</p>
+                    <p className="t-small !text-[0.8125rem]">
+                      <PostDate value={featuredBlog.publishedAt} />
+                      <span aria-hidden="true" className="mx-1.5">
+                        ·
+                      </span>
+                      {featuredBlog.readTime}
+                    </p>
+                  </div>
+                </div>
+                {/* Styled like a button; the whole card is already the link. */}
+                <span className={cn(buttonVariants({ size: "lg" }), "mt-8")}>
+                  Read article
+                  <ArrowUpRight aria-hidden="true" className="h-4 w-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                </span>
+              </div>
+            </Link>
+          </Reveal>
+        </section>
       ) : null}
 
-      <SectionReveal className="container mt-10 md:mt-12" effect="up">
-        <div className="flex flex-wrap items-center gap-2">
+      <section className="container section">
+        <Reveal>
+          <SectionIntro
+            badge="Articles"
+            title={
+              <>
+                Latest <span className="text-accentB">articles</span>
+              </>
+            }
+          />
+        </Reveal>
+
+        <div role="group" aria-label="Filter articles by category" className="mt-10 flex flex-wrap justify-center gap-2 md:mt-12">
           {CATEGORY_FILTERS.map((filter) => {
             const active = activeCategory === filter;
-            const colors = filter !== "All" ? CATEGORY_COLORS[filter as BlogCategory] : null;
+            // Counts match what the grid below will show (the featured post sits above it).
+            const count = filter === "All" ? remainingBlogs.length : remainingBlogs.filter((blog) => blog.category === filter).length;
             return (
               <button
                 key={`blog-filter-${filter}`}
                 type="button"
                 onClick={() => onFilterChange(filter)}
-                className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs uppercase tracking-[0.12em] transition-all duration-200 ${active
-                  ? "border-accentA/40 bg-accentA/12 text-accentA shadow-[0_0_12px_rgba(59,130,246,0.12)]"
-                  : "border-border/18 bg-card/50 text-fg/56 hover:border-border/34 hover:text-fg/78"
-                  }`}
                 aria-pressed={active}
-              >
-                <span className={`h-1.5 w-1.5 rounded-full transition-colors ${active ? "bg-accentA" : colors?.dot ?? "bg-fg/28"}`} />
-                {filter}
-                {filter !== "All" ? (
-                  <span className="ml-0.5 text-[0.58rem] tabular-nums text-fg/36">{blogs.filter((blog) => blog.category === filter).length}</span>
-                ) : (
-                  <span className="ml-0.5 text-[0.58rem] tabular-nums text-fg/36">{blogs.length}</span>
+                className={cn(
+                  "inline-flex h-10 items-center gap-2 rounded-full px-4 text-[0.875rem] font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
+                  active ? "bg-fg text-white" : "bg-white text-fg/72 hover:text-fg"
                 )}
+              >
+                {filter}
+                <span className={cn("text-[0.75rem] tabular-nums", active ? "text-white/60" : "text-fg/40")}>{count}</span>
               </button>
             );
           })}
         </div>
-      </SectionReveal>
 
-      <SectionReveal className="container mt-6 md:mt-8" effect="up">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {visibleBlogs.map((blog, index) => {
-            const colors = CATEGORY_COLORS[blog.category];
-            return (
-              <motion.div
-                key={blog.id}
-                initial={reducedMotion ? false : { opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: Math.min(0.05 * index, 0.2), ease: [0.23, 1, 0.32, 1] }}
-              >
-                <Link
-                  href={`/blog/${blog.slug}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-[1.1rem] border border-border/18 bg-card/72 transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-1 hover:border-border/34 hover:shadow-[0_8px_30px_rgba(0,0,0,0.24)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/70 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-                >
-                  <div className="relative block aspect-[16/10] overflow-hidden border-b border-border/14">
-                    <Image
-                      src={blog.coverImage}
-                      alt={blog.title}
-                      fill
-                      unoptimized={shouldBypassNextImageOptimization(blog.coverImage)}
-                      className="object-cover transition-[transform,filter] duration-500 group-hover:scale-[1.025] group-hover:brightness-[0.65]"
-                      sizes="(max-width: 1280px) 100vw, 33vw"
-                    />
-                    <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/40 via-black/6 to-transparent" />
-                    <span className={`absolute left-3 top-3 inline-flex items-center rounded-full border bg-bg/70 px-2 py-0.5 text-[0.6rem] uppercase tracking-[0.14em] backdrop-blur-sm ${colors.pill}`}>
-                      {blog.category}
-                    </span>
-                  </div>
-
-                  <div className="flex h-full flex-col p-4">
-                    <h3 className="line-clamp-2 text-lg font-semibold leading-tight transition-colors duration-200 group-hover:text-accentA">{blog.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-fg/60">{blog.excerpt}</p>
-                    <div className="mt-auto flex items-center justify-between gap-2 pt-4">
-                      <div className="flex items-center gap-3 text-xs text-fg/48">
-                        <span className="uppercase tracking-[0.14em]">{formatDate(blog.publishedAt)}</span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {blog.readTime}
-                        </span>
-                      </div>
-                      <span className="inline-flex items-center gap-1 text-sm text-fg/70 transition-colors duration-200 group-hover:text-accentA">
-                        <ArrowUpRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {visibleBlogs.length === 0 ? (
-          <div className="mt-10 flex flex-col items-center gap-3 py-12 text-center">
-            <div className="rounded-2xl border border-border/14 bg-card/40 p-4">
-              <BookOpen className="h-8 w-8 text-fg/28" />
-            </div>
-            <p className="text-sm font-medium text-fg/62">No blogs in this category yet.</p>
-            <p className="text-xs text-fg/42">Check back soon. New articles are published regularly.</p>
+        {visibleBlogs.length > 0 ? (
+          <ul className="mt-10 grid gap-5 md:mt-12 md:grid-cols-2 md:gap-6 lg:grid-cols-3">
+            {visibleBlogs.map((blog, index) => (
+              <Reveal as="li" key={blog.id} delay={(index % 3) * 60}>
+                <PostCard post={blog} />
+              </Reveal>
+            ))}
+          </ul>
+        ) : (
+          <div className="mx-auto mt-10 max-w-xl rounded-[2rem] bg-white px-6 py-12 text-center md:mt-12">
+            <p className="t-h3 text-fg">No articles in this category yet.</p>
+            <p className="t-body mt-2">Check back soon. New articles are published regularly.</p>
           </div>
-        ) : null}
+        )}
 
         {hasMore ? (
-          <div className="mt-8 flex justify-center">
-            <Button
-              type="button"
-              variant="secondary"
-              size="lg"
-              className="px-6 hover:border-accentA/45 hover:bg-accent-gradient hover:text-ivory"
-              onClick={() => setVisibleCount((prev) => prev + LOAD_MORE_STEP)}
-            >
-              Load More
+          <div className="mt-12 flex justify-center">
+            <Button type="button" variant="secondary" size="lg" onClick={() => setVisibleCount((prev) => prev + LOAD_MORE_STEP)}>
+              Load more
             </Button>
           </div>
         ) : null}
-      </SectionReveal>
+      </section>
 
-      <SectionReveal className="container mt-10 md:mt-14" effect="zoom">
-        <NewsletterSignup source="blog" idPrefix="blog" />
-      </SectionReveal>
-    </div>
+      <section className="container">
+        <Reveal>
+          <NewsletterSignup source="blog" idPrefix="blog" />
+        </Reveal>
+      </section>
+    </>
   );
 }

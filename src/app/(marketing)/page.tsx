@@ -44,6 +44,9 @@ type HomeProjectPreview = {
   title: string;
   industry: string;
   coverImage: string;
+  /** [cover, ...gallery], used by the project stages' art direction. */
+  images: string[];
+  tags: string[];
 };
 
 function fallbackHomeProjects(): HomeProjectPreview[] {
@@ -54,7 +57,9 @@ function fallbackHomeProjects(): HomeProjectPreview[] {
       slug: fallbackProject?.slug ?? card.slug,
       title: fallbackProject?.title ?? `Project ${index + 1}`,
       industry: fallbackProject?.industry ?? "Digital Platform",
-      coverImage: fallbackProject?.coverImage ?? `/assets/work-${(index % 3) + 1}.svg`
+      coverImage: fallbackProject?.coverImage ?? `/assets/work-${(index % 3) + 1}.svg`,
+      images: [fallbackProject?.coverImage ?? `/assets/work-${(index % 3) + 1}.svg`],
+      tags: []
     };
 
     return withProjectCardContent(baseProject);
@@ -156,7 +161,9 @@ export default async function HomePage() {
         slug: canonicalSlug,
         title: work.title,
         industry: work.industry?.trim() || fallbackProject?.industry || "Digital Platform",
-        coverImage: withImageVersion(coverImageBase, work.updated_at ?? null)
+        coverImage: withImageVersion(coverImageBase, work.updated_at ?? null),
+        images: [coverImageBase, ...(work.gallery_images ?? []).map((src) => normalizeImage(src)).filter((src): src is string => Boolean(src))],
+        tags: (work.card_services?.length ? work.card_services : work.services) ?? []
       });
     });
   }
@@ -165,5 +172,12 @@ export default async function HomePage() {
     marqueeItems = marqueeResult.value;
   }
 
-  return <HomeSections testimonials={testimonials} testimonialMetrics={testimonialMetrics} homeProjects={homeProjects} marqueeItems={marqueeItems} />;
+  return (
+    <HomeSections
+      testimonials={testimonials}
+      testimonialMetrics={testimonialMetrics}
+      homeProjects={homeProjects}
+      marqueeItems={marqueeItems}
+    />
+  );
 }

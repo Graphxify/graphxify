@@ -45,7 +45,7 @@ function Stars({ count = 5 }: { count?: number }): JSX.Element {
       {Array.from({ length: 5 }, (_, i) => (
         <Star
           key={i}
-          className={`h-4 w-4 ${i < count ? "fill-[#e8732a] text-[#e8732a]" : "fill-border/20 text-border/30"}`}
+          className={`h-4 w-4 ${i < count ? "fill-fg text-fg" : "fill-border/20 text-border/30"}`}
           strokeWidth={0}
           aria-hidden="true"
         />
@@ -65,7 +65,7 @@ function TestimonialCard({ item }: { item: TestimonialInput }): JSX.Element {
 
   return (
     <article
-      className="relative flex w-[340px] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border border-border/10 bg-card/80 p-7 sm:w-[380px]"
+      className="relative flex w-[340px] shrink-0 flex-col justify-between overflow-hidden rounded-3xl bg-card p-7 shadow-[0_1px_2px_rgba(13,13,15,0.04)] sm:w-[380px]"
       style={{
         backgroundImage:
           "radial-gradient(circle, rgba(128,128,128,0.06) 1px, transparent 1px)",
@@ -75,7 +75,7 @@ function TestimonialCard({ item }: { item: TestimonialInput }): JSX.Element {
       {/* Stars */}
       <div>
         <Stars count={item.rating ?? 5} />
-        <blockquote className="mt-4 text-[0.92rem] leading-relaxed text-fg/78">
+        <blockquote className="mt-4 text-[0.9375rem] leading-relaxed text-fg/78">
           &ldquo;{item.quote}&rdquo;
         </blockquote>
       </div>
@@ -94,13 +94,13 @@ function TestimonialCard({ item }: { item: TestimonialInput }): JSX.Element {
             />
           </div>
         ) : (
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br from-accentA/80 to-accentA/50 text-xs font-semibold text-white/90">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-bg text-xs font-semibold text-fg/70">
             {initials}
           </span>
         )}
         <div className="min-w-0">
           <p className="truncate text-sm font-semibold text-fg/90">{item.name}</p>
-          <p className="truncate text-xs text-fg/48">{item.role}</p>
+          <p className="truncate text-xs text-fg/60">{item.role}</p>
         </div>
       </footer>
     </article>
@@ -300,7 +300,7 @@ export function TestimonialsSection({
   if (slides.length === 0) {
     return (
       <section className="py-12 text-center">
-        <p className="text-fg/48">Testimonials will appear here once added.</p>
+        <p className="text-fg/60">Testimonials will appear here once added.</p>
       </section>
     );
   }

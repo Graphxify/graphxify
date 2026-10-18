@@ -1,85 +1,68 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Design system v4 "Studio". See DESIGN.md. */
 :root {
-  --bg: 242 240 235;
-  --fg: 13 13 15;
-  --muted: 13 13 15;
-  --card: 242 240 235;
-  --border: 13 13 15;
+  color-scheme: light;
+  --bg: 242 242 242;
+  --fg: 10 10 10;
+  --muted: 10 10 10;
+  --card: 255 255 255;
+  --border: 10 10 10;
+  --charcoal: 23 23 23;
+  --charcoal-2: 31 31 31;
   --accent-a: 0 163 255;
   --accent-b: 0 82 204;
-  --radius: 1rem;
-  --surface-alpha: 0.04;
-  --layout-max: 1160px;
-  --layout-gutter: 1.125rem;
-  --font-scale: 0.985;
-  --font-poppins: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --green: 52 211 106;
+  --radius: 2rem;
+  --layout-max: 1240px;
+  --layout-gutter: 1.25rem;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --font-poppins: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-.dark {
-  --bg: 13 13 15;
-  --fg: 242 240 235;
-  --muted: 242 240 235;
-  --card: 18 18 22;
-  --border: 242 240 235;
-  --surface-alpha: 0.06;
+@media (min-width: 768px) {
+  :root {
+    --layout-gutter: 2rem;
+  }
 }
 
 * {
-  border-color: rgb(var(--border) / 0.16);
+  border-color: rgb(var(--border) / 0.1);
 }
 
 html,
 body {
   min-height: 100%;
-  scroll-behavior: auto;
-}
-
-html.lenis,
-html.lenis body {
-  height: auto;
-}
-
-.lenis.lenis-smooth [data-lenis-prevent] {
-  overscroll-behavior: contain;
-}
-
-.lenis.lenis-stopped {
-  overflow: hidden;
-}
-
-.lenis.lenis-smooth iframe {
-  pointer-events: none;
-}
-
-html {
-  font-size: calc(16px * var(--font-scale));
 }
 
 body {
   background-color: rgb(var(--bg));
   color: rgb(var(--fg));
-  font-family: var(--font-poppins), sans-serif;
+  font-family: var(--font-poppins);
+  font-weight: 500;
   overflow-x: hidden;
-  transition: background-color 200ms ease, color 200ms ease;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-html.cursor-fx,
-html.cursor-fx body,
-html.cursor-fx a,
-html.cursor-fx button,
-html.cursor-fx [role="button"],
-html.cursor-fx input[type="submit"],
-html.cursor-fx input[type="button"] {
-  cursor: none !important;
+h1,
+h2,
+h3,
+h4 {
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 ::selection {
-  background: rgb(var(--accent-a) / 0.24);
-  color: rgb(var(--fg));
+  background: rgb(var(--accent-b));
+  color: #fff;
 }
 
 a,
@@ -87,70 +70,18 @@ button,
 input,
 textarea,
 select {
-  transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, box-shadow 200ms ease;
+  transition: background-color 200ms ease, color 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
 }
 
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
-select:focus-visible {
-  outline: 2px solid rgb(var(--accent-a));
-  outline-offset: 2px;
-}
-
-.dark input::placeholder,
-.dark textarea::placeholder {
-  color: rgb(242 240 235 / 0.4) !important;
-  opacity: 1;
-}
-
-.dark input,
-.dark textarea,
-.dark select {
-  background-color: rgb(18 18 22) !important;
-  color: rgb(242 240 235) !important;
-}
-
-.lead-form-premium input,
-.lead-form-premium textarea,
-.lead-form-premium select {
-  border-color: rgb(var(--border) / 0.22) !important;
-}
-
-.dark .lead-form-premium input,
-.dark .lead-form-premium textarea,
-.dark .lead-form-premium select {
-  background-color: rgb(18 18 22) !important;
-  color: rgb(242 240 235) !important;
-  border-color: rgb(var(--border) / 0.22) !important;
-}
-
-.dark .lead-form-premium input::placeholder,
-.dark .lead-form-premium textarea::placeholder {
-  color: rgb(242 240 235 / 0.72) !important;
-  opacity: 1;
-}
-
-.dark .lead-form-premium select option {
-  background-color: rgb(18 18 22);
-  color: rgb(242 240 235);
-}
-
-.lead-form-premium select.quick-service-select[data-empty="true"] {
-  color: rgb(var(--fg) / 0.45) !important;
-}
-
-.lead-form-premium select.quick-service-select[data-empty="false"] {
-  color: rgb(var(--fg) / 0.88) !important;
-}
-
-.dark .lead-form-premium select.quick-service-select[data-empty="true"] {
-  color: rgb(242 240 235 / 0.72) !important;
-}
-
-.dark .lead-form-premium select.quick-service-select[data-empty="false"] {
-  color: rgb(242 240 235) !important;
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid rgb(var(--accent-b));
+  outline-offset: 3px;
 }
 
 .app-shell {
@@ -161,32 +92,116 @@ select:focus-visible {
 
 @layer components {
   .container {
-    max-width: var(--layout-max) !important;
+    max-width: calc(var(--layout-max) + 2 * var(--layout-gutter)) !important;
     padding-left: var(--layout-gutter) !important;
     padding-right: var(--layout-gutter) !important;
   }
+
+  .section {
+    @apply py-20 md:py-28 lg:py-32;
+  }
+
+  /* Type scale */
+  .t-display {
+    font-size: clamp(3rem, 7vw, 6.25rem);
+    font-weight: 800;
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+  }
+  .t-h1 {
+    font-size: clamp(2.5rem, 5.6vw, 4.75rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.045em;
+  }
+  .t-h2 {
+    font-size: clamp(2rem, 4.2vw, 3.6rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.04em;
+  }
+  .t-h3 {
+    font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  .t-lead {
+    font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+    line-height: 1.55;
+    font-weight: 500;
+    color: rgb(var(--fg) / 0.64);
+  }
+  .t-body {
+    font-size: 1rem;
+    line-height: 1.65;
+    font-weight: 500;
+    color: rgb(var(--fg) / 0.64);
+  }
+  .t-small {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    font-weight: 500;
+    color: rgb(var(--fg) / 0.6);
+  }
+  /* Legacy v3 label, kept so older markup still renders until it is migrated. */
+  .t-label {
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    font-weight: 600;
+    color: rgb(var(--fg) / 0.6);
+  }
+
+  /* Long-form article / legal copy */
+  .prose-site {
+    @apply t-body;
+    max-width: 68ch;
+  }
+  .prose-site > * + * {
+    margin-top: 1.1em;
+  }
+  .prose-site h2 {
+    @apply t-h3;
+    color: rgb(var(--fg));
+    margin-top: 2.2em;
+  }
+  .prose-site h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: rgb(var(--fg));
+    margin-top: 1.8em;
+  }
+  .prose-site a {
+    color: rgb(var(--accent-b));
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .prose-site ul,
+  .prose-site ol {
+    padding-left: 1.25em;
+  }
+  .prose-site ul {
+    list-style: disc;
+  }
+  .prose-site ol {
+    list-style: decimal;
+  }
+  .prose-site li + li {
+    margin-top: 0.4em;
+  }
+  .prose-site strong {
+    color: rgb(var(--fg));
+    font-weight: 600;
+  }
 }
 
-.noise-overlay::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.15;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='%23f2f0eb' fill-opacity='0.05'%3E%3Ccircle cx='15' cy='20' r='1'/%3E%3Ccircle cx='60' cy='40' r='1'/%3E%3Ccircle cx='100' cy='65' r='1'/%3E%3Ccircle cx='35' cy='88' r='1'/%3E%3Ccircle cx='80' cy='98' r='1'/%3E%3C/g%3E%3C/svg%3E");
-  mix-blend-mode: overlay;
-}
-
+/* Legacy helpers still referenced by older markup; restyled to v3. */
+/* Legacy v3 surfaces */
 .section-shell {
   position: relative;
-  border: 1px solid rgb(var(--border) / 0.14);
-  border-radius: 1.25rem;
-  background-color: rgb(var(--card) / 0.76);
-  backdrop-filter: blur(10px) saturate(120%);
-  box-shadow: 0 14px 34px rgb(13 13 15 / 0.07);
+  border-radius: var(--radius);
+  background-color: rgb(var(--card));
   overflow: hidden;
-  contain: paint;
 }
 
 .link-sweep {
@@ -200,11 +215,11 @@ select:focus-visible {
   left: 0;
   bottom: -0.12rem;
   width: 100%;
-  height: 2px;
+  height: 1.5px;
   transform: scaleX(0);
   transform-origin: left;
-  background: linear-gradient(90deg, #00a3ff 0%, #0052cc 100%);
-  transition: transform 180ms ease;
+  background: currentColor;
+  transition: transform 200ms var(--ease-out);
 }
 
 .link-sweep:hover::after,
@@ -212,57 +227,23 @@ select:focus-visible {
   transform: scaleX(1);
 }
 
-.hero-spaced {
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-}
-
-.lift-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgb(var(--accent-a) / 0.12);
-}
-
-.lift-hover {
-  transition: transform 320ms ease, box-shadow 320ms ease, border-color 320ms ease;
-}
-
-.glow-accent {
-  box-shadow: 0 0 0 1px rgb(var(--accent-a) / 0.24), 0 0 24px rgb(var(--accent-a) / 0.2);
+.gradient-text {
+  color: rgb(var(--accent-b));
 }
 
 .text-muted {
-  color: rgb(var(--muted) / 0.68);
+  color: rgb(var(--muted) / 0.64);
 }
 
-.gradient-text {
-  background: linear-gradient(90deg, #00a3ff 0%, #0052cc 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+.lead-form-premium select.quick-service-select[data-empty="true"] {
+  color: rgb(var(--fg) / 0.6) !important;
 }
 
-.dark .noise-overlay::before {
-  opacity: 0.18;
-}
-
-@media (min-width: 1280px) {
-  :root {
-    --layout-max: 1120px;
-    --layout-gutter: 1.25rem;
-    --font-scale: 0.96;
-  }
-}
-
-@media (min-width: 1536px) {
-  :root {
-    --layout-max: 1080px;
-    --layout-gutter: 1.35rem;
-    --font-scale: 0.93;
-  }
+.lead-form-premium select.quick-service-select[data-empty="false"] {
+  color: rgb(var(--fg) / 0.88) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
@@ -273,17 +254,27 @@ select:focus-visible {
   }
 }
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+@keyframes marquee-x {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+
+@keyframes marquee-y {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, -50%, 0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
 }
 
 @keyframes nav-loading {
-  0%   { width: 0%; }
+  0% { width: 0%; }
   100% { width: 84%; }
 }
 
 @keyframes nav-done {
-  0%   { width: 100%; opacity: 1; }
+  0% { width: 100%; opacity: 1; }
   100% { width: 100%; opacity: 0; }
 }

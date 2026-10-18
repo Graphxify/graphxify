@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ListChecks, Loader2 } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { Badge } from "@/components/site/badge";
 import { Button } from "@/components/ui/button";
 import { FieldErrorText, FormAlert } from "@/components/ui/form-feedback";
 import { Input } from "@/components/ui/input";
@@ -86,30 +87,26 @@ export function NewsletterSignup({
   }
 
   return (
-    <div className="section-shell relative overflow-hidden border-accentA/16 bg-card/82 p-7 md:p-10 lg:p-12">
-      {/* Ambient glows */}
-      <span className="pointer-events-none absolute -left-20 -top-20 h-60 w-60 rounded-full bg-accentA/9 blur-[80px]" />
-      <span className="pointer-events-none absolute -bottom-16 -right-16 h-48 w-48 rounded-full bg-accentB/7 blur-[70px]" />
-      <span className="absolute inset-x-0 top-0 h-px bg-accent-gradient opacity-50" />
-
-      <div className="relative z-10 grid items-start gap-8 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+    <div className="relative isolate overflow-hidden rounded-[2rem] bg-charcoal p-7 text-white sm:p-10 md:rounded-[2.5rem] md:p-14 lg:p-16">
+      <div aria-hidden="true" className="absolute -right-24 -top-32 -z-10 h-[28rem] w-[28rem] rounded-full bg-accentA/25 blur-[120px]" />
+      <div aria-hidden="true" className="absolute -bottom-40 -left-20 -z-10 h-[22rem] w-[22rem] rounded-full bg-green/10 blur-[120px]" />
+      <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
         {/* Value proposition */}
-        <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-accentA/26 bg-accentA/10 px-3 py-1.5 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-accentA">
-            <ListChecks className="h-3 w-3" />
-            Free Resource
-          </div>
+        <div className="lg:col-span-7">
+          <Badge tone="dark" dot="blue">
+            Free resource
+          </Badge>
 
-          <h2 className="mt-4 text-2xl font-semibold leading-[1.1] md:text-[1.8rem]">{heading}</h2>
+          <h2 className="t-h2 mt-6 max-w-[16ch] text-white">{heading}</h2>
 
-          <p className="mt-3 max-w-sm text-sm leading-relaxed text-fg/60">{blurb}</p>
+          <p className="mt-5 max-w-[52ch] text-[1.0625rem] font-medium leading-relaxed text-white/64">{blurb}</p>
 
           {showBenefits ? (
-            <ul className="mt-5 space-y-2.5" aria-label="Checklist includes">
+            <ul className="mt-7 space-y-3" aria-label="Checklist includes">
               {BENEFITS.map((item) => (
-                <li key={item} className="flex items-start gap-3 text-sm text-fg/62">
-                  <span className="mt-[0.2rem] flex h-4 w-4 shrink-0 items-center justify-center rounded border border-accentA/30 bg-accentA/10 text-accentA">
-                    <Check className="h-2.5 w-2.5" aria-hidden="true" />
+                <li key={item} className="flex items-center gap-3 text-[0.9375rem] font-semibold text-white">
+                  <span aria-hidden="true" className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-green text-fg">
+                    <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
                   </span>
                   {item}
                 </li>
@@ -119,11 +116,16 @@ export function NewsletterSignup({
         </div>
 
         {/* Form */}
-        <div className="lg:pt-2">
-          <form onSubmit={onSubmit} className="space-y-3" aria-label="Newsletter signup form">
+        <div className="rounded-[1.75rem] bg-white/[0.06] p-6 ring-1 ring-inset ring-white/10 md:p-8 lg:col-span-5">
+          {/* Field errors default to blue; electric keeps them readable on charcoal. */}
+          <form onSubmit={onSubmit} className="space-y-3 [&_p[role=alert]]:text-[0.8125rem] [&_p[role=alert]]:font-medium [&_p[role=alert]]:text-accentA" aria-label="Newsletter signup form">
+            <label htmlFor={`${idPrefix}-subscribe-email`} className="block text-sm font-semibold text-white">
+              Email address
+            </label>
             <FormAlert message={error} />
 
             <Input
+              id={`${idPrefix}-subscribe-email`}
               type="email"
               required
               value={email}
@@ -137,32 +139,28 @@ export function NewsletterSignup({
                   return next;
                 });
               }}
-              placeholder="Your email address"
-              className="h-12 rounded-xl border-border/22 bg-bg/64 px-4 text-sm placeholder:text-fg/40 placeholder:opacity-100 focus:border-accentA/40"
-              aria-label="Email address"
+              placeholder="you@company.com"
+              className="h-[3.25rem] rounded-[14px] border border-white/10 bg-charcoal-2 px-4 text-[0.9375rem] text-white placeholder:text-white/50 transition-colors hover:border-white/20 focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-accentA aria-[invalid=true]:border-accentA"
               aria-describedby={fieldErrors.email ? `${idPrefix}-subscribe-email-error` : undefined}
               aria-invalid={Boolean(fieldErrors.email)}
             />
             <FieldErrorText id={`${idPrefix}-subscribe-email-error`} message={fieldErrors.email} />
 
-            <Button type="submit" size="lg" className="h-12 w-full px-6" disabled={loading}>
+            <Button type="submit" size="lg" variant="inverse" className="h-[3.25rem] w-full px-6 focus-visible:ring-accentA focus-visible:ring-offset-charcoal" disabled={loading}>
               {loading ? (
                 <span className="inline-flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Sending...
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-2">
-                  <ListChecks className="h-4 w-4" />
-                  Get the Checklist
-                </span>
+                <span>Get the checklist</span>
               )}
             </Button>
           </form>
 
-          <p className="mt-4 text-[0.7rem] leading-relaxed text-fg/40">
+          <p className="mt-4 text-[0.8125rem] leading-relaxed text-white/60">
             No spam. Only practical insights for business websites.{" "}
-            <span className="text-fg/28">Unsubscribe anytime.</span>
+            <span>Unsubscribe anytime.</span>
           </p>
         </div>
       </div>

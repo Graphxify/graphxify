@@ -1,28 +1,25 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone } from "lucide-react";
+import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import { BackToTop } from "@/components/marketing/back-to-top";
 import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
-import { FooterBackgroundGradient } from "@/components/ui/hover-footer";
+import { Marquee } from "@/components/site/marquee";
 import { companyContact } from "@/lib/constants";
 
 const footerGroups = [
   {
-    title: "Explore",
+    title: "Studio",
     links: [
-      { label: "Works", href: "/works" },
-      { label: "Services", href: "/services" },
+      { label: "Work", href: "/works" },
       { label: "Process", href: "/process" },
       { label: "About", href: "/about" },
       { label: "Blog", href: "/blog" },
-      { label: "Free Website Checklist", href: "/resources/website-growth-checklist" },
-      { label: "Contact", href: "/contact" },
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms", href: "/terms" }
+      { label: "Contact", href: "/contact" }
     ]
   },
   {
     title: "Services",
     links: [
+      { label: "All services", href: "/services" },
       { label: "Brand Systems", href: "/services/brand-systems" },
       { label: "Web Design", href: "/services/web-design" },
       { label: "Web Development", href: "/services/web-development" },
@@ -86,100 +83,112 @@ const socialLinks = [
 
 export function MarketingFooter(): JSX.Element {
   return (
-    <footer className="relative mt-20 overflow-hidden border-t border-border/20 bg-card/76">
+    <footer className="relative mt-24 overflow-hidden rounded-t-[2.5rem] bg-fg text-white md:mt-32 md:rounded-t-[3.5rem]">
       <BackToTop />
-      <FooterBackgroundGradient />
-
-      <div className="container relative z-10 py-12 md:py-14 lg:py-16">
-        <div className="grid grid-cols-1 gap-10 pb-10 md:grid-cols-2 lg:grid-cols-[1.2fr_0.85fr_0.85fr_1fr] lg:gap-14">
-          <div className="space-y-4">
-            <Link href="/" className="inline-flex items-center" aria-label="Graphxify home">
-              <GraphxifyLogo
-                alt="Graphxify"
-                width={246}
-                height={68}
-                className="h-auto w-[8.9rem] md:w-[9.8rem]"
-              />
+      <div className="container pt-16 md:pt-24">
+        <div className="grid gap-12 border-b border-white/10 pb-14 md:pb-20 lg:grid-cols-12">
+          <div className="lg:col-span-5">
+            <Link href="/" className="inline-flex items-center rounded-xl bg-white px-3 py-2" aria-label="Graphxify home">
+              <GraphxifyLogo alt="Graphxify" width={246} height={68} className="h-auto w-[7.5rem]" />
             </Link>
-            <p className="text-2xl font-semibold text-fg md:text-[1.8rem]">Built on structure. Designed to scale.</p>
-            <p className="max-w-md text-sm leading-relaxed text-fg/72">
-              Brand systems, web platforms, and structured CMS architecture designed and built as one cohesive system.
+            <p className="mt-8 max-w-[20ch] text-[clamp(1.5rem,2.4vw,2rem)] font-extrabold leading-[1.15] tracking-[-0.035em]">
+              Brands and websites, designed and built as <span className="text-accentA">one system</span>.
             </p>
+            <Link
+              href="/resources/website-growth-checklist"
+              className="group mt-8 flex max-w-sm items-center justify-between gap-4 rounded-[1.5rem] bg-charcoal-2 p-5 transition-colors duration-200 hover:bg-white/10"
+            >
+              <span>
+                <span className="inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-white/60">
+                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-green" />
+                  Free resource
+                </span>
+                <span className="mt-1.5 block text-[0.9375rem] font-bold">Website Growth Checklist</span>
+              </span>
+              <ArrowUpRight className="h-5 w-5 shrink-0 text-white/60 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-white" aria-hidden="true" />
+            </Link>
           </div>
 
-          {footerGroups.map((group) => (
-            <nav key={group.title} aria-label={`Footer ${group.title.toLowerCase()}`}>
-              <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-fg/64">{group.title}</h2>
-              <ul className="space-y-2.5">
-                {group.links.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} className="link-sweep text-sm text-fg/78 hover:text-fg">
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          ))}
-
-          <div>
-            <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.18em] text-fg/64">Direct Contact</h2>
-            <ul className="space-y-3 text-sm text-fg/78">
-              <li>
-                <a href={`mailto:${companyContact.email}`} className="link-sweep inline-flex items-center gap-2.5 hover:text-fg">
-                  <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
-                  <span>{companyContact.email}</span>
-                </a>
-              </li>
-              <li>
-                <a href={`tel:${companyContact.phoneHref}`} className="link-sweep inline-flex items-center gap-2.5 hover:text-fg">
-                  <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
-                  <span>{companyContact.phoneDisplay}</span>
-                </a>
-              </li>
-              <li className="inline-flex items-center gap-2.5">
-                <MapPin className="h-4 w-4 text-accentA" aria-hidden="true" />
-                <span>{companyContact.locationLine}</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center justify-between gap-5 border-t border-border/20 pt-6 md:flex-row">
-          <div className="flex items-center gap-2.5">
-            {socialLinks.map((item) => (
-              <a
-                key={item.label}
-                href={item.href}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`Graphxify on ${item.label}`}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-fg/30 bg-transparent text-fg/76 transition hover:-translate-y-0.5 hover:border-transparent hover:bg-accent-gradient hover:text-ivory focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/50 focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              >
-                <item.Icon className="h-5 w-5" />
-              </a>
+          <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:col-span-7">
+            {footerGroups.map((group) => (
+              <nav key={group.title} aria-label={`Footer ${group.title.toLowerCase()}`}>
+                <h2 className="mb-5 text-[0.875rem] font-bold text-white/50">{group.title}</h2>
+                <ul className="space-y-3">
+                  {group.links.map((item) => (
+                    <li key={item.href}>
+                      <Link href={item.href} className="text-[0.9375rem] font-semibold text-white/80 transition-colors hover:text-white">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
             ))}
-          </div>
 
-          <p className="text-center text-xs text-fg/62 md:text-right">&copy; {new Date().getFullYear()} Graphxify. All rights reserved.</p>
+            <div className="col-span-2 sm:col-span-1">
+              <h2 className="mb-5 text-[0.875rem] font-bold text-white/50">Contact</h2>
+              <ul className="space-y-3 text-[0.9375rem] font-semibold text-white/80">
+                <li>
+                  <a href={`mailto:${companyContact.email}`} className="inline-flex items-center gap-2.5 transition-colors hover:text-white">
+                    <Mail className="h-4 w-4 text-accentA" aria-hidden="true" />
+                    <span>{companyContact.email}</span>
+                  </a>
+                </li>
+                <li>
+                  <a href={`tel:${companyContact.phoneHref}`} className="inline-flex items-center gap-2.5 transition-colors hover:text-white">
+                    <Phone className="h-4 w-4 text-accentA" aria-hidden="true" />
+                    <span>{companyContact.phoneDisplay}</span>
+                  </a>
+                </li>
+                <li className="inline-flex items-start gap-2.5">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-accentA" aria-hidden="true" />
+                  <span>{companyContact.locationLine}</span>
+                </li>
+              </ul>
+              <div className="mt-6 flex items-center gap-2">
+                {socialLinks.map((item) => (
+                  <a
+                    key={item.label}
+                    href={item.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`Graphxify on ${item.label}`}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-charcoal-2 text-white/80 transition-colors duration-200 hover:bg-white hover:text-fg"
+                  >
+                    <item.Icon className="h-[1.125rem] w-[1.125rem]" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 py-7 text-[0.8125rem] font-semibold text-white/50 sm:flex-row sm:items-center sm:justify-between">
+          <p>&copy; {new Date().getFullYear()} Graphxify. All rights reserved.</p>
+          <ul className="flex gap-5">
+            <li>
+              <Link href="/privacy" className="hover:text-white">
+                Privacy
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" className="hover:text-white">
+                Terms
+              </Link>
+            </li>
+          </ul>
         </div>
       </div>
 
-      <div className="hidden h-[8.5rem] items-end justify-center lg:flex">
-        <p
-          className="select-none text-[clamp(4.5rem,15vw,10.5rem)] font-semibold uppercase leading-none tracking-[0.04em] text-transparent [background:linear-gradient(180deg,rgba(13,13,15,0.85)_0%,rgba(13,13,15,0.6)_40%,rgba(13,13,15,0.15)_70%,rgba(13,13,15,0)_90%)] [-webkit-background-clip:text] [background-clip:text] [-webkit-text-fill-color:transparent] [mask-image:linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.6)_40%,rgba(255,255,255,0.15)_70%,rgba(255,255,255,0)_90%)] [-webkit-mask-image:linear-gradient(180deg,rgba(255,255,255,0.9)_0%,rgba(255,255,255,0.6)_40%,rgba(255,255,255,0.15)_70%,rgba(255,255,255,0)_90%)] [-webkit-text-stroke:1px_rgba(13,13,15,0.12)] dark:[background:linear-gradient(180deg,rgba(255,255,255,0.85)_0%,rgba(255,255,255,0.6)_40%,rgba(255,255,255,0.15)_70%,rgba(255,255,255,0)_90%)] dark:[-webkit-text-stroke:1px_rgba(255,255,255,0.15)]"
-          style={{
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            WebkitMaskImage: "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.15) 70%, rgba(255,255,255,0) 90%)",
-            maskImage: "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.6) 40%, rgba(255,255,255,0.15) 70%, rgba(255,255,255,0) 90%)"
-          }}
-          aria-hidden="true"
-        >
-          Graphxify
-        </p>
-      </div>
+      {/* Signature close: the wordmark drifting past, blue square as the separator. */}
+      <Marquee duration={30} className="pb-6 pt-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <span key={i} aria-hidden="true" className="flex items-center gap-[4vw] pr-[4vw] text-[clamp(4rem,14vw,12rem)] font-extrabold leading-none tracking-[-0.05em] text-white/90">
+            graphxify
+            <span className="inline-block h-[0.32em] w-[0.32em] rounded-[0.06em] bg-accentA" />
+          </span>
+        ))}
+      </Marquee>
     </footer>
   );
 }

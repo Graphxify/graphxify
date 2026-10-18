@@ -13,14 +13,14 @@ export function PasswordInput({ className, ...props }: React.InputHTMLAttributes
                 {...props}
                 type={visible ? "text" : "password"}
                 className={cn(
-                    "flex h-11 w-full rounded-xl border border-border/18 bg-bg/50 px-4 pr-11 py-2 text-sm text-fg placeholder:text-fg/30 placeholder:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentA/80 focus:border-accentA/40 disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200",
+                    "flex h-11 w-full rounded-xl border border-border/18 bg-bg/50 px-4 pr-11 py-2 text-sm text-fg placeholder:text-fg/60 placeholder:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB focus:border-accentA/40 disabled:cursor-not-allowed disabled:opacity-50 transition-colors duration-200",
                     className
                 )}
             />
             <button
                 type="button"
                 onClick={() => setVisible((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-fg/40 transition-colors hover:text-fg/70"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-fg/60 transition-colors hover:text-fg/70"
                 aria-label={visible ? "Hide password" : "Show password"}
                 tabIndex={-1}
             >

@@ -89,7 +89,7 @@ export function AddUserDialog({
     <>
       <Button
         type="button"
-        className="gap-2 rounded-lg border border-accentA/20 bg-accentA/8 px-3.5 py-2 text-sm font-medium text-accentA transition hover:bg-accentA/16"
+        className="gap-2 rounded-lg border border-accentA/20 bg-accentA/8 px-3.5 py-2 text-sm font-medium text-accentB transition hover:bg-accentA/16"
         variant="ghost"
         onClick={() => {
           resetFormState();

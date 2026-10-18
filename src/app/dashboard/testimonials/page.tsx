@@ -99,7 +99,7 @@ export default async function DashboardTestimonialsPage({
                   href={`/dashboard/testimonials${tab.value ? `?status=${tab.value}` : ""}${search ? `${tab.value ? "&" : "?"}q=${search}` : ""}`}
                   className={`rounded-md px-3.5 py-1.5 text-xs font-medium transition-all ${
                     statusFilter === tab.value
-                      ? "bg-accentA/12 text-accentA shadow-sm"
+                      ? "bg-accentA/12 text-accentB shadow-sm"
                       : "text-fg/56 hover:text-fg hover:bg-card/80"
                   }`}
                 >

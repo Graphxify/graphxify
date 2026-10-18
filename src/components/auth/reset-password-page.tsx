@@ -10,7 +10,6 @@ import { STRONG_PASSWORD_HINT, validatePasswordAgainstPolicy } from "@/lib/auth/
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 type ResetPasswordPageProps = {
   forced?: boolean;
@@ -148,10 +147,6 @@ export function ResetPasswordPage({
       <span className="pointer-events-none absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-accentA/5 blur-[100px]" />
       <span className="pointer-events-none absolute -bottom-24 -right-24 h-[22rem] w-[22rem] rounded-full bg-accentB/5 blur-[80px]" />
 
-      <div className="absolute right-5 top-5 z-20">
-        <ThemeToggle />
-      </div>
-
       <div className="relative z-10 w-full max-w-[26rem]">
         <div className="mb-8 text-center">
           <Link href="/" className="group inline-block">
@@ -173,7 +168,7 @@ export function ResetPasswordPage({
 
           {invite ? (
             <div className="mb-4 rounded-lg border border-accentA/20 bg-accentA/8 px-3 py-2.5">
-              <p className="text-sm text-accentA">This invitation is active. Set your password to finish account setup.</p>
+              <p className="text-sm text-accentB">This invitation is active. Set your password to finish account setup.</p>
             </div>
           ) : null}
 

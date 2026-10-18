@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SectionReveal } from "@/components/marketing/section-reveal";
-import { ServiceFaq } from "@/components/marketing/service-faq";
-import { SiteCtaSection } from "@/components/marketing/site-cta-section";
 import { JsonLd } from "@/components/seo/json-ld";
+import { CtaBlock } from "@/components/site/cta-block";
+import { FaqList } from "@/components/site/faq-list";
+import { PageHero } from "@/components/site/page-hero";
+import { ProjectCard } from "@/components/site/project-card";
+import { Reveal } from "@/components/site/reveal";
+import { SectionIntro } from "@/components/site/section-intro";
+import { getPublishedWorks } from "@/db/queries/works";
+import { firstGalleryImage, normalizeImage, withImageVersion } from "@/lib/content-helpers";
 import { serviceCatalog } from "@/lib/constants";
 import { getPublishedIndustryPage, getPublishedIndustryPages } from "@/lib/industries";
 import { getProjectCardContent, resolveProjectSlugFromPathSlug } from "@/lib/project-card-content";
+import { getProjectBySlug } from "@/lib/project-details";
 import { breadcrumbListJsonLd, buildMetadata, canonicalUrl } from "@/lib/seo";
 
 /**
@@ -50,10 +56,17 @@ export default async function IndustryPage({ params }: { params: Promise<Params>
 
   const path = `/industries/${page.slug}`;
   const services = serviceCatalog.filter((service) => page.services.includes(service.key));
+  // Covers come from the CMS; the static fallback image is used only if the CMS is unreachable.
+  const works = await getPublishedWorks().catch(() => []);
   const caseStudies = page.caseStudies
     .map((pathSlug) => {
-      const card = getProjectCardContent(resolveProjectSlugFromPathSlug(pathSlug));
-      return card ? { pathSlug, title: card.title, industry: card.industry, outcome: card.cardOutcome } : null;
+      const slug = resolveProjectSlugFromPathSlug(pathSlug);
+      const card = getProjectCardContent(slug);
+      if (!card) return null;
+      const work = works.find((item) => resolveProjectSlugFromPathSlug(item.slug) === slug);
+      const cover =
+        normalizeImage(work?.cover_image_url) ?? firstGalleryImage(work?.gallery_images) ?? getProjectBySlug(slug)?.coverImage ?? "/assets/work-1.svg";
+      return { pathSlug, slug, title: card.title, industry: card.industry, outcome: card.cardOutcome, image: withImageVersion(cover, work?.updated_at ?? null) };
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
 
@@ -66,111 +79,88 @@ export default async function IndustryPage({ params }: { params: Promise<Params>
         ])}
       />
 
-      <div className="pb-16 pt-10 md:pb-20 md:pt-12 lg:pb-24">
-        <SectionReveal className="container" effect="up">
-          <div className="mx-auto max-w-4xl">
-            <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-fg/56">
-              <span className="h-1.5 w-1.5 rounded-full bg-accentA" aria-hidden="true" />
-              {page.name}
-            </p>
-            <h1 className="mt-3 text-[clamp(2rem,5vw,4.5rem)] font-semibold leading-[0.96] tracking-tight">{page.heading}</h1>
-            <span className="mt-4 block h-px w-24 bg-accent-gradient" />
-            <p className="mt-5 max-w-3xl text-base text-fg/66 md:text-[1.08rem]">{page.intro}</p>
-            <div className="mt-7 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg" className="px-6">
-                <Link href="/contact" className="inline-flex items-center gap-2">
-                  <span>Start a Project</span>
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </SectionReveal>
+      <PageHero
+        crumbs={[{ label: "Home", href: "/" }, { label: page.name }]}
+        label={page.name}
+        title={page.heading}
+        lead={page.intro}
+        actions={
+          <Button asChild size="lg">
+            <Link href="/contact">Start a project</Link>
+          </Button>
+        }
+      />
 
-        <SectionReveal className="container mt-14 md:mt-16" effect="up">
-          <div className="grid gap-4 md:grid-cols-2">
-            <article className="section-shell border-border/18 bg-card/74 p-7 md:p-9">
-              <h2 className="text-2xl font-semibold">Common challenges</h2>
-              <div className="mt-6 space-y-5">
-                {page.challenges.map((item) => (
-                  <div key={item.title}>
-                    <h3 className="text-sm font-semibold text-fg/86">{item.title}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-fg/62">{item.body}</p>
-                  </div>
-                ))}
-              </div>
-            </article>
-            <article className="section-shell border-border/18 bg-card/74 p-7 md:p-9">
-              <h2 className="text-2xl font-semibold">How we approach it</h2>
-              <div className="mt-6 space-y-5">
-                {page.approach.map((item) => (
-                  <div key={item.title}>
-                    <h3 className="text-sm font-semibold text-fg/86">{item.title}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-fg/62">{item.body}</p>
-                  </div>
-                ))}
-              </div>
-            </article>
-          </div>
-        </SectionReveal>
+      {([
+        { badge: "Challenges", title: "Common challenges", items: page.challenges },
+        { badge: "Approach", title: "How we approach it", items: page.approach }
+      ] as const).map((group) => (
+        <section key={group.title} className="container section first-of-type:pt-0">
+          <Reveal>
+            <SectionIntro badge={group.badge} title={group.title} />
+          </Reveal>
+          <ul className="mt-12 grid gap-4 md:mt-14 md:grid-cols-2 md:gap-5">
+            {group.items.map((item, index) => (
+              <Reveal as="li" key={item.title} delay={(index % 2) * 80} className="rounded-[2rem] bg-white p-7 md:p-9">
+                <h3 className="t-h3 text-fg">{item.title}</h3>
+                <p className="t-body mt-3">{item.body}</p>
+              </Reveal>
+            ))}
+          </ul>
+        </section>
+      ))}
 
-        {caseStudies.length > 0 ? (
-          <SectionReveal className="container mt-10 md:mt-14" effect="up">
-            <h2 className="mb-5 text-2xl font-semibold md:text-3xl">{page.name} projects</h2>
-            <div className="grid gap-4 md:grid-cols-3">
-              {caseStudies.map((project) => (
+      {caseStudies.length > 0 ? (
+        <section className="container section">
+          <Reveal>
+            <SectionIntro badge="Work" title={`${page.name} projects`} />
+          </Reveal>
+          <ul className="mt-12 grid gap-5 md:mt-14 md:grid-cols-2 md:gap-6">
+            {caseStudies.map((project, index) => (
+              <Reveal as="li" key={project.pathSlug} delay={(index % 2) * 80}>
+                <ProjectCard href={`/works/${project.pathSlug}`} slug={project.slug} title={project.title} industry={project.industry} summary={project.outcome} image={project.image} />
+              </Reveal>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {services.length > 0 ? (
+        <section className="container section">
+          <Reveal>
+            <SectionIntro badge="Services" title="Related services" />
+          </Reveal>
+          <ul className="mx-auto mt-12 grid max-w-4xl gap-4 md:mt-14 md:grid-cols-2">
+            {services.map((service) => (
+              <li key={service.key}>
                 <Link
-                  key={project.pathSlug}
-                  href={`/works/${project.pathSlug}`}
-                  className="group flex flex-col rounded-[1.2rem] border border-border/18 bg-card/72 p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-accentA/22 hover:bg-card/85"
+                  href={service.path}
+                  className="group flex h-full items-start justify-between gap-6 rounded-[2rem] bg-white p-7 transition-[transform,box-shadow] duration-300 ease-out hover:-translate-y-1 hover:shadow-lift motion-reduce:transform-none"
                 >
-                  <p className="text-[0.6rem] uppercase tracking-[0.18em] text-fg/44">{project.industry}</p>
-                  <h3 className="mt-2 text-[1.05rem] font-semibold leading-tight">{project.title}</h3>
-                  <p className="mt-2 flex-1 text-xs leading-relaxed text-fg/56">{project.outcome}</p>
-                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs text-accentA">
-                    {project.title} case study
-                    <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+                  <span>
+                    <span className="t-h3 block text-fg">{service.name}</span>
+                    <span className="t-body mt-2 block max-w-[48ch]">{service.description}</span>
+                  </span>
+                  <span aria-hidden="true" className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-bg text-fg transition-colors duration-200 group-hover:bg-fg group-hover:text-white">
+                    <ArrowUpRight className="h-4 w-4" />
                   </span>
                 </Link>
-              ))}
-            </div>
-          </SectionReveal>
-        ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
-        {services.length > 0 ? (
-          <SectionReveal className="container mt-10 md:mt-14" effect="up">
-            <div className="section-shell border-border/18 bg-card/74 p-5 md:p-7">
-              <h2 className="text-xl font-semibold">Related services</h2>
-              <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-                {services.map((service) => (
-                  <li key={service.key}>
-                    <Link
-                      href={service.path}
-                      className="group flex items-start justify-between rounded-xl border border-border/16 bg-bg/45 px-4 py-3.5 transition-all duration-200 hover:border-accentA/22 hover:bg-bg/65"
-                    >
-                      <span>
-                        <span className="block text-sm font-semibold text-fg/90">{service.name}</span>
-                        <span className="mt-0.5 block text-xs leading-relaxed text-fg/56">{service.description}</span>
-                      </span>
-                      <ArrowUpRight className="ml-3 h-3.5 w-3.5 shrink-0 text-fg/38 group-hover:text-accentA" aria-hidden="true" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </SectionReveal>
-        ) : null}
+      {page.faqs.length > 0 ? (
+        <section className="container section">
+          <Reveal>
+            <SectionIntro badge="FAQ" title="Questions, answered." />
+          </Reveal>
+          <FaqList className="mx-auto mt-12 max-w-3xl md:mt-14" items={page.faqs} />
+        </section>
+      ) : null}
 
-        {page.faqs.length > 0 ? (
-          <SectionReveal className="container mt-10 md:mt-14" effect="up">
-            <ServiceFaq items={page.faqs} />
-          </SectionReveal>
-        ) : null}
-
-        <SectionReveal className="container mt-10 md:mt-14" effect="up">
-          <SiteCtaSection />
-        </SectionReveal>
-      </div>
+      <CtaBlock />
     </>
   );
 }
