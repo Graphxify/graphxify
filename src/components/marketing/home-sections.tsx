@@ -296,7 +296,7 @@ export function HomeSections({
         <div className="mt-12 md:mt-16">
           <ScrollStack>
             {projects.map((project, index) => (
-              <ProjectStage key={project.id} project={project} flip={index % 2 === 1} priority={index === 0} />
+              <ProjectStage key={project.id} project={project} flip={index % 2 === 1} priority={index === 0} fit />
             ))}
           </ScrollStack>
         </div>
