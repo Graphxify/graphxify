@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Check, Minus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrowLink } from "@/components/site/arrow-link";
-import { Badge } from "@/components/site/badge";
 import { CtaBlock } from "@/components/site/cta-block";
 import { FaqList } from "@/components/site/faq-list";
 import { Marquee } from "@/components/site/marquee";
@@ -180,9 +179,16 @@ export function HomeSections({
       <section className="relative isolate overflow-hidden pb-10 pt-12 md:pt-20">
         <div aria-hidden="true" className="absolute inset-0 -z-10 [background:linear-gradient(115deg,transparent_30%,rgba(255,255,255,0.9)_45%,transparent_60%),linear-gradient(65deg,transparent_55%,rgba(255,255,255,0.7)_68%,transparent_80%)] [mask-image:linear-gradient(to_bottom,#000_55%,transparent)]" />
         <div className="container flex flex-col items-center text-center">
-          <Badge dot="green">Available for new projects</Badge>
-          <h1 className="t-display mt-7 max-w-[15ch] text-fg">
-            Brands and websites that help your business <span className="text-accentB">grow</span>.
+          <h1 className="t-display max-w-[15ch] text-fg">
+            {["Brands", "and", "websites", "that", "help", "your", "business"].map((word, i) => (
+              <span key={word} className="hero-word" style={{ animationDelay: `${80 + i * 70}ms` }}>
+                {word}{" "}
+              </span>
+            ))}
+            <span className="hero-word hero-grow text-accentB" style={{ animationDelay: "570ms" }}>
+              grow
+            </span>
+            <span className="hero-word" style={{ animationDelay: "640ms", marginLeft: "-0.14em" }}>.</span>
           </h1>
           <p className="t-lead mt-7 max-w-[46ch]">
             We help small businesses and founders launch a brand and website that looks credible, loads fast, and converts.
@@ -225,7 +231,7 @@ export function HomeSections({
             {rated.length >= 3 ? (
               <div className="absolute -left-2 top-4 z-20 hidden rounded-[1.25rem] bg-white py-3 pl-3 pr-5 text-left shadow-[0_24px_48px_-20px_rgba(10,10,10,0.35)] md:block md:-rotate-3 lg:-left-6">
                 <p className="sr-only">
-                  Rated {avgRating.toFixed(1)} out of 5 from {testimonials.length} client reviews
+                  Rated {avgRating.toFixed(1)} out of 5 by our clients
                 </p>
                 <div aria-hidden="true" className="flex items-center gap-3">
                   <div className="flex -space-x-1.5">
@@ -242,7 +248,7 @@ export function HomeSections({
                       ))}
                       <span className="ml-1.5 text-[0.9375rem] font-extrabold tracking-[-0.02em]">{avgRating.toFixed(1)}</span>
                     </div>
-                    <p className="t-small mt-0.5">from {testimonials.length} client reviews</p>
+                    <p className="t-small mt-0.5">Loved by our clients</p>
                   </div>
                 </div>
               </div>
