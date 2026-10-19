@@ -281,12 +281,56 @@ const scenes = {
         <div style="position:absolute;inset:0;background:rgba(0,82,204,.5);mix-blend-mode:multiply"></div>
         <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.2) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.2) 1px,transparent 1px);background-size:40px 40px"></div></div></div></div>`
   },
-  "process-design": {
-    w: 1600, h: 1200,
-    html: `<div class="cv" style="width:1600px;height:1200px;background:#8E1016;display:flex;align-items:center;justify-content:center">
-      <div style="position:absolute;inset:0;background:radial-gradient(900px 700px at 30% 20%,rgba(255,150,150,.35),transparent 70%)"></div>
-      <div class="win shadow" style="position:relative;width:1300px"><div class="bar"><i></i><i></i><i></i><span class="url">pharmacyonking.ca</span></div><img src="${f("pharmacy-on-king-desktop.png")}" style="width:100%;height:800px;object-fit:cover;object-position:top"></div></div>`
-  },
+  // Design stage: design-tool canvas of the real Pharmacy On King homepage. Fonts from its
+  // Google Fonts link (Plus Jakarta Sans, Inter); colours sampled from the live capture.
+  "process-design": (() => {
+    const shot = f("pharmacy-on-king-desktop.png");
+    // Coordinates measured on a 1000px-wide copy of the 1440px capture.
+    const crop = (x1, y1, x2, y2, s, r) => `<div style="width:${(x2 - x1) * s}px;height:${(y2 - y1) * s}px;border-radius:${r}px;overflow:hidden;flex:none"><img src="${shot}" style="width:${1000 * s}px;max-width:none;margin:${-y1 * s}px 0 0 ${-x1 * s}px"></div>`;
+    const handles = [[0, 0], [50, 0], [100, 0], [0, 50], [100, 50], [0, 100], [50, 100], [100, 100]].map(([x, y]) => `<i style="position:absolute;left:${x}%;top:${y}%;width:14px;height:14px;margin:-7px 0 0 -7px;background:#fff;border:3px solid #00A3FF"></i>`).join("");
+    const label = (t, extra = "") => `<p style="font:600 17px/1 'Plus Jakarta Sans',sans-serif;color:#8d8d96;margin-bottom:12px;${extra}">${t}</p>`;
+    const mobile = (img, left) => `<div style="position:absolute;left:${left}px;top:118px">${label("Mobile · 390")}<div class="shadow" style="width:205px;aspect-ratio:390/844;border-radius:8px;overflow:hidden;background:#fff"><img src="${f(img)}" style="width:100%"></div></div>`;
+    const sw = (c) => `<div style="text-align:center"><div style="width:56px;height:56px;border-radius:50%;background:${c};box-shadow:0 0 0 2px rgba(255,255,255,.14)"></div><p style="margin-top:9px;font:600 14px/1 'Plus Jakarta Sans',sans-serif;color:#c9c9cf">${c}</p></div>`;
+    const type = (fam, css, role) => `<div style="display:flex;align-items:center;gap:16px;padding:9px 0;border-top:1px solid rgba(255,255,255,.08)"><span style="width:64px;font:${css};color:#fff;line-height:1">Aa</span><span style="font:700 19px/1 'Plus Jakarta Sans',sans-serif;color:#fff">${fam}</span><span style="margin-left:auto;font:600 15px/1 'Plus Jakarta Sans',sans-serif;color:#8d8d96">${role}</span></div>`;
+    return {
+      w: 1600, h: 1200,
+      html: `<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap" rel="stylesheet">
+      <div class="cv" style="width:1600px;height:1200px;background:#141416">
+        <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.09) 2px,transparent 2px);background-size:34px 34px"></div>
+        <div style="position:absolute;right:-250px;bottom:-300px;width:900px;height:900px;border-radius:50%;background:rgba(175,29,30,.3);filter:blur(160px)"></div>
+        <div style="position:absolute;left:50%;top:36px;transform:translateX(-50%);display:flex;gap:8px;padding:8px;border-radius:18px;background:#232327;box-shadow:0 0 0 1px rgba(255,255,255,.08)">
+          ${["M10 6l18 12-8 2-4 8z", "M8 6v28M24 6v28M2 12h28M2 28h28", "M5 7h26v26H5z", "M8 9h20M18 9v22", "M6 30C10 12 26 26 30 6"].map((d, i) => `<span style="width:50px;height:50px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${i ? "transparent" : "#0052CC"}"><svg width="26" height="30" viewBox="0 0 36 40" fill="${i ? "none" : "#fff"}" stroke="#fff" stroke-width="3" stroke-linejoin="round"><path d="${d}"/></svg></span>`).join("")}
+        </div>
+        <div style="position:absolute;left:70px;top:118px">
+          ${label("Desktop · 1440")}
+          <div class="shadow" style="position:relative;width:1000px;height:625px;border-radius:8px;overflow:hidden"><img src="${shot}" style="width:100%">
+            <div style="position:absolute;left:86px;top:254px;width:476px;height:138px;border:3px solid #00A3FF">${handles}
+              <span style="position:absolute;right:-3px;top:-38px;background:#00A3FF;color:#fff;border-radius:7px;padding:7px 10px;font:700 15px/1 'Plus Jakarta Sans',sans-serif;white-space:nowrap">Hero headline · Plus Jakarta Sans</span>
+            </div>
+            <div style="position:absolute;left:520px;top:412px;display:flex;align-items:flex-start">
+              <svg width="34" height="40" viewBox="0 0 22 26"><path d="M2 2l17 11-7.5 1.6L8 23z" fill="#0052CC" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg>
+              <span style="margin:30px 0 0 -4px;background:#0052CC;color:#fff;border-radius:999px;padding:8px 14px;font:700 17px/1 'Plus Jakarta Sans',sans-serif">Graphxify</span>
+            </div>
+          </div>
+        </div>
+        ${mobile("pharmacy-on-king-mobile.png", 1110)}${mobile("pharmacy-on-king-mobile-2.png", 1340)}
+        <div style="position:absolute;left:1110px;top:690px;width:435px;padding:24px 26px;border-radius:22px;background:#232327;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 40px 80px -30px rgba(0,0,0,.6)">
+          <p style="font:800 21px/1 'Plus Jakarta Sans',sans-serif;color:#fff">Styles <span style="color:#8d8d96;font-weight:600">· Pharmacy On King</span></p>
+          ${label("Colour", "margin-top:20px")}
+          <div style="display:flex;justify-content:space-between">${["#AF1D1E", "#8E1718", "#353540", "#F4F4F4"].map(sw).join("")}</div>
+          ${label("Type", "margin-top:20px")}
+          ${type("Plus Jakarta Sans", "800 36px 'Plus Jakarta Sans',sans-serif", "Headings")}${type("Inter", "500 34px 'Inter',sans-serif", "Body")}
+        </div>
+        <div style="position:absolute;left:70px;top:830px">
+          ${label("Components")}
+          <div style="display:flex;align-items:center;gap:20px;padding:22px 24px;border-radius:20px;background:#232327;box-shadow:0 0 0 1px rgba(255,255,255,.08)">
+            ${crop(781, 28, 909, 58, 1.6, 24)}${crop(92, 210, 297, 233, 1.6, 18)}${crop(98, 24, 180, 62, 1.6, 10)}
+            <span style="margin-left:6px;border:3px dashed #00A3FF;color:#00A3FF;border-radius:10px;padding:10px 14px;font:700 16px/1 'Plus Jakarta Sans',sans-serif">Reused on every page</span>
+          </div>
+        </div>
+      </div>`
+    };
+  })(),
   "process-ship": {
     w: 1600, h: 1200,
     html: `<div class="cv" style="width:1600px;height:1200px;background:#0a0a0a;display:flex;align-items:center;justify-content:center;gap:50px">

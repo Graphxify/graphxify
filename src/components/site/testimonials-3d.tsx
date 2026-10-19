@@ -57,7 +57,7 @@ export function Testimonials3D({ items, className }: { items: Testimonial3DItem[
           </li>
         ))}
       </ul>
-      <div aria-hidden="true" className="relative h-[28rem] overflow-hidden sm:h-[34rem] rounded-[2rem] [perspective:1000px] md:h-[40rem]">
+      <div aria-hidden="true" className="relative h-[28rem] overflow-hidden sm:h-[34rem] rounded-[2rem] [perspective:300px] md:h-[40rem]">
         <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 gap-4 [transform:translateX(-50%)_translateY(-50%)_translateZ(-100px)_rotateX(20deg)_rotateY(-10deg)_rotateZ(20deg)]">
           {columns.map((column, c) => (
             <div key={c} className="h-[64rem] overflow-hidden">
@@ -66,7 +66,7 @@ export function Testimonials3D({ items, className }: { items: Testimonial3DItem[
                   "flex flex-col motion-safe:animate-[marquee-y_var(--marquee-duration)_linear_infinite]",
                   c % 2 === 1 && "[animation-direction:reverse]"
                 )}
-                style={{ ["--marquee-duration" as string]: `${48 + c * 6}s` }}
+                style={{ ["--marquee-duration" as string]: "40s" }}
               >
                 {/* Two identical copies with trailing padding so -50% loops seamlessly. */}
                 {[0, 1].map((copy) => (
@@ -82,8 +82,8 @@ export function Testimonials3D({ items, className }: { items: Testimonial3DItem[
         </div>
         <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-bg" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-bg" />
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/5 bg-gradient-to-r from-bg" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/5 bg-gradient-to-l from-bg" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-bg" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-bg" />
       </div>
     </div>
   );

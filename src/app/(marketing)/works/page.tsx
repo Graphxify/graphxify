@@ -148,6 +148,14 @@ export default async function WorksPage() {
         lead="A curated collection of brand and web projects combining strong identity, clear structure, and scalable digital experiences."
       />
 
+      <section aria-label="About this work" className="container pb-10 md:pb-14">
+        <div className="grid gap-4 border-t border-fg/[0.08] pt-8 md:grid-cols-12 md:gap-6 md:pt-10">
+          <p className="t-small font-semibold text-fg md:col-span-3">About this work</p>
+          <p className="max-w-[64ch] text-[1.0625rem] leading-relaxed text-fg/72 md:col-span-9">
+            Each case study follows a real project from brief to launch: the challenge the client faced, how we approached it, what we delivered and the result. The work spans fashion, travel, healthcare and beauty, and covers the four things we do: brand systems, web design, web development and CMS architecture. Every project is shown in its client&apos;s own brand colours and, where the website is live, with screens taken from it.
+          </p>
+        </div>
+      </section>
       <section aria-label="Projects" className="container pb-20 md:pb-28 lg:pb-32">
         <ul className="flex flex-col gap-5 md:gap-6">
           {works.map((work, index) => (

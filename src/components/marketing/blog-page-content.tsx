@@ -105,6 +105,14 @@ export function BlogPageContent({ blogs }: { blogs: BlogPostSummary[] }): JSX.El
         className="[&_h1]:max-w-[20ch] [&_h1]:text-[clamp(2.25rem,5vw,4.25rem)]"
       />
 
+      <section aria-label="About the blog" className="container pb-10 md:pb-14">
+        <div className="grid gap-4 border-t border-fg/[0.08] pt-8 md:grid-cols-12 md:gap-6 md:pt-10">
+          <p className="t-small font-semibold text-fg md:col-span-3">About the blog</p>
+          <p className="max-w-[64ch] text-[1.0625rem] leading-relaxed text-fg/72 md:col-span-9">
+            Written for business owners rather than designers, each article answers one practical question about building a brand or website that works. Topics range from choosing a web design partner and designing mobile-first to what a brand identity really includes, custom development versus WordPress, and getting found in local search. Filter by topic below, or start with the featured article.
+          </p>
+        </div>
+      </section>
       {featuredBlog ? (
         <section aria-label="Featured article" className="container">
           <Reveal>

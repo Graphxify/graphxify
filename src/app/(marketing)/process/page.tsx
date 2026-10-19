@@ -20,7 +20,7 @@ import { buildMetadata, breadcrumbListJsonLd, canonicalUrl } from "@/lib/seo";
 const stageVisuals = [
   { src: "/images/scenes/process-discover.webp", alt: "The Graphxify sitemap: home, the main pages and the four service pages" },
   { src: "/images/scenes/process-structure.webp", alt: "The Pharmacy On King homepage as a blueprint wireframe" },
-  { src: "/images/scenes/process-design.webp", alt: "The finished Pharmacy On King homepage design" },
+  { src: "/images/scenes/process-design.webp", alt: "The Pharmacy On King homepage in a design file: desktop and mobile artboards, its colour and type styles, and reusable components" },
   { src: "/images/scenes/process-ship.webp", alt: "The live Pharmacy On King website on three phones" }
 ] as const;
 
