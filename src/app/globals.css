@@ -259,6 +259,11 @@ summary:focus-visible,
   to { transform: translate3d(-50%, 0, 0); }
 }
 
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
 @keyframes marquee-y {
   from { transform: translate3d(0, 0, 0); }
   to { transform: translate3d(0, -50%, 0); }

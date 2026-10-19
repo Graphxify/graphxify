@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Minus } from "lucide-react";
+import { Check, Minus, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ArrowLink } from "@/components/site/arrow-link";
 import { Badge } from "@/components/site/badge";
@@ -160,6 +160,12 @@ export function HomeSections({
   const logos = marqueeItems.length
     ? marqueeItems.map((item) => ({ key: item.id, alt: item.label, src: item.image_url_dark }))
     : stripLogos.map((logo) => ({ key: logo.key, alt: logo.alt, src: getMarqueeLogoSrc(logo.baseName, "dark") }));
+  // Hero proof: rating and count come straight from the published testimonials.
+  const rated = testimonials.filter((item) => typeof item.rating === "number");
+  const avgRating = rated.length ? rated.reduce((sum, item) => sum + (item.rating ?? 0), 0) / rated.length : 0;
+  const reviewFaces = testimonials.slice(0, 4).map((item) =>
+    item.name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("")
+  );
   const stats = [
     // Counted from the published case studies actually shown on the site.
     { value: String(projects.length), label: "Published case studies" },
@@ -215,20 +221,66 @@ export function HomeSections({
                 </div>
               );
             })}
-            {/* Floating verified stats */}
-            <div className="absolute left-0 top-6 z-20 hidden rounded-2xl bg-white px-4 py-3 text-left shadow-[0_20px_40px_-20px_rgba(10,10,10,0.35)] md:block md:-rotate-3">
-              <p className="text-2xl font-extrabold tracking-[-0.04em]">{stats[0].value}</p>
-              <p className="t-small">{stats[0].label}</p>
-            </div>
-            <div className="absolute right-0 top-14 z-20 hidden items-center gap-3 rounded-2xl bg-white px-4 py-3 text-left shadow-[0_20px_40px_-20px_rgba(10,10,10,0.35)] md:flex md:rotate-3">
-              <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-green text-fg">
-                <Check className="h-4 w-4" />
-              </span>
-              <div>
-                <p className="text-lg font-extrabold tracking-[-0.03em]">{stats[2].value} reply</p>
-                <p className="t-small">On every inquiry</p>
+            {/* Floating proof: live client rating (left) and the stated launch timeline (right) */}
+            {rated.length >= 3 ? (
+              <div className="absolute -left-2 top-4 z-20 hidden rounded-[1.25rem] bg-white py-3 pl-3 pr-5 text-left shadow-[0_24px_48px_-20px_rgba(10,10,10,0.35)] md:block md:-rotate-3 lg:-left-6">
+                <p className="sr-only">
+                  Rated {avgRating.toFixed(1)} out of 5 from {testimonials.length} client reviews
+                </p>
+                <div aria-hidden="true" className="flex items-center gap-3">
+                  <div className="flex -space-x-1.5">
+                    {reviewFaces.map((face, i) => (
+                      <span key={i} className={`grid h-9 w-9 place-items-center rounded-full text-[0.6875rem] font-extrabold text-white ring-[3px] ring-white ${["bg-fg", "bg-accentB", "bg-charcoal-2", "bg-accentA"][i % 4]}`}>
+                        {face}
+                      </span>
+                    ))}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star key={i} className={`h-3.5 w-3.5 ${i < Math.round(avgRating) ? "fill-fg text-fg" : "text-fg/20"}`} />
+                      ))}
+                      <span className="ml-1.5 text-[0.9375rem] font-extrabold tracking-[-0.02em]">{avgRating.toFixed(1)}</span>
+                    </div>
+                    <p className="t-small mt-0.5">from {testimonials.length} client reviews</p>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="absolute left-0 top-6 z-20 hidden rounded-2xl bg-white px-4 py-3 text-left shadow-[0_20px_40px_-20px_rgba(10,10,10,0.35)] md:block md:-rotate-3">
+                <p className="text-2xl font-extrabold tracking-[-0.04em]">{stats[0].value}</p>
+                <p className="t-small">{stats[0].label}</p>
+              </div>
+            )}
+            <Link
+              href="/process"
+              className="group absolute -right-2 top-14 z-20 hidden w-64 rounded-[1.25rem] bg-white p-4 text-left shadow-[0_24px_48px_-20px_rgba(10,10,10,0.35)] transition-transform duration-300 hover:-translate-y-1 md:block md:rotate-3 lg:-right-6"
+            >
+              <span className="flex items-center justify-between">
+                <span className="text-[0.8125rem] font-semibold text-fg/60">Your new site, live in</span>
+                <span aria-hidden="true" className="relative flex h-2 w-2">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-green/70 motion-reduce:hidden" />
+                  <span className="relative h-2 w-2 rounded-full bg-green" />
+                </span>
+              </span>
+              <span className="mt-1 block text-[1.625rem] font-extrabold leading-none tracking-[-0.045em]">4 to 8 weeks</span>
+              <span aria-hidden="true" className="mt-3.5 grid grid-cols-4 gap-1">
+                {[0, 1, 2, 3].map((i) => (
+                  <span key={i} className="h-1.5 overflow-hidden rounded-full bg-fg/10">
+                    <span
+                      className={`block h-full origin-left rounded-full motion-safe:animate-[bar-grow_700ms_cubic-bezier(0.16,1,0.3,1)_both] ${i === 3 ? "bg-green" : "bg-fg"}`}
+                      style={{ animationDelay: `${600 + i * 260}ms` }}
+                    />
+                  </span>
+                ))}
+              </span>
+              <span className="mt-2 flex justify-between text-[0.6875rem] font-semibold text-fg/50">
+                <span>Discover</span>
+                <span>Structure</span>
+                <span>Design</span>
+                <span className="text-fg">Ship</span>
+              </span>
+            </Link>
           </div>
         </div>
       </section>
