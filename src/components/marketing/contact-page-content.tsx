@@ -20,6 +20,8 @@ import { trackConversion } from "@/lib/analytics-events";
 import { companyContact } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { publicLeadSchema } from "@/lib/validation/schemas";
+import { BotTrap } from "@/components/marketing/bot-trap";
+import { withBotFields } from "@/lib/forms/bot-trap";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
 type NotificationState = { status: "sent" | "disabled" | "skipped" | "failed" };
@@ -298,10 +300,10 @@ export function ContactPageContent(): JSX.Element {
     }
 
     try {
-      const result = await submitJsonForm<LeadSubmitResponse>("/api/leads", {
+      const result = await submitJsonForm<LeadSubmitResponse>("/api/leads", withBotFields(form, {
         ...parsed.data,
         attachments: attachmentUrls
-      });
+      }));
 
       if (result.success) {
         trackConversion({ name: "contact_form_submit", properties: { form: "contact_page" } });
@@ -355,9 +357,10 @@ export function ContactPageContent(): JSX.Element {
         <div className="grid gap-5 lg:grid-cols-12 lg:gap-6">
           <Reveal className="lg:col-span-8">
             <div className="relative isolate overflow-hidden rounded-[2rem] bg-charcoal p-6 text-white sm:p-10 md:rounded-[2.5rem] md:p-12">
-              <div aria-hidden="true" className="absolute -right-32 -top-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-accentA/15 blur-[120px]" />
+              <div aria-hidden="true" className="absolute -right-32 -top-40 -z-10 h-[42rem] w-[42rem] -m-[8rem] bg-[radial-gradient(closest-side,rgba(0,163,255,0.24),transparent)]" />
               {/* noValidate: the schema below covers every native rule and shows its message under the field. */}
-              <form onSubmit={onSubmit} noValidate className="space-y-8 md:space-y-10" aria-label="Project inquiry form">
+              <form onSubmit={onSubmit} noValidate className="relative space-y-8 md:space-y-10" aria-label="Project inquiry form">
+                <BotTrap />
                 {submitError || attachmentNotice ? (
                   <div className="space-y-3">
                     <FormAlert message={submitError} />

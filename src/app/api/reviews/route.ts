@@ -9,6 +9,7 @@ import { reviewSubmissionTemplate } from "@/lib/email/templates";
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { rateLimit } from "@/lib/rate-limit";
+import { guardSubmission } from "@/lib/forms/bot-guard";
 
 export const runtime = "nodejs";
 
@@ -30,7 +31,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as Record<string, unknown>;
+    const verdict = guardSubmission(request, body);
+    if (!verdict.ok) {
+      logger.warn("Review blocked", { route: "api/reviews", reason: verdict.reason });
+      return verdict.silent
+        ? NextResponse.json(formSuccess("Thanks! Your review has been submitted for approval."), { status: 201 })
+        : NextResponse.json(formError(verdict.message), { status: verdict.status });
+    }
     const parsed = publicReviewSchema.safeParse(body);
 
     if (!parsed.success) {

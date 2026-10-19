@@ -265,7 +265,7 @@ export default function ProcessPage(): JSX.Element {
       {/* ── What makes projects run late ── */}
       <section className="container section">
         <Reveal className="relative isolate overflow-hidden rounded-[2rem] bg-charcoal px-6 py-14 md:rounded-[2.5rem] md:px-14 md:py-20">
-          <div aria-hidden="true" className="absolute -left-32 -top-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-accentA/15 blur-[120px]" />
+          <div aria-hidden="true" className="absolute -left-32 -top-40 -z-10 h-[42rem] w-[42rem] -m-[8rem] bg-[radial-gradient(closest-side,rgba(0,163,255,0.24),transparent)]" />
           <SectionIntro
             tone="dark"
             badge="Honestly"

@@ -45,7 +45,7 @@ export function ScrollStack({ children, top = 96, offset = 22, scaleStep = 0.05 
     <div className="flex flex-col gap-6 pb-10">
       {items.map((child, i) => (
         <div key={i} ref={(el) => void (refs.current[i] = el)} data-stack-item="" className="sticky" style={{ top: top + i * offset }}>
-          <div className="origin-top will-change-transform">{child}</div>
+          <div className="origin-top">{child}</div>
         </div>
       ))}
     </div>

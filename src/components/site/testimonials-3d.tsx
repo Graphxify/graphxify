@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { OffscreenPause } from "@/components/site/offscreen-pause";
 import { cn } from "@/lib/utils";
 
 export type Testimonial3DItem = { id: string; quote: string; name: string; role: string; rating?: number };
@@ -14,7 +15,7 @@ function initials(name: string): string {
 
 function Card({ item, dark }: { item: Testimonial3DItem; dark: boolean }): JSX.Element {
   return (
-    <figure className={cn("w-60 rounded-[1.5rem] p-5 shadow-[0_20px_40px_-24px_rgba(10,10,10,0.35)] md:w-64", dark ? "bg-fg text-white" : "bg-white text-fg")}>
+    <figure className={cn("w-60 rounded-[1.5rem] p-5 ring-1 ring-fg/[0.06] md:w-64", dark ? "bg-fg text-white" : "bg-white text-fg")}>
       {item.rating ? (
         <div className="flex gap-0.5">
           {Array.from({ length: 5 }).map((_, i) => (
@@ -57,6 +58,7 @@ export function Testimonials3D({ items, className }: { items: Testimonial3DItem[
           </li>
         ))}
       </ul>
+      <OffscreenPause>
       <div aria-hidden="true" className="relative h-[28rem] overflow-hidden sm:h-[34rem] rounded-[2rem] [perspective:300px] md:h-[40rem]">
         <div className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 gap-4 [transform:translateX(-50%)_translateY(-50%)_translateZ(-100px)_rotateX(20deg)_rotateY(-10deg)_rotateZ(20deg)]">
           {columns.map((column, c) => (
@@ -85,6 +87,7 @@ export function Testimonials3D({ items, className }: { items: Testimonial3DItem[
         <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-bg" />
         <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-bg" />
       </div>
+      </OffscreenPause>
     </div>
   );
 }

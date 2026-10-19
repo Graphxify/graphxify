@@ -1,6 +1,8 @@
 import "server-only";
 
 import nodemailer from "nodemailer";
+
+type Transport = ReturnType<typeof nodemailer.createTransport>;
 import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 
@@ -64,7 +66,7 @@ export function diagnoseEmailConfiguration(recipient?: string): { ok: boolean; m
   return { ok: true };
 }
 
-function createTransport(): nodemailer.Transporter | null {
+function createTransport(): Transport | null {
   const diagnosis = diagnoseEmailConfiguration();
   if (!diagnosis.ok) {
     return null;
@@ -86,9 +88,9 @@ function createTransport(): nodemailer.Transporter | null {
   });
 }
 
-let cachedTransport: nodemailer.Transporter | null | undefined;
+let cachedTransport: Transport | null | undefined;
 
-function getTransport(): nodemailer.Transporter | null {
+function getTransport(): Transport | null {
   if (cachedTransport === undefined) {
     cachedTransport = createTransport();
   }

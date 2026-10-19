@@ -143,7 +143,7 @@ export function AboutPageContent({
       {/* ── Behind the studio ── */}
       <section className="container">
         <Reveal className="relative isolate overflow-hidden rounded-[2rem] bg-charcoal px-6 py-14 text-white md:rounded-[2.5rem] md:px-14 md:py-20 lg:px-20">
-          <div aria-hidden="true" className="absolute -right-32 -top-40 -z-10 h-[26rem] w-[26rem] rounded-full bg-accentA/20 blur-[120px]" />
+          <div aria-hidden="true" className="absolute -right-32 -top-40 -z-10 h-[42rem] w-[42rem] -m-[8rem] bg-[radial-gradient(closest-side,rgba(0,163,255,0.32),transparent)]" />
           <Badge tone="dark">Behind the studio</Badge>
           <h2 className="t-h1 mt-7 max-w-[14ch] text-white">
             Built by a designer who <span className="text-accentA">codes</span>.

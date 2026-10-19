@@ -10,6 +10,8 @@ import { SubmissionModal } from "@/components/ui/submission-modal";
 import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
 import { trackConversion } from "@/lib/analytics-events";
 import { newsletterSubscriptionSchema } from "@/lib/validation/schemas";
+import { BotTrap } from "@/components/marketing/bot-trap";
+import { withBotFields } from "@/lib/forms/bot-trap";
 
 /**
  * Newsletter / checklist capture.
@@ -71,7 +73,7 @@ export function NewsletterSignup({
 
     setLoading(true);
     try {
-      const result = await submitJsonForm("/api/newsletter", { ...parsed.data, source });
+      const result = await submitJsonForm("/api/newsletter", withBotFields(event.currentTarget, { ...parsed.data, source }));
       if (result.success) {
         trackConversion({ name: "newsletter_subscribed", properties: { placement: source } });
         setEmail("");
@@ -88,8 +90,8 @@ export function NewsletterSignup({
 
   return (
     <div className="relative isolate overflow-hidden rounded-[2rem] bg-charcoal p-7 text-white sm:p-10 md:rounded-[2.5rem] md:p-14 lg:p-16">
-      <div aria-hidden="true" className="absolute -right-24 -top-32 -z-10 h-[28rem] w-[28rem] rounded-full bg-accentA/25 blur-[120px]" />
-      <div aria-hidden="true" className="absolute -bottom-40 -left-20 -z-10 h-[22rem] w-[22rem] rounded-full bg-green/10 blur-[120px]" />
+      <div aria-hidden="true" className="absolute -right-24 -top-32 -z-10 h-[45rem] w-[45rem] -m-[8rem] bg-[radial-gradient(closest-side,rgba(0,163,255,0.40),transparent)]" />
+      <div aria-hidden="true" className="absolute -bottom-40 -left-20 -z-10 h-[35rem] w-[35rem] -m-[6rem] bg-[radial-gradient(closest-side,rgba(52,211,106,0.16),transparent)]" />
       <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-14">
         {/* Value proposition */}
         <div className="lg:col-span-7">
@@ -119,6 +121,7 @@ export function NewsletterSignup({
         <div className="rounded-[1.75rem] bg-white/[0.06] p-6 ring-1 ring-inset ring-white/10 md:p-8 lg:col-span-5">
           {/* Field errors default to blue; electric keeps them readable on charcoal. */}
           <form onSubmit={onSubmit} className="space-y-3 [&_p[role=alert]]:text-[0.8125rem] [&_p[role=alert]]:font-medium [&_p[role=alert]]:text-accentA" aria-label="Newsletter signup form">
+            <BotTrap />
             <label htmlFor={`${idPrefix}-subscribe-email`} className="block text-sm font-semibold text-white">
               Email address
             </label>

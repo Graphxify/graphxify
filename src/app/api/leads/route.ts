@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { createLead, type LeadNotificationResult } from "@/services/lead-service";
+import { countRecentLeads, createLead, type LeadNotificationResult } from "@/services/lead-service";
 import { formError, formSuccess, fieldErrorsFromZod } from "@/lib/forms/shared";
 import { rateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
 import { publicLeadSchema } from "@/lib/validation/schemas";
+import { guardSubmission, looksLikeSpam } from "@/lib/forms/bot-guard";
 
 export const runtime = "nodejs";
 
@@ -28,7 +29,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as Record<string, unknown>;
+    const verdict = guardSubmission(request, body);
+    if (!verdict.ok) {
+      logger.warn("Lead blocked", { route: "api/leads", reason: verdict.reason });
+      return verdict.silent
+        ? NextResponse.json(formSuccess("Thanks for reaching out. Your inquiry has been received."), { status: 201 })
+        : NextResponse.json(formError(verdict.message), { status: verdict.status });
+    }
     const parsed = publicLeadSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -36,6 +44,16 @@ export async function POST(request: NextRequest) {
         formError("Please review the highlighted fields and try again.", fieldErrorsFromZod(parsed.error)),
         { status: 400 }
       );
+    }
+
+    if (parsed.data.source === "contact" && !parsed.data.consent) {
+      return NextResponse.json(formError("Please agree to be contacted.", { consent: "Consent is required before sending." }), { status: 400 });
+    }
+    if (looksLikeSpam(parsed.data.message) || looksLikeSpam(parsed.data.customRequest)) {
+      return NextResponse.json(formError("Please remove the links from your message and try again.", { message: "Too many links." }), { status: 400 });
+    }
+    if ((await countRecentLeads(parsed.data.email)) >= 3) {
+      return NextResponse.json(formError("We've already received several messages from this email. We'll be in touch soon."), { status: 429 });
     }
 
     const result = await createLead(parsed.data);

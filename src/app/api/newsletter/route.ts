@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { formError, formSuccess, fieldErrorsFromZod } from "@/lib/forms/shared";
 import { logger } from "@/lib/logger";
 import { rateLimit } from "@/lib/rate-limit";
+import { guardSubmission } from "@/lib/forms/bot-guard";
 import { subscribeToNewsletter } from "@/services/newsletter-service";
 import { newsletterSubscriptionSchema } from "@/lib/validation/schemas";
 
@@ -19,7 +20,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const body = (await request.json()) as Record<string, unknown>;
+    const verdict = guardSubmission(request, body);
+    if (!verdict.ok) {
+      logger.warn("Newsletter signup blocked", { route: "api/newsletter", reason: verdict.reason });
+      return verdict.silent
+        ? NextResponse.json(formSuccess("You're subscribed. Check your inbox for the checklist and future updates."), { status: 201 })
+        : NextResponse.json(formError(verdict.message), { status: verdict.status });
+    }
     const parsed = newsletterSubscriptionSchema.safeParse(body);
 
     if (!parsed.success) {

@@ -97,7 +97,7 @@ export function MarketingHeader({
       {/* Blur lives on this bar, not the header: backdrop-filter would trap the fixed mobile sheet. */}
       <div
         className={cn(
-          "mx-auto max-w-[1100px] rounded-[1.25rem] bg-white/80 backdrop-blur-xl backdrop-saturate-150 transition-shadow duration-300",
+          "mx-auto max-w-[1100px] rounded-[1.25rem] bg-white/95 transition-shadow duration-300",
           scrolled || mobileOpen ? "shadow-[0_12px_40px_-16px_rgba(10,10,10,0.22)]" : "shadow-[0_1px_2px_rgba(10,10,10,0.05)]",
         )}
       >

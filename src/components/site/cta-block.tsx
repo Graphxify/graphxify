@@ -23,8 +23,8 @@ export function CtaBlock({
   return (
     <section className={cn(contained && "container", className)}>
       <div className="relative isolate overflow-hidden rounded-[2rem] bg-charcoal px-6 py-14 text-white md:rounded-[2.5rem] md:px-14 md:py-20">
-        <div aria-hidden="true" className="absolute -right-24 -top-32 -z-10 h-[28rem] w-[28rem] rounded-full bg-accentA/25 blur-[120px]" />
-        <div aria-hidden="true" className="absolute -bottom-40 -left-20 -z-10 h-[22rem] w-[22rem] rounded-full bg-green/15 blur-[120px]" />
+        <div aria-hidden="true" className="absolute -right-24 -top-32 -z-10 h-[45rem] w-[45rem] -m-[8rem] bg-[radial-gradient(closest-side,rgba(0,163,255,0.40),transparent)]" />
+        <div aria-hidden="true" className="absolute -bottom-40 -left-20 -z-10 h-[35rem] w-[35rem] -m-[6rem] bg-[radial-gradient(closest-side,rgba(52,211,106,0.24),transparent)]" />
         <div className="flex flex-col items-center text-center">
           <Badge tone="dark" dot="green">
             Available for new projects

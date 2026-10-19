@@ -53,6 +53,18 @@ function buildStoredLeadMessage(payload: PublicLeadInput): string {
   return lines.join("\n").slice(0, 2000);
 }
 
+/** Leads from this email in the last `minutes` (DB-backed, so it holds across serverless instances). */
+export async function countRecentLeads(email: string, minutes = 60): Promise<number> {
+  const since = new Date(Date.now() - minutes * 60_000).toISOString();
+  const { count, error } = await getWriteClient()
+    .from("leads")
+    .select("id", { count: "exact", head: true })
+    .ilike("email", email)
+    .gte("created_at", since);
+  if (error) throw error;
+  return count ?? 0;
+}
+
 export async function createLead(payload: PublicLeadInput): Promise<{ id: string; notification: LeadNotificationResult }> {
   const parsedPublic = publicLeadSchema.parse(payload);
   const compiledPayload = leadSchema.parse({

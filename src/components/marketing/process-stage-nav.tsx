@@ -24,7 +24,7 @@ export function ProcessStageNav({ stages }: { stages: { id: string; title: strin
 
   return (
     <nav aria-label="Process stages" className="sticky top-[6.25rem] z-30 hidden justify-center md:flex">
-      <ol className="flex gap-1 rounded-full bg-white/90 p-1.5 shadow-[0_12px_40px_-16px_rgba(10,10,10,0.22)] backdrop-blur-xl">
+      <ol className="flex gap-1 rounded-full bg-white/95 p-1.5 shadow-[0_12px_40px_-16px_rgba(10,10,10,0.22)]">
         {stages.map((stage, index) => {
           const current = active === stage.id;
           return (

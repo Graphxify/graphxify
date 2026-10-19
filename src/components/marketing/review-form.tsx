@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/forms/shared";
 import { trackConversion } from "@/lib/analytics-events";
 import { publicReviewSchema } from "@/lib/validation/schemas";
+import { BotTrap } from "@/components/marketing/bot-trap";
+import { withBotFields } from "@/lib/forms/bot-trap";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
 type NotificationState = { status: "sent" | "disabled" | "skipped" | "failed" };
@@ -109,7 +111,7 @@ export function ReviewForm(): JSX.Element {
     setLoading(true);
 
     try {
-      const result = await submitJsonForm<ReviewSubmitResponse>("/api/reviews", parsed.data);
+      const result = await submitJsonForm<ReviewSubmitResponse>("/api/reviews", withBotFields(form, parsed.data));
 
       if (result.success) {
         trackConversion({ name: "review_submitted" });
@@ -145,7 +147,8 @@ export function ReviewForm(): JSX.Element {
   return (
     <>
       {/* noValidate: the schema covers every native rule and shows its message under the field. */}
-      <form onSubmit={onSubmit} noValidate className="review-form space-y-6" aria-label="Submit a review">
+      <form onSubmit={onSubmit} noValidate className="review-form relative space-y-6" aria-label="Submit a review">
+        <BotTrap />
         <FormAlert message={submitError} className="border-amber-500/30 bg-amber-50 text-amber-800" />
 
         <div className="grid gap-6 sm:grid-cols-2 sm:gap-5">

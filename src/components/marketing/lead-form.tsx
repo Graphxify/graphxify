@@ -11,6 +11,8 @@ import { fieldErrorsFromZod, submitJsonForm, type FormFieldErrors } from "@/lib/
 import { trackConversion } from "@/lib/analytics-events";
 import { cn } from "@/lib/utils";
 import { publicLeadSchema } from "@/lib/validation/schemas";
+import { BotTrap } from "@/components/marketing/bot-trap";
+import { withBotFields } from "@/lib/forms/bot-trap";
 
 type ModalState = { open: boolean; type: "success" | "error"; title: string; message: string };
 type NotificationState = { status: "sent" | "disabled" | "skipped" | "failed" };
@@ -75,7 +77,7 @@ export function LeadForm(): JSX.Element {
     setLoading(true);
 
     try {
-      const result = await submitJsonForm<LeadSubmitResponse>("/api/leads", parsed.data);
+      const result = await submitJsonForm<LeadSubmitResponse>("/api/leads", withBotFields(form, parsed.data));
 
       if (result.success) {
         trackConversion({ name: "contact_form_submit", properties: { form: "quick_form" } });
@@ -109,7 +111,8 @@ export function LeadForm(): JSX.Element {
 
   return (
     <>
-      <form onSubmit={onSubmit} className="lead-form-premium space-y-4" aria-label="Quick start lead form">
+      <form onSubmit={onSubmit} className="lead-form-premium relative space-y-4" aria-label="Quick start lead form">
+        <BotTrap />
         <FormAlert message={submitError} className="border-amber-500/30 bg-amber-50 text-amber-800" />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

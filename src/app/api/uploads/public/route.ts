@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { rateLimit } from "@/lib/rate-limit";
+import { isSameOrigin } from "@/lib/forms/bot-guard";
 import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
@@ -27,6 +28,10 @@ const ALLOWED_TYPES = [
  * Files are stored in a separate "attachments" bucket.
  */
 export async function POST(request: NextRequest) {
+  if (!isSameOrigin(request)) {
+    return NextResponse.json({ message: "Uploads are only accepted from graphxify.com." }, { status: 403 });
+  }
+
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     request.headers.get("x-real-ip") ??
