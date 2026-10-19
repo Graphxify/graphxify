@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Check, Minus, Star } from "lucide-react";
@@ -181,14 +182,16 @@ export function HomeSections({
         <div className="container flex flex-col items-center text-center">
           <h1 className="t-display max-w-[15ch] text-fg">
             {["Brands", "and", "websites", "that", "help", "your", "business"].map((word, i) => (
-              <span key={word} className="hero-word" style={{ animationDelay: `${80 + i * 70}ms` }}>
-                {word}{" "}
-              </span>
+              <Fragment key={word}>
+                <span className="hero-word" style={{ animationDelay: `${80 + i * 70}ms` }}>
+                  {word}
+                </span>{" "}
+              </Fragment>
             ))}
             <span className="hero-word hero-grow text-accentB" style={{ animationDelay: "570ms" }}>
               grow
             </span>
-            <span className="hero-word" style={{ animationDelay: "640ms", marginLeft: "-0.14em" }}>.</span>
+            <span className="hero-word" style={{ animationDelay: "640ms", marginLeft: "-0.06em" }}>.</span>
           </h1>
           <p className="t-lead mt-7 max-w-[46ch]">
             We help small businesses and founders launch a brand and website that looks credible, loads fast, and converts.
