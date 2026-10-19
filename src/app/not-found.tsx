@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MarketingFooter } from "@/components/marketing/footer";
 import { NotFound } from "@/components/ui/not-found-2";
 import { siteConfig } from "@/lib/constants";
 
@@ -11,5 +12,10 @@ export const metadata: Metadata = {
 };
 
 export default function NotFoundPage() {
-  return <NotFound />;
+  return (
+    <>
+      <NotFound />
+      <MarketingFooter />
+    </>
+  );
 }

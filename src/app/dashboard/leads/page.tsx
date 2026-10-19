@@ -16,9 +16,9 @@ function extractService(message: string): string {
 type KnownStatus = "new" | "contacted" | "converted" | "lost" | "archived";
 
 const STATUS_STYLES: Record<KnownStatus, string> = {
-  new:       "border-sky-500/30 bg-sky-500/10 text-sky-400",
-  contacted: "border-amber-500/30 bg-amber-500/10 text-amber-400",
-  converted: "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+  new:       "border-accentA/30 bg-accentA/10 text-accentB",
+  contacted: "border-accentA/30 bg-accentA/10 text-accentB",
+  converted: "border-green/30 bg-green/10 text-[#137a3a]",
   lost:      "border-red-500/30 bg-red-500/10 text-red-400",
   archived:  "border-fg/10 bg-fg/5 text-fg/40",
 };
@@ -42,7 +42,7 @@ function StatusBadge({ status }: { status: string }) {
       }`}
     >
       {known === "new" && (
-        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-sky-400" aria-hidden="true" />
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accentA" aria-hidden="true" />
       )}
       {isKnown
         ? STATUS_LABELS[known]
@@ -63,8 +63,8 @@ export default async function DashboardLeadsPage() {
 
         {/* Header */}
         <RevealItem className="space-y-1">
-          <p className="text-xs uppercase tracking-[0.2em] text-fg/56">CRM</p>
-          <h1 className="text-3xl font-semibold">Leads</h1>
+          <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />CRM</p>
+          <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">Leads</h1>
           <p className="text-sm text-fg/48">
             {result.total} {result.total === 1 ? "lead" : "leads"} total
           </p>

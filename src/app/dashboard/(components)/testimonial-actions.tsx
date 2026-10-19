@@ -76,7 +76,7 @@ export function TestimonialActions({ id, status, canModerate, canDelete }: Props
           onClick={() => updateStatus("published")}
           disabled={loading !== ""}
           title="Approve"
-          className="grid h-7 w-7 place-items-center rounded-md border border-emerald-500/20 bg-emerald-500/8 text-emerald-400 transition-colors hover:border-emerald-500/40 hover:bg-emerald-500/16 disabled:opacity-40"
+          className="grid h-7 w-7 place-items-center rounded-md border border-green/20 bg-green/8 text-[#137a3a] transition-colors hover:border-green/40 hover:bg-green/16 disabled:opacity-40"
         >
           <Check className="h-3.5 w-3.5" strokeWidth={2.5} />
         </button>
@@ -89,7 +89,7 @@ export function TestimonialActions({ id, status, canModerate, canDelete }: Props
           onClick={() => updateStatus("rejected")}
           disabled={loading !== ""}
           title="Reject"
-          className="grid h-7 w-7 place-items-center rounded-md border border-amber-500/20 bg-amber-500/8 text-amber-400 transition-colors hover:border-amber-500/40 hover:bg-amber-500/16 disabled:opacity-40"
+          className="grid h-7 w-7 place-items-center rounded-md border border-accentA/20 bg-accentA/8 text-accentB transition-colors hover:border-accentA/40 hover:bg-accentA/16 disabled:opacity-40"
         >
           <X className="h-3.5 w-3.5" strokeWidth={2.5} />
         </button>

@@ -5,6 +5,7 @@ import {
   Activity,
   BarChart3,
   FileText,
+  GalleryHorizontal,
   LayoutDashboard,
   Mail,
   MessageSquareQuote,
@@ -30,6 +31,7 @@ const iconByLabel: Record<string, LucideIcon> = {
   Analytics: BarChart3,
   Blog: FileText,
   Works: Workflow,
+  Marquee: GalleryHorizontal,
   Testimonials: MessageSquareQuote,
   Subscriptions: Mail,
   Leads: Users,
@@ -43,7 +45,7 @@ export function DashboardNav({ items }: { items: NavItem[] }): JSX.Element {
   const pathname = usePathname();
 
   return (
-    <nav className="mt-6 flex flex-wrap gap-2 md:flex-col">
+    <nav className="mt-4 flex flex-col gap-1">
       {items.map((item) => {
         const active =
           item.href === "/dashboard"
@@ -58,50 +60,24 @@ export function DashboardNav({ items }: { items: NavItem[] }): JSX.Element {
             prefetch={true}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "group relative isolate flex items-center gap-2.5 overflow-hidden rounded-xl border px-3.5 py-2.5 text-sm font-medium transition-[border-color,background-color,color,box-shadow] duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB focus-visible:ring-offset-2 focus-visible:ring-offset-bg",
-              active
-                ? "border-accentA/40 bg-card/84 text-fg shadow-[0_16px_36px_rgba(9,18,37,0.18)]"
-                : "border-border/16 bg-card/45 text-fg/72 hover:border-accentA/24 hover:bg-card/82 hover:text-fg hover:shadow-[0_12px_26px_rgba(9,18,37,0.14)]"
+              "group relative isolate flex items-center gap-3 rounded-full px-4 py-2.5 text-[0.9375rem] font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+              active ? "text-white" : "text-fg/64 hover:bg-bg hover:text-fg"
             )}
           >
             {active ? (
-              <>
-                <motion.span
-                  layoutId="dashboard-nav-active"
-                  className="absolute inset-[1px] rounded-[11px] bg-accentA/12"
-                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                />
-                <motion.span
-                  layoutId="dashboard-nav-indicator"
-                  className="absolute bottom-2 left-1.5 top-2 w-1 rounded-full bg-accentA/70"
-                  transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                />
-              </>
+              <motion.span
+                layoutId="dashboard-nav-active"
+                className="absolute inset-0 -z-10 rounded-full bg-fg"
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+              />
             ) : null}
-            <span
-              className={cn(
-                "pointer-events-none absolute inset-x-0 top-0 h-px bg-white/12 opacity-0 transition-opacity duration-200",
-                active ? "opacity-100" : "group-hover:opacity-100"
-              )}
-            />
-            <span
-              className={cn(
-                "relative z-10 flex h-8 w-8 items-center justify-center rounded-lg border transition-[background-color,border-color,color] duration-200",
-                active
-                  ? "border-accentA/24 bg-accentA/16 text-accentB"
-                  : "border-border/12 bg-bg/52 text-fg/58 group-hover:border-accentA/16 group-hover:bg-accentA/10 group-hover:text-fg/82"
-              )}
-            >
-              <Icon className="h-4 w-4" />
-            </span>
-            <span className="relative z-10">{item.label}</span>
+            <Icon aria-hidden="true" className="h-[1.125rem] w-[1.125rem] shrink-0" />
+            <span>{item.label}</span>
             {item.badge && item.badge > 0 ? (
               <span
                 className={cn(
-                  "relative z-10 ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.6rem] font-semibold tabular-nums transition-colors duration-200",
-                  active
-                    ? "bg-fg/10 text-fg"
-                    : "bg-accentA/16 text-accentB group-hover:bg-accentA/22 group-hover:text-accentB"
+                  "ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.6875rem] font-bold tabular-nums",
+                  active ? "bg-white text-fg" : "bg-accentB text-white"
                 )}
               >
                 {item.badge}

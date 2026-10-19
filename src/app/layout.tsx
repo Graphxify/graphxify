@@ -5,7 +5,6 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { Providers } from "@/app/providers";
-import { MarketingFooter } from "@/components/marketing/footer";
 import { ChunkLoadRecovery } from "@/components/runtime/chunk-load-recovery";
 
 import { siteConfig } from "@/lib/constants";
@@ -51,7 +50,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Providers>
           <ChunkLoadRecovery />
           {children}
-          <MarketingFooter />
           {enableAnalytics ? <Analytics /> : null}
           {enableSpeedInsights ? <SpeedInsights /> : null}
           <Toaster

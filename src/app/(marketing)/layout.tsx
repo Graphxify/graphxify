@@ -1,4 +1,5 @@
 import { SiteAnalytics } from "@/components/analytics/site-analytics";
+import { MarketingFooter } from "@/components/marketing/footer";
 import { MarketingHeader } from "@/components/marketing/header";
 import { MarketingPerformanceEffects } from "@/components/motion/marketing-performance-effects";
 import { PageTransition } from "@/components/motion/page-transition";
@@ -18,6 +19,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
       <PageTransition>
         <main className="relative z-10">{children}</main>
       </PageTransition>
+      <MarketingFooter />
     </div>
   );
 }

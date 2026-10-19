@@ -259,7 +259,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           <input type="hidden" name="services" defaultValue={workServicesDefault} />
 
           {/* ── SECTION: Core ── */}
-          <p className="text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Core</p>
+          <p className="text-[1rem] font-bold tracking-[-0.01em] text-fg">Core</p>
 
           <div className="space-y-2">
             <Label>Cover image</Label>
@@ -419,7 +419,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
 
           {/* ── SECTION: Portfolio Card ── */}
-          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Portfolio Card</p>
+          <p className="pt-4 text-[1rem] font-bold tracking-[-0.01em] text-fg">Portfolio Card</p>
 
           <div className="space-y-2">
             <Label htmlFor="industry">Industry tag</Label>
@@ -467,7 +467,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
 
           {/* ── SECTION: Project Info Panel ── */}
-          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Project Info Panel</p>
+          <p className="pt-4 text-[1rem] font-bold tracking-[-0.01em] text-fg">Project Info Panel</p>
           <p className="text-xs text-fg/50">These fields populate the info rail shown at the top of each project page.</p>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -534,7 +534,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
 
           {/* ── SECTION: Case Study ── */}
-          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Case Study</p>
+          <p className="pt-4 text-[1rem] font-bold tracking-[-0.01em] text-fg">Case Study</p>
           <p className="text-xs text-fg/50">These sections appear in the case study block on the project page. Aim for 1 to 2 sentences per section.</p>
 
           <div className="space-y-2">
@@ -613,7 +613,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
 
           {/* ── SECTION: Gallery Images ── */}
-          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Gallery Images</p>
+          <p className="pt-4 text-[1rem] font-bold tracking-[-0.01em] text-fg">Gallery Images</p>
 
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3">
@@ -648,7 +648,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
 
           {/* ── SECTION: SEO ── */}
-          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">SEO</p>
+          <p className="pt-4 text-[1rem] font-bold tracking-[-0.01em] text-fg">SEO</p>
 
           <div className="space-y-2">
             <Label htmlFor="metaTitle">Meta title</Label>
@@ -681,7 +681,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
 
           {/* ── SECTION: Open Graph ── */}
-          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Open Graph</p>
+          <p className="pt-4 text-[1rem] font-bold tracking-[-0.01em] text-fg">Open Graph</p>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -745,7 +745,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
 
           {/* ── SECTION: Twitter / X ── */}
-          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Twitter / X</p>
+          <p className="pt-4 text-[1rem] font-bold tracking-[-0.01em] text-fg">Twitter / X</p>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -1042,7 +1042,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
 
           {/* ── Open Graph ── */}
-          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Open Graph</p>
+          <p className="pt-4 text-[1rem] font-bold tracking-[-0.01em] text-fg">Open Graph</p>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
@@ -1106,7 +1106,7 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
           </div>
 
           {/* ── Twitter / X ── */}
-          <p className="pt-2 text-[0.65rem] uppercase tracking-[0.18em] text-fg/44">Twitter / X</p>
+          <p className="pt-4 text-[1rem] font-bold tracking-[-0.01em] text-fg">Twitter / X</p>
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">

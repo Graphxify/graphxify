@@ -54,12 +54,12 @@ function StatusBadge({ row }: { row: NewsletterSubscriberRow }) {
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${
         subscribed
-          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-          : "border-amber-500/30 bg-amber-500/10 text-amber-300"
+          ? "border-green/30 bg-green/10 text-[#137a3a]"
+          : "border-accentA/30 bg-accentA/10 text-accentB"
       }`}
     >
       <span
-        className={`h-1.5 w-1.5 rounded-full ${subscribed ? "bg-emerald-400" : "bg-amber-300"}`}
+        className={`h-1.5 w-1.5 rounded-full ${subscribed ? "bg-green" : "bg-accentA"}`}
         aria-hidden="true"
       />
       {subscribed ? "Subscribed" : "Unsubscribed"}
@@ -98,8 +98,8 @@ export default async function DashboardSubscriptionsPage({
         <RevealItem>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Newsletter</p>
-              <h1 className="text-3xl font-semibold">Subscriptions</h1>
+              <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />Newsletter</p>
+              <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">Subscriptions</h1>
               <p className="text-sm text-fg/48">
                 Manage subscriber emails, export your list, and track unsubscribe status from the CMS.
               </p>
@@ -125,8 +125,8 @@ export default async function DashboardSubscriptionsPage({
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
             {[
               { label: "Total subscribers", value: stats.total, tone: "text-fg" },
-              { label: "Active", value: stats.subscribed, tone: "text-emerald-400" },
-              { label: "Unsubscribed", value: stats.unsubscribed, tone: "text-amber-300" },
+              { label: "Active", value: stats.subscribed, tone: "text-[#137a3a]" },
+              { label: "Unsubscribed", value: stats.unsubscribed, tone: "text-accentB" },
               { label: "Checklist emails sent", value: stats.welcomeSent, tone: "text-accentB" }
             ].map((card) => (
               <div key={card.label} className="section-shell border-border/18 bg-card/72 p-4">

@@ -20,8 +20,8 @@ export default async function DashboardMarqueePage() {
         {/* Header */}
         <RevealItem>
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Site</p>
-            <h1 className="text-3xl font-semibold">Marquee</h1>
+            <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />Site</p>
+            <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">Marquee</h1>
             <p className="text-sm text-fg/56">
               Manage the scrolling logo strip on the homepage. Add or remove images, or hide individual items without deleting them.
             </p>

@@ -18,16 +18,16 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const identityLabel = profile.displayName?.trim() || profile.email;
 
   return (
-    <div className="relative min-h-screen md:flex noise-overlay">
+    <div className="relative min-h-screen bg-bg md:flex">
       <NavigationProgress />
       <ContentRefreshListener pathPrefixes={["/dashboard/posts", "/dashboard/works", "/dashboard/testimonials", "/dashboard/marquee"]} />
       <DashboardSidebar role={profile.role} />
 
-      <div className="flex-1 px-4 py-6 md:px-8 md:py-8">
+      <div className="min-w-0 flex-1 px-4 py-4 md:px-6 md:py-4 lg:px-8">
         <div className="mx-auto max-w-6xl space-y-6">
-          <div className="section-shell flex flex-wrap items-center justify-between gap-3 border-border/18 bg-card/76 pl-4 pr-14 py-2.5 md:px-4">
-            <p className="text-xs text-fg/56">
-              <span className="font-medium text-fg/72">{identityLabel}</span>
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.75rem] bg-white py-2 pl-5 pr-16 md:rounded-full shadow-[0_1px_2px_rgba(10,10,10,0.04)] md:pr-2">
+            <p className="truncate text-[0.8125rem] text-fg/60">
+              <span className="font-semibold text-fg">{identityLabel}</span>
               {profile.displayName ? <span className="ml-2 text-fg/42">{profile.email}</span> : null}
             </p>
             <div className="flex items-center gap-2">
@@ -35,7 +35,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 asChild
                 size="sm"
                 variant="ghost"
-                className="h-8 gap-1.5 rounded-lg border border-transparent px-2.5 text-xs text-fg/62 transition-[border-color,background-color,color] duration-200 hover:border-border/18 hover:bg-card/82 hover:text-fg"
+                className="h-9 gap-1.5 rounded-full px-3.5 text-[0.8125rem] font-semibold text-fg/70 transition-colors duration-200 hover:bg-bg hover:text-fg"
               >
                 <Link href="/">
                   <ExternalLink className="h-3 w-3" />
@@ -47,7 +47,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   asChild
                   size="sm"
                   variant="ghost"
-                  className="h-8 gap-1.5 rounded-lg border border-transparent px-2.5 text-xs text-fg/62 transition-[border-color,background-color,color] duration-200 hover:border-border/18 hover:bg-card/82 hover:text-fg"
+                  className="h-9 gap-1.5 rounded-full px-3.5 text-[0.8125rem] font-semibold text-fg/70 transition-colors duration-200 hover:bg-bg hover:text-fg"
                 >
                   <Link href="/dashboard/posts/new">
                     <Plus className="h-3 w-3" />
@@ -60,7 +60,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                   asChild
                   size="sm"
                   variant="ghost"
-                  className="h-8 gap-1.5 rounded-lg border border-transparent px-2.5 text-xs text-fg/62 transition-[border-color,background-color,color] duration-200 hover:border-border/18 hover:bg-card/82 hover:text-fg"
+                  className="h-9 gap-1.5 rounded-full px-3.5 text-[0.8125rem] font-semibold text-fg/70 transition-colors duration-200 hover:bg-bg hover:text-fg"
                 >
                   <Link href="/dashboard/works/new">
                     <Plus className="h-3 w-3" />

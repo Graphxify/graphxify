@@ -24,9 +24,9 @@ export function FormAlert({
     <div
       className={cn(
         "flex items-start gap-2 rounded-xl border px-3 py-2.5 text-sm",
-        type === "success" && "border-emerald-500/20 bg-emerald-500/8 text-emerald-400",
+        type === "success" && "border-green/20 bg-green/8 text-[#137a3a]",
         type === "info" && "border-border/18 bg-card/70 text-fg/74",
-        type === "error" && "border-amber-500/20 bg-amber-500/8 text-amber-300",
+        type === "error" && "border-accentA/20 bg-accentA/8 text-accentB",
         className
       )}
       role="alert"

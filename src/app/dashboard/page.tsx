@@ -2,7 +2,6 @@ import Link from "next/link";
 import { FileText, FolderKanban, Users, ArrowRight, MessageSquareQuote, AlertCircle, TrendingUp } from "lucide-react";
 import { RevealItem, RevealStagger } from "@/components/motion/reveal-stagger";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { getAnalyticsSummary, getPendingCounts } from "@/db/queries/analytics";
 import { requireAuth } from "@/lib/auth/requireRole";
 import { hasPermission } from "@/lib/auth/roles";
@@ -21,25 +20,25 @@ export default async function DashboardHomePage() {
       label: `${pending.newLeads} new ${pending.newLeads === 1 ? "lead" : "leads"}`,
       href: "/dashboard/leads?status=new",
       icon: <Users className="h-4 w-4" />,
-      color: "text-sky-400",
-      bg: "bg-sky-500/10 border-sky-500/20",
-      dot: "bg-sky-400"
+      color: "text-accentB",
+      bg: "bg-accentA/10 border-accentA/20",
+      dot: "bg-accentA"
     } : null,
     pending.pendingTestimonials > 0 ? {
       label: `${pending.pendingTestimonials} pending ${pending.pendingTestimonials === 1 ? "testimonial" : "testimonials"}`,
       href: "/dashboard/testimonials?status=pending",
       icon: <MessageSquareQuote className="h-4 w-4" />,
-      color: "text-amber-400",
-      bg: "bg-amber-500/10 border-amber-500/20",
-      dot: "bg-amber-400"
+      color: "text-accentB",
+      bg: "bg-accentA/10 border-accentA/20",
+      dot: "bg-accentA"
     } : null,
     pending.postsInReview > 0 ? {
       label: `${pending.postsInReview} ${pending.postsInReview === 1 ? "blog" : "blogs"} in review`,
       href: "/dashboard/posts?status=review",
       icon: <FileText className="h-4 w-4" />,
-      color: "text-violet-400",
-      bg: "bg-violet-500/10 border-violet-500/20",
-      dot: "bg-violet-400"
+      color: "text-fg",
+      bg: "bg-fg/10 border-fg/20",
+      dot: "bg-fg/10"
     } : null
   ].filter(Boolean) as { label: string; href: string; icon: React.ReactNode; color: string; bg: string; dot: string }[];
 
@@ -48,33 +47,21 @@ export default async function DashboardHomePage() {
       label: "Published blogs",
       value: summary.publishedPosts,
       icon: <FileText className="h-5 w-5" />,
-      color: "text-sky-400",
-      border: "border-l-sky-500/50",
-      bg: "bg-sky-500/8"
     },
     {
       label: "Published works",
       value: summary.publishedWorks,
       icon: <FolderKanban className="h-5 w-5" />,
-      color: "text-violet-400",
-      border: "border-l-violet-500/50",
-      bg: "bg-violet-500/8"
     },
     {
       label: "New leads (7d)",
       value: summary.leads7,
       icon: <TrendingUp className="h-5 w-5" />,
-      color: "text-emerald-400",
-      border: "border-l-emerald-500/50",
-      bg: "bg-emerald-500/8"
     },
     {
       label: "Leads (30d)",
       value: summary.leads30,
       icon: <Users className="h-5 w-5" />,
-      color: "text-amber-400",
-      border: "border-l-amber-500/50",
-      bg: "bg-amber-500/8"
     }
   ];
 
@@ -89,8 +76,8 @@ export default async function DashboardHomePage() {
     <section className="space-y-6">
       <RevealStagger className="space-y-6">
         <RevealItem className="space-y-1">
-          <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Dashboard</p>
-          <h1 className="text-3xl font-semibold md:text-4xl">
+          <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />Dashboard</p>
+          <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">
             Welcome back{greetingName ? `, ${greetingName}` : ""}
           </h1>
         </RevealItem>
@@ -98,27 +85,27 @@ export default async function DashboardHomePage() {
         {/* ── Needs Attention ── */}
         {totalPending > 0 ? (
           <RevealItem>
-            <Card className="border-border/18 bg-card/72">
-              <CardContent className="p-5">
+            <Card className="rounded-[1.75rem] border-0 bg-white shadow-none">
+              <CardContent className="p-5 md:p-6">
                 <div className="mb-3 flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-amber-400" />
-                  <h2 className="text-sm font-semibold text-fg/80">Needs your attention</h2>
-                  <Badge variant="warning" className="ml-auto text-[0.6rem]">{totalPending}</Badge>
+                  <AlertCircle className="h-4 w-4 text-accentB" />
+                  <h2 className="text-[0.9375rem] font-bold text-fg">Needs your attention</h2>
+                  <span className="ml-auto grid h-6 min-w-6 place-items-center rounded-full bg-accentB px-2 text-[0.75rem] font-bold tabular-nums text-white">{totalPending}</span>
                 </div>
                 <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
                   {attentionItems.map((item) => (
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`group flex items-center gap-3 rounded-xl border px-4 py-3 transition-all hover:scale-[1.02] hover:shadow-md ${item.bg}`}
+                      className="group flex items-center gap-3 rounded-full bg-bg px-4 py-3 transition-colors duration-200 hover:bg-fg hover:text-white"
                     >
                       <span className={`relative flex h-2 w-2 shrink-0`}>
-                        <span className={`absolute inline-flex h-full w-full animate-ping rounded-full ${item.dot} opacity-75`} />
-                        <span className={`relative inline-flex h-2 w-2 rounded-full ${item.dot}`} />
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accentA opacity-75 motion-reduce:hidden" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-accentA" />
                       </span>
-                      <span className={`${item.color} mr-1`}>{item.icon}</span>
-                      <span className="text-sm font-medium text-fg/80 group-hover:text-fg">{item.label}</span>
-                      <ArrowRight className="ml-auto h-3.5 w-3.5 text-fg/24 transition-transform group-hover:translate-x-0.5 group-hover:text-fg/56" />
+                      <span className="mr-1 text-fg/60 group-hover:text-white/80">{item.icon}</span>
+                      <span className="text-sm font-semibold">{item.label}</span>
+                      <ArrowRight className="ml-auto h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                     </Link>
                   ))}
                 </div>
@@ -127,28 +114,24 @@ export default async function DashboardHomePage() {
           </RevealItem>
         ) : (
           <RevealItem>
-            <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-5 py-4">
-              <span className="h-2 w-2 rounded-full bg-emerald-400" />
-              <p className="text-sm text-emerald-400/80">All clear — nothing needs your attention right now.</p>
+            <div className="flex items-center gap-3 rounded-full bg-white px-5 py-4">
+              <span className="h-2 w-2 rounded-full bg-green" />
+              <p className="text-sm font-semibold text-fg">All clear — nothing needs your attention right now.</p>
             </div>
           </RevealItem>
         )}
 
         {/* ── Stat cards ── */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           {stats.map((stat) => (
             <RevealItem key={stat.label}>
-              <Card className={`border-l-[3px] ${stat.border}`}>
-                <CardContent className="flex items-center gap-4 p-5">
-                  <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${stat.bg} ${stat.color}`}>
-                    {stat.icon}
-                  </div>
-                  <div>
-                    <p className="text-xs text-fg/56">{stat.label}</p>
-                    <p className="text-2xl font-bold tabular-nums">{stat.value}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="flex h-full flex-col justify-between gap-6 rounded-[1.75rem] bg-white p-5 md:p-6">
+                <div className="flex items-center justify-between">
+                  <p className="text-[0.8125rem] font-semibold text-fg/60">{stat.label}</p>
+                  <span className="grid h-9 w-9 place-items-center rounded-full bg-fg text-white [&>svg]:h-4 [&>svg]:w-4">{stat.icon}</span>
+                </div>
+                <p className="text-[clamp(2rem,3vw,2.75rem)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">{stat.value}</p>
+              </div>
             </RevealItem>
           ))}
         </div>
@@ -160,10 +143,10 @@ export default async function DashboardHomePage() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="group flex items-center justify-between rounded-xl border border-border/14 bg-card/50 px-4 py-3 text-sm text-fg/72 transition-all duration-200 hover:border-accentA/30 hover:bg-card/70 hover:text-fg"
+                className="group flex items-center justify-between rounded-full bg-white px-5 py-3.5 text-sm font-semibold text-fg transition-colors duration-200 hover:bg-fg hover:text-white"
               >
                 <span>{link.label}</span>
-                <ArrowRight className="h-3.5 w-3.5 text-fg/32 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-accentB" />
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-0.5" />
               </Link>
             ))}
           </div>

@@ -1,8 +1,11 @@
 import { Suspense } from "react";
+import { LogOut } from "lucide-react";
 import { logoutAction } from "@/app/admin/actions";
 import { DashboardNav } from "@/app/dashboard/(components)/dashboard-nav";
 import { MobileSidebarToggle } from "@/app/dashboard/(components)/mobile-sidebar-toggle";
 import { Button } from "@/components/ui/button";
+import { GraphxifyLogo } from "@/components/marketing/graphxify-logo";
+import { Badge } from "@/components/site/badge";
 import { hasPermission, type AppRole } from "@/lib/auth/roles";
 import { getPendingCounts } from "@/db/queries/analytics";
 
@@ -89,23 +92,11 @@ export function DashboardSidebar({ role }: SidebarProps) {
 
   return (
     <MobileSidebarToggle>
-      <aside className="h-full w-full border-b border-border/14 bg-card/72 p-4 backdrop-blur md:sticky md:top-0 md:h-screen md:w-80 md:border-b-0 md:border-r md:p-6 overflow-y-auto">
-        {/* ── Premium logo header ── */}
-        <div className="relative overflow-hidden rounded-2xl border border-accentA/20 bg-gradient-to-br from-accentA/8 via-card/60 to-accentB/8 p-4">
-          <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-accentA/8 blur-2xl" />
-          <div className="relative flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-accent-gradient text-sm font-bold text-ivory shadow-glow">
-              G
-            </div>
-            <div>
-              <p className="text-sm font-semibold tracking-wide text-fg">Graphxify</p>
-              <p className="text-[0.65rem] uppercase tracking-[0.22em] text-fg/48">CMS</p>
-            </div>
-          </div>
-          <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-accentA/20 bg-accentA/8 px-2.5 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.16em] text-accentB">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            {role}
-          </div>
+      <aside className="h-full w-full overflow-y-auto p-3 md:sticky md:top-0 md:h-screen md:w-72 md:shrink-0 md:p-4">
+        <div className="flex min-h-full flex-col rounded-[2rem] bg-white p-4 shadow-[0_1px_2px_rgba(10,10,10,0.04)] md:p-5">
+        <div className="flex items-center justify-between gap-3 px-2 pt-1">
+          <GraphxifyLogo className="h-7 w-auto" width={120} height={33} sizes="120px" />
+          <Badge dot="green" className="bg-bg capitalize shadow-none">{role}</Badge>
         </div>
 
         {/* Sidebar nav: render instantly with plain links, then swap in badge-enriched version */}
@@ -115,21 +106,22 @@ export function DashboardSidebar({ role }: SidebarProps) {
 
         {adminLinks.length > 0 ? (
           <>
-            <div className="mx-3 my-2 border-t border-border/10" />
+            <div className="mx-4 my-3 border-t border-fg/[0.08]" />
             <DashboardNav items={adminLinks} />
           </>
         ) : null}
 
-        <form action={logoutAction} className="mt-8">
+        <form action={logoutAction} className="mt-auto pt-6">
           <Button
             type="submit"
             variant="ghost"
-            className="w-full justify-start gap-2 rounded-xl border border-transparent text-fg/56 transition-[border-color,background-color,color] duration-200 hover:border-red-400/14 hover:bg-red-500/8 hover:text-red-400"
+            className="w-full justify-start gap-3 rounded-full px-4 text-[0.9375rem] font-semibold text-fg/64 transition-colors duration-200 hover:bg-red-50 hover:text-red-600"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-            Logout
+            <LogOut aria-hidden="true" className="h-[1.125rem] w-[1.125rem]" />
+            Log out
           </Button>
         </form>
+        </div>
       </aside>
     </MobileSidebarToggle>
   );

@@ -51,7 +51,7 @@ export default function ForgotPasswordPage() {
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-border/18 bg-card/72 p-6 shadow-[0_8px_40px_rgba(0,0,0,0.25)] backdrop-blur-sm md:p-8">
+        <div className="rounded-[2rem] bg-white p-6 shadow-[0_30px_60px_-30px_rgba(10,10,10,0.25)] md:p-9">
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Reset Password</h1>
             <p className="mt-1.5 text-sm text-fg/50">
@@ -61,8 +61,8 @@ export default function ForgotPasswordPage() {
 
           {result?.success ? (
             <div className="space-y-4">
-              <div className="flex items-start gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/8 px-4 py-3.5">
-                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+              <div className="flex items-start gap-3 rounded-xl border border-green/20 bg-green/8 px-4 py-3.5">
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-[#137a3a]" />
                 <p className="text-sm text-fg/80">{result.message}</p>
               </div>
               <Link
@@ -76,7 +76,7 @@ export default function ForgotPasswordPage() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="reset-email" className="text-xs font-medium uppercase tracking-[0.1em] text-fg/56">
+                <Label htmlFor="reset-email" className="text-[0.8125rem] font-semibold text-fg/70">
                   Email
                 </Label>
                 <Input
@@ -85,7 +85,7 @@ export default function ForgotPasswordPage() {
                   type="email"
                   required
                   placeholder="you@example.com"
-                  className="h-11 rounded-xl border-border/18 bg-bg/50 px-4 text-sm text-fg transition-colors duration-200 placeholder:text-fg/30 focus:border-accentA/40 focus:ring-accentB"
+                  className="h-12 rounded-2xl border-0 bg-bg px-4 text-sm text-fg transition-colors duration-200 placeholder:text-fg/30 focus:border-accentA/40 focus:ring-accentB"
                   disabled={loading}
                 />
               </div>
@@ -96,7 +96,7 @@ export default function ForgotPasswordPage() {
                 </div>
               ) : null}
 
-              <Button type="submit" className="h-11 w-full rounded-xl text-sm font-medium" disabled={loading}>
+              <Button type="submit" className="h-12 w-full rounded-full text-[0.9375rem] font-semibold" disabled={loading}>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

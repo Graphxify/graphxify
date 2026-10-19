@@ -83,8 +83,8 @@ export default async function DashboardTestimonialsPage({
         <RevealItem>
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Content</p>
-              <h1 className="text-3xl font-semibold">Testimonials</h1>
+              <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />Content</p>
+              <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">Testimonials</h1>
             </div>
           </div>
         </RevealItem>
@@ -92,15 +92,15 @@ export default async function DashboardTestimonialsPage({
         {/* Status Tabs + Search */}
         <RevealItem>
           <div className="space-y-3">
-            <div className="flex items-center gap-1 rounded-lg border border-border/14 bg-card/60 p-1">
+            <div className="flex w-fit items-center gap-1 rounded-full bg-white p-1">
               {STATUS_TABS.map((tab) => (
                 <Link
                   key={tab.value}
                   href={`/dashboard/testimonials${tab.value ? `?status=${tab.value}` : ""}${search ? `${tab.value ? "&" : "?"}q=${search}` : ""}`}
-                  className={`rounded-md px-3.5 py-1.5 text-xs font-medium transition-all ${
+                  className={`rounded-full px-4 py-2 text-[0.8125rem] font-semibold transition-colors ${
                     statusFilter === tab.value
-                      ? "bg-accentA/12 text-accentB shadow-sm"
-                      : "text-fg/56 hover:text-fg hover:bg-card/80"
+                      ? "bg-fg text-white"
+                      : "text-fg/64 hover:bg-bg hover:text-fg"
                   }`}
                 >
                   {tab.label}
@@ -157,9 +157,9 @@ export default async function DashboardTestimonialsPage({
                     {result.rows.map((item) => {
                       const badgeClass =
                         item.status === "published"
-                          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                          ? "border-green/30 bg-green/10 text-[#137a3a]"
                           : item.status === "pending"
-                            ? "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                            ? "border-accentA/30 bg-accentA/10 text-accentB"
                             : item.status === "rejected"
                               ? "border-red-500/30 bg-red-500/10 text-red-400"
                               : "";
@@ -177,7 +177,7 @@ export default async function DashboardTestimonialsPage({
                           <TableCell>
                             {isClientSubmission ? (
                               <span className="inline-flex items-center gap-1 text-xs text-fg/48">
-                                <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-400/70" />
+                                <span className="inline-block h-1.5 w-1.5 rounded-full bg-accentA/70" />
                                 Client
                               </span>
                             ) : (

@@ -65,7 +65,7 @@ function SectionCard({ title, description, icon: Icon, children }: {
 function FieldRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="grid gap-1.5 md:grid-cols-[200px_1fr] md:items-center md:gap-4">
-      <label className="text-xs font-medium uppercase tracking-[0.1em] text-fg/56">{label}</label>
+      <label className="text-[0.8125rem] font-semibold text-fg/70">{label}</label>
       {children}
     </div>
   );
@@ -109,7 +109,7 @@ function ToggleRow({ name, label, defaultChecked, description }: {
         role="switch"
         aria-checked={checked}
         onClick={() => setChecked(!checked)}
-        className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${checked ? "bg-accentA" : "bg-border/30"}`}
+        className={`relative mt-0.5 inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${checked ? "bg-green" : "bg-fg/15"}`}
       >
         <span className={`inline-block h-4 w-4 rounded-full bg-white transition-transform ${checked ? "translate-x-6" : "translate-x-1"}`} />
       </button>
@@ -119,7 +119,7 @@ function ToggleRow({ name, label, defaultChecked, description }: {
 
 function StatusDot({ ok }: { ok: boolean }) {
   return ok ? (
-    <CheckCircle className="h-4 w-4 shrink-0 text-emerald-400" />
+    <CheckCircle className="h-4 w-4 shrink-0 text-[#137a3a]" />
   ) : (
     <XCircle className="h-4 w-4 shrink-0 text-red-400" />
   );
@@ -130,7 +130,7 @@ function SaveButton({ pending, label = "Save changes" }: { pending: boolean; lab
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-9 items-center gap-2 rounded-lg bg-accentA px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+      className="inline-flex h-10 items-center gap-2 rounded-full bg-fg px-5 text-sm font-semibold text-white transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-50"
     >
       {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
       {pending ? "Saving..." : label}
@@ -221,7 +221,7 @@ function GeneralTab({ settings }: { settings: Record<string, Record<string, unkn
           </FieldRow>
           <div className="flex items-center gap-3 pt-2">
             <SaveButton pending={pending} />
-            {msg && <span className="text-xs text-emerald-400">{msg}</span>}
+            {msg && <span className="text-xs text-[#137a3a]">{msg}</span>}
           </div>
         </form>
       </SectionCard>
@@ -242,7 +242,7 @@ function GeneralTab({ settings }: { settings: Record<string, Record<string, unkn
           ))}
           <div className="flex items-center gap-3 pt-2">
             <SaveButton pending={socialPending} />
-            {socialMsg && <span className="text-xs text-emerald-400">{socialMsg}</span>}
+            {socialMsg && <span className="text-xs text-[#137a3a]">{socialMsg}</span>}
           </div>
         </form>
       </SectionCard>
@@ -271,7 +271,7 @@ function EmailTab({
       <SectionCard title="SMTP Configuration" icon={Mail} description="Email sending is configured via environment variables.">
         <div className="space-y-3">
           {!smtpStatus.ok && (
-            <div className="rounded-lg border border-amber-500/25 bg-amber-500/8 px-4 py-3 text-sm text-amber-200">
+            <div className="rounded-lg border border-accentA/25 bg-accentA/8 px-4 py-3 text-sm text-accentB">
               {smtpStatus.message}
             </div>
           )}
@@ -303,7 +303,7 @@ function EmailTab({
               Send Test Email
             </button>
             {testMsg && (
-              <span className={`text-xs ${testMsg.ok ? "text-emerald-400" : "text-red-400"}`}>{testMsg.text}</span>
+              <span className={`text-xs ${testMsg.ok ? "text-[#137a3a]" : "text-red-400"}`}>{testMsg.text}</span>
             )}
           </div>
         </div>
@@ -325,7 +325,7 @@ function EmailTab({
           <ToggleRow name="password_reset" label="Password reset emails" description="Send branded notification when resetting passwords" defaultChecked={n.password_reset !== false} />
           <div className="flex items-center gap-3 pt-2">
             <SaveButton pending={pending} />
-            {msg && <span className="text-xs text-emerald-400">{msg}</span>}
+            {msg && <span className="text-xs text-[#137a3a]">{msg}</span>}
           </div>
         </form>
       </SectionCard>
@@ -365,7 +365,7 @@ function SecurityTab({ settings }: { settings: Record<string, Record<string, unk
           <ToggleRow name="enable_2fa" label="Enable Two-Factor Authentication" description="Coming soon — this toggle is reserved for future 2FA support" defaultChecked={Boolean(sec.enable_2fa)} />
           <div className="flex items-center gap-3 pt-2">
             <SaveButton pending={pending} />
-            {msg && <span className="text-xs text-emerald-400">{msg}</span>}
+            {msg && <span className="text-xs text-[#137a3a]">{msg}</span>}
           </div>
         </form>
       </SectionCard>
@@ -405,7 +405,7 @@ function DangerZoneTab() {
           />
         </div>
         {msg && (
-          <p className={`mt-3 text-xs ${msg.ok ? "text-emerald-400" : "text-red-400"}`}>{msg.text}</p>
+          <p className={`mt-3 text-xs ${msg.ok ? "text-[#137a3a]" : "text-red-400"}`}>{msg.text}</p>
         )}
       </SectionCard>
     </div>
@@ -429,12 +429,12 @@ export function SettingsClient({ settings, smtpDisplay, smtpStatus }: Props) {
               key={t.key}
               type="button"
               onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3.5 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2.5 whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
                 active
                   ? t.key === "danger"
-                    ? "bg-red-500/10 text-red-400"
-                    : "bg-accentA/10 text-accentB"
-                  : "text-fg/56 hover:bg-card/50 hover:text-fg/80"
+                    ? "bg-red-600 text-white"
+                    : "bg-fg text-white"
+                  : "text-fg/64 hover:bg-white hover:text-fg"
               }`}
               aria-current={active ? "page" : undefined}
             >

@@ -68,7 +68,7 @@ function LoginView({
         </div>
 
         {/* Login card */}
-        <div className="rounded-2xl border border-border/18 bg-card/72 p-6 shadow-[0_8px_40px_rgba(0,0,0,0.25)] backdrop-blur-sm md:p-8">
+        <div className="rounded-[2rem] bg-white p-6 shadow-[0_30px_60px_-30px_rgba(10,10,10,0.25)] md:p-9">
           <div className="mb-6 text-center">
             <h1 className="text-2xl font-semibold tracking-tight">Welcome back</h1>
             <p className="mt-1.5 text-sm text-fg/50">Sign in to the CMS dashboard</p>

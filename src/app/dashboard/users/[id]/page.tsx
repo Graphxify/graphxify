@@ -125,7 +125,7 @@ export default async function DashboardUserProfilePage({ params }: { params: Pro
                 <AvatarFallback className="text-lg font-semibold">{initials(user.display_name, user.email)}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-semibold truncate">{displayName}</h1>
+                <h1 className="text-[clamp(1.75rem,3vw,2.25rem)] font-extrabold leading-[1.05] tracking-[-0.04em] truncate">{displayName}</h1>
                 <p className="flex items-center gap-1.5 text-sm text-fg/56">
                   <Mail className="h-3.5 w-3.5" />
                   {user.email}

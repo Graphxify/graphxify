@@ -13,11 +13,8 @@ export function MobileSidebarToggle({ children }: { children: React.ReactNode })
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
-        className={`fixed right-4 top-[0.85rem] z-50 grid h-10 w-10 place-items-center overflow-hidden rounded-xl border transition-[border-color,background-color,box-shadow,color] duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB focus-visible:ring-offset-2 focus-visible:ring-offset-bg md:hidden ${
-          open
-            ? "border-accentA bg-accent-gradient text-white shadow-[0_0_0_3px_rgba(0,163,255,0.16),0_8px_20px_rgba(0,100,220,0.28)]"
-            : "border-border/20 bg-card/90 text-fg/75 backdrop-blur hover:border-accentA/30 hover:bg-card hover:text-fg hover:shadow-[0_8px_20px_rgba(13,13,15,0.14)]"
-        }`}
+        className="fixed right-4 top-[0.85rem] z-50 grid h-11 w-11 place-items-center rounded-full bg-fg text-white shadow-[0_8px_20px_rgba(10,10,10,0.18)] transition-transform duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accentB focus-visible:ring-offset-2 focus-visible:ring-offset-bg md:hidden"
+        aria-expanded={open}
         aria-label={open ? "Close menu" : "Open menu"}
       >
         <AnimatePresence mode="wait" initial={false}>
@@ -51,7 +48,7 @@ export function MobileSidebarToggle({ children }: { children: React.ReactNode })
       <AnimatePresence>
         {open && (
           <motion.div
-            className="fixed inset-0 z-40 bg-graphite/65 backdrop-blur-[2px] md:hidden"
+            className="fixed inset-0 z-40 bg-fg/40 backdrop-blur-[2px] md:hidden"
             onClick={() => setOpen(false)}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -63,7 +60,7 @@ export function MobileSidebarToggle({ children }: { children: React.ReactNode })
 
       {/* Sidebar content — on mobile: slide-in from left, on desktop: always visible */}
       <div
-        className={`fixed inset-y-0 left-0 z-40 w-80 transform transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:relative md:translate-x-0 md:transition-none ${open ? "translate-x-0" : "-translate-x-full"}`}
+        className={`fixed inset-y-0 left-0 z-40 w-80 max-w-[88vw] bg-bg transform transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] md:relative md:w-auto md:max-w-none md:translate-x-0 md:bg-transparent md:transition-none ${open ? "translate-x-0" : "-translate-x-full"}`}
         onClick={(e) => {
           if ((e.target as HTMLElement).closest("a")) {
             setOpen(false);

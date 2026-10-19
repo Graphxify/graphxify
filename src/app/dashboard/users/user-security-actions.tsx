@@ -113,7 +113,7 @@ export function UserSecurityActions({
       </div>
 
       {statusMessage ? (
-        <p className={`text-xs ${statusMessage.ok ? "text-emerald-400" : "text-red-400"}`}>{statusMessage.text}</p>
+        <p className={`text-xs ${statusMessage.ok ? "text-[#137a3a]" : "text-red-400"}`}>{statusMessage.text}</p>
       ) : null}
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

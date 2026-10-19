@@ -28,8 +28,8 @@ export default async function DashboardPostEditorPage({ params }: { params: Prom
     <section className="space-y-6">
       <RevealStagger className="space-y-6">
         <RevealItem className="space-y-1">
-          <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Editor</p>
-          <h1 className="text-3xl font-semibold">{isNew ? "Create blog" : "Edit blog"}</h1>
+          <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />Editor</p>
+          <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">{isNew ? "Create blog" : "Edit blog"}</h1>
           {!isNew && versions.length > 0 ? (
             <p className="text-sm text-fg/62">
               Version #{versions[0].version} - Last edited by {versions[0].editor_id || "unknown"}

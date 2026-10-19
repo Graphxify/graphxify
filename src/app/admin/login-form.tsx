@@ -28,8 +28,8 @@ export function LoginForm({ action, errorText, forcedReset, errorCode }: LoginFo
         </div>
       ) : null}
       {forcedReset ? (
-        <div className="mt-3 rounded-lg border border-amber-500/20 bg-amber-500/8 px-3 py-2.5">
-          <p className="text-sm text-amber-400">Password reset is required before accessing the dashboard.</p>
+        <div className="mt-3 rounded-lg border border-accentA/20 bg-accentA/8 px-3 py-2.5">
+          <p className="text-sm text-accentB">Password reset is required before accessing the dashboard.</p>
         </div>
       ) : null}
       {process.env.NODE_ENV !== "production" && errorCode ? (
@@ -45,7 +45,7 @@ function LoginFields(): JSX.Element {
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor="email" className="text-xs font-medium uppercase tracking-[0.1em] text-fg/56">
+        <Label htmlFor="email" className="text-[0.8125rem] font-semibold text-fg/70">
           Email
         </Label>
         <Input
@@ -55,11 +55,11 @@ function LoginFields(): JSX.Element {
           required
           placeholder="you@example.com"
           disabled={pending}
-          className="h-11 rounded-xl border-border/18 bg-bg/50 px-4 text-sm text-fg transition-colors duration-200 placeholder:text-fg/30 focus:border-accentA/40 focus:ring-accentB"
+          className="h-12 rounded-2xl border-0 bg-bg px-4 text-sm text-fg transition-colors duration-200 placeholder:text-fg/30 focus:border-accentA/40 focus:ring-accentB"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password" className="text-xs font-medium uppercase tracking-[0.1em] text-fg/56">
+        <Label htmlFor="password" className="text-[0.8125rem] font-semibold text-fg/70">
           Password
         </Label>
         <PasswordInput
@@ -79,7 +79,7 @@ function LoginFields(): JSX.Element {
         </div>
       </div>
       <div className="space-y-2">
-        <Button type="submit" className="h-11 w-full rounded-xl text-sm font-medium" disabled={pending}>
+        <Button type="submit" className="h-12 w-full rounded-full text-[0.9375rem] font-semibold" disabled={pending}>
           {pending ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

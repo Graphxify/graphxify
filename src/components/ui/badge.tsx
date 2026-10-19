@@ -7,8 +7,8 @@ const badgeVariants = cva("inline-flex items-center rounded-full border px-2.5 p
     variant: {
       default: "border-border/18 bg-accentA/15 text-fg",
       secondary: "border-border/18 bg-card/62 text-fg/82",
-      success: "border-emerald-500/25 bg-emerald-500/12 text-emerald-400",
-      warning: "border-amber-500/25 bg-amber-500/12 text-amber-400"
+      success: "border-green/25 bg-green/12 text-[#137a3a]",
+      warning: "border-accentA/25 bg-accentA/12 text-accentB"
     }
   },
   defaultVariants: {

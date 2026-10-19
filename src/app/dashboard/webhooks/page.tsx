@@ -8,10 +8,10 @@ export default async function DashboardWebhooksPage() {
     <section className="space-y-4">
       <RevealStagger className="space-y-4">
         <RevealItem>
-          <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Admin</p>
+          <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />Admin</p>
         </RevealItem>
         <RevealItem>
-          <h1 className="text-3xl font-semibold">Webhooks</h1>
+          <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">Webhooks</h1>
         </RevealItem>
         <RevealItem>
           <div className="section-shell border-border/18 bg-card/72 p-5 text-sm text-fg/72">

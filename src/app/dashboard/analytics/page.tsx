@@ -16,29 +16,21 @@ export default async function DashboardAnalyticsPage() {
       label: "Published blogs",
       value: summary.publishedPosts,
       icon: <FileText className="h-4 w-4" />,
-      color: "text-sky-400",
-      bg: "bg-sky-500/8"
     },
     {
       label: "Published works",
       value: summary.publishedWorks,
       icon: <FolderKanban className="h-4 w-4" />,
-      color: "text-violet-400",
-      bg: "bg-violet-500/8"
     },
     {
       label: "Leads (7d)",
       value: summary.leads7,
       icon: <TrendingUp className="h-4 w-4" />,
-      color: "text-emerald-400",
-      bg: "bg-emerald-500/8"
     },
     {
       label: "Leads (30d)",
       value: summary.leads30,
       icon: <Users className="h-4 w-4" />,
-      color: "text-amber-400",
-      bg: "bg-amber-500/8"
     }
   ];
 
@@ -49,25 +41,21 @@ export default async function DashboardAnalyticsPage() {
     <section className="space-y-6">
       <RevealStagger className="space-y-6">
         <RevealItem className="space-y-2">
-          <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Dashboard</p>
-          <h1 className="text-3xl font-semibold md:text-4xl">Analytics</h1>
+          <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />Dashboard</p>
+          <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">Analytics</h1>
         </RevealItem>
 
         {/* ── Stat cards ── */}
-        <div className="grid gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
           {stats.map((stat) => (
             <RevealItem key={stat.label}>
-              <Card>
-                <CardContent className="flex items-center gap-3 p-4">
-                  <div className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${stat.bg} ${stat.color}`}>
-                    {stat.icon}
-                  </div>
-                  <div>
-                    <p className="text-[0.65rem] uppercase tracking-wider text-fg/48">{stat.label}</p>
-                    <p className="text-xl font-bold tabular-nums">{stat.value}</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="flex h-full flex-col justify-between gap-6 rounded-[1.75rem] bg-white p-5 md:p-6">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[0.8125rem] font-semibold text-fg/60">{stat.label}</p>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-fg text-white">{stat.icon}</span>
+                </div>
+                <p className="text-[clamp(2rem,3vw,2.75rem)] font-extrabold leading-none tracking-[-0.05em] tabular-nums">{stat.value}</p>
+              </div>
             </RevealItem>
           ))}
         </div>
@@ -83,19 +71,19 @@ export default async function DashboardAnalyticsPage() {
               <div className="flex h-3 overflow-hidden rounded-full bg-card/40">
                 {draft > 0 && (
                   <div
-                    className="bg-amber-500/70 transition-all duration-500"
+                    className="bg-accentA/70 transition-all duration-500"
                     style={{ width: `${(draft / statusTotal) * 100}%` }}
                   />
                 )}
                 {review > 0 && (
                   <div
-                    className="bg-sky-500/70 transition-all duration-500"
+                    className="bg-accentA/70 transition-all duration-500"
                     style={{ width: `${(review / statusTotal) * 100}%` }}
                   />
                 )}
                 {published > 0 && (
                   <div
-                    className="bg-emerald-500/70 transition-all duration-500"
+                    className="bg-green/70 transition-all duration-500"
                     style={{ width: `${(published / statusTotal) * 100}%` }}
                   />
                 )}
@@ -104,17 +92,17 @@ export default async function DashboardAnalyticsPage() {
               {/* Legend */}
               <div className="flex flex-wrap gap-6 text-sm">
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-accentA/70" />
                   <span className="text-fg/62">Draft</span>
                   <span className="font-semibold tabular-nums">{draft}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-sky-500/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-accentA/70" />
                   <span className="text-fg/62">Review</span>
                   <span className="font-semibold tabular-nums">{review}</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/70" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-green/70" />
                   <span className="text-fg/62">Published</span>
                   <span className="font-semibold tabular-nums">{published}</span>
                 </div>

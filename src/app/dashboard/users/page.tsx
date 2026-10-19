@@ -47,8 +47,8 @@ export default async function DashboardUsersPage({
       <RevealStagger className="space-y-5">
         <RevealItem className="flex flex-wrap items-end justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Admin</p>
-            <h1 className="text-3xl font-semibold">Users</h1>
+            <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />Admin</p>
+            <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">Users</h1>
             <p className="text-sm text-fg/56">
               {users.length} {users.length === 1 ? "user" : "users"} total
             </p>

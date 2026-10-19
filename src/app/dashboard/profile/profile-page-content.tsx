@@ -77,7 +77,7 @@ function FeedbackBanner({ result }: { result: FormResult }) {
     <div
       className={`flex items-start gap-2.5 rounded-xl border px-4 py-3 text-sm ${
         result.success
-          ? "border-emerald-500/20 bg-emerald-500/8 text-emerald-400"
+          ? "border-green/20 bg-green/8 text-[#137a3a]"
           : "border-red-500/20 bg-red-500/8 text-red-400"
       }`}
     >
@@ -107,8 +107,8 @@ export function ProfilePageContent({
       <RevealStagger className="space-y-6">
         {/* ── Header ── */}
         <RevealItem className="space-y-1">
-          <p className="text-xs uppercase tracking-[0.2em] text-fg/56">Account</p>
-          <h1 className="text-3xl font-semibold">Profile</h1>
+          <p className="inline-flex items-center gap-2 rounded-full bg-white py-1 pl-2.5 pr-3 text-[0.8125rem] font-semibold text-fg"><span aria-hidden="true" className="h-2 w-2 rounded-full bg-fg" />Account</p>
+          <h1 className="text-[clamp(2rem,3.4vw,2.75rem)] font-extrabold leading-[1.05] tracking-[-0.04em]">Profile</h1>
         </RevealItem>
 
         {/* ── Tabs ── */}
@@ -154,7 +154,7 @@ function OverviewTab({ profile }: { profile: ProfileData }) {
             {profile.avatarUrl ? (
               <AvatarImage src={profile.avatarUrl} alt={profile.displayName ?? profile.email} />
             ) : null}
-            <AvatarFallback className="bg-accent-gradient text-2xl font-bold text-ivory">
+            <AvatarFallback className="bg-fg text-2xl font-bold text-white">
               {initials(profile.displayName, profile.email)}
             </AvatarFallback>
           </Avatar>
@@ -286,7 +286,7 @@ function EditProfileTab({ profile }: { profile: ProfileData }) {
                 {avatarUrl ? (
                   <AvatarImage src={avatarUrl} alt="Profile" />
                 ) : null}
-                <AvatarFallback className="bg-accent-gradient text-xl font-bold text-ivory">
+                <AvatarFallback className="bg-fg text-xl font-bold text-white">
                   {initials(profile.displayName, profile.email)}
                 </AvatarFallback>
               </Avatar>
@@ -464,7 +464,7 @@ function SessionCard({ profile }: { profile: ProfileData }) {
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between rounded-xl border border-border/12 bg-card/40 px-4 py-3">
           <div className="flex items-center gap-3">
-            <span className="h-2 w-2 rounded-full bg-emerald-400" />
+            <span className="h-2 w-2 rounded-full bg-green" />
             <div>
               <p className="text-sm font-medium">Active Session</p>
               <p className="text-xs text-fg/48">{profile.email}</p>
