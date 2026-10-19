@@ -13,7 +13,7 @@ type SitemapEntry = MetadataRoute.Sitemap[number];
 // (rather than `new Date()` on every request) gives search engines a trustworthy
 // <lastmod> instead of one that appears to change on every crawl.
 // Bump this ONLY when static page copy actually changes.
-const STATIC_CONTENT_LAST_UPDATED = new Date("2026-07-29T00:00:00Z");
+const STATIC_CONTENT_LAST_UPDATED = new Date("2026-10-19T00:00:00Z");
 
 // Legal pages carry their own "Last updated" date in the page copy.
 const LEGAL_LAST_UPDATED = new Date("2026-03-09T00:00:00Z");
