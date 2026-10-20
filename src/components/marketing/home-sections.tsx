@@ -166,12 +166,13 @@ export function HomeSections({
   const reviewFaces = testimonials.slice(0, 4).map((item) =>
     item.name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("")
   );
+  // Client-facing proof. Rating is live from published testimonials; the rest are the
+  // commitments stated on /process (timeline, ownership) and /contact (reply time).
   const stats = [
-    // Counted from the published case studies actually shown on the site.
-    { value: String(projects.length), label: "Published case studies" },
-    // Graphxify's stated process range (see /process), not a measured average.
-    { value: "4 to 8 wks", label: "Typical launch" },
-    { value: "24h", label: "Response time" }
+    ...(rated.length >= 3 ? [{ value: `${avgRating.toFixed(1)}★`, label: "Average client rating" }] : []),
+    { value: "4 to 8 wks", label: "From kickoff to launch" },
+    { value: "100%", label: "You own the code and hosting" },
+    { value: "24h", label: "Reply to every inquiry" }
   ];
 
   return (
@@ -257,8 +258,8 @@ export function HomeSections({
               </div>
             ) : (
               <div className="absolute left-0 top-6 z-20 hidden rounded-2xl bg-white px-4 py-3 text-left shadow-[0_20px_40px_-20px_rgba(10,10,10,0.35)] md:block md:-rotate-3">
-                <p className="text-2xl font-extrabold tracking-[-0.04em]">{stats[0].value}</p>
-                <p className="t-small">{stats[0].label}</p>
+                <p className="text-2xl font-extrabold tracking-[-0.04em]">100%</p>
+                <p className="t-small">You own the code and hosting</p>
               </div>
             )}
             <Link
@@ -427,7 +428,7 @@ export function HomeSections({
         <Reveal>
           <SectionIntro badge="Client stories" title={<>Proof that the method <span className="text-accentB">works</span></>} />
         </Reveal>
-        <dl className="mx-auto mt-12 grid max-w-4xl grid-cols-3 gap-3 md:mt-16">
+        <dl className={`mx-auto mt-12 grid grid-cols-2 gap-3 md:mt-16 ${stats.length === 4 ? "max-w-5xl md:grid-cols-4" : "max-w-4xl md:grid-cols-3"}`}>
           {stats.map((stat) => (
             <div key={stat.label} className="flex flex-col-reverse items-center rounded-[1.5rem] bg-white px-3 py-6 text-center md:py-8">
               <dt className="t-small mt-1">{stat.label}</dt>
