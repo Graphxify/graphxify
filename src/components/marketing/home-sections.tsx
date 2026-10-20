@@ -167,11 +167,10 @@ export function HomeSections({
     item.name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("")
   );
   // Client-facing proof. Rating is live from published testimonials; the rest are the
-  // commitments stated on /process (timeline, ownership) and /contact (reply time).
+  // commitments stated on /process (timeline) and /contact (reply time).
   const stats = [
     ...(rated.length >= 3 ? [{ value: `${avgRating.toFixed(1)}★`, label: "Average client rating" }] : []),
     { value: "4 to 8 wks", label: "From kickoff to launch" },
-    { value: "100%", label: "You own the code and hosting" },
     { value: "24h", label: "Reply to every inquiry" }
   ];
 
@@ -256,12 +255,7 @@ export function HomeSections({
                   </div>
                 </div>
               </div>
-            ) : (
-              <div className="absolute left-0 top-6 z-20 hidden rounded-2xl bg-white px-4 py-3 text-left shadow-[0_20px_40px_-20px_rgba(10,10,10,0.35)] md:block md:-rotate-3">
-                <p className="text-2xl font-extrabold tracking-[-0.04em]">100%</p>
-                <p className="t-small">You own the code and hosting</p>
-              </div>
-            )}
+            ) : null}
             <Link
               href="/process"
               className="group absolute -right-2 top-14 z-20 hidden w-64 rounded-[1.25rem] bg-white p-4 text-left shadow-[0_24px_48px_-20px_rgba(10,10,10,0.35)] transition-transform duration-300 hover:-translate-y-1 md:block md:rotate-3 lg:-right-6"
