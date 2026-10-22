@@ -20,7 +20,7 @@ for (const path of urls) {
         const j = JSON.parse(s.textContent);
         const items = Array.isArray(j) ? j : j["@graph"] ?? [j];
         return items.map((i) => i["@type"]).flat();
-      } catch (e) {
+      } catch {
         return ["INVALID_JSON"];
       }
     });

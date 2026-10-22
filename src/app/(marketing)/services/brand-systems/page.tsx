@@ -8,12 +8,12 @@ import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, serviceJsonLd } from
 import { getServiceWorkCards } from "../work-cards";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Brand Systems — Visual Identity Design",
+  title: "Brand Systems & Identity Design",
   description:
-    "Complete brand identity systems: logo suite, typography, colour palette, brand voice, and guidelines — delivered in two to three weeks.",
+    "Brand identity systems with a logo suite, typography, colour palette, brand voice and usage guidelines, delivered by Graphxify in two to three weeks.",
   path: "/services/brand-systems",
-  ogTitle: "Brand Systems — Logo, Identity & Visual Strategy | Graphxify",
-  ogDescription: "A complete visual identity built from the ground up: logo, colour, typography, and messaging that works consistently across every touchpoint. Delivered in 2–3 weeks.",
+  ogTitle: "Brand Systems & Identity Design | Graphxify",
+  ogDescription: "Logo, colour, typography and messaging built as one system that stays consistent across every touchpoint. Delivered in two to three weeks.",
   ogImageAlt: "Brand identity and visual systems by Graphxify — logo, colour, and typography design"
 });
 

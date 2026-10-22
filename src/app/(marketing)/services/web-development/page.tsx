@@ -8,11 +8,11 @@ import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, serviceJsonLd } from
 import { getServiceWorkCards } from "../work-cards";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Development — Custom Next.js Websites",
+  title: "Custom Next.js Web Development",
   description:
     "Custom websites built on Next.js, not WordPress templates. Engineered to a Lighthouse 90+ performance target, with full code ownership.",
   path: "/services/web-development",
-  ogTitle: "Web Development — Fast, Scalable Next.js Sites | Graphxify",
+  ogTitle: "Custom Next.js Web Development | Graphxify",
   ogDescription: "Custom Next.js websites engineered to a Lighthouse 90+ performance target, with a technically sound SEO foundation and full code ownership.",
   ogImageAlt: "Web development with Next.js — high-performance websites by Graphxify"
 });
@@ -35,7 +35,8 @@ const relatedProjects: RelatedProject[] = [
 const relatedPosts: RelatedPost[] = [
   { slug: "custom-web-development-vs-wordpress", label: "Custom Web Development vs. WordPress: A Guide for Business Owners" },
   { slug: "professional-website-business-growth", label: "How a Professional Website Drives Real Business Growth" },
-  { slug: "mobile-first-website-small-businesses", label: "Why Small Businesses Need a Mobile-First Website in 2026" }
+  { slug: "mobile-first-website-small-businesses", label: "Why Small Businesses Need a Mobile-First Website in 2026" },
+  { slug: "local-seo-getting-found-on-google", label: "Local SEO: Getting Found on Google in Your City" }
 ];
 
 const serviceFaqs: ServiceFaqItem[] = [

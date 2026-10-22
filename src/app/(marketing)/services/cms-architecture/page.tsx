@@ -11,11 +11,11 @@ import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, serviceJsonLd } from
 import { getServiceWorkCards } from "../work-cards";
 
 export const metadata: Metadata = buildMetadata({
-  title: "CMS Architecture — Structured Content Systems",
+  title: "CMS Development & Architecture",
   description:
     "Structured content management systems with defined roles, workflows, and content models your team can manage confidently, without a developer.",
   path: "/services/cms-architecture",
-  ogTitle: "CMS Architecture — Content Systems Your Team Can Own | Graphxify",
+  ogTitle: "CMS Development & Architecture | Graphxify",
   ogDescription: "We build the structure, workflows, and content models your team needs to publish confidently — no developer required for day-to-day updates.",
   ogImageAlt: "CMS architecture and structured content systems designed by Graphxify"
 });

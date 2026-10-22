@@ -317,9 +317,9 @@ function getWorkRevalidationPaths(slug: string): string[] {
 
 /**
  * IndexNow pings for content that is already live (or just went away).
- * Brand-new posts/works are NOT pinged here: /blog/[slug] and /works/[slug] use
- * dynamicParams = false, so a new URL 404s until the next deploy — submit those
- * after deploying with `npm run indexnow:submit -- <url>` (docs/INDEXNOW-SETUP.md).
+ * New posts are live immediately (/blog/[slug] renders new slugs on demand) and are pinged.
+ * Brand-new works are not: /works/[slug] uses dynamicParams = false, so a new project URL
+ * 404s until the next deploy; submit it afterwards with `npm run indexnow:submit -- <url>`.
  */
 function queueContentIndexNow(params: {
   type: PublishContentType;
@@ -426,7 +426,9 @@ export async function createOrUpdatePost(params: { id?: string; formData: FormDa
       metadata: { status: parsed.status, slug: parsed.slug }
     });
 
-    revalidatePaths(getPostRevalidationPaths());
+    revalidatePaths(getPostRevalidationPaths(parsed.slug));
+    // /blog/[slug] renders new slugs on demand, so a post published on creation is live now.
+    queueContentIndexNow({ type: "post", slug: parsed.slug, wasPublished: false, isPublished: parsed.status === "published" });
     return { id: data.id };
   }
 

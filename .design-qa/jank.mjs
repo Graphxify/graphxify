@@ -12,7 +12,7 @@ for (const w of [1440, 390]) for (const path of paths) {
     const H = document.documentElement.scrollHeight - innerHeight, frames = [];
     let last = performance.now(), y = 0;
     await new Promise((done) => {
-      const tick = (t) => { frames.push(t - last); last = t; y += 40; scrollTo(0, y); y < H ? requestAnimationFrame(tick) : done(); };
+      const tick = (t) => { frames.push(t - last); last = t; y += 40; scrollTo(0, y); if (y < H) requestAnimationFrame(tick); else done(); };
       requestAnimationFrame(tick);
     });
     frames.sort((a, b) => a - b);

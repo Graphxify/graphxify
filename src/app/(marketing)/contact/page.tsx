@@ -4,8 +4,8 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, webPageJsonLd } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Contact — Start a Web Design or Branding Project",
-  description: "Get in touch with Graphxify, a web design and development agency based in Canada and working worldwide. Tell us about your project for a clear proposal.",
+  title: "Start a Web Design or Branding Project",
+  description: "Tell Graphxify about your website or brand project. We work with the Greater Toronto Area and clients worldwide, and reply within 24 hours with next steps.",
   path: "/contact",
   ogTitle: "Start a Project — Work with Graphxify",
   ogDescription: "Tell us about your brand or website project. We review every inquiry personally and typically respond within 24 hours with a clear, honest recommendation.",

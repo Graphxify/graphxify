@@ -21,10 +21,10 @@ import { siteConfig } from "@/lib/constants";
 import { blogPostingJsonLd, breadcrumbListJsonLd, buildMetadata, canonicalUrl } from "@/lib/seo";
 
 export const revalidate = 30;
-// Only slugs returned by generateStaticParams are served; any other /blog/* URL
-// returns a real 404 (not a soft-404 200). Existing posts still update via ISR;
-// a newly published post becomes reachable on the next deploy.
-export const dynamicParams = false;
+// Published posts are prerendered; a post published in the CMS after the build renders on
+// first request (then ISR), so the sitemap never lists a URL that 404s. Unknown slugs hit
+// notFound() below, which returns a real HTTP 404 (verified), not a soft-404 200.
+export const dynamicParams = true;
 
 type Params = { slug: string };
 
@@ -449,9 +449,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export async function generateStaticParams(): Promise<Params[]> {
   const posts = await getPublishedBlogSummaries();
-  // With dynamicParams = false, an empty result would 404 every post. The site
-  // always has published posts, so treat empty as a build-time DB failure and
-  // abort the build (keeping the previous deploy live) rather than ship 404s.
+  // The site always has published posts, so treat empty as a build-time DB failure and
+  // abort the build (keeping the previous deploy live) rather than ship an empty blog.
   if (posts.length === 0) {
     throw new Error("generateStaticParams: no published blog posts found at build time");
   }

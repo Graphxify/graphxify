@@ -220,7 +220,11 @@ export function toBlogPostSummary(post: BlogPost): BlogPostSummary {
 }
 
 export function selectRelatedBlogPosts(posts: BlogPostSummary[], currentSlug: string, category: BlogCategory): BlogPostSummary[] {
-  const filtered = posts.filter((post) => post.slug !== currentSlug);
+  // Start the list after the current post (wrapping round) so the fallback differs per article
+  // and every article is linked from others, not only the newest few.
+  const at = posts.findIndex((post) => post.slug === currentSlug);
+  const rotated = at < 0 ? posts : [...posts.slice(at + 1), ...posts.slice(0, at)];
+  const filtered = rotated.filter((post) => post.slug !== currentSlug);
   const sameCategory = filtered.filter((post) => post.category === category);
   const fallback = filtered.filter((post) => post.category !== category);
   return [...sameCategory, ...fallback].slice(0, 3);

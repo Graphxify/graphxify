@@ -8,11 +8,11 @@ import { buildMetadata, breadcrumbListJsonLd, canonicalUrl, serviceJsonLd } from
 import { getServiceWorkCards } from "../work-cards";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Web Design Services — Custom Website Design",
+  title: "Custom Web Design Services",
   description:
     "Custom website interface design built for clarity, hierarchy, and conversion. Mobile-first, accessible, and responsive across every screen size.",
   path: "/services/web-design",
-  ogTitle: "Web Design — Conversion-Focused Websites | Graphxify",
+  ogTitle: "Custom Web Design Services | Graphxify",
   ogDescription: "Custom, mobile-first websites designed with clear hierarchy and layouts built to guide visitors toward action — WCAG accessible, no templates.",
   ogImageAlt: "Custom web design services by Graphxify — conversion-focused, mobile-first, accessible"
 });
