@@ -25,7 +25,7 @@ for (const path of routes) {
   const r = await p.evaluate(() => {
     const hidden = (el) => !!el.closest('[aria-hidden="true"]');
     const srcOf = (img) => { const s = img.currentSrc || img.src || ""; try { const u = new URL(s); return decodeURIComponent(u.searchParams.get("url") ?? u.pathname); } catch { return s; } };
-    const out = { imgs: 0, described: 0, decorative: 0, emptyInformative: [], missing: [], filenameAlt: [], genericAlt: [], imageOf: [], dupAlt: [], svgNamed: 0, svgHidden: 0, svgUnnamed: [], cssBg: [], namelessControls: [], pictures: document.querySelectorAll("picture").length };
+    const out = { imgs: 0, described: 0, decorative: 0, emptyInformative: [], missing: [], filenameAlt: [], genericAlt: [], mismatchAlt: [], imageOf: [], dupAlt: [], svgNamed: 0, svgHidden: 0, svgUnnamed: [], cssBg: [], namelessControls: [], pictures: document.querySelectorAll("picture").length };
     const altBySrc = new Map();
     for (const img of document.querySelectorAll("img")) {
       out.imgs++;
@@ -38,6 +38,8 @@ for (const path of routes) {
         // Filenames: an extension, a long digit run, or hyphen/underscore-joined tokens. A single brand word ("Maven") is a valid logo alt.
         if (/\.(png|jpe?g|webp|gif|svg|avif)\b|\d{6,}|^[\w]+[-_][\w-]+$/i.test(alt)) out.filenameAlt.push(`${alt} (${src})`);
         if (/\bgallery image \d+|\bproject image$|project by graphxify$|\bimage \d+$/i.test(alt)) out.genericAlt.push(`${alt} (${src})`);
+        // Alt must describe the image actually shown: a live-site device mockup is a website, not a logo or sign.
+        if (/-(devices|phones)\.webp/.test(src) && !/\bwebsite\b/i.test(alt)) out.mismatchAlt.push(`${alt} (${src})`);
         if (/^(an? )?(image|picture|photo|graphic) of\b/i.test(alt)) out.imageOf.push(alt);
         if (altBySrc.has(alt) && altBySrc.get(alt) !== src) out.dupAlt.push(alt); else altBySrc.set(alt, src);
       }
@@ -71,6 +73,7 @@ for (const path of routes) {
   for (const s of r.namelessControls) errors.push(`${path}: link/button without accessible name: ${s}`);
   for (const s of r.filenameAlt) review.push(`${path}: alt looks like a filename: ${s}`);
   // Placeholder alts (incl. renderAlt's last-resort fallback) are failures: the image still needs a real description.
+  for (const s of r.mismatchAlt) errors.push(`${path}: alt describes a different image than the one shown: ${s}`);
   for (const s of r.genericAlt) errors.push(`${path}: placeholder alt, needs a real description: ${s}`);
   for (const s of r.imageOf) review.push(`${path}: redundant "image of" phrasing: ${s}`);
   for (const s of r.svgUnnamed) review.push(`${path}: visible unnamed SVG outside a named control: ${s}`);

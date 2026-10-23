@@ -42,7 +42,7 @@ export function ProjectCard({
       <div className={cn("relative overflow-hidden rounded-[1.5rem]", aspect)} style={{ backgroundColor: stage }}>
         <Image
           src={src}
-          alt={renderAlt(title, image)}
+          alt={renderAlt(title, src)}
           fill
           priority={priority}
           unoptimized={shouldBypassNextImageOptimization(src)}
