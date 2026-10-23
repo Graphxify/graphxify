@@ -55,7 +55,7 @@ const RENDER_ALTS: Record<string, string> = {
   "1772776373767-my5ckxeliz": "The FlyUp Line plane icon on an orange background",
   "1772776377625-44pibedfnyf": "FlyUp Line orange lanyards and a staff access card",
   "1772776381903-ac43q1cze3u": "The FlyUp Line app icon on a phone home screen",
-  "1775263198884-0g6m8l8b6hd": "The FlyUp Line services section beside a passport and boarding pass",
+  "1775263198884-0g6m8l8b6hd": "The FlyUp Line services section beside two passports, boarding passes and a model airplane",
   "1775263177100-3uonvasl3gk": "A glowing FlyUp Line 20% off offer card",
   "1772776622204-dpa2mm8kap9": "The FlyUp Line flight booking page on a laptop in a café",
   // Pharmacy On King
