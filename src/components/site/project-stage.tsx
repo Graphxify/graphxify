@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
-import { resolveProjectRenders } from "@/lib/project-art";
+import { renderAlt, resolveProjectRenders } from "@/lib/project-art";
 import { cn } from "@/lib/utils";
 
 export type StageProject = { slug: string; href: string; title: string; industry: string; images: string[]; tags?: readonly string[]; summary?: string };
@@ -18,7 +18,7 @@ export function ProjectStage({ project, flip = false, priority = false, fit = fa
   const img = (src: string, sizes: string, eager = false) => (
     <Image
       src={src}
-      alt=""
+      alt={renderAlt(project.title, src)}
       fill
       priority={eager}
       sizes={sizes}

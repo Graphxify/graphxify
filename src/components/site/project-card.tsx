@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { shouldBypassNextImageOptimization } from "@/lib/content-helpers";
-import { getProjectArt } from "@/lib/project-art";
+import { getProjectArt, renderAlt } from "@/lib/project-art";
 import { cn } from "@/lib/utils";
 
 /** Compact project card: the cover on the project's stage colour, caption below in a white card. */
@@ -42,7 +42,7 @@ export function ProjectCard({
       <div className={cn("relative overflow-hidden rounded-[1.5rem]", aspect)} style={{ backgroundColor: stage }}>
         <Image
           src={src}
-          alt={`${title}${industry ? `, ${industry}` : ""} project by Graphxify`}
+          alt={renderAlt(title, image)}
           fill
           priority={priority}
           unoptimized={shouldBypassNextImageOptimization(src)}

@@ -81,6 +81,24 @@ export async function getPublishedWorks(): Promise<Work[]> {
   throw fullResult.error;
 }
 
+/**
+ * CMS alt text for a work's images ({ imageUrl: alt }), keyed without query strings.
+ * Isolated from the main work queries on purpose: until the image_alts migration has run the
+ * column does not exist, and this must return {} rather than break the page.
+ */
+export async function getWorkImageAlts(slug: string): Promise<Record<string, string>> {
+  const supabase = createAdminClient() ?? createPublicClient();
+  const { data, error } = await supabase.from("works").select("image_alts").eq("slug", slug).maybeSingle();
+  if (error || !data) return {};
+  const raw = (data as { image_alts?: unknown }).image_alts;
+  if (!raw || typeof raw !== "object") return {};
+  return Object.fromEntries(
+    Object.entries(raw as Record<string, unknown>)
+      .filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0)
+      .map(([url, alt]) => [decodeURIComponent(url).split("?")[0], alt.trim()])
+  );
+}
+
 export async function getPublishedWorkBySlug(slug: string) {
   const supabase = createAdminClient() ?? createClient();
   const { data, error } = await supabase

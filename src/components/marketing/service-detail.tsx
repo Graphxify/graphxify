@@ -128,7 +128,7 @@ export function serviceFacts(service: ServiceInfo): { label: string; value: stri
  * live client-site captures, client logos and brand colours, this site's own code.
  * `slug` is the case study the visual links to.
  */
-const serviceScenes: Record<ServiceKey, { src: string; alt: string; pictured: string; slug: string }> = {
+export const serviceScenes: Record<ServiceKey, { src: string; alt: string; pictured: string; slug: string }> = {
   "brand-systems": {
     src: "/images/scenes/service-brand-systems.webp",
     alt: "Brand board of real Graphxify client logos and their brand colours",
@@ -365,7 +365,7 @@ export function ServiceDetail({
                 <Link href={serviceHref(item.key)} className={cn("group flex h-full flex-col rounded-[2rem] bg-white p-3", cardHover)}>
                   {art ? (
                     <div className="relative aspect-[16/10] overflow-hidden rounded-[1.5rem]" style={{ backgroundColor: getProjectArt(art.work.pathSlug).stage }}>
-                      <RenderImage src={art.src} work={art.work} sizes="(max-width: 767px) 100vw, 33vw" decorative />
+                      <RenderImage src={art.src} alt={art.alt} work={art.work} sizes="(max-width: 767px) 100vw, 33vw" />
                     </div>
                   ) : null}
                   <div className="flex flex-1 items-start justify-between gap-4 px-3 pb-3 pt-5">

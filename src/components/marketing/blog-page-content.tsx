@@ -35,7 +35,7 @@ export function PostCard({ post, headingLevel: Heading = "h3" }: { post: BlogPos
       <div className="relative aspect-[16/10] overflow-hidden rounded-[1.5rem] bg-bg">
         <Image
           src={post.coverImage}
-          alt=""
+          alt={`Cover illustration for “${post.title}”`}
           fill
           unoptimized={shouldBypassNextImageOptimization(post.coverImage)}
           sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 400px"

@@ -13,6 +13,7 @@ import { Reveal } from "@/components/site/reveal";
 import { Testimonials3D } from "@/components/site/testimonials-3d";
 import { SectionIntro } from "@/components/site/section-intro";
 import { DeferredLeadForm } from "@/components/marketing/deferred-home-islands";
+import { serviceScenes, type ServiceKey } from "@/components/marketing/service-detail";
 import { getProjectDisplayTitle, getProjectPathSlug } from "@/lib/project-card-content";
 import { faqs, services } from "@/lib/constants";
 
@@ -376,7 +377,7 @@ export function HomeSections({
               <Reveal key={service.key} delay={(index % 2) * 80} className={wide ? "md:col-span-7" : "md:col-span-5"}>
                 <Link href={`/services/${service.key}`} className="group flex h-full flex-col overflow-hidden rounded-[2rem] bg-white p-3 transition-shadow duration-300 hover:shadow-lift">
                   <div className="relative aspect-[16/10] overflow-hidden rounded-[1.5rem] bg-bg">
-                    <Image src={src} alt="" fill sizes="(max-width: 767px) 100vw, 50vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+                    <Image src={src} alt={serviceScenes[service.key as ServiceKey].alt} fill sizes="(max-width: 767px) 100vw, 50vw" className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
                   </div>
                   <div className="flex flex-1 flex-col px-4 pb-4 pt-6 md:px-5">
                     <h3 className="t-h3 text-fg">{service.title}</h3>

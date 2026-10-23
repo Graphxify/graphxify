@@ -20,8 +20,8 @@ import { CaseHero, CaseOverview, CaseStory } from "@/components/work/case-study"
 import { getImageRatio, packRows } from "@/components/work/gallery-layout";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ContentRefreshListener } from "@/components/realtime/content-refresh-listener";
-import { getPublishedWorks } from "@/db/queries/works";
-import { getProjectArt, resolveProjectRenders } from "@/lib/project-art";
+import { getPublishedWorks, getWorkImageAlts } from "@/db/queries/works";
+import { getProjectArt, renderAlt, resolveProjectRenders } from "@/lib/project-art";
 import {
   applyConfirmedCopy,
   getProjectDisplayTitle,
@@ -680,17 +680,20 @@ export default async function WorkDetailPage({ params }: { params: Promise<Param
     permanentRedirect(`/works/${canonicalPathSlug}`);
   }
 
-  const [related, order] = await Promise.all([getResolvedRelatedProjects(project.slug), getProjectOrder()]);
+  const [related, order, cmsAlts] = await Promise.all([getResolvedRelatedProjects(project.slug), getProjectOrder(), getWorkImageAlts(project.slug)]);
   const [nextProject, ...moreProjects] = orderAfter(related, order, project.slug);
   const casePath = `/works/${canonicalPathSlug}`;
   const cmsWork = project as unknown as CmsWorkLike;
-  const cover = { src: project.coverImage, alt: `${project.title} project cover image by Graphxify` };
+  // Every image is described by what it shows (CMS alt text first), not by its position in the gallery.
+  const altFor = (src: string) => renderAlt(project.title, src, cmsAlts);
+  const cover = { src: project.coverImage, alt: altFor(project.coverImage) };
   const liveMockups = getProjectArt(project.slug).mockups ?? [];
-  const mockupAlts = [`${project.title} live website on laptop and phone`, `${project.title} live website on three phones`];
   const galleryImages = [
-    ...liveMockups.map((src, index) => ({ src, alt: mockupAlts[index] })),
+    ...liveMockups.map((src) => ({ src, alt: altFor(src) })),
     cover,
-    ...getGalleryImages(project).filter((image) => image.src !== cover.src)
+    ...getGalleryImages(project)
+      .filter((image) => image.src !== cover.src)
+      .map((image) => ({ ...image, alt: altFor(image.src) }))
   ];
   const { art, hero } = resolveProjectRenders(project.slug, galleryImages.slice(liveMockups.length).map((image) => image.src));
   const ratios = await Promise.all(galleryImages.map((image) => getImageRatio(image.src)));

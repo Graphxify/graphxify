@@ -115,6 +115,37 @@ function parseServicesInput(raw: FormDataEntryValue | null): string[] {
     .filter(Boolean);
 }
 
+/**
+ * Alt text submitted by the work editor: { imageUrl: alt } for the work's current images only.
+ * Returns null when the form did not send the field, so other callers never touch image_alts.
+ */
+function parseImageAltsInput(raw: FormDataEntryValue | null, imageUrls: string[]): Record<string, string> | null {
+  if (typeof raw !== "string") return null;
+  let value: unknown;
+  try {
+    value = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (!value || typeof value !== "object") return null;
+  const allowed = new Set(imageUrls.map((url) => url.trim()).filter(Boolean));
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .filter(([url, alt]) => allowed.has(url) && typeof alt === "string" && alt.trim())
+      .map(([url, alt]) => [url, (alt as string).replace(/\s+/g, " ").trim().slice(0, 160)])
+  );
+}
+
+/**
+ * Saves image alt text in its own update so that, before the image_alts migration has run,
+ * the missing column only skips this step instead of dropping the rest of the work's fields.
+ */
+async function saveWorkImageAlts(supabase: ContentClient, workId: string, imageAlts: Record<string, string> | null): Promise<void> {
+  if (!imageAlts) return;
+  const { error } = await supabase.from("works").update({ image_alts: imageAlts }).eq("id", workId);
+  if (error && !isMissingColumnError(error)) throw error;
+}
+
 function parseGalleryImagesInput(rawValues: FormDataEntryValue[]): string[] {
   return Array.from(
     new Set(
@@ -655,6 +686,7 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
       metadata: { status: parsed.status, slug: parsed.slug }
     });
 
+    await saveWorkImageAlts(supabase, data.id, parseImageAltsInput(params.formData.get("imageAlts"), [parsed.coverImageUrl ?? "", ...galleryImages]));
     revalidatePaths(getWorkRevalidationPaths(parsed.slug));
     return { id: data.id };
   }
@@ -750,6 +782,7 @@ export async function createOrUpdateWork(params: { id?: string; formData: FormDa
     notifyPublish("work", parsed.title, parsed.slug);
   }
 
+  await saveWorkImageAlts(supabase, id, parseImageAltsInput(params.formData.get("imageAlts"), [parsed.coverImageUrl ?? "", ...galleryImages]));
   revalidatePaths(getWorkRevalidationPaths(parsed.slug));
   queueContentIndexNow({
     type: "work",

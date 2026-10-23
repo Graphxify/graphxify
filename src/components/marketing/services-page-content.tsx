@@ -75,7 +75,7 @@ export function ServicesPageContent({ works }: { works: readonly ServiceWorkCard
                 <a href={`#${service.key}`} className={cn("group flex h-full items-center gap-5 rounded-[2rem] bg-white p-3 pr-5 md:gap-6 md:pr-7", cardHover)}>
                   {render ? (
                     <span className="relative aspect-square w-24 shrink-0 overflow-hidden rounded-[1.5rem] md:w-32" style={{ backgroundColor: getProjectArt(render.work.pathSlug).stage }}>
-                      <RenderImage src={render.src} work={render.work} sizes="128px" decorative />
+                      <RenderImage src={render.src} alt={render.alt} work={render.work} sizes="128px" />
                     </span>
                   ) : null}
                   <span className="min-w-0 flex-1 py-2">

@@ -126,6 +126,12 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
         ? initialGalleryImages
         : [""]
   );
+  // Alt text per image URL (works.image_alts). Empty until the image_alts migration runs.
+  const [imageAlts, setImageAlts] = useState<Record<string, string>>(() => {
+    const raw = (item as { image_alts?: unknown } | null | undefined)?.image_alts;
+    return raw && typeof raw === "object" ? Object.fromEntries(Object.entries(raw as Record<string, unknown>).map(([k, v]) => [k, String(v ?? "")])) : {};
+  });
+  const setImageAlt = (url: string, alt: string) => setImageAlts((prev) => ({ ...prev, [url.trim()]: alt }));
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
   const [notice, setNotice] = useState("");
@@ -222,6 +228,9 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
     });
     if (isWork) {
       formData.set("content", deriveWorkContentFromForm(formData));
+      // Only keep alt text for images that are still on the work.
+      const liveUrls = new Set([normalizedCoverValue, ...galleryImages.map((value) => value.trim())].filter(Boolean));
+      formData.set("imageAlts", JSON.stringify(Object.fromEntries(Object.entries(imageAlts).filter(([url, alt]) => liveUrls.has(url) && alt.trim()))));
     }
 
     const endpoint = type === "post" ? "/api/dashboard/posts" : "/api/dashboard/works";
@@ -275,6 +284,15 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
               className={getFieldClasses("coverImageUrl")}
             />
             <FieldErrorText id={getErrorId("coverImageUrl")} message={getFieldError("coverImageUrl")} />
+            {isWork && cover.trim() ? (
+              <Input
+                value={imageAlts[cover.trim()] ?? ""}
+                onChange={(event) => setImageAlt(cover, event.target.value)}
+                maxLength={160}
+                aria-label="Cover image alt text"
+                placeholder="Alt text: what the image shows (e.g. The Maven logo on a storefront sign)"
+              />
+            ) : null}
           </div>
 
           <div className="space-y-2">
@@ -642,6 +660,15 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
                     onChange={(event) => updateGalleryImage(index, event.target.value)}
                     placeholder="Shown in the project detail visual gallery"
                   />
+                  {imageUrl.trim() ? (
+                    <Input
+                      value={imageAlts[imageUrl.trim()] ?? ""}
+                      onChange={(event) => setImageAlt(imageUrl, event.target.value)}
+                      maxLength={160}
+                      aria-label={`Gallery image ${index + 1} alt text`}
+                      placeholder="Alt text: what the image shows (e.g. The Maven logo on a storefront sign)"
+                    />
+                  ) : null}
                 </div>
               ))}
             </div>

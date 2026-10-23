@@ -13,6 +13,7 @@ const host = canonicalHost ?? new URL(locs[0]).origin;
 const errors = [];
 const warnings = [];
 const rows = [];
+const imgTotals = { described: 0, decorative: 0, needsAlt: 0, missing: 0 };
 
 if (new Set(locs).size !== locs.length) errors.push("sitemap: duplicate URLs");
 for (const loc of locs) if (!loc.startsWith(host)) errors.push(`sitemap: non-canonical host ${loc}`);
@@ -51,6 +52,16 @@ for (const loc of locs) {
     try { JSON.parse(block); } catch { at("invalid JSON-LD"); }
   }
 
+  // Images: missing alt = error; empty alt is valid only when explicitly decorative.
+  for (const tag of html.match(/<img\b[^>]*>/g) ?? []) {
+    const alt = tag.match(/\balt="([^"]*)"/);
+    const src = (tag.match(/\bsrc="([^"]*)"/)?.[1] ?? "").slice(-60);
+    if (!alt) { imgTotals.missing++; at(`img missing alt attribute: ${src}`); }
+    else if (alt[1].trim()) imgTotals.described++;
+    else if (/aria-hidden="true"|role="(presentation|none)"/.test(tag)) imgTotals.decorative++;
+    else { imgTotals.needsAlt++; warn(`informative image with empty alt: ${src}`); }
+  }
+
   const t = titles[0] ?? "";
   const d = descs[0] ?? "";
   if (t.length > 60) warn(`title ${t.length} chars`);
@@ -62,6 +73,7 @@ for (const loc of locs) {
 
 for (const r of rows) console.log(`${String(r.t).padStart(3)} ${String(r.d).padStart(3)}  ${r.path.padEnd(44)} ${r.title}`);
 console.log(`\n${locs.length} sitemap URLs | ${errors.length} errors | ${warnings.length} warnings`);
+console.log(`images: ${imgTotals.described} described | ${imgTotals.decorative} marked decorative | ${imgTotals.needsAlt} empty alt needing a description | ${imgTotals.missing} missing alt`);
 for (const e of errors) console.log("ERROR  ", e);
 for (const w of warnings) console.log("warn   ", w);
 process.exit(errors.length ? 1 : 0);
