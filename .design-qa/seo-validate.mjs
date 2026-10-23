@@ -57,6 +57,7 @@ for (const loc of locs) {
     const alt = tag.match(/\balt="([^"]*)"/);
     const src = (tag.match(/\bsrc="([^"]*)"/)?.[1] ?? "").slice(-60);
     if (!alt) { imgTotals.missing++; at(`img missing alt attribute: ${src}`); }
+    else if (/\bgallery image \d+|\bproject image$|project by graphxify$/i.test(alt[1])) { imgTotals.needsAlt++; at(`placeholder alt, needs a real description: "${alt[1]}" (${src})`); }
     else if (alt[1].trim()) imgTotals.described++;
     else if (/aria-hidden="true"|role="(presentation|none)"/.test(tag)) imgTotals.decorative++;
     else { imgTotals.needsAlt++; warn(`informative image with empty alt: ${src}`); }

@@ -70,7 +70,8 @@ for (const path of routes) {
   for (const s of r.emptyInformative) errors.push(`${path}: informative image with empty alt (${s})`);
   for (const s of r.namelessControls) errors.push(`${path}: link/button without accessible name: ${s}`);
   for (const s of r.filenameAlt) review.push(`${path}: alt looks like a filename: ${s}`);
-  for (const s of r.genericAlt) review.push(`${path}: generic alt that doesn't describe the image: ${s}`);
+  // Placeholder alts (incl. renderAlt's last-resort fallback) are failures: the image still needs a real description.
+  for (const s of r.genericAlt) errors.push(`${path}: placeholder alt, needs a real description: ${s}`);
   for (const s of r.imageOf) review.push(`${path}: redundant "image of" phrasing: ${s}`);
   for (const s of r.svgUnnamed) review.push(`${path}: visible unnamed SVG outside a named control: ${s}`);
   for (const s of new Set(r.dupAlt)) review.push(`${path}: same alt text on different images: "${s}"`);

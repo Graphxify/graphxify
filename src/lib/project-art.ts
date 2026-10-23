@@ -91,6 +91,13 @@ const RENDER_ALTS: Record<string, string> = {
   "1772777391736-j8bimyz4ctk": "A Luka Hair Salon business card with scissors and a beard oil bottle"
 };
 
+/**
+ * Suffix of the last-resort alt for an image nobody has described yet. It keeps screen-reader users
+ * from hearing nothing, but it is NOT a real description: .design-qa/image-audit.mjs and
+ * seo-validate.mjs fail on it, and the dashboard flags the empty alt field, so it gets fixed.
+ */
+export const UNDESCRIBED_ALT_SUFFIX = "project image";
+
 /** Lookup key for an image URL: decoded, without query string (?v= cache busters). */
 export function imageKey(src: string): string {
   return decodeURIComponent(src).split("?")[0];
@@ -106,7 +113,7 @@ export function renderAlt(title: string, src: string, cmsAlts?: Record<string, s
   if (src.includes("-devices.webp")) return `The ${title} website on a laptop and phone`;
   if (src.includes("-phones.webp")) return `The ${title} website on three phones`;
   const file = imageKey(src).split("/").pop()?.replace(/\.[a-z0-9]+$/i, "") ?? "";
-  return RENDER_ALTS[file] ?? `${title} project image`;
+  return RENDER_ALTS[file] ?? `${title} ${UNDESCRIBED_ALT_SUFFIX}`;
 }
 
 const FALLBACK: ProjectArt = { stage: "#171717", tone: "light", hero: 0, supports: [1, 2], style: "Brand and website project" };

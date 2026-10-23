@@ -132,6 +132,12 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
     return raw && typeof raw === "object" ? Object.fromEntries(Object.entries(raw as Record<string, unknown>).map(([k, v]) => [k, String(v ?? "")])) : {};
   });
   const setImageAlt = (url: string, alt: string) => setImageAlts((prev) => ({ ...prev, [url.trim()]: alt }));
+  // Alt inputs only appear once works.image_alts exists (the loaded record carries the key);
+  // before the migration, typed alt text could not be saved and would be silently lost.
+  const cmsSupportsImageAlts = isWork && !!item && Object.prototype.hasOwnProperty.call(item, "image_alts");
+  const missingAltHint = (
+    <p className="text-xs font-semibold text-accentB">Missing alt text. Describe what this image shows, for screen readers and search engines.</p>
+  );
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<FormFieldErrors>({});
   const [notice, setNotice] = useState("");
@@ -284,14 +290,17 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
               className={getFieldClasses("coverImageUrl")}
             />
             <FieldErrorText id={getErrorId("coverImageUrl")} message={getFieldError("coverImageUrl")} />
-            {isWork && cover.trim() ? (
-              <Input
-                value={imageAlts[cover.trim()] ?? ""}
-                onChange={(event) => setImageAlt(cover, event.target.value)}
-                maxLength={160}
-                aria-label="Cover image alt text"
-                placeholder="Alt text: what the image shows (e.g. The Maven logo on a storefront sign)"
-              />
+            {cmsSupportsImageAlts && cover.trim() ? (
+              <>
+                <Input
+                  value={imageAlts[cover.trim()] ?? ""}
+                  onChange={(event) => setImageAlt(cover, event.target.value)}
+                  maxLength={160}
+                  aria-label="Cover image alt text"
+                  placeholder="Alt text: what the image shows (e.g. The Maven logo on a storefront sign)"
+                />
+                {!(imageAlts[cover.trim()] ?? "").trim() ? missingAltHint : null}
+              </>
             ) : null}
           </div>
 
@@ -660,14 +669,17 @@ export function ContentForm({ type, item, canPublish = true }: ContentFormProps)
                     onChange={(event) => updateGalleryImage(index, event.target.value)}
                     placeholder="Shown in the project detail visual gallery"
                   />
-                  {imageUrl.trim() ? (
-                    <Input
-                      value={imageAlts[imageUrl.trim()] ?? ""}
-                      onChange={(event) => setImageAlt(imageUrl, event.target.value)}
-                      maxLength={160}
-                      aria-label={`Gallery image ${index + 1} alt text`}
-                      placeholder="Alt text: what the image shows (e.g. The Maven logo on a storefront sign)"
-                    />
+                  {cmsSupportsImageAlts && imageUrl.trim() ? (
+                    <>
+                      <Input
+                        value={imageAlts[imageUrl.trim()] ?? ""}
+                        onChange={(event) => setImageAlt(imageUrl, event.target.value)}
+                        maxLength={160}
+                        aria-label={`Gallery image ${index + 1} alt text`}
+                        placeholder="Alt text: what the image shows (e.g. The Maven logo on a storefront sign)"
+                      />
+                      {!(imageAlts[imageUrl.trim()] ?? "").trim() ? missingAltHint : null}
+                    </>
                   ) : null}
                 </div>
               ))}
